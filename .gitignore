@@ -1,0 +1,98 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+.env
+*.db
+*.sqlite
+*.sqlite3
+
+# Backend debug/diagnostic scripts (dev-only)
+backend/approve_roles.py
+backend/check_*.py
+backend/debug_*.py
+backend/diagnose_*.py
+backend/dump_routes.py
+backend/export_schema*.py
+backend/extract_otp.py
+backend/final_*.py
+backend/find_*.py
+backend/fix_*.sql
+backend/force_seed.py
+backend/init-issues.txt
+backend/list_*.py
+backend/print_*.py
+backend/raw_check.py
+backend/read_*.py
+backend/run_fix_schema.py
+backend/seed_*.py
+backend/seed_debug.py
+backend/test_*.py
+backend/verify_*.py
+backend/debug_start.py
+backend/count_braces.py
+backend/find_closings.py
+backend/find_functions.py
+backend/find_braces_cols.py
+
+# Backend text/log output files
+backend/*.log
+backend/*.txt
+backend/backend_err.log
+backend/backend_out.log
+backend/uvicorn.log
+
+# Backend uploads (runtime generated)
+backend/uploads/
+
+# Node / Frontend
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.npm
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Frontend build
+frontend/.env.local
+frontend/.env.*.local
+
+# Large binaries
+*.exe
+cloudflared.exe
+
+# Runtime logs at root
+*.log
+backend.log
+frontend.log
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Docker
+.dockerignore
+
+# Migrations (keep structure, exclude generated)
+# backend/migrations/versions/*.py  # uncomment if you want to exclude migration files

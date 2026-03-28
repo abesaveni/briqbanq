@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            color: #334155;
+            line-height: 1.5;
+        }
+        .header {
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #1e293b;
+            margin: 0;
+            font-size: 24px;
+        }
+        .header p {
+            color: #64748b;
+            margin: 5px 0 0 0;
+            font-size: 14px;
+        }
+        .section {
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #0f172a;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .grid {
+            display: block;
+        }
+        .row {
+            margin-bottom: 10px;
+            clear: both;
+        }
+        .label {
+            font-weight: bold;
+            color: #64748b;
+            width: 150px;
+            float: left;
+            font-size: 13px;
+        }
+        .value {
+            color: #1e293b;
+            margin-left: 160px;
+            font-size: 13px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .badge-status {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+        .badge-risk {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .footer {
+            margin-top: 50px;
+            font-size: 10px;
+            color: #94a3b8;
+            text-align: center;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 10px;
+        }
+        .property-address {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #1e293b;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Case Investment Report</h1>
+        <p>Generated on {{ generated_at }}</p>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Case Overview</div>
+        <div class="row">
+            <div class="label">Case ID:</div>
+            <div class="value">{{ case.id }}</div>
+        </div>
+        <div class="row">
+            <div class="label">Status:</div>
+            <div class="value">
+                <span class="badge badge-status">{{ case.status }}</span>
+            </div>
+        </div>
+        {% if case.risk_level %}
+        <div class="row">
+            <div class="label">Risk Level:</div>
+            <div class="value">
+                <span class="badge badge-risk">{{ case.risk_level }}</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <div class="section-title">Property Details</div>
+        <div class="property-address">{{ case.property_address }}</div>
+        <div class="row">
+            <div class="label">Property Type:</div>
+            <div class="value">{{ case.property_type }}</div>
+        </div>
+        <div class="row">
+            <div class="label">Estimated Value:</div>
+            <div class="value">A${{ "{:,.2f}".format(case.estimated_value) }}</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Stakeholders</div>
+        <div class="row">
+            <div class="label">Borrower:</div>
+            <div class="value">{{ case.borrower_name or "N/A" }}</div>
+        </div>
+        <div class="row">
+            <div class="label">Lender:</div>
+            <div class="value">{{ case.lender_name or "N/A" }}</div>
+        </div>
+        {% if case.lawyer_name %}
+        <div class="row">
+            <div class="label">Lawyer:</div>
+            <div class="value">{{ case.lawyer_name }}</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <div class="section-title">Financials</div>
+        <div class="row">
+            <div class="label">Outstanding Debt:</div>
+            <div class="value">A${{ "{:,.2f}".format(case.outstanding_debt) }}</div>
+        </div>
+        <div class="row">
+            <div class="label">Loan-to-Value (LTV):</div>
+            <div class="value">{{ "{:.2f}%".format((case.outstanding_debt / case.estimated_value) * 100) }}</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 Brickbanq Platform. All rights reserved. This document is confidential.
+    </div>
+</body>
+</html>

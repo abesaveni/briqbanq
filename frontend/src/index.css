@@ -1,0 +1,236 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --spacing: 0.25rem;
+  --font-size: 16px;
+  --primary: #1e40af;
+  --primary-hover: #1e3a8a;
+  --primary-foreground: #fff;
+  --primary-ring: #93c5fd;
+  --background: #fff;
+  --surface: #f9fafb;
+  --foreground: #111827;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --card: #fff;
+  --card-foreground: #111827;
+  --popover: #fff;
+  --popover-foreground: #111827;
+  --secondary: #f3f4f6;
+  --secondary-foreground: #111827;
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+  --accent: #eff6ff;
+  --accent-foreground: #1e40af;
+  --destructive: #ef4444;
+  --destructive-foreground: #fff;
+  --input: #e5e7eb;
+  --input-background: #fff;
+  --switch-background: #d1d5db;
+  --ring: #93c5fd;
+  --sidebar: #111827;
+  --sidebar-foreground: #f9fafb;
+  --sidebar-primary: #1e40af;
+  --sidebar-primary-foreground: #fff;
+  --sidebar-accent: #1f2937;
+  --sidebar-accent-foreground: #f9fafb;
+  --sidebar-border: #374151;
+  --sidebar-ring: #93c5fd;
+  --chart-1: #1e40af;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #3b82f6;
+  --chart-5: #ef4444;
+  --radius: .5rem;
+  --font-weight-semibold: 600;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --banner-height: 48px;
+  --banner-height-v2: 40px;
+  --full-height-with-banner: calc(100dvh - var(--banner-height));
+
+  /* Oklch Colors */
+  --color-white: #fff;
+  --color-slate-900: #0f172a;
+  --color-blue-900: #1e3a8a;
+  --color-emerald-900: #064e3b;
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  * {
+    outline-color: color-mix(in oklab, var(--ring, #93c5fd) 50%, transparent);
+  }
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: var(--font-size);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    overflow-x: clip;
+  }
+
+  body {
+    @apply text-base;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+    overflow-x: clip;
+    overscroll-behavior-x: none;
+  }
+
+  h1 {
+    @apply text-4xl font-bold tracking-tight text-gray-900;
+  }
+
+  h2 {
+    @apply text-2xl font-bold tracking-tight text-gray-900;
+  }
+
+  h3 {
+    @apply text-xl font-semibold tracking-tight text-gray-900;
+  }
+
+  /* Accessibility and clean rendering */
+  button,
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+  }
+}
+
+/* Theme Utility Overrides */
+.gap-3 {
+  gap: calc(var(--spacing) * 3);
+}
+
+.mb-4 {
+  margin-bottom: calc(var(--spacing) * 4);
+}
+
+.text-white {
+  color: var(--color-white);
+}
+
+/* Dashboard Hero Gradients - Premium Enterprise Theme */
+.hero-lender-gradient {
+  background-image: linear-gradient(135deg, var(--color-slate-900) 0%, var(--color-blue-900) 50%, var(--color-slate-900) 100%);
+}
+
+.hero-investor-gradient {
+  background-image: linear-gradient(135deg, var(--color-slate-900) 0%, var(--color-emerald-900) 50%, var(--color-slate-900) 100%);
+}
+
+:where(.space-y-6>:not(:last-child)) {
+  --tw-space-y-reverse: 0;
+  margin-block-start: calc(calc(var(--spacing) * 6) * var(--tw-space-y-reverse));
+  margin-block-end: calc(calc(var(--spacing) * 6) * calc(1 - var(--tw-space-y-reverse)));
+}
+
+/* Custom Scrollbar for a premium feel */
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-200 rounded-full hover:bg-gray-300 transition-colors;
+  }
+}
+
+/* Print Styles */
+@media print {
+
+  aside,
+  header,
+  nav,
+  .lg\:hidden,
+  .no-print {
+    display: none !important;
+  }
+
+  main,
+  .page-content,
+  .animate-fade-in-up {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background: white !important;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .shadow-xl,
+  .rounded-2xl {
+    page-break-inside: avoid;
+  }
+
+  .relative img {
+    display: block !important;
+  }
+
+  .print-controls {
+    display: none !important;
+  }
+}
+
+@keyframes loading-bar {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  50% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-loading-bar {
+  animation: loading-bar 1.5s infinite linear;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}

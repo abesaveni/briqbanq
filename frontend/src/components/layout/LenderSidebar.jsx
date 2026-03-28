@@ -1,0 +1,85 @@
+import { NavLink, useNavigate } from "react-router-dom";
+import {
+    LayoutDashboard,
+    Gavel,
+    FileText,
+    Bell,
+    Settings,
+    LogOut,
+    Briefcase,
+} from "lucide-react";
+import AppLogo from "../common/AppLogo";
+import { useAuth } from "../../context/AuthContext";
+
+const navLinks = [
+    { to: "/lender/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+    { to: "/lender/deals", icon: Briefcase, label: "All Deals" },
+    { to: "/lender/auctions", icon: Gavel, label: "Active Auctions" },
+    { to: "/lender/contracts", icon: FileText, label: "My Contracts" },
+    { to: "/lender/notifications", icon: Bell, label: "Notifications" },
+    { to: "/lender/settings", icon: Settings, label: "Settings" },
+];
+
+export default function LenderSidebar({ isOpen, setIsOpen }) {
+    const navigate = useNavigate();
+    const { logout } = useAuth();
+
+    const handleLogout = () => {
+        logout();
+        navigate("/");
+    };
+
+    return (
+        <>
+            {isOpen && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-40 z-40 lg:hidden"
+                    onClick={() => setIsOpen(false)}
+                />
+            )}
+
+            <aside
+                className={`fixed lg:static top-0 left-0 h-full bg-gray-900 text-white w-64 transform 
+                ${isOpen ? "translate-x-0" : "-translate-x-full"} 
+                lg:translate-x-0 transition-transform duration-300 z-50 flex flex-col border-r border-gray-800`}
+            >
+                <div className="px-4 py-4 border-b border-gray-800 flex-shrink-0">
+                    <AppLogo />
+                </div>
+
+                <nav className="flex-1 py-3 overflow-y-auto">
+                    {navLinks.map((link) => {
+                        const Icon = link.icon;
+                        return (
+                            <NavLink
+                                key={link.to}
+                                to={link.to}
+                                className={({ isActive }) =>
+                                    `flex items-center gap-2 px-3 py-2 mx-2 my-0.5 rounded text-sm font-medium transition-colors ${
+                                        isActive
+                                            ? "bg-indigo-600 text-white"
+                                            : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                                    }`
+                                }
+                                onClick={() => setIsOpen(false)}
+                            >
+                                <Icon className="w-4 h-4 flex-shrink-0" />
+                                <span className="leading-tight text-xs">{link.label}</span>
+                            </NavLink>
+                        );
+                    })}
+                </nav>
+
+                <div className="p-3 border-t border-gray-800">
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 w-full px-3 py-2 rounded text-sm font-medium text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                    >
+                        <LogOut className="w-4 h-4 flex-shrink-0" />
+                        <span className="leading-tight text-xs">Sign Out</span>
+                    </button>
+                </div>
+            </aside>
+        </>
+    );
+}

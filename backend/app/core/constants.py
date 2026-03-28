@@ -1,0 +1,38 @@
+"""
+Application-wide constants.
+No hardcoded values in business logic — all constants defined here.
+"""
+
+# Password Requirements
+PASSWORD_MIN_LENGTH = 8
+PASSWORD_REQUIRE_UPPERCASE = True
+PASSWORD_REQUIRE_LOWERCASE = True
+PASSWORD_REQUIRE_DIGIT = True
+PASSWORD_REQUIRE_SPECIAL = True
+
+# Approval SLA
+DEFAULT_APPROVAL_SLA_HOURS = 6
+
+# Pagination
+DEFAULT_PAGE_SIZE = 20
+MAX_PAGE_SIZE = 100
+
+# Token
+TOKEN_TYPE_ACCESS = "access"
+TOKEN_TYPE_REFRESH = "refresh"
+
+# Audit
+AUDIT_ACTION_CREATE = "CREATE"
+AUDIT_ACTION_UPDATE = "UPDATE"
+AUDIT_ACTION_DELETE = "DELETE"
+AUDIT_ACTION_APPROVE = "APPROVE"
+AUDIT_ACTION_REJECT = "REJECT"
+AUDIT_ACTION_SUBMIT = "SUBMIT"
+AUDIT_ACTION_LOGIN = "LOGIN"
+AUDIT_ACTION_LOGOUT = "LOGOUT"
+
+# Platform Settings Keys
+SETTING_ESCROW_MODE = "escrow_mode"
+SETTING_AUTO_CONVERT_NO_BID = "auto_convert_no_bid"
+SETTING_KYC_REQUIRED_ROLES = "kyc_required_roles"
+SETTING_APPROVAL_SLA_HOURS = "approval_sla_hours"
