@@ -309,6 +309,7 @@ export default function InvestorCaseDetails() {
 
     const [settlementMessage, setSettlementMessage] = useState("");
     const [caseSettlementData, setCaseSettlementData] = useState(null);
+    const [bidHistory, setBidHistory] = useState([]);
 
 
 
