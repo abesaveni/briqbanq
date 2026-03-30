@@ -40,6 +40,18 @@ async def create_escrow(
         after_state={"status": "PENDING", "amount": str(request.amount)},
         trace_id=trace_id,
     )
+    try:
+        from app.infrastructure.email_service import EmailService
+        from app.modules.identity.repository import UserRepository
+        payer = await UserRepository(db).get_by_id(request.payer_id)
+        if payer:
+            await EmailService.send_escrow_created_email(
+                to_email=payer.email,
+                name=payer.full_name or payer.email,
+                amount=f"${float(request.amount):,.2f}",
+            )
+    except Exception:
+        pass
     return escrow
 
 @router.post("/{escrow_id}/hold", response_model=EscrowResponse)
@@ -76,6 +88,18 @@ async def release_escrow(
         action="RELEASE_ESCROW", before_state={"status": "HELD"},
         after_state={"status": "RELEASED"}, trace_id=trace_id,
     )
+    try:
+        from app.infrastructure.email_service import EmailService
+        from app.modules.identity.repository import UserRepository
+        payee = await UserRepository(db).get_by_id(escrow.payee_id)
+        if payee:
+            await EmailService.send_escrow_released_email(
+                to_email=payee.email,
+                name=payee.full_name or payee.email,
+                amount=f"${float(escrow.amount):,.2f}",
+            )
+    except Exception:
+        pass
     return escrow
 
 @router.post("/{escrow_id}/refund", response_model=EscrowResponse)

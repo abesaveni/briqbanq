@@ -65,6 +65,26 @@ async def send_for_signatures(
         action="SEND_FOR_SIGNATURES", before_state={"status": "DRAFT"},
         after_state={"status": "PENDING_SIGNATURES"}, trace_id=trace_id,
     )
+    try:
+        from app.infrastructure.email_service import EmailService
+        from app.modules.identity.repository import UserRepository
+        from app.modules.contracts.models import ContractSignature
+        from sqlalchemy import select as sa_select
+        sigs_result = await db.execute(
+            sa_select(ContractSignature).where(ContractSignature.contract_id == contract_id)
+        )
+        sigs = sigs_result.scalars().all()
+        repo = UserRepository(db)
+        for sig in sigs:
+            user = await repo.get_by_id(sig.signer_id)
+            if user:
+                await EmailService.send_contract_sent_email(
+                    to_email=user.email,
+                    name=user.full_name or user.email,
+                    contract_title=contract.title,
+                )
+    except Exception:
+        pass
     return contract
 
 
@@ -107,6 +127,29 @@ async def execute_contract(
         action="EXECUTE_CONTRACT", before_state={"status": "FULLY_SIGNED"},
         after_state={"status": "EXECUTED"}, trace_id=trace_id,
     )
+    try:
+        from app.infrastructure.email_service import EmailService
+        from app.modules.identity.repository import UserRepository
+        from app.modules.contracts.models import ContractSignature
+        from sqlalchemy import select as sa_select
+        sigs_result = await db.execute(
+            sa_select(ContractSignature).where(ContractSignature.contract_id == contract_id)
+        )
+        sigs = sigs_result.scalars().all()
+        repo = UserRepository(db)
+        notified = set()
+        for sig in sigs:
+            if sig.signer_id not in notified:
+                notified.add(sig.signer_id)
+                user = await repo.get_by_id(sig.signer_id)
+                if user:
+                    await EmailService.send_contract_executed_email(
+                        to_email=user.email,
+                        name=user.full_name or user.email,
+                        contract_title=contract.title,
+                    )
+    except Exception:
+        pass
     return contract
 
 

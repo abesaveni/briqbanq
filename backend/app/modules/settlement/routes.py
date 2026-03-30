@@ -46,6 +46,23 @@ async def create_settlement(
         after_state={"status": "PENDING", "amount": str(request.total_amount)},
         trace_id=trace_id,
     )
+    try:
+        from app.infrastructure.email_service import EmailService
+        from app.modules.identity.repository import UserRepository
+        repo = UserRepository(db)
+        amount_str = f"${float(request.total_amount):,.2f}"
+        deal_ref = str(request.deal_id)[:8].upper()
+        for uid in {request.buyer_id, request.seller_id}:
+            user = await repo.get_by_id(uid)
+            if user:
+                await EmailService.send_settlement_created_email(
+                    to_email=user.email,
+                    name=user.full_name or user.email,
+                    amount=amount_str,
+                    deal_ref=deal_ref,
+                )
+    except Exception:
+        pass
     return settlement
 
 
@@ -65,6 +82,24 @@ async def process_settlement(
         action="PROCESS_SETTLEMENT", before_state={"status": "PENDING"},
         after_state={"status": settlement.status.value}, trace_id=trace_id,
     )
+    if settlement.status.value == "COMPLETED":
+        try:
+            from app.infrastructure.email_service import EmailService
+            from app.modules.identity.repository import UserRepository
+            repo = UserRepository(db)
+            amount_str = f"${float(settlement.net_amount):,.2f}"
+            deal_ref = str(settlement.deal_id)[:8].upper()
+            for uid in {settlement.buyer_id, settlement.seller_id}:
+                user = await repo.get_by_id(uid)
+                if user:
+                    await EmailService.send_settlement_completed_email(
+                        to_email=user.email,
+                        name=user.full_name or user.email,
+                        amount=amount_str,
+                        deal_ref=deal_ref,
+                    )
+        except Exception:
+            pass
     return settlement
 
 

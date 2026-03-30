@@ -103,6 +103,18 @@ async def approve_role(
         after_state={"status": "APPROVED"},
         trace_id=trace_id,
     )
+    try:
+        from app.infrastructure.email_service import EmailService
+        from app.modules.identity.repository import UserRepository
+        user = await UserRepository(db).get_by_id(user_role.user_id)
+        if user:
+            await EmailService.send_role_approved_email(
+                to_email=user.email,
+                name=user.full_name or user.email,
+                role_type=user_role.role_type.value,
+            )
+    except Exception:
+        pass
 
     return user_role
 
@@ -137,6 +149,19 @@ async def reject_role(
         after_state={"status": "REJECTED", "reason": request.rejection_reason},
         trace_id=trace_id,
     )
+    try:
+        from app.infrastructure.email_service import EmailService
+        from app.modules.identity.repository import UserRepository
+        user = await UserRepository(db).get_by_id(user_role.user_id)
+        if user:
+            await EmailService.send_role_rejected_email(
+                to_email=user.email,
+                name=user.full_name or user.email,
+                role_type=user_role.role_type.value,
+                reason=request.rejection_reason or "",
+            )
+    except Exception:
+        pass
 
     return user_role
 

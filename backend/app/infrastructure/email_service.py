@@ -562,6 +562,232 @@ class EmailService:
         await EmailService.send_email(to_email, subject, html)
 
     @staticmethod
+    async def send_settlement_created_email(to_email: str, name: str, amount: str, deal_ref: str):
+        """Notify a party that a settlement has been initiated."""
+        subject = f"Settlement Initiated — {deal_ref} | BrickBanq"
+        html = f"""
+        <html><body style="font-family:Arial,sans-serif;line-height:1.6;color:#333;">
+        <div style="max-width:600px;margin:0 auto;padding:20px;border:1px solid #ddd;border-radius:10px;">
+            <div style="background:#1a1a2e;padding:20px;border-radius:8px 8px 0 0;text-align:center;">
+                <h1 style="color:#fff;margin:0;font-size:22px;">BrickBanq</h1>
+                <p style="color:#a0a0b0;margin:4px 0 0;">Mortgage Resolution Platform</p>
+            </div>
+            <div style="padding:30px 20px;">
+                <h2 style="color:#4f46e5;">Settlement Initiated</h2>
+                <p>Hi {name},</p>
+                <p>A settlement has been initiated for your deal. Our team will process the funds shortly.</p>
+                <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+                    <tr><td style="padding:8px;background:#f9f9f9;font-weight:bold;width:40%;">Deal Reference</td><td style="padding:8px;background:#f9f9f9;">{deal_ref}</td></tr>
+                    <tr><td style="padding:8px;font-weight:bold;">Settlement Amount</td><td style="padding:8px;color:#16a34a;font-weight:bold;">{amount}</td></tr>
+                    <tr><td style="padding:8px;background:#f9f9f9;font-weight:bold;">Status</td><td style="padding:8px;background:#f9f9f9;color:#f59e0b;font-weight:bold;">PENDING</td></tr>
+                </table>
+            </div>
+            <div style="background:#f0f0f0;padding:15px;text-align:center;border-radius:0 0 8px 8px;">
+                <p style="font-size:12px;color:#777;margin:0;">&copy; 2026 BrickBanq. All rights reserved.</p>
+            </div>
+        </div></body></html>
+        """
+        await EmailService.send_email(to_email, subject, html)
+
+    @staticmethod
+    async def send_settlement_completed_email(to_email: str, name: str, amount: str, deal_ref: str):
+        """Notify a party that settlement has been completed."""
+        subject = f"Settlement Completed — {deal_ref} | BrickBanq"
+        html = f"""
+        <html><body style="font-family:Arial,sans-serif;line-height:1.6;color:#333;">
+        <div style="max-width:600px;margin:0 auto;padding:20px;border:1px solid #ddd;border-radius:10px;">
+            <div style="background:#1a1a2e;padding:20px;border-radius:8px 8px 0 0;text-align:center;">
+                <h1 style="color:#fff;margin:0;font-size:22px;">BrickBanq</h1>
+                <p style="color:#a0a0b0;margin:4px 0 0;">Mortgage Resolution Platform</p>
+            </div>
+            <div style="padding:30px 20px;">
+                <h2 style="color:#22c55e;">Settlement Completed ✔</h2>
+                <p>Hi {name},</p>
+                <p>The settlement for your deal has been <strong>completed</strong>. Funds have been disbursed successfully.</p>
+                <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+                    <tr><td style="padding:8px;background:#f9f9f9;font-weight:bold;width:40%;">Deal Reference</td><td style="padding:8px;background:#f9f9f9;">{deal_ref}</td></tr>
+                    <tr><td style="padding:8px;font-weight:bold;">Amount Settled</td><td style="padding:8px;color:#16a34a;font-weight:bold;">{amount}</td></tr>
+                    <tr><td style="padding:8px;background:#f9f9f9;font-weight:bold;">Status</td><td style="padding:8px;background:#f9f9f9;color:#16a34a;font-weight:bold;">COMPLETED</td></tr>
+                </table>
+            </div>
+            <div style="background:#f0f0f0;padding:15px;text-align:center;border-radius:0 0 8px 8px;">
+                <p style="font-size:12px;color:#777;margin:0;">&copy; 2026 BrickBanq. All rights reserved.</p>
+            </div>
+        </div></body></html>
+        """
+        await EmailService.send_email(to_email, subject, html)
+
+    @staticmethod
+    async def send_contract_sent_email(to_email: str, name: str, contract_title: str):
+        """Notify signer that a contract has been sent for their signature."""
+        subject = f"Contract Ready for Signature — {contract_title} | BrickBanq"
+        html = f"""
+        <html><body style="font-family:Arial,sans-serif;line-height:1.6;color:#333;">
+        <div style="max-width:600px;margin:0 auto;padding:20px;border:1px solid #ddd;border-radius:10px;">
+            <div style="background:#1a1a2e;padding:20px;border-radius:8px 8px 0 0;text-align:center;">
+                <h1 style="color:#fff;margin:0;font-size:22px;">BrickBanq</h1>
+                <p style="color:#a0a0b0;margin:4px 0 0;">Mortgage Resolution Platform</p>
+            </div>
+            <div style="padding:30px 20px;">
+                <h2 style="color:#4f46e5;">Action Required — Sign Contract</h2>
+                <p>Hi {name},</p>
+                <p>A contract has been sent to you for signature. Please log in to review and sign.</p>
+                <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+                    <tr><td style="padding:8px;background:#f9f9f9;font-weight:bold;width:40%;">Contract</td><td style="padding:8px;background:#f9f9f9;">{contract_title}</td></tr>
+                    <tr><td style="padding:8px;font-weight:bold;">Status</td><td style="padding:8px;color:#f59e0b;font-weight:bold;">AWAITING YOUR SIGNATURE</td></tr>
+                </table>
+                <div style="text-align:center;margin:30px 0;">
+                    <a href="http://brickbanq.au" style="background:#4f46e5;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:bold;">Sign Contract</a>
+                </div>
+            </div>
+            <div style="background:#f0f0f0;padding:15px;text-align:center;border-radius:0 0 8px 8px;">
+                <p style="font-size:12px;color:#777;margin:0;">&copy; 2026 BrickBanq. All rights reserved.</p>
+            </div>
+        </div></body></html>
+        """
+        await EmailService.send_email(to_email, subject, html)
+
+    @staticmethod
+    async def send_contract_executed_email(to_email: str, name: str, contract_title: str):
+        """Notify parties that a contract has been fully executed."""
+        subject = f"Contract Executed — {contract_title} | BrickBanq"
+        html = f"""
+        <html><body style="font-family:Arial,sans-serif;line-height:1.6;color:#333;">
+        <div style="max-width:600px;margin:0 auto;padding:20px;border:1px solid #ddd;border-radius:10px;">
+            <div style="background:#1a1a2e;padding:20px;border-radius:8px 8px 0 0;text-align:center;">
+                <h1 style="color:#fff;margin:0;font-size:22px;">BrickBanq</h1>
+                <p style="color:#a0a0b0;margin:4px 0 0;">Mortgage Resolution Platform</p>
+            </div>
+            <div style="padding:30px 20px;">
+                <h2 style="color:#22c55e;">Contract Fully Executed ✔</h2>
+                <p>Hi {name},</p>
+                <p>Your contract has been fully signed by all parties and is now <strong>executed</strong>.</p>
+                <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+                    <tr><td style="padding:8px;background:#f9f9f9;font-weight:bold;width:40%;">Contract</td><td style="padding:8px;background:#f9f9f9;">{contract_title}</td></tr>
+                    <tr><td style="padding:8px;font-weight:bold;">Status</td><td style="padding:8px;color:#16a34a;font-weight:bold;">EXECUTED</td></tr>
+                </table>
+            </div>
+            <div style="background:#f0f0f0;padding:15px;text-align:center;border-radius:0 0 8px 8px;">
+                <p style="font-size:12px;color:#777;margin:0;">&copy; 2026 BrickBanq. All rights reserved.</p>
+            </div>
+        </div></body></html>
+        """
+        await EmailService.send_email(to_email, subject, html)
+
+    @staticmethod
+    async def send_escrow_created_email(to_email: str, name: str, amount: str):
+        """Notify payer that escrow has been set up for their deal."""
+        subject = "Escrow Account Created — BrickBanq"
+        html = f"""
+        <html><body style="font-family:Arial,sans-serif;line-height:1.6;color:#333;">
+        <div style="max-width:600px;margin:0 auto;padding:20px;border:1px solid #ddd;border-radius:10px;">
+            <div style="background:#1a1a2e;padding:20px;border-radius:8px 8px 0 0;text-align:center;">
+                <h1 style="color:#fff;margin:0;font-size:22px;">BrickBanq</h1>
+                <p style="color:#a0a0b0;margin:4px 0 0;">Mortgage Resolution Platform</p>
+            </div>
+            <div style="padding:30px 20px;">
+                <h2 style="color:#4f46e5;">Escrow Account Initiated</h2>
+                <p>Hi {name},</p>
+                <p>An escrow account has been set up for your deal. Funds will be held securely until settlement is complete.</p>
+                <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+                    <tr><td style="padding:8px;background:#f9f9f9;font-weight:bold;width:40%;">Escrow Amount</td><td style="padding:8px;background:#f9f9f9;color:#16a34a;font-weight:bold;">{amount}</td></tr>
+                    <tr><td style="padding:8px;font-weight:bold;">Status</td><td style="padding:8px;color:#f59e0b;font-weight:bold;">PENDING</td></tr>
+                </table>
+            </div>
+            <div style="background:#f0f0f0;padding:15px;text-align:center;border-radius:0 0 8px 8px;">
+                <p style="font-size:12px;color:#777;margin:0;">&copy; 2026 BrickBanq. All rights reserved.</p>
+            </div>
+        </div></body></html>
+        """
+        await EmailService.send_email(to_email, subject, html)
+
+    @staticmethod
+    async def send_escrow_released_email(to_email: str, name: str, amount: str):
+        """Notify payee that escrow funds have been released."""
+        subject = "Escrow Funds Released — BrickBanq"
+        html = f"""
+        <html><body style="font-family:Arial,sans-serif;line-height:1.6;color:#333;">
+        <div style="max-width:600px;margin:0 auto;padding:20px;border:1px solid #ddd;border-radius:10px;">
+            <div style="background:#1a1a2e;padding:20px;border-radius:8px 8px 0 0;text-align:center;">
+                <h1 style="color:#fff;margin:0;font-size:22px;">BrickBanq</h1>
+                <p style="color:#a0a0b0;margin:4px 0 0;">Mortgage Resolution Platform</p>
+            </div>
+            <div style="padding:30px 20px;">
+                <h2 style="color:#22c55e;">Escrow Funds Released ✔</h2>
+                <p>Hi {name},</p>
+                <p>The escrow funds for your deal have been <strong>released</strong>. Please check your wallet for the credited amount.</p>
+                <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+                    <tr><td style="padding:8px;background:#f9f9f9;font-weight:bold;width:40%;">Amount Released</td><td style="padding:8px;background:#f9f9f9;color:#16a34a;font-weight:bold;">{amount}</td></tr>
+                    <tr><td style="padding:8px;font-weight:bold;">Status</td><td style="padding:8px;color:#16a34a;font-weight:bold;">RELEASED</td></tr>
+                </table>
+            </div>
+            <div style="background:#f0f0f0;padding:15px;text-align:center;border-radius:0 0 8px 8px;">
+                <p style="font-size:12px;color:#777;margin:0;">&copy; 2026 BrickBanq. All rights reserved.</p>
+            </div>
+        </div></body></html>
+        """
+        await EmailService.send_email(to_email, subject, html)
+
+    @staticmethod
+    async def send_role_approved_email(to_email: str, name: str, role_type: str):
+        """Notify user that their role request has been approved."""
+        role_label = role_type.capitalize()
+        subject = f"Role Approved — {role_label} | BrickBanq"
+        html = f"""
+        <html><body style="font-family:Arial,sans-serif;line-height:1.6;color:#333;">
+        <div style="max-width:600px;margin:0 auto;padding:20px;border:1px solid #ddd;border-radius:10px;">
+            <div style="background:#1a1a2e;padding:20px;border-radius:8px 8px 0 0;text-align:center;">
+                <h1 style="color:#fff;margin:0;font-size:22px;">BrickBanq</h1>
+                <p style="color:#a0a0b0;margin:4px 0 0;">Mortgage Resolution Platform</p>
+            </div>
+            <div style="padding:30px 20px;">
+                <h2 style="color:#22c55e;">Role Approved ✔</h2>
+                <p>Hi {name},</p>
+                <p>Your request for the <strong>{role_label}</strong> role has been approved. You can now access all features available to {role_label}s on the platform.</p>
+                <div style="text-align:center;margin:30px 0;">
+                    <a href="http://brickbanq.au" style="background:#16a34a;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:bold;">Go to Dashboard</a>
+                </div>
+            </div>
+            <div style="background:#f0f0f0;padding:15px;text-align:center;border-radius:0 0 8px 8px;">
+                <p style="font-size:12px;color:#777;margin:0;">&copy; 2026 BrickBanq. All rights reserved.</p>
+            </div>
+        </div></body></html>
+        """
+        await EmailService.send_email(to_email, subject, html)
+
+    @staticmethod
+    async def send_role_rejected_email(to_email: str, name: str, role_type: str, reason: str = ""):
+        """Notify user that their role request has been rejected."""
+        role_label = role_type.capitalize()
+        reason_section = f"""
+            <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px;margin:20px 0;">
+                <p style="margin:0;color:#991b1b;font-weight:bold;">Reason:</p>
+                <p style="margin:8px 0 0;color:#7f1d1d;">{reason}</p>
+            </div>
+        """ if reason else ""
+        subject = f"Role Request Update — {role_label} | BrickBanq"
+        html = f"""
+        <html><body style="font-family:Arial,sans-serif;line-height:1.6;color:#333;">
+        <div style="max-width:600px;margin:0 auto;padding:20px;border:1px solid #ddd;border-radius:10px;">
+            <div style="background:#1a1a2e;padding:20px;border-radius:8px 8px 0 0;text-align:center;">
+                <h1 style="color:#fff;margin:0;font-size:22px;">BrickBanq</h1>
+                <p style="color:#a0a0b0;margin:4px 0 0;">Mortgage Resolution Platform</p>
+            </div>
+            <div style="padding:30px 20px;">
+                <h2 style="color:#dc2626;">Role Request Not Approved</h2>
+                <p>Hi {name},</p>
+                <p>Your request for the <strong>{role_label}</strong> role was not approved at this time.</p>
+                {reason_section}
+                <p>Please contact support if you believe this is an error.</p>
+            </div>
+            <div style="background:#f0f0f0;padding:15px;text-align:center;border-radius:0 0 8px 8px;">
+                <p style="font-size:12px;color:#777;margin:0;">&copy; 2026 BrickBanq. All rights reserved.</p>
+            </div>
+        </div></body></html>
+        """
+        await EmailService.send_email(to_email, subject, html)
+
+    @staticmethod
     def _send_smtp_sync(to_email: str, subject: str, html_content: str):
         """Synchronous SMTP helper for to_thread."""
         msg = MIMEMultipart("alternative")

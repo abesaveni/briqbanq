@@ -297,21 +297,6 @@ async def approve_case(
         trace_id=trace_id,
     )
 
-    # Send approval email to borrower
-    try:
-        from app.infrastructure.email_service import EmailService
-        from app.modules.identity.repository import UserRepository
-        borrower = await UserRepository(db).get_by_id(case.borrower_id)
-        if borrower:
-            await EmailService.send_case_approved_email(
-                to_email=borrower.email,
-                borrower_name=borrower.full_name,
-                case_number=case.case_number or str(case.id)[:8].upper(),
-                property_address=case.property_address,
-            )
-    except Exception:
-        pass
-
     return case
 
 
