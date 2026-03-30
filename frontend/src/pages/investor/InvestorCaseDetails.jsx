@@ -1053,7 +1053,7 @@ export default function InvestorCaseDetails() {
                     <ChevronRight size={12} className="text-gray-400" />
                     <span className="text-gray-400">Cases</span>
                     <ChevronRight size={12} className="text-gray-400" />
-                    <span id="breadcrumb-case-id" className="text-gray-900 font-semibold">{caseData.id}</span>
+                    <span id="breadcrumb-case-id" className="text-gray-900 font-semibold">{caseData.case_number || `#${caseData.id.slice(0,8).toUpperCase()}`}</span>
                 </div>
                 <h1 className="text-2xl font-bold text-gray-900 mt-2">Case Details</h1>
                 <p className="text-sm text-gray-500">Browse available deals and manage your bids</p>
@@ -1064,7 +1064,7 @@ export default function InvestorCaseDetails() {
                 <div className="p-5 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-3">
-                            <h2 className="text-2xl font-bold text-gray-900">{caseData.id}</h2>
+                            <h2 className="text-2xl font-bold text-gray-900">{caseData.case_number || `#${caseData.id.slice(0,8).toUpperCase()}`}</h2>
                             <div className="flex gap-2">
                                 <span className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-md text-[10px] font-semibold uppercase tracking-wide">
                                     {caseData.status}
@@ -1544,7 +1544,7 @@ export default function InvestorCaseDetails() {
                                     </div>
                                     <div>
                                         <h3 className="text-xl font-bold tracking-tight">Legal Readiness Assessment</h3>
-                                        <p className="text-blue-100 font-semibold text-[13px] opacity-70 italic">Case Integrity & Risk Protocol: {caseData.id}</p>
+                                        <p className="text-blue-100 font-semibold text-[13px] opacity-70 italic">Case Integrity & Risk Protocol: {caseData.case_number || `#${caseData.id.slice(0,8).toUpperCase()}`}</p>
                                     </div>
                                 </div>
 
@@ -3508,7 +3508,7 @@ export default function InvestorCaseDetails() {
                             {/* Modal Header */}
                             <div className="p-6 pb-4 flex justify-between items-start">
                                 <div>
-                                    <h2 className="text-[20px] font-bold text-gray-900">Manage Case: {caseData.id}</h2>
+                                    <h2 className="text-[20px] font-bold text-gray-900">Manage Case: {caseData.case_number || `#${caseData.id.slice(0,8).toUpperCase()}`}</h2>
                                     <p className="text-[13px] text-gray-500 font-medium mt-1">Update details, upload images, and generate AI content</p>
                                 </div>
                                 <button id="modal-close" onClick={() => setIsManageModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-900">
