@@ -61,30 +61,32 @@ export default function InvestorAuctionCard({ auction }) {
 
         {/* END TIMER */}
         {isLive && (
-          <div className="absolute top-16 left-4 right-4 bg-red-600/95 backdrop-blur-sm text-white rounded-2xl px-6 py-3 flex justify-between items-center shadow-xl">
+          <div className="absolute bottom-14 left-4 right-4 bg-red-600/95 backdrop-blur-sm text-white rounded-xl px-4 py-2 flex justify-between items-center shadow-xl">
             <div className="flex items-center gap-2">
-              <Clock size={16} className="opacity-80" />
-              <span className="text-xs uppercase font-bold tracking-wider">Ends in</span>
+              <Clock size={14} className="opacity-80" />
+              <span className="text-[11px] uppercase font-bold tracking-wider">Ends in</span>
             </div>
-            <span className="text-xl font-semibold">{timeLeft.formatted || "Soon"}</span>
+            <span className="text-base font-bold">{timeLeft.formatted || "Soon"}</span>
           </div>
         )}
 
         {/* PROPERTY ICONS */}
-        <div className="absolute bottom-4 left-4 flex gap-2 text-white">
-          <div className="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-bold">
-            <BedDouble size={14} />
-            {auction.bedrooms || 0}
+        {(auction.bedrooms > 0 || auction.bathrooms > 0 || auction.parking > 0) && (
+          <div className="absolute bottom-4 left-4 flex gap-2 text-white">
+            <div className="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-bold">
+              <BedDouble size={14} />
+              {auction.bedrooms}
+            </div>
+            <div className="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-bold">
+              <Bath size={14} />
+              {auction.bathrooms}
+            </div>
+            <div className="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-bold">
+              <Car size={14} />
+              {auction.parking}
+            </div>
           </div>
-          <div className="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-bold">
-            <Bath size={14} />
-            {auction.bathrooms || 0}
-          </div>
-          <div className="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-bold">
-            <Car size={14} />
-            {auction.parking || 0}
-          </div>
-        </div>
+        )}
 
       </div>
 

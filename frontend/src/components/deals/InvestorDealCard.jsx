@@ -117,11 +117,13 @@ export default function InvestorDealCard({ deal, viewMode = "grid" }) {
         </div>
 
         {/* Property Specs Overlay */}
-        <div className="absolute bottom-4 left-4 flex gap-2">
-          <SpecItem icon={<Bed size={13} />} value={deal.bedrooms ?? 0} />
-          <SpecItem icon={<Bath size={13} />} value={deal.bathrooms ?? 0} />
-          <SpecItem icon={<Car size={13} />} value={deal.parking ?? 0} />
-        </div>
+        {(deal.bedrooms > 0 || deal.bathrooms > 0 || deal.parking > 0) && (
+          <div className="absolute bottom-4 left-4 flex gap-2">
+            <SpecItem icon={<Bed size={13} />} value={deal.bedrooms} />
+            <SpecItem icon={<Bath size={13} />} value={deal.bathrooms} />
+            <SpecItem icon={<Car size={13} />} value={deal.parking} />
+          </div>
+        )}
       </div>
 
       {/* CONTENT SECTION */}

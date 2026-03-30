@@ -53,7 +53,7 @@ export default function InvestorAuctionRoom() {
   const [deal, setDeal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("live");
   const [currentBid, setCurrentBid] = useState(0);
   const [bidHistory, setBidHistory] = useState([]);
   const [investorDocs, setInvestorDocs] = useState([]);
