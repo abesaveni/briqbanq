@@ -6,12 +6,9 @@ import { SlidersHorizontal, X } from "lucide-react";
 
 const DEFAULT_ADVANCED = { minLvr: '', maxLvr: '', minLoan: '', maxLoan: '', minBeds: '' };
 
-const API_BASE = "http://localhost:8000";
-
 function resolveImageUrl(url) {
     if (!url) return null;
-    if (url.startsWith("http")) return url;
-    return `${API_BASE}${url}`;
+    return url;
 }
 
 function mapDealToCard(d) {
@@ -327,7 +324,7 @@ export default function LenderAllDeals() {
                                 color="text-red-600"
                                 badgeColor="bg-red-50 text-red-600 border-red-100"
                             />
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                 {(isSearching ? filteredDeals : categorizedDeals.auctions).map((deal) => (
                                     <LenderDealCard key={deal.id} deal={deal} />
                                 ))}
@@ -346,7 +343,7 @@ export default function LenderAllDeals() {
                                         color="text-green-600"
                                         badgeColor="bg-green-50 text-green-600 border-green-100"
                                     />
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                         {categorizedDeals.buyNow.map((deal) => (
                                             <LenderDealCard key={deal.id} deal={deal} />
                                         ))}
@@ -362,7 +359,7 @@ export default function LenderAllDeals() {
                                         color="text-blue-600"
                                         badgeColor="bg-blue-50 text-blue-600 border-blue-100"
                                     />
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 opacity-90 transition-opacity hover:opacity-100">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 opacity-90 transition-opacity hover:opacity-100">
                                         {categorizedDeals.upcoming.map((deal) => (
                                             <LenderDealCard key={deal.id} deal={deal} />
                                         ))}
@@ -378,7 +375,7 @@ export default function LenderAllDeals() {
                                         color="text-slate-900"
                                         badgeColor="bg-slate-100 text-slate-900 border-slate-200"
                                     />
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 grayscale-[0.5] opacity-80 hover:grayscale-0 hover:opacity-100 transition-all">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 grayscale-[0.5] opacity-80 hover:grayscale-0 hover:opacity-100 transition-all">
                                         {categorizedDeals.sold.map((deal) => (
                                             <LenderDealCard key={deal.id} deal={deal} />
                                         ))}

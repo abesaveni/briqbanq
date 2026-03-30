@@ -8,10 +8,9 @@ import { useAuth } from "../../context/AuthContext";
 import { investorService } from "../../api/dataService";
 import { LoadingState, ErrorState } from "../../components/common/States";
 
-const API_BASE = "http://localhost:8000";
 function resolveImage(url) {
     if (!url) return null;
-    return url.startsWith("http") ? url : `${API_BASE}${url}`;
+    return url;
 }
 function mapCaseToInvestment(c) {
     const meta = c.metadata_json || {};

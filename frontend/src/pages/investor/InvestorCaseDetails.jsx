@@ -99,7 +99,6 @@ export default function InvestorCaseDetails() {
                     const primaryImageDoc = (raw.documents || []).find(d => 
                         (d.document_type || d.type) === 'Property Image'
                     );
-                    const API_BASE = 'http://localhost:8000';
                     let property_images = raw.property_images || [];
                     if (typeof property_images === 'string') {
                         try { property_images = JSON.parse(property_images); } catch (e) { property_images = []; }
@@ -109,9 +108,7 @@ export default function InvestorCaseDetails() {
                     }
 
                     const resolvedImage = primaryImageDoc ? primaryImageDoc.file_url : (property_images[0] || null);
-                    const image = resolvedImage 
-                        ? (resolvedImage.startsWith('http') ? resolvedImage : `${API_BASE}${resolvedImage}`)
-                        : null;
+                    const image = resolvedImage || null;
 
                     setCaseData({
                         ...raw,
@@ -2370,7 +2367,7 @@ export default function InvestorCaseDetails() {
                             <h3 className="text-2xl font-bold text-gray-900 mb-6 tracking-tight">Property Gallery</h3>
                             {(() => {
                                 const imgs = Array.isArray(caseData.property_images) ? caseData.property_images : [];
-                                const resolveImg = (url) => url?.startsWith('http') ? url : (url ? `http://localhost:8000${url}` : null);
+                                const resolveImg = (url) => url || null;
                                 const displayImgs = imgs.slice(0, 4).map(resolveImg).filter(Boolean);
                                 if (displayImgs.length === 0) {
                                     return (

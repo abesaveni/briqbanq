@@ -1,65 +1,37 @@
 import { PROPERTY_PLACEHOLDER } from '../../utils/propertyPlaceholder'
-import { Eye, Gavel, Bed, Bath, Car, Clock, Zap } from "lucide-react";
+import { Eye, Gavel, Bed, Bath, Car, Clock, Zap, MapPin } from "lucide-react";
 import useCountdown from "../../hooks/useCountdown";
 import { useNavigate } from "react-router-dom";
 import { formatCurrency } from "../../utils/formatters";
 import { useState } from "react";
 import { dealsService } from "../../api/dataService";
 
-const TYPE_FALLBACKS = {
-  House: PROPERTY_PLACEHOLDER,
-  Townhouse: PROPERTY_PLACEHOLDER,
-  Apartment: PROPERTY_PLACEHOLDER,
-  Unit: PROPERTY_PLACEHOLDER,
-  Land: PROPERTY_PLACEHOLDER,
-  Commercial: PROPERTY_PLACEHOLDER,
-  default: PROPERTY_PLACEHOLDER,
-}
+const STATUS_CONFIG = {
+  "Under Contract": { cls: "bg-red-500 text-white",    dot: false },
+  "Listed":         { cls: "bg-indigo-500 text-white", dot: false },
+  "Draft":          { cls: "bg-slate-400 text-white",  dot: false },
+  "Draft (In Auction)": { cls: "bg-orange-500 text-white", dot: false },
+  "Draft (Listed)": { cls: "bg-amber-500 text-white",  dot: false },
+  "Live Auction":   { cls: "bg-red-500 text-white",    dot: true  },
+  "Coming Soon":    { cls: "bg-blue-500 text-white",   dot: false },
+  "Paused":         { cls: "bg-slate-400 text-white",  dot: false },
+  "Ended":          { cls: "bg-slate-500 text-white",  dot: false },
+  "Settled":        { cls: "bg-emerald-600 text-white",dot: false },
+  "Closed":         { cls: "bg-slate-700 text-white",  dot: false },
+  "Sold":           { cls: "bg-slate-800 text-white",  dot: false },
+};
 
 export default function AdminDealCard({ deal, onRefresh }) {
   const countdown = useCountdown(deal?.auctionEnd || null);
   const navigate = useNavigate();
   const [listing, setListing] = useState(false);
   const [imgError, setImgError] = useState(false);
-
-  const fallbackImage = TYPE_FALLBACKS[deal?.type] || TYPE_FALLBACKS.default;
-
   if (!deal) return null;
 
   const isDraft = deal.dealStatus === 'DRAFT';
-
-  const getStatusConfig = (status) => {
-    switch (status) {
-      case "Under Contract":
-        return { badge: "bg-red-600", text: "UNDER CONTRACT" };
-      case "Listed":
-        return { badge: "bg-indigo-600", text: "LISTED" };
-      case "Draft":
-        return { badge: "bg-gray-400", text: "DRAFT" };
-      case "Draft (In Auction)":
-        return { badge: "bg-orange-500", text: "DRAFT · IN AUCTION" };
-      case "Draft (Listed)":
-        return { badge: "bg-amber-500", text: "DRAFT · LISTED" };
-      case "Live Auction":
-        return { badge: "bg-red-600", text: "LIVE AUCTION" };
-      case "Coming Soon":
-        return { badge: "bg-blue-600", text: "COMING SOON" };
-      case "Paused":
-        return { badge: "bg-gray-500", text: "PAUSED" };
-      case "Ended":
-        return { badge: "bg-slate-600", text: "ENDED" };
-      case "Settled":
-        return { badge: "bg-emerald-600", text: "SETTLED" };
-      case "Closed":
-        return { badge: "bg-slate-700", text: "CLOSED" };
-      case "Sold":
-        return { badge: "bg-slate-900", text: "SOLD" };
-      default:
-        return { badge: "bg-gray-500", text: status?.toUpperCase() };
-    }
-  };
-
-  const config = getStatusConfig(deal.status);
+  const isLive = deal.status === "Live Auction" || deal.status === "Under Contract";
+  const cfg = STATUS_CONFIG[deal.status] || { cls: "bg-slate-400 text-white", dot: false };
+  const location = [deal.suburb, deal.state, deal.postcode].filter(Boolean).join(", ");
 
   const handleListDeal = async (e) => {
     e.stopPropagation();
@@ -72,187 +44,114 @@ export default function AdminDealCard({ deal, onRefresh }) {
     finally { setListing(false); }
   };
 
-  const getTargetRoom = (id) => `/admin/case-details/${id}`;
-
   return (
     <div
-      onClick={() => navigate(getTargetRoom(deal.case_id || deal.id))}
-      className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col h-full cursor-pointer"
+      onClick={() => navigate(`/admin/case-details/${deal.case_id || deal.id}`)}
+      className="bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:shadow-md transition-all duration-200 cursor-pointer overflow-hidden flex flex-col"
     >
-
-      {/* IMAGE SECTION */}
-      <div className="relative h-64 overflow-hidden">
+      {/* Image */}
+      <div className="relative h-36 flex-shrink-0">
         <img
-          src={(!imgError && deal.image) ? deal.image : fallbackImage}
+          src={(!imgError && deal.image) ? deal.image : PROPERTY_PLACEHOLDER}
           alt={deal.title}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          className="w-full h-full object-cover"
           onError={() => setImgError(true)}
         />
-
-        {/* Status Badge */}
-        <div className={`absolute top-4 left-4 ${config.badge} text-white px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest flex items-center gap-2 shadow-lg`}>
-          {deal.status === "Live Auction" && <span className="w-2 h-2 bg-white rounded-full animate-pulse" />}
-          {config.text}
-        </div>
-
-        {/* Property Specs Overlay */}
+        <span className={`absolute top-2 left-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${cfg.cls}`}>
+          {cfg.dot && <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />}
+          {deal.status === "Live Auction" ? "Live" : deal.status}
+        </span>
+        {isLive && countdown?.formatted && (
+          <span className="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+            <Clock size={10} />{countdown.formatted}
+          </span>
+        )}
         {(deal.bedrooms > 0 || deal.bathrooms > 0 || deal.parking > 0) && (
-          <div className="absolute bottom-4 left-4 flex gap-3">
-            <SpecItem icon={<Bed size={14} />} value={deal.bedrooms} />
-            <SpecItem icon={<Bath size={14} />} value={deal.bathrooms} />
-            <SpecItem icon={<Car size={14} />} value={deal.parking} />
+          <div className="absolute bottom-2 left-2 flex gap-1">
+            {deal.bedrooms > 0 && <span className="bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5"><Bed size={10} />{deal.bedrooms}</span>}
+            {deal.bathrooms > 0 && <span className="bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5"><Bath size={10} />{deal.bathrooms}</span>}
+            {deal.parking > 0 && <span className="bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5"><Car size={10} />{deal.parking}</span>}
           </div>
         )}
       </div>
 
-      {/* CONTENT SECTION */}
-      <div className="p-6 flex flex-col flex-1 space-y-4">
-
-        {/* Header */}
-        <div className="space-y-1 pb-4 border-b border-gray-50">
-          <h3 className="text-xl font-semibold text-gray-900 tracking-tight group-hover:text-indigo-600 transition-colors">
-            {deal.title}
-          </h3>
-          <p className="text-sm text-gray-500 font-medium flex items-center gap-1.5">
-            <span role="img" aria-label="location" className="grayscale">📍</span>
-            {deal.suburb}, {deal.state} {deal.postcode}
-          </p>
-        </div>
-
-        {/* Values Section */}
-        <div className="space-y-2.5">
-          <ValueRow label="Loan Amount" value={formatCurrency(deal.loanAmount)} />
-
-          {(deal.status === "Live Auction" || deal.status === "Under Contract") && (
-            <ValueRow
-              label="Current Bid"
-              value={formatCurrency(deal.currentBid)}
-              color="text-green-600"
-              bold
-            />
-          )}
-
-          {(deal.status === "Buy Now" || deal.status === "Active") && (
-            <ValueRow
-              label="Fixed Price"
-              value={formatCurrency(deal.buyNowPrice || deal.loanAmount)}
-              color="text-green-600"
-              bold
-            />
+      {/* Body */}
+      <div className="p-3 flex flex-col flex-1 gap-2">
+        <div>
+          <h3 className="text-sm font-bold text-slate-900 truncate leading-tight">{deal.title}</h3>
+          {location && (
+            <p className="text-[11px] text-slate-400 flex items-center gap-0.5 mt-0.5">
+              <MapPin size={10} className="flex-shrink-0" />
+              <span className="truncate">{location}</span>
+            </p>
           )}
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
-          <StatBox label="LVR" value={`${deal.lvr}%`} color="text-indigo-600" />
-          <StatBox label="Return" value={`${deal.returnRate}%`} color="text-green-600" />
-          <StatBox label="Type" value={deal.type} color="text-gray-900" />
+        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px] border-t border-slate-100 pt-2">
+          <div>
+            <p className="text-slate-400 font-medium uppercase tracking-wide text-[9px]">Loan</p>
+            <p className="font-bold text-slate-800">{formatCurrency(deal.loanAmount)}</p>
+          </div>
+          <div>
+            <p className="text-slate-400 font-medium uppercase tracking-wide text-[9px]">{isLive ? "Bid" : "Type"}</p>
+            <p className={`font-bold ${isLive ? "text-green-600" : "text-slate-800"}`}>
+              {isLive ? formatCurrency(deal.currentBid) : (deal.type || "—")}
+            </p>
+          </div>
+          <div>
+            <p className="text-slate-400 font-medium uppercase tracking-wide text-[9px]">LVR</p>
+            <p className="font-bold text-indigo-600">{deal.lvr}%</p>
+          </div>
+          <div>
+            <p className="text-slate-400 font-medium uppercase tracking-wide text-[9px]">Return</p>
+            <p className="font-bold text-green-600">{deal.returnRate}%</p>
+          </div>
         </div>
 
-        {/* Secondary Info (Auction Date / Countdown) */}
-        <div className="flex-1 flex flex-col justify-end space-y-4">
+        {isDraft && (
+          <div className="flex items-center justify-between bg-amber-50 border border-amber-100 rounded-lg px-2.5 py-1.5 text-[11px]">
+            <span className="flex items-center gap-1 text-amber-700 font-bold"><Zap size={10} />Action needed</span>
+            <span className="text-amber-600">List to activate</span>
+          </div>
+        )}
 
-          {isDraft && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex justify-between items-center">
-              <div className="flex items-center gap-2 text-amber-700">
-                <Zap size={14} />
-                <span className="text-xs font-bold uppercase tracking-wider">Action needed</span>
-              </div>
-              <span className="text-xs font-bold text-amber-700">List to activate</span>
+        <div className="flex gap-2 mt-auto">
+          {isLive ? (
+            <>
+              <button
+                onClick={(e) => { e.stopPropagation(); navigate(`/admin/buy-now/${deal.id}`); }}
+                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5"
+              >
+                <Gavel size={12} />Auction
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); navigate(`/admin/buy-now/${deal.id}`); }}
+                className="border border-slate-200 hover:bg-slate-50 text-slate-500 px-2 py-1.5 rounded-lg"
+              >
+                <Eye size={14} />
+              </button>
+            </>
+          ) : (
+            <div className="flex gap-2 w-full">
+              <button
+                onClick={(e) => { e.stopPropagation(); navigate(`/admin/case-details/${deal.case_id || deal.id}`); }}
+                className="flex-1 border border-slate-200 hover:bg-slate-50 text-slate-700 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5"
+              >
+                <Eye size={12} />View Case
+              </button>
+              {isDraft && (
+                <button
+                  onClick={handleListDeal}
+                  disabled={listing}
+                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 disabled:opacity-60"
+                >
+                  <Zap size={12} />{listing ? 'Listing…' : 'List'}
+                </button>
+              )}
             </div>
           )}
-
-          {(deal.status === "Live Auction" || deal.status === "Under Contract") && (
-            <div className="bg-red-50 border border-red-100 rounded-xl p-3 flex justify-between items-center">
-              <div className="flex items-center gap-2 text-red-600">
-                <Clock size={16} />
-                <span className="text-xs font-bold uppercase tracking-wider">Ends in</span>
-              </div>
-              <span className="text-xs font-bold text-red-600">{countdown?.formatted || "Soon"}</span>
-            </div>
-          )}
-
-          {/* Footer Info (ID & Bids) */}
-          <div className="flex justify-between items-center pt-2">
-            <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">
-              {deal.case_number ? `REF: ${deal.case_number}` : `REF: #${deal.id?.slice(-6).toUpperCase()}`}
-            </span>
-            {deal.totalBids > 0 && (
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{deal.totalBids} bids</span>
-            )}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex gap-2">
-            {(deal.status === "Live Auction" || deal.status === "Under Contract") ? (
-              <>
-                <button
-                  onClick={(e) => { e.stopPropagation(); navigate(`/admin/buy-now/${deal.id}`); }}
-                  className="flex-1 bg-indigo-600 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all active:scale-95 text-sm"
-                >
-                  <Gavel size={16} />
-                  View Auction
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); navigate(`/admin/buy-now/${deal.id}`); }}
-                  className="bg-gray-50 border border-gray-100 text-gray-400 p-3 rounded-xl hover:bg-gray-100 transition-all"
-                >
-                  <Eye size={18} />
-                </button>
-              </>
-            ) : (
-              <div className="flex w-full gap-2">
-                <button
-                  onClick={(e) => { e.stopPropagation(); navigate(getTargetRoom(deal.case_id || deal.id)); }}
-                  className="flex-1 bg-white border border-gray-200 text-gray-600 font-semibold py-2.5 rounded-xl hover:bg-gray-50 transition-all text-sm"
-                >
-                  <div className="flex items-center justify-center gap-2">
-                    <Eye size={14} />
-                    View Case
-                  </div>
-                </button>
-                {isDraft && (
-                  <button
-                    onClick={handleListDeal}
-                    disabled={listing}
-                    className="flex-1 bg-indigo-600 text-white font-semibold py-2.5 rounded-xl hover:bg-indigo-700 transition-all text-sm flex items-center justify-center gap-2 disabled:opacity-60"
-                  >
-                    <Zap size={14} />
-                    {listing ? 'Listing...' : 'List Deal'}
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function SpecItem({ icon, value }) {
-  return (
-    <div className="bg-black/40 backdrop-blur-md text-white px-3 py-1.5 rounded-lg flex items-center gap-2 border border-white/10 shadow-lg">
-      <span className="opacity-70">{icon}</span>
-      <span className="text-sm font-semibold">{value}</span>
-    </div>
-  );
-}
-
-function ValueRow({ label, value, color = "text-gray-900", bold = false }) {
-  return (
-    <div className="flex justify-between items-center border-b border-gray-100 pb-2.5">
-      <span className="text-sm text-gray-400 font-medium">{label}</span>
-      <span className={`text-lg transition-colors ${bold ? 'font-semibold' : 'font-medium'} ${color}`}>{value}</span>
-    </div>
-  );
-}
-
-function StatBox({ label, value, color }) {
-  return (
-    <div className="text-center space-y-1">
-      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{label}</p>
-      <p className={`text-sm font-semibold ${color}`}>{value}</p>
     </div>
   );
 }

@@ -163,7 +163,6 @@ export default function LenderCaseDetails() {
                 const primaryImageDoc = (fetchedCase.documents || []).find(d => 
                     (d.document_type || d.type) === 'Property Image'
                 );
-                const API_BASE = 'http://localhost:8000';
                 let property_images = fetchedCase.property_images || [];
                 if (typeof property_images === 'string') {
                     try { property_images = JSON.parse(property_images); } catch (e) { property_images = []; }
@@ -173,9 +172,7 @@ export default function LenderCaseDetails() {
                 }
 
                 const resolvedImage = primaryImageDoc ? primaryImageDoc.file_url : (property_images[0] || null);
-                const image = resolvedImage 
-                    ? (resolvedImage.startsWith('http') ? resolvedImage : `${API_BASE}${resolvedImage}`)
-                    : null;
+                const image = resolvedImage || null;
 
                 // Map real data or fallback to zero/empty state
                 const meta = fetchedCase.metadata_json || {};

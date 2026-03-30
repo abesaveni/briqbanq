@@ -2,12 +2,9 @@ import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { casesService } from '../../api/dataService'
 
-const API_BASE = 'http://localhost:8000'
-
 function resolveImageUrl(url) {
   if (!url) return null
-  if (url.startsWith('http')) return url
-  return `${API_BASE}${url}`
+  return url
 }
 
 const AUCTION_STATUS_LABELS = {

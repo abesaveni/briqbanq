@@ -6,12 +6,10 @@ import AuctionStats from "../../components/auctions/AuctionStats";
 import { casesService } from "../../api/dataService";
 import { LoadingState, ErrorState, EmptyState } from "../../components/common/States";
 
-const API_BASE = "http://localhost:8000";
-
 function resolveImageUrl(url) {
   if (!url) return null;
-  if (url.startsWith("http")) return url;
-  return `${API_BASE}${url}`;
+  // Relative paths (e.g. /uploads/...) are proxied by server.js in production
+  return url;
 }
 
 function mapCaseToAuction(c) {

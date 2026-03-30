@@ -5,12 +5,9 @@ import AuctionStats from "../../components/auctions/AuctionStats";
 import { casesService } from "../../api/dataService";
 import { LoadingState, ErrorState, EmptyState } from "../../components/common/States";
 
-const API_BASE = "http://localhost:8000";
-
 function resolveImageUrl(url) {
     if (!url) return null;
-    if (url.startsWith("http")) return url;
-    return `${API_BASE}${url}`;
+    return url;
 }
 
 function mapCaseToAuction(c) {
@@ -190,7 +187,7 @@ export default function LenderAuctions() {
                                 badgeColor="bg-red-50 text-red-600 border-red-100"
                                 isLive
                             />
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                 {(isSearching ? filteredAuctions : categorizedAuctions.live).map((auction) => (
                                     <LenderAuctionCard key={auction.id} auction={auction} />
                                 ))}
@@ -209,7 +206,7 @@ export default function LenderAuctions() {
                                         color="text-indigo-600"
                                         badgeColor="bg-indigo-50 text-indigo-600 border-indigo-100"
                                     />
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center opacity-90 transition-opacity hover:opacity-100">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 opacity-90 transition-opacity hover:opacity-100">
                                         {categorizedAuctions.upcoming.map((auction) => (
                                             <LenderAuctionCard key={auction.id} auction={auction} />
                                         ))}
@@ -225,7 +222,7 @@ export default function LenderAuctions() {
                                         color="text-slate-900"
                                         badgeColor="bg-slate-100 text-slate-900 border-slate-200"
                                     />
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center grayscale-[0.5] opacity-80 hover:grayscale-0 hover:opacity-100 transition-all">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 grayscale-[0.5] opacity-80 hover:grayscale-0 hover:opacity-100 transition-all">
                                         {categorizedAuctions.sold.map((auction) => (
                                             <LenderAuctionCard key={auction.id} auction={auction} />
                                         ))}
