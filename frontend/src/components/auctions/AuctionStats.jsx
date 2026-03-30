@@ -18,60 +18,35 @@ export default function AuctionStats({ auctions }) {
   );
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
-      {/* Live */}
-      <div className="p-6 rounded-2xl border border-red-200 bg-red-50">
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-gray-600">Live Now</p>
-            <h2 className="text-3xl font-bold text-red-600">
-              {liveCount}
-            </h2>
-          </div>
-          <Gavel className="text-red-500" size={28} />
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="p-4 rounded-xl border border-red-200 bg-red-50 flex items-center justify-between">
+        <div>
+          <p className="text-xs text-gray-500 font-medium">Live Now</p>
+          <p className="text-2xl font-bold text-red-600">{liveCount}</p>
         </div>
+        <Gavel className="text-red-400" size={22} />
       </div>
-
-      {/* Upcoming */}
-      <div className="p-6 rounded-2xl border border-blue-200 bg-blue-50">
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-gray-600">Upcoming</p>
-            <h2 className="text-3xl font-bold text-blue-600">
-              {upcomingCount}
-            </h2>
-          </div>
-          <Calendar className="text-blue-500" size={28} />
+      <div className="p-4 rounded-xl border border-blue-200 bg-blue-50 flex items-center justify-between">
+        <div>
+          <p className="text-xs text-gray-500 font-medium">Upcoming</p>
+          <p className="text-2xl font-bold text-blue-600">{upcomingCount}</p>
         </div>
+        <Calendar className="text-blue-400" size={22} />
       </div>
-
-      {/* Total Value */}
-      <div className="p-6 rounded-2xl border border-green-200 bg-green-50">
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-gray-600">Total Value</p>
-            <h2 className="text-3xl font-bold text-green-600">
-              ${(totalValue / 1000000).toFixed(1)}M
-            </h2>
-          </div>
-          <DollarSign className="text-green-500" size={28} />
+      <div className="p-4 rounded-xl border border-green-200 bg-green-50 flex items-center justify-between">
+        <div>
+          <p className="text-xs text-gray-500 font-medium">Total Value</p>
+          <p className="text-2xl font-bold text-green-600">${(totalValue / 1000000).toFixed(1)}M</p>
         </div>
+        <DollarSign className="text-green-400" size={22} />
       </div>
-
-      {/* Active Bidders */}
-      <div className="p-6 rounded-2xl border border-purple-200 bg-purple-50">
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-gray-600">Active Bidders</p>
-            <h2 className="text-3xl font-bold text-purple-600">
-              {totalBidders}
-            </h2>
-          </div>
-          <Users className="text-purple-500" size={28} />
+      <div className="p-4 rounded-xl border border-purple-200 bg-purple-50 flex items-center justify-between">
+        <div>
+          <p className="text-xs text-gray-500 font-medium">Active Bidders</p>
+          <p className="text-2xl font-bold text-purple-600">{totalBidders}</p>
         </div>
+        <Users className="text-purple-400" size={22} />
       </div>
-
     </div>
   );
 }
