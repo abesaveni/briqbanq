@@ -880,7 +880,7 @@ function EnvelopesTab({ envelopes, onAddNew, onDelete }) {
                 />
             </div>
 
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
                 <table className="w-full text-left table-fixed">
                     <thead className="bg-gray-50/50 border-b border-gray-100">
                         <tr className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">
@@ -1076,7 +1076,7 @@ function ReportsTab({ types, reports, onGenerate }) {
                     </div>
                 </div>
 
-                <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+                <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-x-auto">
                     <table className="w-full text-left">
                         <thead className="bg-gray-50 border-b border-gray-200">
                             <tr className="text-[12px] font-bold text-gray-900 uppercase tracking-wider">
@@ -1680,7 +1680,7 @@ function DocumentsTab({ documents, onUpload, onDelete }) {
                 </button>
             </div>
 
-            <div className="bg-white rounded-[24px] border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-[24px] border border-gray-100 shadow-sm overflow-x-auto">
                 <table className="w-full text-left table-fixed">
                     <thead className="bg-gray-50/50 border-b border-gray-100">
                         <tr className="text-[12px] font-bold text-gray-900 uppercase tracking-tight">

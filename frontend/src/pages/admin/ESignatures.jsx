@@ -1234,7 +1234,7 @@ export default function ESignatures() {
                 </div>
               </div>
               <h3 className="font-semibold text-gray-900 mb-3">Generated reports</h3>
-              <div className="rounded-lg border border-gray-200 overflow-hidden">
+              <div className="rounded-lg border border-gray-200 overflow-x-auto">
                 <table className="w-full text-sm text-left">
                   <thead>
                     <tr className="bg-gray-50 border-b border-gray-200">

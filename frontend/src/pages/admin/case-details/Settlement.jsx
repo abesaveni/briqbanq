@@ -123,6 +123,7 @@ export default function Settlement() {
                             <p className="text-sm text-gray-400">No checklist items yet</p>
                         </div>
                     ) : (
+                        <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
                                 <tr className="bg-gray-50 border-b border-gray-100">
@@ -154,6 +155,7 @@ export default function Settlement() {
                                 ))}
                             </tbody>
                         </table>
+                        </div>
                     )}
                 </div>
 

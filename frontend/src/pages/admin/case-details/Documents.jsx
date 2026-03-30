@@ -91,6 +91,7 @@ export default function Documents() {
                         </p>
                     </div>
                 ) : (
+                    <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-gray-50 border-b border-gray-100">
@@ -143,6 +144,7 @@ export default function Documents() {
                             ))}
                         </tbody>
                     </table>
+                    </div>
                 )}
             </div>
         </div>
