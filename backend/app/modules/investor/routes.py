@@ -131,9 +131,78 @@ async def get_analytics_charts(
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db)
 ):
+    from sqlalchemy import select, func
+    from app.modules.bids.models import Bid
+    from app.shared.enums import BidStatus
+    from datetime import datetime, timedelta, timezone
+    import calendar
+
+    investor_id = uuid.UUID(current_user["user_id"])
+
+    # Determine date window
+    now = datetime.now(timezone.utc)
+    if range == "Last 7 Days":
+        since = now - timedelta(days=7)
+    elif range == "Last 90 Days":
+        since = now - timedelta(days=90)
+    elif range == "This Year":
+        since = datetime(now.year, 1, 1, tzinfo=timezone.utc)
+    elif range == "All Time":
+        since = datetime(2000, 1, 1, tzinfo=timezone.utc)
+    else:  # Last 30 Days default
+        since = now - timedelta(days=30)
+
+    # Case Volume Trend: count bids per month over last 6 months
+    volume_data = []
+    for i in range(5, -1, -1):
+        # Calculate month start/end
+        month_date = now - timedelta(days=30 * i)
+        month_start = datetime(month_date.year, month_date.month, 1, tzinfo=timezone.utc)
+        last_day = calendar.monthrange(month_date.year, month_date.month)[1]
+        month_end = datetime(month_date.year, month_date.month, last_day, 23, 59, 59, tzinfo=timezone.utc)
+        result = await db.execute(
+            select(func.count(Bid.id)).where(
+                Bid.bidder_id == investor_id,
+                Bid.created_at >= month_start,
+                Bid.created_at <= month_end,
+            )
+        )
+        count = result.scalar() or 0
+        volume_data.append({"name": month_date.strftime("%b"), "value": count})
+
+    # Revenue Distribution: bid amounts grouped by status
+    result = await db.execute(
+        select(Bid).where(Bid.bidder_id == investor_id, Bid.created_at >= since)
+    )
+    all_bids = list(result.scalars().all())
+
+    status_totals = {}
+    for bid in all_bids:
+        key = bid.status.value
+        status_totals[key] = status_totals.get(key, 0) + float(bid.amount)
+
+    total_amount = sum(status_totals.values()) or 1
+    color_map = {
+        "WON": "#4F46E5",
+        "WINNING": "#10B981",
+        "OUTBID": "#F59E0B",
+        "PENDING": "#6366F1",
+        "LOST": "#EF4444",
+    }
+    distribution = [
+        {
+            "name": status,
+            "value": round((amount / total_amount) * 100),
+            "color": color_map.get(status, "#CBD5E1"),
+            "amount": amount,
+        }
+        for status, amount in status_totals.items()
+        if amount > 0
+    ]
+
     return {
-        "caseVolume": [],
-        "revenueDistribution": []
+        "caseVolume": volume_data,
+        "revenueDistribution": distribution,
     }
 
 @router.get("/analytics/activity")

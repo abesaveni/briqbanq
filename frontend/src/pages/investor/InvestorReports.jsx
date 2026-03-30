@@ -246,10 +246,11 @@ export default function InvestorReports() {
                     <div className="h-[200px] mt-2 relative">
                         {isRefreshing ? (
                             <ChartSkeleton />
-                        ) : charts?.caseVolume ? (
+                        ) : charts?.caseVolume?.length > 0 ? (
                             <div className="w-full h-full flex items-end justify-between gap-2 px-2">
                                 {charts.caseVolume.map((item, i) => {
-                                    const height = (item.value / 100) * 100;
+                                    const maxVal = Math.max(...charts.caseVolume.map(d => d.value), 1);
+                                    const height = Math.max((item.value / maxVal) * 100, 4);
                                     return (
                                         <div key={i} className="flex-1 flex flex-col items-center group relative">
                                             <div
@@ -278,7 +279,7 @@ export default function InvestorReports() {
                     <div className="h-[200px] mt-2 relative flex items-center">
                         {isRefreshing ? (
                             <ChartSkeleton />
-                        ) : charts?.revenueDistribution ? (
+                        ) : charts?.revenueDistribution?.length > 0 ? (
                             <div className="flex items-center w-full gap-8">
                                 <div className="relative w-32 h-32 flex items-center justify-center">
                                     <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90">

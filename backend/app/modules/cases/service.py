@@ -569,7 +569,7 @@ class CaseService:
             select(Case, AuctionModel.status.label("auction_status"), AuctionModel.scheduled_end.label("auction_scheduled_end"))
             .outerjoin(Deal, Deal.case_id == Case.id)
             .outerjoin(AuctionModel, AuctionModel.deal_id == Deal.id)
-            .where(Case.status.in_([CaseStatus.LISTED, CaseStatus.AUCTION]))
+            .where(Case.status.in_([CaseStatus.LISTED, CaseStatus.AUCTION, CaseStatus.FUNDED, CaseStatus.CLOSED]))
             .order_by(Case.created_at.desc())
         )
         rows = result.all()
