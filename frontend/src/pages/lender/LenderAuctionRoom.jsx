@@ -386,9 +386,9 @@ export default function LenderAuctionRoom() {
                                 <div className="grid grid-cols-2 md:grid-cols-2 gap-y-8 gap-x-12">
                                     <DetailItem label="Property Asset Class" value={deal.type} />
                                     <DetailItem label="Land Size" value={propertyDetails.landSize || "N/A"} />
-                                    <DetailItem label="Bedrooms" value={propertyDetails.bedrooms || deal.bedrooms} />
-                                    <DetailItem label="Bathrooms" value={propertyDetails.bathrooms || deal.bathrooms} />
-                                    <DetailItem label="Parking Capacity" value={propertyDetails.parking || deal.parking || 0} />
+                                    <DetailItem label="Bedrooms" value={propertyDetails.bedrooms || deal.bedrooms || "—"} />
+                                    <DetailItem label="Bathrooms" value={propertyDetails.bathrooms || deal.bathrooms || "—"} />
+                                    <DetailItem label="Parking Capacity" value={propertyDetails.parking || deal.parking || "—"} />
                                     <DetailItem label="Accredited Valuer" value={propertyDetails.valuer || "PRP Valuation"} />
                                 </div>
                             </div>

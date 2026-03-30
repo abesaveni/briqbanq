@@ -86,9 +86,9 @@ function LoanDetails({ financials, metrics }) {
 function PropertyInfo({ deal }) {
     const rows = [
         { label: 'Property Type', value: deal.propertyType || deal.type || '—' },
-        { label: 'Bedrooms', value: deal.bedrooms ?? '—' },
-        { label: 'Bathrooms', value: deal.bathrooms ?? '—' },
-        { label: 'Parking', value: deal.parking ?? '—' },
+        { label: 'Bedrooms', value: deal.bedrooms || '—' },
+        { label: 'Bathrooms', value: deal.bathrooms || '—' },
+        { label: 'Parking', value: deal.parking || '—' },
         { label: 'Land Size', value: deal.landSize || '—' },
         { label: 'Tenure', value: deal.tenure ? `${deal.tenure} months` : '—' },
     ]

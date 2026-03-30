@@ -144,11 +144,13 @@ export default function InvestorBuyNowRoom() {
                             <MapPin size={16} /> {deal.suburb}, {deal.state} {deal.postcode}
                         </div>
 
-                        <div className="flex gap-3 md:gap-4">
-                            <SpecPill icon={<Bed size={14} />} label={`${propertyDetails.bedrooms} Bed`} />
-                            <SpecPill icon={<Bath size={14} />} label={`${propertyDetails.bathrooms} Bath`} />
-                            <SpecPill icon={<Car size={14} />} label={`${propertyDetails.parking} Car`} />
-                        </div>
+                        {(propertyDetails.bedrooms > 0 || propertyDetails.bathrooms > 0 || propertyDetails.parking > 0) && (
+                            <div className="flex gap-3 md:gap-4">
+                                {propertyDetails.bedrooms > 0 && <SpecPill icon={<Bed size={14} />} label={`${propertyDetails.bedrooms} Bed`} />}
+                                {propertyDetails.bathrooms > 0 && <SpecPill icon={<Bath size={14} />} label={`${propertyDetails.bathrooms} Bath`} />}
+                                {propertyDetails.parking > 0 && <SpecPill icon={<Car size={14} />} label={`${propertyDetails.parking} Car`} />}
+                            </div>
+                        )}
                     </div>
 
                     {/* Floating Price Card */}
@@ -295,9 +297,9 @@ export default function InvestorBuyNowRoom() {
                                 <div className="grid grid-cols-2 md:grid-cols-2 gap-y-8 gap-x-12 mt-6">
                                     <DetailItem label="Property Type" value={propertyDetails?.type} size="lg" />
                                     <DetailItem label="Land Size" value={propertyDetails?.landSize} size="lg" />
-                                    <DetailItem label="Bedrooms" value={propertyDetails?.bedrooms} size="lg" />
-                                    <DetailItem label="Bathrooms" value={propertyDetails?.bathrooms} size="lg" />
-                                    <DetailItem label="Parking" value={propertyDetails?.parking} size="lg" />
+                                    <DetailItem label="Bedrooms" value={propertyDetails?.bedrooms || "—"} size="lg" />
+                                    <DetailItem label="Bathrooms" value={propertyDetails?.bathrooms || "—"} size="lg" />
+                                    <DetailItem label="Parking" value={propertyDetails?.parking || "—"} size="lg" />
                                     <DetailItem label="Valuer" value={propertyDetails?.valuer} size="lg" />
                                 </div>
                             </div>

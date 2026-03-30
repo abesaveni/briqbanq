@@ -58,11 +58,13 @@ export default function LenderDealCard({ deal }) {
                 </div>
 
                 {/* Property Specs Overlay */}
-                <div className="absolute bottom-4 left-4 flex gap-3">
-                    <SpecItem icon={<Bed size={14} />} value={deal.bedrooms || 0} />
-                    <SpecItem icon={<Bath size={14} />} value={deal.bathrooms || 0} />
-                    <SpecItem icon={<Car size={14} />} value={deal.parking || 0} />
-                </div>
+                {(deal.bedrooms > 0 || deal.bathrooms > 0 || deal.parking > 0) && (
+                    <div className="absolute bottom-4 left-4 flex gap-3">
+                        <SpecItem icon={<Bed size={14} />} value={deal.bedrooms} />
+                        <SpecItem icon={<Bath size={14} />} value={deal.bathrooms} />
+                        <SpecItem icon={<Car size={14} />} value={deal.parking} />
+                    </div>
+                )}
             </div>
 
             {/* CONTENT SECTION */}
