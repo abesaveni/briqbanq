@@ -322,7 +322,7 @@ export default function InvestorAllDeals() {
             </div>
           </div>
 
-          <div className="flex flex-wrap md:flex-nowrap gap-3">
+          <div className="flex flex-wrap lg:flex-nowrap gap-3">
             <select
               value={selectedState}
               onChange={(e) => setSelectedState(e.target.value)}
@@ -376,7 +376,7 @@ export default function InvestorAllDeals() {
 
         {/* ADVANCED FILTERS PANEL */}
         {showAdvanced && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 pt-4 border-t border-dashed border-gray-200 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 pt-4 border-t border-dashed border-gray-200 animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="space-y-1">
               <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Min Price (A$)</label>
               <input

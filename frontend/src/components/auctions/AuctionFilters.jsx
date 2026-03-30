@@ -96,7 +96,7 @@ export default function AuctionFilters({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             <div className="space-y-1">
               <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Min LVR (%)</label>
               <input

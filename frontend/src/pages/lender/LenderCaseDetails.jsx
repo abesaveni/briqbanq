@@ -1707,7 +1707,7 @@ export default function LenderCaseDetails() {
                         {settlementSubTab === "AI Checklist Manager" && (
                             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
                                 {/* Professional Stats Grid */}
-                                <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                                     <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-2xl transition-all">
                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Protocol Status</p>
                                         <div className="text-4xl font-black text-slate-900 leading-none mb-4">{caseSettlementData.summary.completed}/{caseSettlementData.summary.total}</div>

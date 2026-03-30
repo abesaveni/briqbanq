@@ -9,7 +9,7 @@ import CaseChat from "../../components/common/CaseChat";
 import CaseActivityLog from "../../components/common/CaseActivityLog";
 import { useAuth } from "../../context/AuthContext";
 import { LoadingState, ErrorState } from "../../components/common/States";
-import { dealsService, auctionService, casesService, settlementService } from "../../api/dataService";
+import { dealsService, auctionService, casesService, settlementService, documentService } from "../../api/dataService";
 import { generateInvestmentMemorandumPDF } from "../../utils/pdfGenerator";
 
 const DEFAULT_SETTLEMENT_DATA = {
@@ -2746,7 +2746,7 @@ export default function InvestorCaseDetails() {
                                 {settlementSubTab === "AI Checklist Manager" && (
                                     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                         {/* Professional Stats Grid */}
-                                        <div className="grid grid-cols-5 gap-6">
+                                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                                             <div className="bg-white p-6 rounded-[28px] border border-gray-100 shadow-sm relative overflow-hidden group">
                                                 <div className="relative z-10">
                                                     <div className="text-[28px] font-bold text-gray-900 leading-none mb-1">{caseSettlementData.summary.completed}/{caseSettlementData.summary.total}</div>
@@ -3351,7 +3351,7 @@ export default function InvestorCaseDetails() {
                                                 <Lock size={16} />
                                                 <span className="text-[14px] font-bold">Settlement Controls (Admin Only)</span>
                                             </div>
-                                            <div className="flex flex-wrap md:flex-nowrap gap-4 items-center">
+                                            <div className="flex flex-wrap lg:flex-nowrap gap-4 items-center">
                                                 <button
                                                     onClick={handleApproveAllDocs}
                                                     className="flex-1 py-2.5 bg-white border border-gray-100 text-gray-900 font-bold text-[11px] rounded-lg hover:bg-gray-50 transition-all flex items-center justify-center gap-2 shadow-sm min-w-[180px]"

@@ -290,7 +290,7 @@ export default function AuctionControl() {
                             <button onClick={() => setShowAdvancedFilters(false)} className="text-xs text-gray-400 hover:text-gray-600">Close</button>
                         </div>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                         {[
                             { key: 'minLvr', label: 'Min LVR (%)', ph: '0' },
                             { key: 'maxLvr', label: 'Max LVR (%)', ph: 'Any' },

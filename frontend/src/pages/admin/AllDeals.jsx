@@ -237,7 +237,7 @@ export default function AdminAllDeals() {
           </div>
         </div>
 
-        <div className="flex flex-wrap md:flex-nowrap gap-3">
+        <div className="flex flex-wrap lg:flex-nowrap gap-3">
           <select
             value={selectedState}
             onChange={(e) => setSelectedState(e.target.value)}
