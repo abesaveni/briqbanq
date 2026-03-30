@@ -351,7 +351,7 @@ export default function DocumentsTab({ caseId, onDocumentUploaded }) {
       const res = await documentService.getDocumentUrl(doc.id).catch(() => null)
       const downloadUrl = res?.success ? res.data?.download_url : null
       if (downloadUrl) {
-        const fullUrl = downloadUrl.startsWith('/') ? `http://localhost:8000${downloadUrl}` : downloadUrl
+        const fullUrl = downloadUrl
         const a = document.createElement('a')
         a.href = fullUrl
         a.download = doc.name

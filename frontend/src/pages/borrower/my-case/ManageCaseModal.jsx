@@ -279,7 +279,7 @@ const handleGenerateIM = async () => {
       let imgData = caseDetails.propertyImage || null
       if (!imgData && firstImgUrl) {
         try {
-          const resp = await fetch(firstImgUrl.startsWith('/') ? `http://localhost:8000${firstImgUrl}` : firstImgUrl)
+          const resp = await fetch(firstImgUrl)
           const blob = await resp.blob()
           imgData = await new Promise((res) => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob) })
         } catch {}
@@ -334,7 +334,7 @@ const handleGenerateFlyer = async () => {
       let imgData = caseDetails.propertyImage || null
       if (!imgData && firstImgUrl) {
         try {
-          const resp = await fetch(firstImgUrl.startsWith('/') ? `http://localhost:8000${firstImgUrl}` : firstImgUrl)
+          const resp = await fetch(firstImgUrl)
           const blob = await resp.blob()
           imgData = await new Promise((res) => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob) })
         } catch {}
@@ -656,7 +656,7 @@ const handleGenerateFlyer = async () => {
                       {existingImages.map((url, i) => (
                         <div key={i} className="relative aspect-video rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
                           <img
-                            src={url.startsWith('/') ? `http://localhost:8000${url}` : url}
+                            src={url}
                             alt={`Property image ${i + 1}`}
                             className="w-full h-full object-cover"
                           />

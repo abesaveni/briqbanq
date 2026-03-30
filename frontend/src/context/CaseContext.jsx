@@ -5,10 +5,9 @@ import { casesService, auctionService, documentService, settlementService } from
 
 const CaseContext = createContext()
 
-const API_BASE = 'http://localhost:8000'
 function resolveImageUrl(url) {
     if (!url) return null
-    return url.startsWith('http') ? url : `${API_BASE}${url}`
+    return url
 }
 
 function mapBid(b, index) {

@@ -21,7 +21,6 @@ import { formatCurrency } from "../../utils/formatters";
 import { useNotifications } from "../../context/NotificationContext";
 import { useAuth } from "../../context/AuthContext";
 
-const API_BASE = "http://localhost:8000";
 
 function mapBids(rawBids, currentUser) {
     if (!Array.isArray(rawBids)) return [];
@@ -107,9 +106,7 @@ export default function LenderAuctionRoom() {
                 const highest = Number(auctionData?.current_highest_bid || 0);
 
                 const images = Array.isArray(caseData?.property_images) ? caseData.property_images : [];
-                const image = images.length > 0
-                    ? (images[0].startsWith('http') ? images[0] : `${API_BASE}${images[0]}`)
-                    : null;
+                const image = images.length > 0 ? images[0] : null;
 
                 // Build unified deal object from both case + auction data
                 const deal = {

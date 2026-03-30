@@ -80,10 +80,10 @@ export default function LiveAuctions() {
           <p className="text-sm text-slate-400 mt-1">Properties will appear here once admin lists a case for auction</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filtered.map(c => {
             const images = Array.isArray(c.property_images) ? c.property_images : []
-            const image = images.length > 0 ? resolveImageUrl(images[0]) : null
+            const image = images.length > 0 ? images[0] : null
             const debt = parseFloat(c.outstanding_debt) || 0
             const value = parseFloat(c.estimated_value) || 0
             const lvr = value > 0 ? Math.round((debt / value) * 100) : 0
@@ -95,49 +95,47 @@ export default function LiveAuctions() {
               <div
                 key={c.id}
                 onClick={() => navigate(`/lawyer/assigned-cases/${c.id}`)}
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer overflow-hidden"
+                className="bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:shadow-md transition-all duration-200 cursor-pointer overflow-hidden flex flex-col"
               >
-                <div className="relative h-48 bg-gray-100">
-                  {image ? (
-                    <img src={image} alt={c.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-300">
-                      <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-                      </svg>
-                    </div>
-                  )}
-                  <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold ${badge.cls}`}>
+                <div className="relative h-36 flex-shrink-0">
+                  <img
+                    src={image || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'%3E%3Crect width='400' height='200' fill='%23f1f5f9'/%3E%3Cpath d='M160 140V100l40-30 40 30v40z' fill='%23cbd5e1'/%3E%3Crect x='180' y='110' width='20' height='30' fill='%2394a3b8'/%3E%3C/svg%3E"}
+                    alt={c.title || c.property_address}
+                    className="w-full h-full object-cover"
+                  />
+                  <span className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold ${badge.cls}`}>
                     {badge.label}
                   </span>
                 </div>
-                <div className="p-4 space-y-3">
+                <div className="p-3 flex flex-col flex-1 gap-2">
                   <div>
-                    <h3 className="font-semibold text-slate-900 truncate">{c.title || c.property_address}</h3>
-                    <p className="text-xs text-slate-500 mt-0.5 truncate">{c.property_address}</p>
+                    <h3 className="text-sm font-bold text-slate-900 truncate leading-tight">{c.title || c.property_address}</h3>
+                    <p className="text-[11px] text-slate-400 truncate mt-0.5">{c.property_address}</p>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div className="bg-slate-50 rounded-lg p-2">
-                      <p className="text-[10px] text-slate-400 font-medium uppercase">Debt</p>
-                      <p className="text-sm font-bold text-slate-800">
-                        {debt > 0 ? `$${(debt / 1000).toFixed(0)}k` : '—'}
-                      </p>
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px] border-t border-slate-100 pt-2">
+                    <div>
+                      <p className="text-slate-400 font-medium uppercase tracking-wide text-[9px]">Debt</p>
+                      <p className="font-bold text-slate-800">{debt > 0 ? `$${(debt/1000).toFixed(0)}k` : '—'}</p>
                     </div>
-                    <div className="bg-slate-50 rounded-lg p-2">
-                      <p className="text-[10px] text-slate-400 font-medium uppercase">Value</p>
-                      <p className="text-sm font-bold text-slate-800">
-                        {value > 0 ? `$${(value / 1000).toFixed(0)}k` : '—'}
-                      </p>
+                    <div>
+                      <p className="text-slate-400 font-medium uppercase tracking-wide text-[9px]">Value</p>
+                      <p className="font-bold text-slate-800">{value > 0 ? `$${(value/1000).toFixed(0)}k` : '—'}</p>
                     </div>
-                    <div className="bg-slate-50 rounded-lg p-2">
-                      <p className="text-[10px] text-slate-400 font-medium uppercase">LVR</p>
-                      <p className="text-sm font-bold text-slate-800">{lvr > 0 ? `${lvr}%` : '—'}</p>
+                    <div>
+                      <p className="text-slate-400 font-medium uppercase tracking-wide text-[9px]">LVR</p>
+                      <p className="font-bold text-indigo-600">{lvr > 0 ? `${lvr}%` : '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-slate-400 font-medium uppercase tracking-wide text-[9px]">Ref</p>
+                      <p className="font-bold text-slate-500 text-[10px]">{c.case_number || String(c.id).slice(0, 8)}</p>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-slate-500 pt-1 border-t border-gray-100">
-                    <span>{c.case_number || String(c.id).slice(0, 8)}</span>
-                    <span className="text-blue-600 font-medium">View Case →</span>
-                  </div>
+                  <button
+                    onClick={e => { e.stopPropagation(); navigate(`/lawyer/assigned-cases/${c.id}`) }}
+                    className="w-full border border-slate-200 hover:bg-slate-50 text-slate-700 py-1.5 rounded-lg text-xs font-bold transition-all mt-auto"
+                  >
+                    View Case
+                  </button>
                 </div>
               </div>
             )

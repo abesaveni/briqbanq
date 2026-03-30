@@ -104,14 +104,11 @@ export default function InvestorAuctionRoom() {
         const lvr = value > 0 ? ((debt / value) * 100).toFixed(1) : 0;
         const highest = Number(auctionData?.current_highest_bid || 0);
 
-        const API_BASE = "http://localhost:8000";
         const meta = caseData?.metadata_json || {};
         const rawImages = Array.isArray(caseData?.property_images)
           ? caseData.property_images
           : (meta.property_images || []);
-        const resolvedImages = rawImages.map(img =>
-          img && !img.startsWith("http") ? `${API_BASE}${img}` : img
-        ).filter(Boolean);
+        const resolvedImages = rawImages.filter(Boolean);
 
         const deal = {
           id: auctionData?.id || id,
