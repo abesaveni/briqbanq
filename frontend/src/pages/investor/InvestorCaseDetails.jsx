@@ -310,6 +310,22 @@ export default function InvestorCaseDetails() {
     const [settlementMessage, setSettlementMessage] = useState("");
     const [caseSettlementData, setCaseSettlementData] = useState(null);
     const [bidHistory, setBidHistory] = useState([]);
+    const [caseMessages, setCaseMessages] = useState([]);
+    const [newMessageText, setNewMessageText] = useState("");
+    const [lawyerReviewNotes, setLawyerReviewNotes] = useState("");
+    const [soaFile, setSoaFile] = useState(null);
+    const [newChecklistItem, setNewChecklistItem] = useState({ item: "", responsible: "Borrower", dueDate: new Date().toISOString().split('T')[0] });
+    const [newTask, setNewTask] = useState({
+        title: "", category: "Legal Requirements", assignee: "Sarah Mitchell",
+        date: new Date().toISOString().split('T')[0], priority: "Medium",
+        desc: "", status: "NOT STARTED", email: "", notes: "", isAI: false, duration: 1
+    });
+    const [settlementOverviewData, setSettlementOverviewData] = useState({
+        property: { id: "", title: "", location: "", image: null, settlementDate: "", readiness: 0, status: "Pending" },
+        checklist: [],
+        outstanding: [],
+        thread: []
+    });
 
 
 
