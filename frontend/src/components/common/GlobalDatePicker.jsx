@@ -113,6 +113,7 @@ const GlobalDatePicker = ({
         </div>
       )}
       popperPlacement="bottom-start"
+      popperProps={{ strategy: 'fixed' }}
       popperModifiers={[
         {
           name: "offset",

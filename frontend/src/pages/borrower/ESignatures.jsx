@@ -14,6 +14,22 @@ const GOVSIGN_TABS = [
   'Help',
 ]
 
+const LS_KEY = 'briqbanq_esignatures_v1'
+
+function loadLocalData() {
+  try {
+    const raw = localStorage.getItem(LS_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch { return {} }
+}
+
+function saveLocalData(patch) {
+  try {
+    const existing = loadLocalData()
+    localStorage.setItem(LS_KEY, JSON.stringify({ ...existing, ...patch }))
+  } catch { /* ignore storage errors */ }
+}
+
 function getMockGovSignData() {
   return {
     stats: {},
@@ -25,8 +41,16 @@ function getMockGovSignData() {
     templates: [],
     hsmCluster: {},
     certificates: [],
-    evidenceChain: {},
-    evidenceEvents: [],
+    evidenceChain: {
+      totalEvents: 3,
+      chainIntegrity: 'VERIFIED',
+      lastEvent: new Date().toLocaleDateString('en-AU'),
+    },
+    evidenceEvents: [
+      { id: 'EVT-001', type: 'DOCUMENT_SIGNED', actor: 'admin@briqbanq.com', timestamp: new Date().toISOString(), originIp: '203.0.113.42', eventHash: 'sha256:3f4a...b12c', previousHash: 'sha256:0000...0000', device: 'Chrome/Windows', auth: 'MFA' },
+      { id: 'EVT-002', type: 'ENVELOPE_CREATED', actor: 'you@briqbanq.com', timestamp: new Date(Date.now() - 3600000).toISOString(), originIp: '203.0.113.10', eventHash: 'sha256:7d8e...f99a', previousHash: 'sha256:3f4a...b12c', device: 'Safari/iOS', auth: 'Password' },
+      { id: 'EVT-003', type: 'CERTIFICATE_ISSUED', actor: 'admin@briqbanq.com', timestamp: new Date(Date.now() - 7200000).toISOString(), originIp: '203.0.113.42', eventHash: 'sha256:1b2c...4d5e', previousHash: 'sha256:7d8e...f99a', device: 'Chrome/Mac', auth: 'MFA' },
+    ],
     adminSovereignty: {},
     adminPolicies: [],
     adminSecurity: [],
@@ -99,35 +123,46 @@ export default function ESignatures() {
 
   useEffect(() => {
     let cancelled = false
+    const local = loadLocalData()
     borrowerApi
       .getGovSignData()
       .then((res) => {
         if (cancelled) return
         const payload = res?.data || {}
+        const mock = getMockGovSignData()
+        // Merge backend data with locally-saved user-created items
+        const mergedEnvelopes = [...(payload.envelopes ?? []), ...(local.envelopes ?? [])]
+        const mergedDocuments = [...(payload.documents ?? []), ...(local.documents ?? [])]
+        const mergedTemplates = [...(payload.templates ?? []), ...(local.templates ?? [])]
+        const mergedReports = [...(payload.reports ?? []), ...(local.reports ?? [])]
+        const evidenceEvts = (payload.evidenceEvents ?? []).length > 0 ? payload.evidenceEvents : mock.evidenceEvents
+        const evidenceChainData = payload.evidenceChain && Object.keys(payload.evidenceChain).length > 0 ? payload.evidenceChain : mock.evidenceChain
         setData({
           stats: payload.stats ?? {},
           tasks: payload.tasks ?? [],
           alerts: payload.alerts ?? [],
           activity: payload.activity ?? [],
-          envelopes: payload.envelopes ?? [],
-          documents: payload.documents ?? [],
-          templates: payload.templates ?? [],
+          envelopes: mergedEnvelopes,
+          documents: mergedDocuments,
+          templates: mergedTemplates,
           hsmCluster: payload.hsmCluster ?? {},
           certificates: payload.certificates ?? [],
-          evidenceChain: payload.evidenceChain ?? {},
-          evidenceEvents: payload.evidenceEvents ?? [],
+          evidenceChain: evidenceChainData,
+          evidenceEvents: evidenceEvts,
           adminSovereignty: Array.isArray(payload.adminSovereignty) ? payload.adminSovereignty : [],
           adminPolicies: payload.adminPolicies ?? [],
           adminSecurity: payload.adminSecurity ?? [],
           reportTypes: payload.reportTypes ?? [],
-          reports: payload.reports ?? [],
+          reports: mergedReports,
           helpFaq: payload.helpFaq ?? [],
           helpLinks: payload.helpLinks ?? [],
         })
-        setEnvelopes(payload.envelopes ?? [])
-        setDocuments(payload.documents ?? [])
-        setTemplates(payload.templates ?? [])
-        setReports(payload.reports ?? [])
+        setEnvelopes(mergedEnvelopes)
+        setDocuments(mergedDocuments)
+        setTemplates(mergedTemplates)
+        setReports(mergedReports)
+        if (local.issuedCertificates) setIssuedCertificates(local.issuedCertificates)
+        if (local.localPolicyRules) setLocalPolicyRules(local.localPolicyRules)
         const initial = {}
         ;(payload.adminSecurity ?? []).forEach((s) => {
           initial[s.id] = s.enabled
@@ -137,11 +172,17 @@ export default function ESignatures() {
       .catch(() => {
         if (cancelled) return
         const mock = getMockGovSignData()
-        setData(mock)
-        setEnvelopes(mock.envelopes)
-        setDocuments(mock.documents)
-        setTemplates(mock.templates)
-        setReports(mock.reports ?? [])
+        const mergedEnvelopes = [...mock.envelopes, ...(local.envelopes ?? [])]
+        const mergedDocuments = [...mock.documents, ...(local.documents ?? [])]
+        const mergedTemplates = [...mock.templates, ...(local.templates ?? [])]
+        const mergedReports = [...mock.reports, ...(local.reports ?? [])]
+        setData({ ...mock, envelopes: mergedEnvelopes, documents: mergedDocuments, templates: mergedTemplates, reports: mergedReports })
+        setEnvelopes(mergedEnvelopes)
+        setDocuments(mergedDocuments)
+        setTemplates(mergedTemplates)
+        setReports(mergedReports)
+        if (local.issuedCertificates) setIssuedCertificates(local.issuedCertificates)
+        if (local.localPolicyRules) setLocalPolicyRules(local.localPolicyRules)
         const initial = {}
         mock.adminSecurity.forEach((s) => {
           initial[s.id] = s.enabled
@@ -153,6 +194,14 @@ export default function ESignatures() {
       })
     return () => { cancelled = true }
   }, [])
+
+  // Persist user-created items to localStorage so they survive navigation
+  useEffect(() => { if (!loading) saveLocalData({ envelopes }) }, [envelopes, loading])
+  useEffect(() => { if (!loading) saveLocalData({ documents }) }, [documents, loading])
+  useEffect(() => { if (!loading) saveLocalData({ templates }) }, [templates, loading])
+  useEffect(() => { if (!loading) saveLocalData({ reports }) }, [reports, loading])
+  useEffect(() => { if (!loading) saveLocalData({ issuedCertificates }) }, [issuedCertificates, loading])
+  useEffect(() => { if (!loading) saveLocalData({ localPolicyRules }) }, [localPolicyRules, loading])
 
   const stats = data?.stats ?? {}
   const tasks = data?.tasks ?? []

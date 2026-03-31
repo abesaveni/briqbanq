@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { notificationService } from '../../api/dataService'
+import { useNotifications } from '../../context/NotificationContext'
 
 function getNotificationList(res) {
   // notificationService uses wrap() which returns { success, data, error }
@@ -131,6 +132,7 @@ function ModalNotificationIcon({ type }) {
 
 export default function Notifications() {
   const navigate = useNavigate()
+  const { markAsRead: ctxMarkAsRead, markAllRead: ctxMarkAllRead } = useNotifications()
   const [filter, setFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -185,11 +187,8 @@ export default function Notifications() {
   }, [notifications, filter, statusFilter, searchQuery])
 
   const handleMarkAsRead = async (notificationId) => {
-    try {
-      await notificationService.markAsRead(notificationId)
-    } catch {
-      // Offline or API not ready: still update UI
-    }
+    // Sync context so the header badge updates immediately
+    ctxMarkAsRead(notificationId)
     setNotifications((prev) =>
       prev.map((n) => (n.id === notificationId ? { ...n, read: true, isNew: false } : n))
     )
@@ -199,11 +198,8 @@ export default function Notifications() {
     if (markAllLoading || unreadCount === 0) return
     setMarkAllLoading(true)
     setMarkAllSuccess(false)
-    try {
-      await notificationService.markAllAsRead()
-    } catch {
-      // Offline or API not ready — still update UI
-    }
+    // Sync context so the header badge clears immediately
+    ctxMarkAllRead()
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true, isNew: false })))
     setMarkAllLoading(false)
     setMarkAllSuccess(true)

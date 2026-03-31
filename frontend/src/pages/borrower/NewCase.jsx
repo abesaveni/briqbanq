@@ -149,13 +149,22 @@ const LENDER_DOCS = [
 
 export default function NewCase() {
   const navigate = useNavigate()
-  const [step, setStep] = useState(1)
+
+  // Load saved draft from localStorage if present
+  const savedDraft = (() => {
+    try {
+      const raw = localStorage.getItem('briqbanq_newcase_draft')
+      return raw ? JSON.parse(raw) : null
+    } catch { return null }
+  })()
+
+  const [step, setStep] = useState(savedDraft?.step || 1)
 
   // Scroll to top whenever step changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [step])
-  const [formData, setFormData] = useState(initialFormData)
+  const [formData, setFormData] = useState(savedDraft?.formData ? { ...initialFormData, ...savedDraft.formData } : initialFormData)
   const [submitting, setSubmitting] = useState(false)
   const [propertyValidating, setPropertyValidating] = useState(false)
   const [propertyValidated, setPropertyValidated] = useState(false)
@@ -532,6 +541,8 @@ export default function NewCase() {
           const submitRes = await caseService.submitCaseActual(caseId)
           if (submitRes.success) {
             setSubmitting(false)
+            // Clear the in-progress draft from localStorage on successful submission
+            try { localStorage.removeItem('briqbanq_newcase_draft') } catch { /* ignore */ }
             navigate('/borrower/my-case')
           } else {
             const rawErr = submitRes.error || 'Unable to submit the case. Please try again.'
@@ -555,44 +566,10 @@ export default function NewCase() {
     const saveAndAdvance = async () => {
       const fd = formData
 
-      if (step === 1 && !draftCaseId) {
-        // Step 1 → 2: create the draft case for the first time
-        const createRes = await caseService.createCase({
-          title: `${fd.streetAddress}, ${fd.suburb}` || 'Mortgage Resolution Case',
-          description: 'Draft case — in progress',
-          property_address: `${fd.streetAddress}, ${fd.suburb}, ${fd.state} ${fd.postcode}`,
-          property_type: fd.propertyType || 'Other',
-          estimated_value: 1,           // placeholder — updated at step 5
-          outstanding_debt: 1,          // placeholder — updated at step 5
-          interest_rate: 0,
-          tenure: 12,
-          metadata_json: buildMetadata(fd),
-        })
-
-        if (createRes.success) {
-          setDraftCaseId(createRes.data.id)
-        } else {
-          // Non-blocking: show a warning but still advance (data will be saved at final submit)
-          console.warn('Draft create failed at step 1:', createRes.error)
-        }
-        setStep((s) => Math.min(11, s + 1))
-        return
-      }
-
-      if (draftCaseId) {
-        // Steps 2–10: update metadata on the existing draft (non-blocking)
-        // Step 5 also saves structural financial fields
-        const updatePayload = { metadata_json: buildMetadata(fd) }
-        if (step === 5) {
-          const od = parseFloat(fd.outstandingDebt)
-          const ev = parseFloat(fd.currentValuation)
-          const ir = parseFloat(fd.interestRate)
-          if (od > 0) updatePayload.outstanding_debt = od
-          if (ev > 0) updatePayload.estimated_value = ev
-          if (ir > 0) updatePayload.interest_rate = ir
-        }
-        caseService.updateCase(draftCaseId, updatePayload).catch(() => {})
-      }
+      // Steps 1–10: save formData to localStorage so the user can resume if they navigate away
+      try {
+        localStorage.setItem('briqbanq_newcase_draft', JSON.stringify({ step: step + 1, formData: fd }))
+      } catch { /* ignore storage errors */ }
 
       setStep((s) => Math.min(11, s + 1))
     }

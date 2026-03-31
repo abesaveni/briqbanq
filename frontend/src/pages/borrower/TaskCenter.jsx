@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Badge from './components/Badge'
-import DatePicker from '../../components/common/DatePicker'
 import { taskService } from '../../api/dataService'
 
 const priorityVariant = { Urgent: 'urgent', High: 'high', Medium: 'medium', Done: 'done' }
@@ -46,36 +45,51 @@ export default function TaskCenter() {
 
   const formatDueLabel = (dateStr) => {
     if (!dateStr || !dateStr.trim()) return null
-    const d = new Date(dateStr)
-    if (Number.isNaN(d.getTime())) return dateStr
+    // Handle yyyy-mm-dd from native date input as local date
+    const [y, m, d] = dateStr.split('-').map(Number)
+    if (!y || !m || !d) return dateStr
+    const due = new Date(y, m - 1, d)
+    if (Number.isNaN(due.getTime())) return dateStr
     const now = new Date()
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    const due = new Date(d.getFullYear(), d.getMonth(), d.getDate())
     if (due < today) return 'Overdue'
     if (due.getTime() === today.getTime()) return 'Due Today'
-    return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+    return due.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
   }
 
   const handleCreateTask = () => {
     if (!newTaskForm.title.trim()) return
-    const id = Math.max(0, ...tasks.map((t) => t.id)) + 1
-    setTasks((prev) => [
-      ...prev,
-      {
-        id,
-        title: newTaskForm.title.trim(),
-        desc: newTaskForm.description.trim() || 'No description',
-        status: 'Pending',
-        priority: newTaskForm.priority,
-        dueLabel: formatDueLabel(newTaskForm.dueDate) || '—',
-        tags: [],
-        caseId: null,
-        module: newTaskForm.module,
-        actions: ['startTask', 'markComplete'],
-      },
-    ])
+    const optimisticId = Date.now()
+    const newTask = {
+      id: optimisticId,
+      title: newTaskForm.title.trim(),
+      desc: newTaskForm.description.trim() || 'No description',
+      status: 'Pending',
+      priority: newTaskForm.priority,
+      dueLabel: formatDueLabel(newTaskForm.dueDate) || '—',
+      dueDateRaw: newTaskForm.dueDate,
+      tags: [],
+      caseId: null,
+      module: newTaskForm.module,
+      actions: ['startTask', 'markComplete'],
+    }
+    setTasks((prev) => [...prev, newTask])
     resetNewTaskForm()
     setShowNewTaskModal(false)
+    // Persist to backend (non-blocking)
+    taskService.createTask({
+      title: newTask.title,
+      description: newTask.desc,
+      priority: newTask.priority,
+      due_date: newTaskForm.dueDate || null,
+      module: newTask.module,
+      status: 'Pending',
+    }).then((res) => {
+      const realId = res?.data?.id || res?.id
+      if (realId) {
+        setTasks((prev) => prev.map((t) => t.id === optimisticId ? { ...t, id: realId } : t))
+      }
+    }).catch(() => { /* keep optimistic task */ })
   }
   const handleCloseNewTaskModal = () => {
     setShowNewTaskModal(false)
@@ -473,10 +487,11 @@ export default function TaskCenter() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
-                  <DatePicker
+                  <input
+                    type="date"
                     value={newTaskForm.dueDate}
-                    onChange={(val) => setNewTaskField('dueDate', val)}
-                    placeholderText="MM/DD/YYYY"
+                    onChange={(e) => setNewTaskField('dueDate', e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
                   />
                 </div>
               </div>

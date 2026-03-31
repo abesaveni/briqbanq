@@ -458,12 +458,40 @@ async def get_borrower_profile(
 
 
 @router.put("/profile")
+@router.patch("/profile")
 async def update_borrower_profile(
     data: dict,
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db),
 ):
-    return {"updated": True}
+    from app.modules.identity.repository import UserRepository
+    repo = UserRepository(db)
+    user = await repo.get_by_id(uuid.UUID(current_user["user_id"]))
+    if not user:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    # Update allowed fields
+    if "firstName" in data and data["firstName"]:
+        user.first_name = data["firstName"]
+    if "first_name" in data and data["first_name"]:
+        user.first_name = data["first_name"]
+    if "lastName" in data and data["lastName"]:
+        user.last_name = data["lastName"]
+    if "last_name" in data and data["last_name"]:
+        user.last_name = data["last_name"]
+    if "phone" in data:
+        user.phone = data["phone"] or None
+    await repo.update(user)
+    await db.commit()
+    return {
+        "id": str(user.id),
+        "firstName": user.first_name,
+        "first_name": user.first_name,
+        "lastName": user.last_name,
+        "last_name": user.last_name,
+        "email": user.email,
+        "phone": user.phone,
+        "role": current_user.get("role"),
+    }
 
 
 # ── GovSign stubs ─────────────────────────────────────────────────────────────
