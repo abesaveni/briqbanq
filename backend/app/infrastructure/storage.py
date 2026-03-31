@@ -62,7 +62,7 @@ class StorageClient:
         return f"local://{safe_name}"
 
     async def generate_signed_url(self, key: str, expiry: int = 3600) -> str:
-        """Return a URL to access the stored file."""
+        """Return a URL to access the stored file. Falls back to local path if S3 fails."""
         if _use_s3():
             from botocore.exceptions import ClientError
             try:
@@ -73,22 +73,22 @@ class StorageClient:
                     ExpiresIn=expiry,
                 )
                 return url
-            except ClientError as e:
-                raise RuntimeError(f"Failed to generate signed URL: {e}")
+            except ClientError:
+                # S3 credentials invalid or bucket unreachable — fall through to local
+                pass
+
+        # Local fallback
+        if key.startswith("local://"):
+            filename = key[len("local://"):]
         else:
-            # Local fallback: Detect if image or document
-            if key.startswith("local://"):
-                filename = key[len("local://"):]
-            else:
-                filename = pathlib.Path(key).name
-            
-            # Simple heuristic: if it's an image extension, check /images
-            ext = pathlib.Path(filename).suffix.lower()
-            images_dir = _LOCAL_DIR.parent / "images"
-            if ext in {".jpg", ".jpeg", ".png", ".gif", ".webp"} and (images_dir / filename).exists():
-                return f"/uploads/images/{filename}"
-                
-            return f"/uploads/documents/{filename}"
+            filename = pathlib.Path(key).name
+
+        ext = pathlib.Path(filename).suffix.lower()
+        images_dir = _LOCAL_DIR.parent / "images"
+        if ext in {".jpg", ".jpeg", ".png", ".gif", ".webp"} and (images_dir / filename).exists():
+            return f"/uploads/images/{filename}"
+
+        return f"/uploads/documents/{filename}"
 
     async def delete_file(self, key: str) -> None:
         """Delete the stored file."""
@@ -97,8 +97,8 @@ class StorageClient:
             try:
                 client = self._get_client()
                 client.delete_object(Bucket=settings.s3_bucket_name, Key=key)
-            except ClientError as e:
-                raise RuntimeError(f"Failed to delete file from S3: {e}")
+            except ClientError:
+                pass
         else:
             if key.startswith("local://"):
                 filename = key[len("local://"):]

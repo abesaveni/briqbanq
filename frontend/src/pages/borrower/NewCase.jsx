@@ -265,10 +265,19 @@ export default function NewCase() {
     } else if (s === 3) {
       if (!checksComplete) newErrors.checks = 'Please run all checks before proceeding'
       if (!formData.paymentMethod) newErrors.paymentMethod = 'Payment method is required'
-      if (!formData.cardholderName) newErrors.cardholderName = 'Cardholder name is required'
-      if (!formData.cardNumber) newErrors.cardNumber = 'Card number is required'
-      if (!formData.expiryDate) newErrors.expiryDate = 'Expiry date is required'
-      if (!formData.cvv) newErrors.cvv = 'CVV is required'
+      if (formData.paymentMethod === 'Credit Card') {
+        if (!formData.cardholderName) newErrors.cardholderName = 'Cardholder name is required'
+        if (!formData.cardNumber) newErrors.cardNumber = 'Card number is required'
+        if (!formData.expiryDate) newErrors.expiryDate = 'Expiry date is required'
+        else if (!/^\d{2}\/\d{2}$/.test(formData.expiryDate)) newErrors.expiryDate = 'Enter expiry as MM/YY'
+        if (!formData.cvv) newErrors.cvv = 'CVV is required'
+        else if (!/^\d{3,4}$/.test(formData.cvv)) newErrors.cvv = 'CVV must be 3 or 4 digits'
+      } else if (formData.paymentMethod === 'Bank Transfer') {
+        if (!formData.bankAccountName) newErrors.bankAccountName = 'Account name is required'
+        if (!formData.bankBsb) newErrors.bankBsb = 'BSB is required'
+        if (!formData.bankAccountNumber) newErrors.bankAccountNumber = 'Account number is required'
+        if (!formData.bankName) newErrors.bankName = 'Bank name is required'
+      }
       const billingPcErr = validateAuPostcode(formData.billingPostcode)
       if (billingPcErr) newErrors.billingPostcode = billingPcErr
       if (!formData.paymentAuthorized) newErrors.paymentAuthorized = 'Payment authorization is required'
@@ -571,11 +580,18 @@ export default function NewCase() {
       }
 
       if (draftCaseId) {
-        // Steps 2–10: update only the metadata on the existing draft (non-blocking)
-        // We only send metadata_json to avoid structural-field restrictions
-        caseService.updateCase(draftCaseId, {
-          metadata_json: buildMetadata(fd),
-        }).catch(() => {})
+        // Steps 2–10: update metadata on the existing draft (non-blocking)
+        // Step 5 also saves structural financial fields
+        const updatePayload = { metadata_json: buildMetadata(fd) }
+        if (step === 5) {
+          const od = parseFloat(fd.outstandingDebt)
+          const ev = parseFloat(fd.currentValuation)
+          const ir = parseFloat(fd.interestRate)
+          if (od > 0) updatePayload.outstanding_debt = od
+          if (ev > 0) updatePayload.estimated_value = ev
+          if (ir > 0) updatePayload.interest_rate = ir
+        }
+        caseService.updateCase(draftCaseId, updatePayload).catch(() => {})
       }
 
       setStep((s) => Math.min(11, s + 1))

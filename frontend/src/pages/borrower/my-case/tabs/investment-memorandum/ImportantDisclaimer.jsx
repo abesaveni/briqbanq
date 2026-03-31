@@ -21,7 +21,7 @@ export default function ImportantDisclaimer() {
           capital.
         </p>
       </div>
-      <div className="mt-8 pt-6 border-t border-blue-700 text-xs text-blue-200">
+      <div className="mt-8 pt-6 border-t border-blue-700 text-xs text-white">
         <p>© 2025 Brickbanq Pty Ltd. All rights reserved. Australian Credit Licence: XXXXXX</p>
         <p className="mt-1">Document Version: 1.0 February 2025</p>
       </div>

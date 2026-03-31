@@ -220,8 +220,8 @@ class CaseService:
         if case.borrower_id != borrower_id:  # type: ignore[comparison-overlap]
             raise AuthorizationError(message="You can only submit your own cases")
 
-        # Idempotent: already submitted → return as-is without error
-        if case.status == CaseStatus.SUBMITTED:  # type: ignore[comparison-overlap]
+        # Idempotent: already submitted or under review → return as-is without error
+        if case.status in (CaseStatus.SUBMITTED, CaseStatus.UNDER_REVIEW):  # type: ignore[comparison-overlap]
             return case
 
         CaseStateMachine.validate_transition(
