@@ -4,7 +4,6 @@ import { NavLink } from 'react-router-dom'
 const NAV_ITEMS = [
   { name: 'Dashboard', path: 'dashboard', icon: 'dashboard', color: 'text-blue-600' },
   { name: 'Assigned Cases', path: 'assigned-cases', icon: 'cases', color: 'text-blue-400' },
-  { name: 'E-Signatures', path: 'e-signatures', icon: 'sign', color: 'text-emerald-500' },
   { name: 'Contract Review', path: 'contract-review', icon: 'contract', color: 'text-[#6A0DAD]' },
   { name: 'Task Centre', path: 'task-center', icon: 'task', color: 'text-amber-400' },
   { name: 'Notifications', path: 'notifications', icon: 'bell', color: 'text-rose-400' },

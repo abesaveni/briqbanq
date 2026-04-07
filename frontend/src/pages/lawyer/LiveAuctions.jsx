@@ -73,7 +73,21 @@ export default function LiveAuctions() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20 text-slate-400">Loading...</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-xl border border-slate-200 overflow-hidden animate-pulse">
+              <div className="h-36 bg-slate-100" />
+              <div className="p-3 space-y-2">
+                <div className="h-4 bg-slate-100 rounded w-3/4" />
+                <div className="h-3 bg-slate-100 rounded w-1/2" />
+                <div className="grid grid-cols-2 gap-2 pt-2">
+                  {Array.from({ length: 4 }).map((_, j) => <div key={j} className="h-8 bg-slate-100 rounded" />)}
+                </div>
+                <div className="h-8 bg-slate-100 rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
       ) : filtered.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-200 p-16 text-center">
           <p className="text-slate-400 font-medium">No live auctions found</p>
@@ -102,6 +116,8 @@ export default function LiveAuctions() {
                     src={image || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'%3E%3Crect width='400' height='200' fill='%23f1f5f9'/%3E%3Cpath d='M160 140V100l40-30 40 30v40z' fill='%23cbd5e1'/%3E%3Crect x='180' y='110' width='20' height='30' fill='%2394a3b8'/%3E%3C/svg%3E"}
                     alt={c.title || c.property_address}
                     className="w-full h-full object-cover"
+                    loading="lazy"
+                    onError={(e) => { e.target.onerror = null; e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'%3E%3Crect width='400' height='200' fill='%23f1f5f9'/%3E%3Cpath d='M160 140V100l40-30 40 30v40z' fill='%23cbd5e1'/%3E%3Crect x='180' y='110' width='20' height='30' fill='%2394a3b8'/%3E%3C/svg%3E" }}
                   />
                   <span className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold ${badge.cls}`}>
                     {badge.label}

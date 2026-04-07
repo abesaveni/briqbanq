@@ -55,16 +55,16 @@ class DocumentService:
         Stores file in S3 and creates DB record.
         """
         # Generate S3 key
-        s3_key = f"cases/{case_id}/documents/{uuid.uuid4()}/{file_name}"
+        intended_key = f"cases/{case_id}/documents/{uuid.uuid4()}/{file_name}"
 
-        # Upload to S3
-        await storage_client.upload_file(
+        # Upload to storage — returns actual key (may differ for local fallback)
+        stored_key = await storage_client.upload_file(
             file_content=file_content,
-            key=s3_key,
+            key=intended_key,
             content_type=content_type,
         )
 
-        # Create DB record
+        # Create DB record using the key that was actually stored
         document = Document(
             case_id=case_id,
             uploaded_by=uploaded_by,
@@ -73,7 +73,7 @@ class DocumentService:
             file_name=file_name,
             file_size=file_size,
             content_type=content_type,
-            s3_key=s3_key,
+            s3_key=stored_key,
             status=DocumentStatus.UPLOADED,
         )
 

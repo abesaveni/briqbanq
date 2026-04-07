@@ -69,7 +69,11 @@ export default function AuctionRoom() {
               propertyValue: Number(live.estimated_value) || 0,
               outstandingDebt: Number(live.outstanding_debt) || 0,
             },
-            propertyImages: live.property_images || live.images || [],
+            propertyImages: (() => {
+              let imgs = live.property_images || live.images || []
+              if (typeof imgs === 'string') { try { imgs = JSON.parse(imgs) } catch { imgs = [] } }
+              return Array.isArray(imgs) ? imgs.filter(Boolean) : []
+            })(),
             bidHistory: [],
           }))
 
@@ -116,14 +120,15 @@ export default function AuctionRoom() {
   const endDate = data.auction?.endDate ? new Date(data.auction.endDate) : null
   const countdown = useCountdown(endDate || new Date(0))
   const currentBid = data.financials?.currentHighestBid || 0
-  const resolveImageUrl = (url) => {
-    if (!url) return '/placeholder-property.jpg'
-    if (url.startsWith('http')) return url
-    return url
+
+  // Parse property_images safely (could be array or JSON string)
+  let rawImages = data.propertyImages
+  if (typeof rawImages === 'string') {
+    try { rawImages = JSON.parse(rawImages) } catch { rawImages = [] }
   }
-  const images = data.propertyImages?.length
-    ? data.propertyImages.map(resolveImageUrl)
-    : ['/placeholder-property.jpg']
+  if (!Array.isArray(rawImages)) rawImages = []
+  const images = rawImages.filter(Boolean)
+  const hasImages = images.length > 0
   const winningBid = bidHistory.find(b => b.status === 'WINNING' || b.status === 'WON') || bidHistory[0]
 
   // Poll bid history every 15s so borrower sees new bids in near-real-time
@@ -423,11 +428,23 @@ export default function AuctionRoom() {
       <div className="relative rounded-xl overflow-hidden bg-gray-900 shadow-xl">
         <div className="flex flex-col lg:flex-row">
           <div className="relative flex-1 min-h-[280px] lg:min-h-[360px]">
-            <img
-              src={images[imageIndex]}
-              alt="Property"
-              className="w-full h-full object-cover"
-            />
+            {hasImages ? (
+              <img
+                src={images[imageIndex]}
+                alt="Property"
+                className="w-full h-full object-cover"
+                onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling?.style && (e.currentTarget.nextSibling.style.display = 'flex') }}
+              />
+            ) : null}
+            <div
+              className="w-full h-full flex flex-col items-center justify-center text-white/60"
+              style={{ display: hasImages ? 'none' : 'flex', minHeight: '280px' }}
+            >
+              <svg className="w-16 h-16 mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p className="text-sm font-medium opacity-50">No property images uploaded</p>
+            </div>
             <button
               type="button"
               onClick={handlePrevImage}

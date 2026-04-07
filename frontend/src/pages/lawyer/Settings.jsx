@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useLawyerProfile } from './LawyerProfileContext'
+import { useAuth } from '../../context/AuthContext'
 import SettingsTabBar from './settings/SettingsTabBar'
 import { TABS } from './settings/SettingsTabBar'
 import { validateFirstName, validateLastName, validateEmail, validateAuPhone, validateAuPostcode, validateABN } from '../../utils/auValidation'
@@ -46,6 +47,7 @@ const initialProfile = () => ({
 
 export default function Settings() {
   const { user: profileUser, setUser: setLawyerProfile } = useLawyerProfile()
+  const { user: authUser } = useAuth()
   const [activeTab, setActiveTab] = useState('profile')
   const [profile, setProfile] = useState(initialProfile)
   const [profilePhotoUrl, setProfilePhotoUrl] = useState(null)
@@ -85,6 +87,20 @@ export default function Settings() {
   const [emailPrefs, setEmailPrefs] = useState([])
   const [pushPrefs, setPushPrefs] = useState([])
   const [smsPrefs, setSmsPrefs] = useState([])
+
+  useEffect(() => {
+    if (authUser) {
+      const nameParts = (authUser.name || '').split(' ')
+      setProfile((prev) => ({
+        ...prev,
+        firstName: authUser.first_name || authUser.firstName || nameParts[0] || prev.firstName,
+        lastName: authUser.last_name || authUser.lastName || nameParts.slice(1).join(' ') || prev.lastName,
+        email: authUser.email || prev.email,
+        phone: authUser.phone || authUser.phone_number || prev.phone,
+        bio: authUser.bio || prev.bio,
+      }))
+    }
+  }, [authUser])
 
   const currentTabLabel = TABS.find((t) => t.id === activeTab)?.label ?? 'Profile'
 

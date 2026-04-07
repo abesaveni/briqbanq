@@ -33,12 +33,12 @@ export default function LenderReports() {
                 activityService.getRecentActivity()
             ]);
 
-            if (summaryRes.success && chartsRes.success && activityRes.success) {
-                setSummary(summaryRes.data);
-                setCharts(chartsRes.data);
-                setActivity(activityRes.data);
-            } else {
-                setError(summaryRes.error || chartsRes.error || activityRes.error || "Failed to load reports");
+            if (summaryRes.success) setSummary(summaryRes.data);
+            if (chartsRes.success) setCharts(chartsRes.data);
+            if (activityRes.success) setActivity(activityRes.data || []);
+
+            if (!summaryRes.success && !chartsRes.success) {
+                setError(summaryRes.error || chartsRes.error || "Failed to load report data");
             }
         } catch (err) {
             setError(err.message || "An unexpected error occurred");
@@ -271,7 +271,11 @@ export default function LenderReports() {
                         </svg>
                         {/* Legend */}
                         <div className="flex justify-between mt-4 px-2">
-                            {['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May'].map((m) => (
+                            {Array.from({ length: 8 }, (_, i) => {
+                                const d = new Date();
+                                d.setMonth(d.getMonth() - (7 - i));
+                                return d.toLocaleString('en-AU', { month: 'short' });
+                            }).map((m) => (
                                 <span key={m} className="text-[10px] font-bold text-slate-400">{m}</span>
                             ))}
                         </div>
@@ -295,17 +299,17 @@ export default function LenderReports() {
                                 <circle cx="18" cy="18" r="16" fill="none" stroke="#10B981" strokeWidth="4" strokeDasharray="15 100" strokeDashoffset="-85" />
                             </svg>
                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <span className="text-lg font-black text-slate-900 leading-none">A$4.2M</span>
+                                <span className="text-lg font-bold text-slate-900 leading-none">{summary?.totalRevenue || '—'}</span>
                                 <span className="text-[9px] font-bold text-slate-400 tracking-widest uppercase mt-0.5">Total</span>
                             </div>
                         </div>
                         {/* Chart Legend */}
                         <div className="flex-1 space-y-3">
-                            {[
-                                { label: 'Retail Loans', value: '45%', color: 'bg-indigo-800' },
-                                { label: 'Commercial', value: '35%', color: 'bg-orange-500' },
-                                { label: 'Asset Finance', value: '20%', color: 'bg-emerald-500' }
-                            ].map((item, i) => (
+                            {(charts?.revenueDistribution || [
+                                { label: 'Active Cases', value: summary?.activeCases ? `${Math.round((summary.activeCases / (summary.totalCases || 1)) * 100)}%` : '—', color: 'bg-indigo-800' },
+                                { label: 'In Auction', value: '—', color: 'bg-orange-500' },
+                                { label: 'Completed', value: '—', color: 'bg-emerald-500' }
+                            ]).map((item, i) => (
                                 <div key={i} className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <div className={`w-2 h-2 rounded-full ${item.color}`}></div>

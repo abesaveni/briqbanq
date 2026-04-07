@@ -30,36 +30,64 @@ export default function LenderBuyNowRoom() {
             try {
                 setLoading(true);
                 setError(null);
-                const res = await dealsService.getDealById(id || "MIP-2026-002");
+                const res = await dealsService.getDealById(id);
                 if (res.success) {
                     const raw = res.data || {};
-                    // Normalise snake_case API fields to camelCase
+                    const meta = raw.metadata_json_case || raw.metadata_json || {};
+
+                    // Resolve property images
+                    let propertyImages = Array.isArray(raw.property_images) && raw.property_images.length > 0
+                        ? raw.property_images
+                        : (meta.property_images || []);
+                    if (propertyImages.length === 0) {
+                        const imgDoc = (raw.documents || []).find(doc =>
+                            (doc.document_type || doc.type) === 'Property Image' &&
+                            doc.file_url && !doc.file_url.startsWith('local://')
+                        );
+                        if (imgDoc) propertyImages = [imgDoc.file_url];
+                    }
+
+                    const loanAmount = parseFloat(raw.asking_price) || 0;
+                    const propertyValue = parseFloat(raw.estimated_value) || 0;
+                    const lvr = propertyValue > 0 ? Math.round((loanAmount / propertyValue) * 100) : 0;
+
                     setDeal({
                         ...raw,
-                        buyNowPrice: raw.buyNowPrice ?? raw.buy_now_price ?? raw.asking_price ?? 0,
-                        propertyValue: raw.propertyValue ?? raw.estimated_value ?? 0,
-                        outstandingDebt: raw.outstandingDebt ?? raw.outstanding_debt ?? raw.asking_price ?? 0,
+                        buyNowPrice: loanAmount,
+                        propertyValue,
+                        outstandingDebt: parseFloat(raw.outstanding_debt) || loanAmount,
                         title: raw.title || raw.property_address || "Investment Property",
-                        image: raw.image || (Array.isArray(raw.property_images) && raw.property_images[0]) || null,
-                        suburb: raw.suburb || raw.metadata_json?.suburb || "",
-                        state: raw.state || raw.metadata_json?.state || "",
-                        metrics: raw.metrics || {
-                            lvr: raw.lvr ?? 0,
-                            interestRate: raw.interest_rate ?? 0,
-                            daysInDefault: raw.metadata_json?.days_in_default ?? 0,
-                            daysInArrears: 0,
-                            totalArrears: raw.outstanding_debt ?? 0,
-                            defaultRate: raw.metadata_json?.default_rate ?? 0,
+                        images: propertyImages,
+                        image: propertyImages[0] || null,
+                        suburb: raw.suburb || meta.suburb || "",
+                        state: raw.state || meta.state || "",
+                        postcode: raw.postcode || meta.postcode || "",
+                        metrics: {
+                            lvr,
+                            interestRate: parseFloat(raw.interest_rate) || 0,
+                            daysInDefault: parseInt(meta.days_in_default) || 0,
+                            daysInArrears: parseInt(meta.days_in_arrears) || parseInt(meta.days_in_default) || 0,
+                            totalArrears: parseFloat(meta.total_arrears) || 0,
+                            defaultRate: parseFloat(meta.default_rate) || 0,
+                            missedPayments: parseInt(meta.missed_payments) || 0,
+                            timeToSettlement: meta.time_to_settlement || null,
                         },
-                        financials: raw.financials || {
-                            outstandingDebt: raw.outstanding_debt ?? raw.asking_price ?? 0,
-                            originalLoanAmount: raw.outstanding_debt ?? raw.asking_price ?? 0,
+                        financials: {
+                            originalLoanAmount: parseFloat(meta.original_loan_amount) || loanAmount,
+                            outstandingDebt: parseFloat(raw.outstanding_debt) || loanAmount,
+                            lastPaymentDate: meta.last_payment_date || null,
+                            lastPaymentAmount: parseFloat(meta.last_payment_amount) || null,
+                            equityAvailable: Math.max(0, propertyValue - loanAmount),
+                            missedPayments: parseInt(meta.missed_payments) || 0,
                         },
-                        propertyDetails: raw.propertyDetails || {
-                            bedrooms: raw.metadata_json?.bedrooms ?? 0,
-                            bathrooms: raw.metadata_json?.bathrooms ?? 0,
-                            parking: raw.metadata_json?.parking ?? 0,
-                            landSize: raw.metadata_json?.land_size ?? "N/A",
+                        propertyDetails: {
+                            type: raw.property_type || meta.property_type || "",
+                            bedrooms: parseInt(meta.bedrooms) || 0,
+                            bathrooms: parseInt(meta.bathrooms) || 0,
+                            parking: parseInt(meta.parking) || 0,
+                            landSize: meta.land_size || null,
+                            valuer: meta.valuer_name || meta.valuation_provider || null,
+                            valuationDate: meta.valuation_date || null,
                         },
                     });
                 } else {
@@ -426,11 +454,11 @@ export default function LenderBuyNowRoom() {
 
                                     <div className="mt-6 space-y-3 pt-6 border-t border-gray-100">
                                         <CostRow label="Purchase Price" value={formatCurrency(deal?.buyNowPrice || 0)} bold />
-                                        <CostRow label="Legal Fees (est.)" value={formatCurrency(2500)} />
-                                        <CostRow label="Stamp Duty (est.)" value={formatCurrency(42000)} />
+                                        <CostRow label="Legal Fees (est.)" value={formatCurrency(deal?.legal_fees || 2500)} />
+                                        <CostRow label="Stamp Duty (est.)" value={formatCurrency(deal?.stamp_duty || Math.round((deal?.buyNowPrice || 0) * 0.04))} />
                                         <div className="pt-3 border-t border-gray-50 flex justify-between items-center">
                                             <span className="text-xs font-bold text-gray-900 uppercase">Total Est. Cost</span>
-                                            <span className="text-lg font-black text-gray-900">{formatCurrency((deal?.buyNowPrice || 0) + 2500 + 42000)}</span>
+                                            <span className="text-lg font-bold text-gray-900">{formatCurrency((deal?.buyNowPrice || 0) + (deal?.legal_fees || 2500) + (deal?.stamp_duty || Math.round((deal?.buyNowPrice || 0) * 0.04)))}</span>
                                         </div>
                                     </div>
                                 </div>

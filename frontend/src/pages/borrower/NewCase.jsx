@@ -168,20 +168,22 @@ export default function NewCase() {
   const [submitting, setSubmitting] = useState(false)
   const [propertyValidating, setPropertyValidating] = useState(false)
   const [propertyValidated, setPropertyValidated] = useState(false)
-  const [directors, setDirectors] = useState([])
-  const [shareholders, setShareholders] = useState([])
-  const [trustees, setTrustees] = useState([])
-  const [guarantors, setGuarantors] = useState([])
+  const [directors, setDirectors] = useState(Array.isArray(savedDraft?.directors) ? savedDraft.directors : [])
+  const [shareholders, setShareholders] = useState(Array.isArray(savedDraft?.shareholders) ? savedDraft.shareholders : [])
+  const [trustees, setTrustees] = useState(Array.isArray(savedDraft?.trustees) ? savedDraft.trustees : [])
+  const [guarantors, setGuarantors] = useState(Array.isArray(savedDraft?.guarantors) ? savedDraft.guarantors : [])
   const [runningChecks, setRunningChecks] = useState(false)
   const [checksComplete, setChecksComplete] = useState(false)
   const [uploadedLenderDocs, setUploadedLenderDocs] = useState(() => ({ level: 'none' })) // Using object to store { title: filename }
   const [valuationUploaded, setValuationUploaded] = useState('') // Store filename
   const [insuranceUploaded, setInsuranceUploaded] = useState('') // Store filename
   const [supportingDocs, setSupportingDocs] = useState({ title: '', certificate: '', report: '' }) // Store filenames
-  const [draftCaseId, setDraftCaseId] = useState(null)  // case created as DRAFT on step 1
+  const [draftCaseId, setDraftCaseId] = useState(savedDraft?.draftCaseId || null)  // case created as DRAFT on step 1
   const fileInputRef = useRef(null)
   const uploadContextRef = useRef(null)
   const pendingDocFilesRef = useRef({})
+  const uploadedImagesRef = useRef(new Set())   // image names already uploaded to backend
+  const uploadedDocsRef = useRef(new Set())     // doc keys already uploaded to backend
   const [runAnalysisLoading, setRunAnalysisLoading] = useState(false)
   const [runAnalysisResult, setRunAnalysisResult] = useState(null)
   const [pendingTrustee, setPendingTrustee] = useState(null)
@@ -520,22 +522,26 @@ export default function NewCase() {
             }
           }
 
-          // Upload property images in parallel
-          const imageUploads = propertyImages.map(img => 
-            caseService.uploadCaseImage(caseId, img.file)
-          );
-          await Promise.allSettled(imageUploads);
+          // Upload property images that haven't been uploaded yet
+          const pendingImages = propertyImages.filter(img => !uploadedImagesRef.current.has(img.name))
+          if (pendingImages.length > 0) {
+            await Promise.allSettled(pendingImages.map(img =>
+              caseService.uploadCaseImage(caseId, img.file)
+            ))
+          }
 
-          // Upload case documents in parallel
-          const docUploads = Object.entries(pendingDocFilesRef.current).map(([key, docInfo]) => {
-            const fd = new FormData();
-            fd.append('case_id', caseId);
-            fd.append('document_name', docInfo.name.replace(/\.[^.]+$/, ''));
-            fd.append('document_type', docInfo.docType);
-            fd.append('file', docInfo.file);
-            return documentService.uploadDocument(caseId, fd);
-          });
-          await Promise.allSettled(docUploads);
+          // Upload case documents that haven't been uploaded yet
+          const pendingDocs = Object.entries(pendingDocFilesRef.current).filter(([key]) => !uploadedDocsRef.current.has(key))
+          if (pendingDocs.length > 0) {
+            await Promise.allSettled(pendingDocs.map(([, docInfo]) => {
+              const fd = new FormData()
+              fd.append('case_id', caseId)
+              fd.append('document_name', docInfo.name.replace(/\.[^.]+$/, ''))
+              fd.append('document_type', docInfo.docType)
+              fd.append('file', docInfo.file)
+              return documentService.uploadDocument(caseId, fd)
+            }))
+          }
 
           // Submit DRAFT → SUBMITTED
           const submitRes = await caseService.submitCaseActual(caseId)
@@ -565,10 +571,70 @@ export default function NewCase() {
     // --- Steps 1–10: save to backend then advance ---
     const saveAndAdvance = async () => {
       const fd = formData
+      let currentDraftId = draftCaseId
 
-      // Steps 1–10: save formData to localStorage so the user can resume if they navigate away
+      // Build the backend payload from current form state
+      const ev = parseFloat(fd.currentValuation)
+      const od = parseFloat(fd.outstandingDebt)
+      const casePayload = {
+        title: fd.streetAddress ? `${fd.streetAddress}, ${fd.suburb}` : 'Mortgage Resolution Case',
+        description: fd.reasonForDefault || 'New borrower case submission',
+        property_address: `${fd.streetAddress || ''}${fd.suburb ? ', ' + fd.suburb : ''}${fd.state ? ', ' + fd.state : ''}${fd.postcode ? ' ' + fd.postcode : ''}`.trim() || 'TBD',
+        property_type: fd.propertyType || 'Other',
+        estimated_value: ev > 0 ? ev : 1,
+        outstanding_debt: od > 0 ? od : 1,
+        interest_rate: parseFloat(fd.interestRate) || 0,
+        tenure: parseInt(fd.tenure) || 12,
+        metadata_json: buildMetadata(fd),
+      }
+
       try {
-        localStorage.setItem('briqbanq_newcase_draft', JSON.stringify({ step: step + 1, formData: fd }))
+        if (!currentDraftId) {
+          // Step 1 first time: create the draft case on the backend
+          const createRes = await caseService.createCase(casePayload)
+          if (createRes.success && createRes.data?.id) {
+            currentDraftId = createRes.data.id
+            setDraftCaseId(currentDraftId)
+            // Upload any images the user already selected before draft was created
+            const pendingImages = propertyImages.filter(img => !uploadedImagesRef.current.has(img.name))
+            if (pendingImages.length > 0) {
+              pendingImages.forEach(img => {
+                caseService.uploadCaseImage(currentDraftId, img.file)
+                  .then(() => { uploadedImagesRef.current.add(img.name) })
+                  .catch(() => {})
+              })
+            }
+            // Upload any docs already staged before draft was created
+            Object.entries(pendingDocFilesRef.current).forEach(([key, docInfo]) => {
+              if (!uploadedDocsRef.current.has(key)) {
+                const fd = new FormData()
+                fd.append('case_id', currentDraftId)
+                fd.append('document_name', docInfo.name.replace(/\.[^.]+$/, ''))
+                fd.append('document_type', docInfo.docType)
+                fd.append('file', docInfo.file)
+                documentService.uploadDocument(currentDraftId, fd)
+                  .then(() => { uploadedDocsRef.current.add(key) })
+                  .catch(() => {})
+              }
+            })
+          }
+        } else {
+          // Steps 2–10: update the existing draft
+          await caseService.updateCase(currentDraftId, casePayload)
+        }
+      } catch { /* silently continue — data is still in localStorage */ }
+
+      // Save to localStorage (including draftCaseId so it survives page refresh)
+      try {
+        localStorage.setItem('briqbanq_newcase_draft', JSON.stringify({
+          step: step + 1,
+          formData: fd,
+          directors,
+          shareholders,
+          trustees,
+          guarantors,
+          draftCaseId: currentDraftId,
+        }))
       } catch { /* ignore storage errors */ }
 
       setStep((s) => Math.min(11, s + 1))
@@ -671,18 +737,40 @@ export default function NewCase() {
       return next
     })
 
+    let docKey = null
+    let docType = 'Legal'
     if (context.type === 'lender') {
       setUploadedLenderDocs((prev) => ({ ...prev, [context.title]: file.name }))
-      pendingDocFilesRef.current[`lender_${context.title}`] = { file, name: file.name, docType: 'Legal' }
+      docKey = `lender_${context.title}`
+      docType = 'Legal'
+      pendingDocFilesRef.current[docKey] = { file, name: file.name, docType }
     } else if (context.type === 'valuation') {
       setValuationUploaded(file.name)
-      pendingDocFilesRef.current['valuation'] = { file, name: file.name, docType: 'Valuation' }
+      docKey = 'valuation'
+      docType = 'Valuation'
+      pendingDocFilesRef.current[docKey] = { file, name: file.name, docType }
     } else if (context.type === 'insurance') {
       setInsuranceUploaded(file.name)
-      pendingDocFilesRef.current['insurance'] = { file, name: file.name, docType: 'Insurance' }
+      docKey = 'insurance'
+      docType = 'Insurance'
+      pendingDocFilesRef.current[docKey] = { file, name: file.name, docType }
     } else if (context.type === 'supporting') {
       setSupportingDocs((prev) => ({ ...prev, [context.key]: file.name }))
-      pendingDocFilesRef.current[`supporting_${context.key}`] = { file, name: file.name, docType: 'Legal' }
+      docKey = `supporting_${context.key}`
+      docType = 'Legal'
+      pendingDocFilesRef.current[docKey] = { file, name: file.name, docType }
+    }
+
+    // If a draft case already exists, upload immediately so file is persisted to backend
+    if (docKey && draftCaseId) {
+      const fd = new FormData()
+      fd.append('case_id', draftCaseId)
+      fd.append('document_name', file.name.replace(/\.[^.]+$/, ''))
+      fd.append('document_type', docType)
+      fd.append('file', file)
+      documentService.uploadDocument(draftCaseId, fd)
+        .then(() => { uploadedDocsRef.current.add(docKey) })
+        .catch(() => { /* will retry at step 11 */ })
     }
 
     e.target.value = '' // Clear selection for next upload
@@ -694,6 +782,15 @@ export default function NewCase() {
     const newImages = valid.map(f => ({ file: f, preview: URL.createObjectURL(f), name: f.name }))
     setPropertyImages(prev => [...prev, ...newImages])
     e.target.value = ''
+
+    // If a draft case already exists, upload immediately to backend
+    if (draftCaseId && newImages.length > 0) {
+      newImages.forEach(img => {
+        caseService.uploadCaseImage(draftCaseId, img.file)
+          .then(() => { uploadedImagesRef.current.add(img.name) })
+          .catch(() => { /* will retry at step 11 */ })
+      })
+    }
   }
 
   const removePropertyImage = (idx) => {

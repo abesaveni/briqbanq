@@ -412,8 +412,8 @@ export default function LenderContracts() {
             )}
 
             {showCreateModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto animate-fade-in" onClick={closeCreateModal}>
-                    <div className="bg-white rounded-lg border border-slate-200 shadow-xl max-w-2xl w-full p-6 my-8" onClick={(e) => e.stopPropagation()}>
+                <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-black/50 overflow-y-auto animate-fade-in" onClick={closeCreateModal}>
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-xl max-w-lg w-full p-5 my-8" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-lg font-semibold text-slate-900">Create New Contract</h3>
                             <button type="button" onClick={closeCreateModal} className="text-slate-400 hover:text-slate-600 transition-colors">

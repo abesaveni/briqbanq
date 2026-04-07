@@ -131,10 +131,6 @@ class CustomFormField(BaseEntityMixin, Base):
     sort_order: Mapped[int] = mapped_column(default=0, nullable=False)
     is_default: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)  # pre-seeded fields
 
-    __table_args__ = (
-        Index("ix_custom_form_fields_form_id", "form_id"),
-    )
-
     def __repr__(self) -> str:
         return f"<CustomFormField(form={self.form_id}, label={self.label})>"
 

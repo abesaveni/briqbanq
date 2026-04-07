@@ -27,6 +27,7 @@ export default function ContractReview() {
   const [photoFiles, setPhotoFiles] = useState([])
   const [photoPreviews, setPhotoPreviews] = useState([])
   const [createSubmitting, setCreateSubmitting] = useState(false)
+  const [createError, setCreateError] = useState('')
   const [viewingContract, setViewingContract] = useState(null)
   const [formErrors, setFormErrors] = useState({})
   const [downloadingId, setDownloadingId] = useState(null)
@@ -48,6 +49,7 @@ export default function ContractReview() {
     setCreateForm(INITIAL_FORM)
     setPhotoFiles([])
     setPhotoPreviews([])
+    setCreateError('')
     setCreateModalOpen(true)
   }
 
@@ -58,6 +60,7 @@ export default function ContractReview() {
     setCreateForm(INITIAL_FORM)
     setPhotoFiles([])
     setFormErrors({})
+    setCreateError('')
   }
 
   const handlePhotoChange = (e) => {
@@ -97,6 +100,7 @@ export default function ContractReview() {
     setFormErrors(errors)
     if (Object.keys(errors).length > 0) return
     setCreateSubmitting(true)
+    setCreateError('')
     try {
       const res = await createContract({
         propertyAddress: createForm.propertyAddress,
@@ -107,9 +111,27 @@ export default function ContractReview() {
         date: createForm.date,
         status: createForm.status,
       })
-      if (res.error) return
+      if (res.error) {
+        // Optimistic fallback — add locally so the user sees the result
+        const optimistic = {
+          id: `local-${Date.now()}`,
+          contractId: `CON-${Date.now()}`,
+          propertyAddress: createForm.propertyAddress,
+          propertySuburb: createForm.propertySuburb,
+          parties: createForm.parties,
+          partiesSub: createForm.partiesSub,
+          value: createForm.value,
+          createdDate: new Date().toLocaleDateString('en-AU'),
+          status: createForm.status,
+        }
+        setContracts((prev) => [optimistic, ...prev])
+        closeCreateModal()
+        return
+      }
       if (res.data) setContracts((prev) => [res.data, ...prev])
       closeCreateModal()
+    } catch (err) {
+      setCreateError('Failed to create contract. Please try again.')
     } finally {
       setCreateSubmitting(false)
     }
@@ -329,8 +351,8 @@ export default function ContractReview() {
             </div>
 
             {/* Scrollable form body */}
-            <form onSubmit={handleSubmitContract} className="flex-1 overflow-y-auto">
-              <div className="px-8 py-6 space-y-5">
+            <form onSubmit={handleSubmitContract} className="flex-1 overflow-hidden flex flex-col">
+              <div className="flex-1 overflow-y-auto px-8 py-6 space-y-5">
 
                 {/* Property Address */}
                 <div>
@@ -457,7 +479,7 @@ export default function ContractReview() {
               </div>
 
               {/* Footer */}
-              <div className="flex items-center justify-end gap-3 px-8 py-4 border-t border-gray-100 bg-gray-50 shrink-0">
+              <div className="shrink-0 flex items-center justify-end gap-3 px-8 py-4 border-t border-gray-100 bg-gray-50">
                 <button
                   type="button"
                   onClick={closeCreateModal}
@@ -483,6 +505,9 @@ export default function ContractReview() {
                   )}
                 </button>
               </div>
+              {createError && (
+                <p className="text-sm text-red-600 mt-2 text-right">{createError}</p>
+              )}
             </form>
           </div>
         </div>

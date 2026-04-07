@@ -9,13 +9,11 @@ const navItems = [
     { label: 'Deals', path: '/lender/deals', icon: 'deal', color: 'text-blue-500' },
     { label: 'Auctions', path: '/lender/auctions', icon: 'auction', color: 'text-amber-600' },
     { label: 'Client Communication', path: '/lender/communications', icon: 'communication', color: 'text-rose-500' },
-    { label: 'E-Signatures', path: '/lender/e-signatures', icon: 'sign', color: 'text-teal-600' },
     { label: 'Contracts', path: '/lender/contracts', icon: 'contract', color: 'text-violet-600' },
     { label: 'Reports', path: '/lender/reports', icon: 'reports', color: 'text-indigo-400' },
     { label: 'Task Center', path: '/lender/tasks', icon: 'task', color: 'text-slate-600' },
     { label: 'Review Cases', path: '/lender/review-relevant-cases', icon: 'review', color: 'text-teal-600' },
     { label: 'Trend Analysis', path: '/lender/trend-analysis', icon: 'trend', color: 'text-purple-500' },
-    { label: 'Submit New Case', path: '/lender/submit-case', icon: 'add', color: 'text-green-600' },
     { label: 'Notifications', path: '/lender/notifications', icon: 'bell', color: 'text-orange-500' },
 ]
 

@@ -45,6 +45,10 @@ export default function LenderCaseDetails() {
     const [isAIAssistantModalOpen, setIsAIAssistantModalOpen] = useState(false);
     const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
     const [isAddChecklistItemModalOpen, setIsAddChecklistItemModalOpen] = useState(false);
+    const [openTaskMenuId, setOpenTaskMenuId] = useState(null);
+    const [taskActionModal, setTaskActionModal] = useState(null); // { type, task }
+    const [taskActionForm, setTaskActionForm] = useState({});
+    const [taskActionSaving, setTaskActionSaving] = useState(false);
 
     const [caseSettlementData, setCaseSettlementData] = useState({
         summary: {
@@ -224,7 +228,7 @@ export default function LenderCaseDetails() {
                     bathrooms: Number(meta.bathrooms || fetchedCase.bathrooms) || 0,
                     parking: Number(meta.parking || fetchedCase.parking) || 0,
                     propertyType: fetchedCase.property_type || meta.property_type || "N/A",
-                    landSize: meta.land_size || "N/A",
+                    landSize: meta.land_size || fetchedCase.land_size || "N/A",
                     documentCollection: { current: (fetchedCase.documents || []).length, total: (fetchedCase.documents || []).length },
                     verificationStatus: { current: 0, total: 0 },
                     totalParties: 0,
@@ -293,14 +297,22 @@ export default function LenderCaseDetails() {
                 try {
                     const settlementRes = await settlementService.getSettlement(id);
                     if (settlementRes?.success && settlementRes.data?.breakdown) {
-                        const breakdown = typeof settlementRes.data.breakdown === 'string' 
-                            ? JSON.parse(settlementRes.data.breakdown) 
+                        const breakdown = typeof settlementRes.data.breakdown === 'string'
+                            ? JSON.parse(settlementRes.data.breakdown)
                             : settlementRes.data.breakdown;
-                        
+
                         if (breakdown.property) {
                             setSettlementOverviewData(prev => ({
                                 ...prev,
                                 ...breakdown
+                            }));
+                        }
+                        // Load checklist categories if stored
+                        if (breakdown.categories && Array.isArray(breakdown.categories)) {
+                            setCaseSettlementData(prev => ({
+                                ...prev,
+                                categories: breakdown.categories,
+                                summary: breakdown.summary || prev.summary
                             }));
                         }
                     }
@@ -325,9 +337,9 @@ export default function LenderCaseDetails() {
     // Persistence Helpers
     const persistSettlement = async (updatedData) => {
         try {
-            await settlementService.updateSettlementBreakdown(id, updatedData);
+            await settlementService.saveChecklist(id, updatedData);
         } catch (err) {
-            console.error("Failed to persist settlement breakdown:", err);
+            console.error("Failed to persist settlement checklist:", err);
             setToast({ show: true, message: "Sync error: Settlement data not saved.", type: "error" });
         }
     };
@@ -364,6 +376,62 @@ export default function LenderCaseDetails() {
         }
     };
 
+    // ── Task action handlers ──────────────────────────────────────────────────
+    const openTaskAction = (type, task) => {
+        setOpenTaskMenuId(null);
+        setTaskActionForm(
+            type === 'edit' ? { title: task.title, desc: task.desc, assignee: task.assignee, date: task.date, priority: task.priority } :
+            type === 'reassign' ? { assignee: task.assignee, email: task.email || '' } :
+            type === 'priority' ? { priority: task.priority } :
+            type === 'escalate' ? { reason: '' } :
+            {}
+        );
+        setTaskActionModal({ type, task });
+    };
+
+    const applyTaskUpdate = (taskId, updates) => {
+        const updatedCategories = caseSettlementData.categories.map(cat => ({
+            ...cat,
+            tasks: cat.tasks.map(t => t.id === taskId ? { ...t, ...updates } : t)
+        }));
+        setCaseSettlementData(prev => ({ ...prev, categories: updatedCategories }));
+        return updatedCategories;
+    };
+
+    const handleTaskActionSave = async () => {
+        if (!taskActionModal) return;
+        const { type, task } = taskActionModal;
+        setTaskActionSaving(true);
+        try {
+            if (type === 'edit') {
+                await settlementService.updateTask(id, task.id, taskActionForm);
+                applyTaskUpdate(task.id, taskActionForm);
+                setToast({ show: true, message: "Task updated successfully.", type: "success" });
+            } else if (type === 'reassign') {
+                await settlementService.updateTask(id, task.id, taskActionForm);
+                applyTaskUpdate(task.id, taskActionForm);
+                setToast({ show: true, message: `Task reassigned to ${taskActionForm.assignee}.`, type: "success" });
+            } else if (type === 'priority') {
+                await settlementService.updateTask(id, task.id, { priority: taskActionForm.priority });
+                applyTaskUpdate(task.id, { priority: taskActionForm.priority });
+                setToast({ show: true, message: `Priority set to ${taskActionForm.priority}.`, type: "success" });
+            } else if (type === 'archive') {
+                await settlementService.archiveTask(id, task.id);
+                applyTaskUpdate(task.id, { archived: true, status: 'ARCHIVED' });
+                setToast({ show: true, message: "Task archived.", type: "success" });
+            } else if (type === 'escalate') {
+                await settlementService.escalateTask(id, task.id, taskActionForm.reason);
+                applyTaskUpdate(task.id, { escalated: true, priority: 'CRITICAL' });
+                setToast({ show: true, message: "Task escalated to compliance.", type: "success" });
+            }
+            setTaskActionModal(null);
+        } catch (err) {
+            setToast({ show: true, message: err.message || "Action failed. Please try again.", type: "error" });
+        } finally {
+            setTaskActionSaving(false);
+        }
+    };
+
     const handleSaveNoteLocal = (taskId, text) => {
         const updatedCategories = caseSettlementData.categories.map(cat => ({
             ...cat,
@@ -375,16 +443,16 @@ export default function LenderCaseDetails() {
 
     // Tabs Navigation
     const tabs = [
-        { label: "Dashboard", icon: Home },
-        { label: "Full Details", icon: FileText },
-        { label: "Lawyer Review", icon: Gavel },
-        { label: "Property", icon: Home },
-        { label: "Documents", icon: Briefcase },
-        { label: "Investment Memorandum", icon: Target },
-        { label: "Settlement", icon: Handshake },
-        { label: "Bids", icon: DollarSign },
-        { label: "Messages", icon: MessageSquare },
-        { label: "Activity", icon: RefreshCw }
+        { label: "Dashboard",              short: "Dashboard",   icon: Home },
+        { label: "Full Details",           short: "Details",     icon: FileText },
+        { label: "Lawyer Review",          short: "Lawyer",      icon: Gavel },
+        { label: "Property",               short: "Property",    icon: Home },
+        { label: "Documents",              short: "Documents",   icon: Briefcase },
+        { label: "Investment Memorandum",  short: "Inv. Memo",   icon: Target },
+        { label: "Settlement",             short: "Settlement",  icon: Handshake },
+        { label: "Bids",                   short: "Bids",        icon: DollarSign },
+        { label: "Messages",               short: "Messages",    icon: MessageSquare },
+        { label: "Activity",               short: "Activity",    icon: RefreshCw }
     ];
 
     // Handlers
@@ -552,8 +620,54 @@ export default function LenderCaseDetails() {
         setToast({ show: true, message: `Opening ${name} in institutional viewer...`, type: "info" });
     };
 
-    const handleDownloadDocumentLocal = (name) => {
-        setToast({ show: true, message: `Downloading ${name} to local repository...`, type: "success" });
+    const _fetchDocBlob = async (docId) => {
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken') || '';
+        const res = await fetch(`/api/v1/documents/${docId}/download`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error(`Server returned ${res.status}`);
+
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            // Backend returned a JSON envelope with a download_url (S3 presigned URL)
+            const json = await res.json();
+            const downloadUrl = json.download_url;
+            if (!downloadUrl) throw new Error('No download URL in response');
+            const fileRes = await fetch(downloadUrl);
+            if (!fileRes.ok) throw new Error(`File fetch returned ${fileRes.status}`);
+            return await fileRes.blob();
+        }
+
+        return await res.blob();
+    };
+
+    const handleDownloadDocument = async (doc) => {
+        try {
+            setToast({ show: true, message: `Downloading ${doc.name}...`, type: "info" });
+            const blob = await _fetchDocBlob(doc.id);
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const filename = doc.name || 'document';
+            a.download = filename.includes('.') ? filename : filename + '.pdf';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            setToast({ show: true, message: `${doc.name} downloaded.`, type: "success" });
+        } catch (err) {
+            setToast({ show: true, message: "Failed to download document.", type: "error" });
+        }
+    };
+
+    const handleViewDocument = async (doc) => {
+        try {
+            const blob = await _fetchDocBlob(doc.id);
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank', 'noopener,noreferrer');
+        } catch (err) {
+            setToast({ show: true, message: "Failed to open document.", type: "error" });
+        }
     };
 
     const handleGenerateDoc = async (type) => {
@@ -591,10 +705,10 @@ export default function LenderCaseDetails() {
     };
 
     return (
-        <div id="case-details-container" className="space-y-4 animate-in fade-in duration-700 pb-20 max-w-[1400px] mx-auto text-slate-900 px-6 font-sans relative">
+        <div id="case-details-container" className="space-y-4 animate-in fade-in duration-700 pb-20 max-w-[1400px] mx-auto text-slate-900 px-6 relative">
             {/* Header Section */}
             <div className="flex flex-col gap-0.5 pt-2">
-                <div className="flex items-center gap-2 text-[11px] font-medium text-gray-500">
+                <div className="flex items-center gap-2 text-xs font-medium text-gray-500">
                     <button onClick={() => navigate('/lender/dashboard')} className="hover:text-gray-700 flex items-center gap-1.5">
                         <Home size={14} className="text-gray-400" />
                     </button>
@@ -603,9 +717,9 @@ export default function LenderCaseDetails() {
                     <ChevronRight size={12} className="text-gray-400" />
                     <span className="text-gray-400">Cases</span>
                     <ChevronRight size={12} className="text-gray-400" />
-                    <span className="text-gray-900 font-semibold">{caseData.id}</span>
+                    <span className="text-gray-900 font-semibold">{caseData.case_number || caseData.id}</span>
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900 mt-2">Lender Dashboard: {caseData.id}</h1>
+                <h1 className="text-2xl font-bold text-gray-900 mt-2">Lender Dashboard: {caseData.case_number || caseData.id}</h1>
                 <p className="text-sm text-gray-500">Institutional recovery and settlement management</p>
             </div>
 
@@ -614,12 +728,12 @@ export default function LenderCaseDetails() {
                 <div className="p-5 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-slate-900">
                     <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-3">
-                            <h2 className="text-2xl font-bold text-gray-900">{caseData.id}</h2>
+                            <h2 className="text-2xl font-bold text-gray-900">{caseData.case_number || caseData.id}</h2>
                             <div className="flex gap-2">
-                                <span className="px-2.5 py-1 bg-blue-900 text-white rounded-md text-[10px] font-semibold uppercase tracking-wide">
+                                <span className="px-2.5 py-1 bg-blue-900 text-white rounded-md text-xs font-semibold uppercase">
                                     {caseData.status}
                                 </span>
-                                <span className="px-2.5 py-1 bg-amber-50 text-amber-600 rounded-md text-[10px] font-semibold uppercase tracking-wide border border-amber-100">
+                                <span className="px-2.5 py-1 bg-amber-50 text-amber-600 rounded-md text-xs font-semibold uppercase border border-amber-100">
                                     {caseData.riskLevel}
                                 </span>
                             </div>
@@ -632,7 +746,7 @@ export default function LenderCaseDetails() {
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => generateBrandedPDF({
-                                title: `Recovery Pack — ${caseData.id}`,
+                                title: `Recovery Pack — ${caseData.case_number || caseData.id}`,
                                 subtitle: caseData.address,
                                 sections: [
                                     { heading: "Borrower", body: caseData.borrower },
@@ -643,7 +757,7 @@ export default function LenderCaseDetails() {
                                     { heading: "Status", body: caseData.status },
                                 ],
                             })}
-                            className="px-4 py-2 border border-gray-200 rounded-lg text-[13px] font-semibold text-gray-700 hover:bg-gray-50 transition-all"
+                            className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-all"
                         >
                             Export Recovery Pack
                         </button>
@@ -652,7 +766,7 @@ export default function LenderCaseDetails() {
                                 setFormData({ ...caseData });
                                 setIsManageModalOpen(true);
                             }}
-                            className="px-4 py-2 bg-blue-900 text-white rounded-lg text-[13px] font-semibold hover:bg-black transition-all"
+                            className="px-4 py-2 bg-blue-900 text-white rounded-lg text-sm font-semibold hover:bg-black transition-all"
                         >
                             Manage Case
                         </button>
@@ -661,57 +775,58 @@ export default function LenderCaseDetails() {
 
                 <div className="grid grid-cols-2 lg:grid-cols-4 border-t border-gray-100 text-slate-900">
                     <div className="p-5">
-                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Borrower</p>
+                        <p className="text-xs font-medium text-gray-500r mb-1.5">Borrower</p>
                         <p className="font-bold text-gray-900">{caseData.borrower}</p>
                     </div>
                     <div className="p-5 border-l border-gray-100 text-slate-900">
-                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Lead Institution</p>
+                        <p className="text-xs font-medium text-gray-500r mb-1.5">Lead Institution</p>
                         <p className="font-bold text-gray-900">{caseData.lender}</p>
                     </div>
                     <div className="p-5 border-t lg:border-t-0 border-l lg:border-l border-gray-100 text-slate-900">
-                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Outstanding Debt</p>
+                        <p className="text-xs font-medium text-gray-500r mb-1.5">Outstanding Debt</p>
                         <p className="font-bold text-gray-900">${caseData.outstandingDebt.toLocaleString()}</p>
                     </div>
                     <div className="p-5 border-t lg:border-t-0 border-l border-gray-100 text-slate-900">
-                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Property Valuation</p>
+                        <p className="text-xs font-medium text-gray-500r mb-1.5">Property Valuation</p>
                         <p className="font-bold text-gray-900">${caseData.propertyValuation.toLocaleString()}</p>
                     </div>
                 </div>
             </div>
 
             {/* Tabs Navigation */}
-            <div className="flex items-center gap-1 bg-gray-50 p-1 rounded-xl overflow-x-auto scrollbar-hide border border-gray-200/50 mb-6">
+            <div className="grid grid-cols-10 gap-0.5 bg-gray-50 p-1 rounded-xl border border-gray-200 mb-4">
                 {tabs.map((tab) => (
                     <button
                         key={tab.label}
                         onClick={() => setActiveTab(tab.label)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-bold whitespace-nowrap transition-all ${activeTab === tab.label
-                            ? "bg-white text-blue-900 shadow-sm border border-gray-100"
-                            : "text-slate-600 hover:bg-white/40"
+                        title={tab.label}
+                        className={`flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-lg text-[11px] font-medium transition-all ${activeTab === tab.label
+                            ? "bg-white text-indigo-700 shadow-sm border border-gray-100"
+                            : "text-gray-500 hover:bg-white/60 hover:text-gray-800"
                             }`}
                     >
-                        <tab.icon size={15} className={activeTab === tab.label ? "text-blue-900" : "text-slate-400"} />
-                        {tab.label}
+                        <tab.icon size={14} className={activeTab === tab.label ? "text-indigo-600" : "text-gray-400"} />
+                        <span className="truncate w-full text-center leading-tight">{tab.short}</span>
                     </button>
                 ))}
             </div>
 
             {/* Tab Panels */}
-            <div className="px-1 min-h-[600px]">
+            <div className="min-h-[500px]">
                 {activeTab === "Dashboard" && (
                     <div className="space-y-6 animate-fade-in">
                         {/* Summary Section */}
-                        <div className="bg-blue-900 rounded-[32px] p-10 text-white relative overflow-hidden shadow-2xl">
-                            <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                        <div className="bg-blue-900 rounded-xl p-6 text-white relative overflow-hidden shadow-2xl">
+                            <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                 <div>
-                                    <h3 className="text-2xl font-black mb-2 tracking-tight">Lender Case Intelligence Dashboard</h3>
+                                    <h3 className="text-2xl font-semibold mb-2 ">Lender Case Intelligence Dashboard</h3>
                                     <p className="text-blue-100 font-bold text-sm max-w-xl leading-relaxed opacity-80">
                                         Active monitoring of recovery progress and asset protection. Current LVR is within acceptable institutional risk parameters.
                                     </p>
                                 </div>
                                 <button
                                     onClick={handleRefreshIntelligence}
-                                    className="h-12 px-10 bg-white text-blue-900 rounded-xl font-black text-[12px] uppercase tracking-widest hover:bg-blue-50 transition-all shadow-xl active:scale-95 flex items-center gap-2"
+                                    className="h-12 px-10 bg-white text-blue-900 rounded-xl font-semibold text-xs uppercase hover:bg-blue-50 transition-all shadow-xl active:scale-95 flex items-center gap-2"
                                 >
                                     <RefreshCw size={16} className={loading ? "animate-spin" : ""} /> Refresh Intelligence
                                 </button>
@@ -722,10 +837,10 @@ export default function LenderCaseDetails() {
                         {/* Gauges Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {/* Risk Assessment */}
-                            <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex flex-col items-center relative min-h-[280px]">
-                                <div className="w-full flex items-center gap-2 mb-8">
+                            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center relative min-h-[200px]">
+                                <div className="w-full flex items-center gap-2 mb-4">
                                     <ShieldCheck size={18} className="text-slate-900" />
-                                    <p className="text-sm font-black text-slate-900 uppercase tracking-widest">Risk Assessment</p>
+                                    <p className="text-sm font-semibold text-slate-900">Risk Assessment</p>
                                 </div>
 
                                 <div className="relative w-48 h-24 mb-6">
@@ -749,34 +864,34 @@ export default function LenderCaseDetails() {
                                         />
                                     </svg>
                                     <div className="absolute inset-0 flex items-end justify-center pb-2">
-                                        <span className="text-2xl font-black text-slate-900 uppercase">MEDIUM</span>
+                                        <span className="text-2xl font-semibold text-slate-900 uppercase">MEDIUM</span>
                                     </div>
                                 </div>
                                 <div className="mt-auto w-full flex justify-between items-end">
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Risk Score</p>
-                                        <p className="text-sm font-black text-slate-900">{caseData.riskScore}/100</p>
+                                        <p className="text-xs font-medium text-gray-500">Risk Score</p>
+                                        <p className="text-sm font-semibold text-slate-900">{caseData.riskScore}/100</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Missed Payments</p>
-                                        <p className="text-sm font-black text-rose-600">{caseData.arrears.missedPayments}</p>
+                                        <p className="text-xs font-medium text-gray-500">Missed Payments</p>
+                                        <p className="text-sm font-semibold text-rose-600">{caseData.arrears.missedPayments}</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Loan to Value Ratio */}
-                            <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col items-center relative min-h-[320px] group hover:shadow-xl transition-all duration-500">
+                            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center relative min-h-[320px] group hover:shadow-xl transition-all duration-500">
                                 <div className="absolute top-0 right-0 p-6">
                                     <div className="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-500 shadow-inner">
                                         <TrendingUp size={20} />
                                     </div>
                                 </div>
-                                <div className="w-full mb-10">
-                                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Risk Parameter</p>
-                                    <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">Loan to Value Ratio</h4>
+                                <div className="w-full mb-4">
+                                    <p className="text-xs font-medium text-gray-500  mb-1">Risk Parameter</p>
+                                    <h4 className="text-sm font-semibold text-slate-900">Loan to Value Ratio</h4>
                                 </div>
 
-                                <div className="relative w-56 h-28 mb-8">
+                                <div className="relative w-56 h-28 mb-4">
                                     <svg viewBox="0 0 100 50" className="w-full">
                                         <defs>
                                             <linearGradient id="lvrGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -805,33 +920,33 @@ export default function LenderCaseDetails() {
                                     </svg>
                                     <div className="absolute inset-0 flex items-end justify-center pb-2">
                                         <div className="text-center">
-                                            <span className="text-3xl font-black text-slate-900 tracking-tighter">{caseData.lvr}%</span>
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest -mt-1">Current LVR</p>
+                                            <span className="text-3xl font-semibold text-slate-900 ">{caseData.lvr}%</span>
+                                            <p className="text-xs font-semibold text-slate-400 uppercase -mt-1">Current LVR</p>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="mt-auto w-full grid grid-cols-2 gap-4">
                                     <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Total Debt</p>
-                                        <p className="text-sm font-black text-slate-900">${(caseData.outstandingDebt / 1000).toLocaleString()}k</p>
+                                        <p className="text-xs font-semibold text-slate-400 uppercase mb-0.5">Total Debt</p>
+                                        <p className="text-sm font-semibold text-slate-900">${(caseData.outstandingDebt / 1000).toLocaleString()}k</p>
                                     </div>
                                     <div className="bg-emerald-50 p-3 rounded-2xl border border-emerald-100">
-                                        <p className="text-[9px] font-black text-emerald-700/50 uppercase tracking-widest mb-0.5">Net Equity</p>
-                                        <p className="text-sm font-black text-emerald-600">${(caseData.equity / 1000).toLocaleString()}k</p>
+                                        <p className="text-xs font-semibold text-emerald-700/50 uppercase mb-0.5">Net Equity</p>
+                                        <p className="text-sm font-semibold text-emerald-600">${(caseData.equity / 1000).toLocaleString()}k</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Financial Breakdown */}
-                            <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col items-center relative min-h-[320px] group hover:shadow-xl transition-all duration-500">
+                            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center relative min-h-[320px] group hover:shadow-xl transition-all duration-500">
                                 <div className="absolute top-0 right-0 p-6">
                                     <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 shadow-inner">
                                         <DollarSign size={20} />
                                     </div>
                                 </div>
-                                <div className="w-full mb-8">
-                                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Exposure Analysis</p>
-                                    <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">Capital Structure</h4>
+                                <div className="w-full mb-4">
+                                    <p className="text-xs font-medium text-gray-500  mb-1">Exposure Analysis</p>
+                                    <h4 className="text-sm font-semibold text-slate-900">Capital Structure</h4>
                                 </div>
 
                                 <div className="relative w-32 h-32 mb-6">
@@ -844,7 +959,7 @@ export default function LenderCaseDetails() {
                                         />
                                     </svg>
                                     <div className="absolute inset-0 flex items-center justify-center">
-                                        <span className="text-sm font-black text-slate-900">72.8%</span>
+                                        <span className="text-sm font-semibold text-slate-900">72.8%</span>
                                     </div>
                                 </div>
 
@@ -852,16 +967,16 @@ export default function LenderCaseDetails() {
                                     <div className="flex items-center justify-between p-3 bg-rose-50 rounded-2xl border border-rose-100">
                                         <div className="flex items-center gap-3">
                                             <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                                            <span className="text-[11px] font-black text-slate-600 uppercase tracking-widest">Institutional Debt</span>
+                                            <span className="text-xs font-semibold text-slate-600 uppercase">Institutional Debt</span>
                                         </div>
-                                        <span className="text-xs font-black text-slate-900">{caseData.lvr}%</span>
+                                        <span className="text-xs font-semibold text-slate-900">{caseData.lvr}%</span>
                                     </div>
                                     <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-2xl border border-emerald-100">
                                         <div className="flex items-center gap-3">
                                             <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                                            <span className="text-[11px] font-black text-slate-600 uppercase tracking-widest">Equity Buffer</span>
+                                            <span className="text-xs font-semibold text-slate-600 uppercase">Equity Buffer</span>
                                         </div>
-                                        <span className="text-xs font-black text-slate-900">{(100 - caseData.lvr).toFixed(1)}%</span>
+                                        <span className="text-xs font-semibold text-slate-900">{(100 - caseData.lvr).toFixed(1)}%</span>
                                     </div>
                                 </div>
                             </div>
@@ -870,21 +985,21 @@ export default function LenderCaseDetails() {
                         {/* Middle Row - Completion & Parties */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {/* Document Collection */}
-                            <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
-                                <div className="flex items-center gap-2 mb-8">
+                            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                <div className="flex items-center gap-2 mb-4">
                                     <FileText size={18} className="text-slate-900" />
-                                    <p className="text-sm font-black text-slate-900 uppercase tracking-widest">Document Collection</p>
+                                    <p className="text-sm font-semibold text-slate-900">Document Collection</p>
                                 </div>
                                 <div className="flex justify-between items-center mb-3">
-                                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Completion</p>
-                                    <p className="text-sm font-black text-slate-900">{caseData.documentCollection.current}/{caseData.documentCollection.total}</p>
+                                    <p className="text-xs font-medium text-gray-500">Completion</p>
+                                    <p className="text-sm font-semibold text-slate-900">{caseData.documentCollection.current}/{caseData.documentCollection.total}</p>
                                 </div>
                                 <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden mb-6">
                                     <div className="h-full bg-blue-900 transition-all duration-500" style={{ width: '100%' }}></div>
                                 </div>
                                 <div className="space-y-3">
                                     {["Title Search", "Identity Verified", "Loan Agreement"].map((item, i) => (
-                                        <div key={i} className="flex items-center gap-2 text-[12px] font-bold text-emerald-600">
+                                        <div key={i} className="flex items-center gap-2 text-xs font-bold text-emerald-600">
                                             <CheckCircle2 size={14} /> {item}
                                         </div>
                                     ))}
@@ -892,21 +1007,21 @@ export default function LenderCaseDetails() {
                             </div>
 
                             {/* Verification Status */}
-                            <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
-                                <div className="flex items-center gap-2 mb-8">
+                            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                <div className="flex items-center gap-2 mb-4">
                                     <ShieldCheck size={18} className="text-slate-900" />
-                                    <p className="text-sm font-black text-slate-900 uppercase tracking-widest">Verification Status</p>
+                                    <p className="text-sm font-semibold text-slate-900">Verification Status</p>
                                 </div>
                                 <div className="flex justify-between items-center mb-3">
-                                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Completion</p>
-                                    <p className="text-sm font-black text-slate-900">{caseData.verificationStatus.current}/{caseData.verificationStatus.total}</p>
+                                    <p className="text-xs font-medium text-gray-500">Completion</p>
+                                    <p className="text-sm font-semibold text-slate-900">{caseData.verificationStatus.current}/{caseData.verificationStatus.total}</p>
                                 </div>
                                 <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden mb-6">
                                     <div className="h-full bg-blue-900 transition-all duration-500" style={{ width: '100%' }}></div>
                                 </div>
                                 <div className="space-y-3">
                                     {["InfoTrack Checks", "KYC Verified", "Payment Verified"].map((item, i) => (
-                                        <div key={i} className="flex items-center gap-2 text-[12px] font-bold text-emerald-600">
+                                        <div key={i} className="flex items-center gap-2 text-xs font-bold text-emerald-600">
                                             <CheckCircle2 size={14} /> {item}
                                         </div>
                                     ))}
@@ -914,18 +1029,18 @@ export default function LenderCaseDetails() {
                             </div>
 
                             {/* Parties & Representatives */}
-                            <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
-                                <div className="flex items-center gap-2 mb-8">
+                            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                <div className="flex items-center gap-2 mb-4">
                                     <Users size={18} className="text-slate-900" />
-                                    <p className="text-sm font-black text-slate-900 uppercase tracking-widest">Parties & Representatives</p>
+                                    <p className="text-sm font-semibold text-slate-900">Parties & Representatives</p>
                                 </div>
                                 <div className="flex justify-between items-center mb-6">
-                                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Total Parties</p>
-                                    <p className="text-sm font-black text-slate-900">{caseData.totalParties}</p>
+                                    <p className="text-xs font-medium text-gray-500">Total Parties</p>
+                                    <p className="text-sm font-semibold text-slate-900">{caseData.totalParties}</p>
                                 </div>
                                 <div className="space-y-3">
                                     {["Borrower's Lawyer", "Lender's Lawyer", "Real Estate Agent", "Valuer"].map((item, i) => (
-                                        <div key={i} className="flex items-center gap-2 text-[12px] font-bold text-emerald-600">
+                                        <div key={i} className="flex items-center gap-2 text-xs font-bold text-emerald-600">
                                             <CheckCircle2 size={14} /> {item}
                                         </div>
                                     ))}
@@ -934,24 +1049,24 @@ export default function LenderCaseDetails() {
                         </div>
 
                         {/* Arrears Analysis Bar Chart */}
-                        <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
-                            <div className="flex items-center gap-2 mb-10">
+                        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                            <div className="flex items-center gap-2 mb-4">
                                 <AlertTriangle size={18} className="text-orange-500" />
-                                <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">Arrears Analysis</h4>
+                                <h4 className="text-sm font-semibold text-slate-900">Arrears Analysis</h4>
                             </div>
 
-                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                                <div className="lg:col-span-7 flex items-end gap-10 min-h-[220px] pb-10 border-b border-l border-slate-100 px-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                                <div className="lg:col-span-7 flex items-end gap-6 min-h-[220px] pb-6 border-b border-l border-slate-100 px-6">
                                     <div className="flex-1 flex flex-col items-center gap-4">
                                         <div className="w-full bg-orange-500 rounded-t-xl" style={{ height: "180px" }}></div>
-                                        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Outstanding</p>
+                                        <p className="text-xs font-medium text-gray-500">Outstanding</p>
                                     </div>
                                     <div className="flex-1 flex flex-col items-center gap-4">
                                         <div className="w-full bg-orange-500 rounded-t-xl" style={{ height: "15px" }}></div>
-                                        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Arrears</p>
+                                        <p className="text-xs font-medium text-gray-500">Arrears</p>
                                     </div>
                                     {/* Y Axis Labels Mockup */}
-                                    <div className="absolute left-0 bottom-0 top-0 w-px bg-slate-100 flex flex-col justify-between text-[10px] font-black text-slate-300 py-10 -ml-16">
+                                    <div className="absolute left-0 bottom-0 top-0 w-px bg-slate-100 flex flex-col justify-between text-xs font-semibold text-slate-300 py-10 -ml-16">
                                         <span>1000k</span>
                                         <span>750k</span>
                                         <span>500k</span>
@@ -961,24 +1076,24 @@ export default function LenderCaseDetails() {
                                 </div>
 
                                 <div className="lg:col-span-5">
-                                    <div className="bg-orange-50 border border-orange-100 rounded-[28px] p-8 space-y-6">
+                                    <div className="bg-orange-50 border border-orange-100 rounded-xl p-5 space-y-6">
                                         <div className="flex items-center gap-3">
                                             <AlertTriangle size={20} className="text-orange-600" />
                                             <div>
-                                                <p className="text-lg font-black text-orange-900">Active Arrears</p>
-                                                <p className="text-[12px] font-black text-orange-700/60 uppercase tracking-widest">{caseData.arrears.missedPayments} missed payments</p>
+                                                <p className="text-lg font-semibold text-orange-900">Active Arrears</p>
+                                                <p className="text-xs font-semibold text-orange-700/60 uppercase">{caseData.arrears.missedPayments} missed payments</p>
                                             </div>
                                         </div>
-                                        <p className="text-3xl font-black text-orange-900">${caseData.arrears.total.toLocaleString()}</p>
+                                        <p className="text-3xl font-semibold text-orange-900">${caseData.arrears.total.toLocaleString()}</p>
                                         <div className="h-px bg-orange-200/50"></div>
                                         <div className="space-y-4">
                                             <div>
-                                                <p className="text-[10px] font-black text-orange-800 uppercase tracking-widest mb-1.5 opacity-60">Default Date</p>
-                                                <p className="text-sm font-black text-orange-900">{caseData.arrears.defaultDate}</p>
+                                                <p className="text-xs font-medium text-orange-600 mb-1.5 opacity-60">Default Date</p>
+                                                <p className="text-sm font-semibold text-orange-900">{caseData.arrears.defaultDate}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-black text-orange-800 uppercase tracking-widest mb-1.5 opacity-60">Reason</p>
-                                                <p className="text-[13px] font-bold text-orange-900 leading-relaxed">{caseData.arrears.reason}</p>
+                                                <p className="text-xs font-medium text-orange-600 mb-1.5 opacity-60">Reason</p>
+                                                <p className="text-sm font-bold text-orange-900 leading-relaxed">{caseData.arrears.reason}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -987,23 +1102,23 @@ export default function LenderCaseDetails() {
                         </div>
 
                         {/* NCCP Alert */}
-                        <div className="bg-orange-50 border border-orange-100 rounded-[24px] p-6 flex items-start gap-4">
+                        <div className="bg-orange-50 border border-orange-100 rounded-lg p-6 flex items-start gap-4">
                             <AlertTriangle className="text-orange-600 shrink-0 mt-1" size={24} />
                             <div>
-                                <h5 className="text-[15px] font-black text-orange-900">NCCP Regulated Credit</h5>
-                                <p className="text-[13px] font-bold text-orange-700/80 leading-relaxed mt-1">
+                                <h5 className="text-sm font-semibold text-orange-900">NCCP Regulated Credit</h5>
+                                <p className="text-sm font-bold text-orange-700/80 leading-relaxed mt-1">
                                     This case is subject to the National Consumer Credit Protection Act 2009. All responsible lending obligations and hardship provisions apply.
                                 </p>
-                                <div className="flex items-center gap-2 mt-4 text-[13px] font-black text-orange-900">
+                                <div className="flex items-center gap-2 mt-4 text-sm font-semibold text-orange-900">
                                     Borrower Status: <span className="text-orange-600">Cooperative</span>
                                 </div>
                             </div>
                         </div>
 
                         {/* Recent Activity */}
-                        <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
-                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] mb-8">Recent Activity Timeline</h3>
-                            <div className="space-y-8">
+                        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                            <h3 className="text-sm font-semibold text-slate-900  mb-4">Recent Activity Timeline</h3>
+                            <div className="space-y-4">
                                 {caseData.recentActivity.map((activity, idx) => (
                                     <div key={idx} className="flex gap-6 relative">
                                         {idx !== caseData.recentActivity.length - 1 && (
@@ -1011,9 +1126,9 @@ export default function LenderCaseDetails() {
                                         )}
                                         <div className="w-3 h-3 rounded-full bg-blue-600 mt-1.5 shrink-0 z-10 shadow-[0_0_0_4px_white]"></div>
                                         <div className="space-y-1">
-                                            <h4 className="text-[15px] font-black text-slate-900">{activity.title}</h4>
-                                            <p className="text-[14px] font-bold text-slate-500">{activity.desc}</p>
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{activity.time}</p>
+                                            <h4 className="text-sm font-semibold text-slate-900">{activity.title}</h4>
+                                            <p className="text-sm font-bold text-slate-500">{activity.desc}</p>
+                                            <p className="text-xs font-medium text-gray-500">{activity.time}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -1023,39 +1138,39 @@ export default function LenderCaseDetails() {
                 )}
 
                 {activeTab === "Full Details" && (
-                    <div className="bg-white p-10 rounded-[40px] border border-gray-100 shadow-sm animate-fade-in space-y-12">
+                    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm animate-fade-in space-y-5">
                         {/* Security Details Section */}
                         <div>
-                            <div className="flex items-center gap-3 mb-8">
+                            <div className="flex items-center gap-3 mb-4">
                                 <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
                                     <Shield size={20} />
                                 </div>
-                                <h4 className="text-lg font-black text-slate-900 tracking-tight">Security & Title Information</h4>
+                                <h4 className="text-lg font-semibold text-slate-900 ">Security & Title Information</h4>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-8">
                                 <div>
-                                    <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Title Reference</p>
-                                    <p className="text-[14px] font-black text-slate-900">LOT 45 DP 12890-NSW</p>
+                                    <p className="text-xs font-medium text-gray-500 mb-1.5">Title Reference</p>
+                                    <p className="text-sm font-semibold text-slate-900">LOT 45 DP 12890-NSW</p>
                                 </div>
                                 <div>
-                                    <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Mortgage ID</p>
-                                    <p className="text-[14px] font-black text-slate-900">M-992384-22</p>
+                                    <p className="text-xs font-medium text-gray-500 mb-1.5">Mortgage ID</p>
+                                    <p className="text-sm font-semibold text-slate-900">M-992384-22</p>
                                 </div>
                                 <div>
-                                    <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Priority</p>
-                                    <p className="text-[14px] font-black text-slate-900">1st Registered Mortgage</p>
+                                    <p className="text-xs font-medium text-gray-500 mb-1.5">Priority</p>
+                                    <p className="text-sm font-semibold text-slate-900">1st Registered Mortgage</p>
                                 </div>
                                 <div>
-                                    <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Registration Date</p>
-                                    <p className="text-[14px] font-black text-slate-900">18 June 2024</p>
+                                    <p className="text-xs font-medium text-gray-500 mb-1.5">Registration Date</p>
+                                    <p className="text-sm font-semibold text-slate-900">18 June 2024</p>
                                 </div>
                                 <div>
-                                    <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Council/LGA</p>
-                                    <p className="text-[14px] font-black text-slate-900">City of Sydney</p>
+                                    <p className="text-xs font-medium text-gray-500 mb-1.5">Council/LGA</p>
+                                    <p className="text-sm font-semibold text-slate-900">City of Sydney</p>
                                 </div>
                                 <div>
-                                    <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Estimated Sale Value</p>
-                                    <p className="text-[14px] font-black text-emerald-600">$1,320,000</p>
+                                    <p className="text-xs font-medium text-gray-500 mb-1.5">Estimated Sale Value</p>
+                                    <p className="text-sm font-semibold text-emerald-600">$1,320,000</p>
                                 </div>
                             </div>
                         </div>
@@ -1064,29 +1179,29 @@ export default function LenderCaseDetails() {
 
                         {/* Financial Analysis Section */}
                         <div>
-                            <div className="flex items-center gap-3 mb-8">
+                            <div className="flex items-center gap-3 mb-4">
                                 <div className="p-2.5 bg-purple-50 text-purple-600 rounded-xl">
                                     <DollarSign size={20} />
                                 </div>
-                                <h4 className="text-lg font-black text-slate-900 tracking-tight">Loan Balance & Financial Recovery</h4>
+                                <h4 className="text-lg font-semibold text-slate-900 ">Loan Balance & Financial Recovery</h4>
                             </div>
-                            <div className="bg-gray-50/50 rounded-3xl p-8 border border-gray-100">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                            <div className="bg-gray-50/50 rounded-3xl p-5 border border-gray-100">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                     <div>
-                                        <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Original Principal</p>
-                                        <p className="text-xl font-black text-slate-900">$850,000.00</p>
+                                        <p className="text-xs font-medium text-gray-500 mb-1.5">Original Principal</p>
+                                        <p className="text-xl font-semibold text-slate-900">$850,000.00</p>
                                     </div>
                                     <div>
-                                        <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Principal Outstanding</p>
-                                        <p className="text-xl font-black text-slate-900">$920,450.12</p>
+                                        <p className="text-xs font-medium text-gray-500 mb-1.5">Principal Outstanding</p>
+                                        <p className="text-xl font-semibold text-slate-900">$920,450.12</p>
                                     </div>
                                     <div>
-                                        <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Interest in Arrears</p>
-                                        <p className="text-xl font-black text-rose-600">$45,220.88</p>
+                                        <p className="text-xs font-medium text-gray-500 mb-1.5">Interest in Arrears</p>
+                                        <p className="text-xl font-semibold text-rose-600">$45,220.88</p>
                                     </div>
                                     <div>
-                                        <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Total Payoff Amount</p>
-                                        <p className="text-xl font-black text-rose-600">$980,000.00</p>
+                                        <p className="text-xs font-medium text-gray-500 mb-1.5">Total Payoff Amount</p>
+                                        <p className="text-xl font-semibold text-rose-600">$980,000.00</p>
                                     </div>
                                 </div>
                             </div>
@@ -1095,22 +1210,22 @@ export default function LenderCaseDetails() {
                 )}
 
                 {activeTab === "Lawyer Review" && (
-                    <div className="space-y-8 animate-fade-in">
+                    <div className="space-y-4 animate-fade-in">
                         {/* Compliance Overview */}
-                        <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm">
-                            <div className="flex items-center justify-between mb-8">
+                        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                            <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
                                         <ClipboardCheck size={20} />
                                     </div>
                                     <div>
-                                        <h4 className="text-lg font-black text-slate-900 tracking-tight">Loan Compliance Registry</h4>
-                                        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Automated protocol verification</p>
+                                        <h4 className="text-lg font-semibold text-slate-900 ">Loan Compliance Registry</h4>
+                                        <p className="text-xs font-bold text-gray-400 uppercase mt-0.5">Automated protocol verification</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Compliance Score</span>
-                                    <span className="text-lg font-black text-emerald-600">92%</span>
+                                    <span className="text-xs font-medium text-gray-500">Compliance Score</span>
+                                    <span className="text-lg font-semibold text-emerald-600">92%</span>
                                 </div>
                             </div>
 
@@ -1125,8 +1240,8 @@ export default function LenderCaseDetails() {
                                                 {check.checked && <CheckCircle size={14} className="text-white" />}
                                             </div>
                                             <div>
-                                                <p className={`text-[13px] font-black tracking-tight ${check.checked ? "text-slate-400" : "text-slate-800"}`}>{check.title}</p>
-                                                {check.critical && <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest">Mandatory</span>}
+                                                <p className={`text-sm font-semibold  ${check.checked ? "text-slate-400" : "text-slate-800"}`}>{check.title}</p>
+                                                {check.critical && <span className="text-xs font-medium text-rose-500">Mandatory</span>}
                                             </div>
                                         </div>
                                         <Info size={14} className="text-slate-300 group-hover:text-blue-500 cursor-pointer" />
@@ -1136,14 +1251,14 @@ export default function LenderCaseDetails() {
                         </div>
 
                         {/* Enforcement Workflow */}
-                        <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm">
-                            <div className="flex items-center gap-3 mb-8">
+                        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                            <div className="flex items-center gap-3 mb-4">
                                 <div className="p-2.5 bg-amber-50 text-amber-600 rounded-xl">
                                     <Scale size={20} />
                                 </div>
                                 <div>
-                                    <h4 className="text-lg font-black text-slate-900 tracking-tight">Legal Enforcement Workflow</h4>
-                                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Lender's Rights of Possession & Sale (Real Property Act)</p>
+                                    <h4 className="text-lg font-semibold text-slate-900 ">Legal Enforcement Workflow</h4>
+                                    <p className="text-xs font-bold text-gray-400 uppercase mt-0.5">Lender's Rights of Possession & Sale (Real Property Act)</p>
                                 </div>
                             </div>
 
@@ -1152,19 +1267,19 @@ export default function LenderCaseDetails() {
                                     <div key={step.id} className="bg-gray-50/50 rounded-2xl border border-gray-100 p-6">
                                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                             <div className="flex items-center gap-4">
-                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs ${step.status === 'compliant' ? 'bg-blue-900 text-white' : 'bg-gray-200 text-gray-400'
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-xs ${step.status === 'compliant' ? 'bg-blue-900 text-white' : 'bg-gray-200 text-gray-400'
                                                     }`}>
                                                     {step.id}
                                                 </div>
                                                 <div>
-                                                    <p className="text-[14px] font-black text-slate-900">{step.title}</p>
-                                                    <p className="text-[11px] font-bold text-gray-400">{step.notes || "Awaiting verification..."}</p>
+                                                    <p className="text-sm font-semibold text-slate-900">{step.title}</p>
+                                                    <p className="text-xs font-bold text-gray-400">{step.notes || "Awaiting verification..."}</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-3">
                                                 <button
                                                     onClick={() => handleUpdateCompliance('enforcementSteps', index, { status: step.status === 'compliant' ? 'pending' : 'compliant' })}
-                                                    className={`px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${step.status === 'compliant'
+                                                    className={`px-4 py-2 rounded-xl text-xs font-semibold uppercase transition-all ${step.status === 'compliant'
                                                         ? 'bg-blue-50 text-blue-900 border border-blue-100'
                                                         : 'bg-white text-slate-400 border border-slate-100 hover:border-blue-200 hover:text-blue-500'
                                                         }`}
@@ -1179,14 +1294,14 @@ export default function LenderCaseDetails() {
                         </div>
 
                         {/* Statement of Advice / Legal Review Content */}
-                        <div className="bg-white p-10 rounded-[40px] border border-gray-100 shadow-sm space-y-8">
+                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
                             <div>
-                                <h4 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                                <h4 className="text-sm font-semibold text-slate-900  mb-6 flex items-center gap-2">
                                     <Edit3 size={16} className="text-blue-600" />
                                     Institutional Professional Commentary
                                 </h4>
                                 <textarea
-                                    className="w-full min-h-[160px] bg-gray-50 border border-gray-100 rounded-3xl p-8 text-[14px] font-bold text-slate-600 outline-none focus:ring-4 focus:ring-blue-100 focus:bg-white transition-all resize-none shadow-inner"
+                                    className="w-full min-h-[160px] bg-gray-50 border border-gray-100 rounded-3xl p-5 text-sm font-bold text-slate-600 outline-none focus:ring-4 focus:ring-blue-100 focus:bg-white transition-all resize-none shadow-inner"
                                     placeholder="Add professional review notes, findings, and recommendations..."
                                     value={lawyerReviewNotes}
                                     onChange={(e) => setLawyerReviewNotes(e.target.value)}
@@ -1194,17 +1309,17 @@ export default function LenderCaseDetails() {
                                 />
                             </div>
 
-                            <div className="bg-blue-50 border border-blue-100 rounded-3xl p-8 flex items-center justify-between">
+                            <div className="bg-blue-50 border border-blue-100 rounded-3xl p-5 flex items-center justify-between">
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm">
                                         <FileText size={20} />
                                     </div>
                                     <div>
-                                        <p className="text-[13px] font-black text-blue-900 uppercase tracking-widest">Formal Statement of Advice (SOA)</p>
-                                        <p className="text-[11px] font-bold text-blue-700/60 uppercase">Required for institutional audit trail</p>
+                                        <p className="text-sm font-semibold text-blue-900 uppercase">Formal Statement of Advice (SOA)</p>
+                                        <p className="text-xs font-bold text-blue-700/60 uppercase">Required for institutional audit trail</p>
                                     </div>
                                 </div>
-                                <label className="h-12 px-6 bg-blue-900 text-white rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2 cursor-pointer shadow-lg shadow-blue-900/10 hover:bg-blue-800 transition-all active:scale-95">
+                                <label className="h-12 px-6 bg-blue-900 text-white rounded-xl text-xs font-semibold uppercase flex items-center gap-2 cursor-pointer shadow-lg shadow-blue-900/10 hover:bg-blue-800 transition-all active:scale-95">
                                     <Upload size={16} />
                                     Upload & Register
                                     <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={async (e) => {
@@ -1232,37 +1347,37 @@ export default function LenderCaseDetails() {
                 )}
 
                 {activeTab === "Property" && (
-                    <div className="bg-white p-10 rounded-[40px] border border-gray-100 shadow-sm animate-fade-in space-y-12">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm animate-fade-in space-y-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Features */}
                             <div>
-                                <h3 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] mb-8">Property Assessment</h3>
+                                <h3 className="text-sm font-semibold text-slate-900  mb-4">Property Assessment</h3>
                                 <div className="grid grid-cols-2 gap-x-8 gap-y-6">
                                     <div>
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Asset Type</p>
-                                        <p className="text-[14px] font-bold text-slate-700">{caseData.propertyType}</p>
+                                        <p className="text-xs font-medium text-gray-500 mb-1.5">Asset Type</p>
+                                        <p className="text-sm font-bold text-slate-700">{caseData.propertyType}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Bedrooms</p>
-                                        <p className="text-[14px] font-bold text-slate-700">{caseData.bedrooms} BHK</p>
+                                        <p className="text-xs font-medium text-gray-500 mb-1.5">Bedrooms</p>
+                                        <p className="text-sm font-bold text-slate-700">{caseData.bedrooms} BHK</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Bathrooms</p>
-                                        <p className="text-[14px] font-bold text-slate-700">{caseData.bathrooms} Units</p>
+                                        <p className="text-xs font-medium text-gray-500 mb-1.5">Bathrooms</p>
+                                        <p className="text-sm font-bold text-slate-700">{caseData.bathrooms} Units</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Parking</p>
-                                        <p className="text-[14px] font-bold text-slate-700">{caseData.parking} Spaces</p>
+                                        <p className="text-xs font-medium text-gray-500 mb-1.5">Parking</p>
+                                        <p className="text-sm font-bold text-slate-700">{caseData.parking} Spaces</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Land Size</p>
-                                        <p className="text-[14px] font-bold text-slate-700">{caseData.landSize}</p>
+                                        <p className="text-xs font-medium text-gray-500 mb-1.5">Land Size</p>
+                                        <p className="text-sm font-bold text-slate-700">{caseData.landSize}</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Image Placeholder */}
-                            <div className="relative group overflow-hidden rounded-[32px] border border-gray-100 shadow-xl min-h-[200px]">
+                            <div className="relative group overflow-hidden rounded-xl border border-gray-100 shadow-xl min-h-[200px]">
                                 {caseData?.image ? (
                                     <>
                                         <img
@@ -1270,18 +1385,18 @@ export default function LenderCaseDetails() {
                                             alt="Property"
                                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
+                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-5">
                                             <button
                                                 onClick={() => window.open(caseData.image, '_blank')}
-                                                className="h-12 w-full bg-white text-slate-900 rounded-xl font-black text-[12px] uppercase tracking-widest shadow-2xl flex items-center justify-center gap-2"
+                                                className="h-12 w-full bg-white text-slate-900 rounded-xl font-semibold text-xs uppercase shadow-2xl flex items-center justify-center gap-2"
                                             >
                                                 <Eye size={16} /> View Image Gallery
                                             </button>
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="w-full h-full min-h-[200px] bg-gradient-to-br from-[#1d2375] to-[#2d3a9a] flex items-center justify-center rounded-[32px]">
-                                        <p className="text-white/40 text-sm font-semibold uppercase tracking-widest">No property image uploaded</p>
+                                    <div className="w-full h-full min-h-[200px] bg-gradient-to-br from-[#1d2375] to-[#2d3a9a] flex items-center justify-center rounded-xl">
+                                        <p className="text-white/40 text-sm font-semibold uppercase">No property image uploaded</p>
                                     </div>
                                 )}
                             </div>
@@ -1291,19 +1406,19 @@ export default function LenderCaseDetails() {
 
                         {/* Recent Valuation */}
                         <div>
-                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] mb-8">Professional Valuation History</h3>
-                            <div className="bg-gray-50/50 border border-gray-100 rounded-[32px] p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <h3 className="text-sm font-semibold text-slate-900  mb-4">Professional Valuation History</h3>
+                            <div className="bg-gray-50/50 border border-gray-100 rounded-xl p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Market Valuation</p>
-                                    <p className="text-2xl font-black text-slate-900 tracking-tighter">$1,250,000</p>
+                                    <p className="text-xs font-medium text-gray-500 mb-1.5">Market Valuation</p>
+                                    <p className="text-2xl font-semibold text-slate-900 ">$1,250,000</p>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Valuation Date</p>
-                                    <p className="text-2xl font-black text-slate-900 tracking-tighter">15 Jan 2026</p>
+                                    <p className="text-xs font-medium text-gray-500 mb-1.5">Valuation Date</p>
+                                    <p className="text-2xl font-semibold text-slate-900 ">15 Jan 2026</p>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Valuer License</p>
-                                    <p className="text-2xl font-black text-slate-900 tracking-tighter">PRP-NSW-293</p>
+                                    <p className="text-xs font-medium text-gray-500 mb-1.5">Valuer License</p>
+                                    <p className="text-2xl font-semibold text-slate-900 ">PRP-NSW-293</p>
                                 </div>
                             </div>
                         </div>
@@ -1311,15 +1426,15 @@ export default function LenderCaseDetails() {
                 )}
 
                 {activeTab === "Documents" && (
-                    <div className="bg-white p-10 rounded-[40px] border border-gray-100 shadow-sm animate-fade-in">
-                        <div className="flex items-center justify-between mb-10">
+                    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm animate-fade-in">
+                        <div className="flex items-center justify-between mb-4">
                             <div>
-                                <h3 className="text-lg font-black text-slate-900 tracking-tight">Case Document Repository</h3>
-                                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Verified documents and audit trail history</p>
+                                <h3 className="text-lg font-semibold text-slate-900 ">Case Document Repository</h3>
+                                <p className="text-xs font-bold text-gray-400 uppercase mt-0.5">Verified documents and audit trail history</p>
                             </div>
                             <button
                                 onClick={() => fileInputRef.current.click()}
-                                className="h-12 px-8 bg-blue-50 text-blue-900 border border-blue-100 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-blue-100 transition-all flex items-center gap-2 active:scale-95"
+                                className="h-12 px-8 bg-blue-50 text-blue-900 border border-blue-100 rounded-xl text-xs font-semibold uppercase hover:bg-blue-100 transition-all flex items-center gap-2 active:scale-95"
                             >
                                 <Upload size={16} /> Add Documents
                             </button>
@@ -1328,7 +1443,7 @@ export default function LenderCaseDetails() {
 
                         {/* Uploading Progress */}
                         {uploadingFiles.length > 0 && (
-                            <div className="mb-10 space-y-4 animate-scale-in">
+                            <div className="mb-4 space-y-4 animate-scale-in">
                                 {uploadingFiles.map(file => (
                                     <div key={file.id} className="p-4 bg-gray-50 rounded-2xl border border-gray-100 flex items-center justify-between">
                                         <div className="flex items-center gap-4">
@@ -1336,8 +1451,8 @@ export default function LenderCaseDetails() {
                                                 <FileText size={18} />
                                             </div>
                                             <div>
-                                                <p className="text-[13px] font-black text-slate-700">{file.name}</p>
-                                                <p className="text-[10px] font-bold text-gray-400 uppercase">{file.size}</p>
+                                                <p className="text-sm font-semibold text-slate-700">{file.name}</p>
+                                                <p className="text-xs font-bold text-gray-400 uppercase">{file.size}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-4">
@@ -1346,10 +1461,10 @@ export default function LenderCaseDetails() {
                                                     <div className="h-1.5 w-32 bg-gray-200 rounded-full overflow-hidden">
                                                         <div className="h-full bg-blue-600 w-1/2 animate-pulse"></div>
                                                     </div>
-                                                    <span className="text-[9px] font-black text-blue-600 uppercase">Uploading</span>
+                                                    <span className="text-xs font-medium text-blue-600">Uploading</span>
                                                 </div>
                                             ) : (
-                                                <span className="text-[9px] font-black text-emerald-600 uppercase flex items-center gap-1.5"><CheckCircle2 size={12} /> Complete</span>
+                                                <span className="text-xs font-medium text-emerald-600 flex items-center gap-1.5"><CheckCircle2 size={12} /> Complete</span>
                                             )}
                                             <button onClick={() => removeUploadingFile(file.id)} className="text-gray-400 hover:text-rose-500 transition-colors"><X size={16} /></button>
                                         </div>
@@ -1360,7 +1475,7 @@ export default function LenderCaseDetails() {
 
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
-                                <thead className="bg-gray-50/50 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">
+                                <thead className="bg-gray-50/50 text-xs font-medium text-gray-500 border-b border-gray-100">
                                     <tr>
                                         <th className="px-6 py-4">Document Name</th>
                                         <th className="px-6 py-4">Status</th>
@@ -1378,13 +1493,13 @@ export default function LenderCaseDetails() {
                                                         {doc.type === 'Property Image' ? <Home size={18} /> : <FileText size={18} />}
                                                     </div>
                                                     <div>
-                                                        <p className="text-[13px] font-black text-slate-900">{doc.name}</p>
-                                                        <p className="text-[10px] font-bold text-gray-400 uppercase">{doc.type} • {doc.uploadedBy || 'Borrower'}</p>
+                                                        <p className="text-sm font-semibold text-slate-900">{doc.name}</p>
+                                                        <p className="text-xs font-bold text-gray-400 uppercase">{doc.type} • {doc.uploadedBy || 'Borrower'}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-5">
-                                                <span className={`inline-flex px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-tighter border ${
+                                                <span className={`inline-flex px-2 py-0.5 rounded-lg text-xs font-semibold uppercase  border ${
                                                     doc.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
                                                     doc.status === 'REJECTED' ? 'bg-rose-50 text-rose-600 border-rose-100' :
                                                     'bg-amber-50 text-amber-600 border-amber-100'
@@ -1395,28 +1510,28 @@ export default function LenderCaseDetails() {
                                             <td className="px-6 py-5">
                                                 <div className="flex items-center gap-1.5 text-blue-600/60">
                                                     <Lock size={12} />
-                                                    <span className="text-[11px] font-black uppercase tracking-tight">Institutional</span>
+                                                    <span className="text-xs font-semibold uppercase ">Institutional</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-5">
-                                                <span className="text-[11px] font-bold text-slate-400">{doc.date || doc.created_at}</span>
+                                                <span className="text-xs font-bold text-slate-400">{doc.date || doc.created_at}</span>
                                             </td>
                                             <td className="px-6 py-5 text-right">
                                                 <div className="flex items-center justify-end gap-2">
-                                                    <button 
-                                                        onClick={() => doc.file_url && window.open(doc.file_url, '_blank')}
-                                                        disabled={!doc.file_url}
-                                                        className={`p-2 transition-all rounded-lg ${doc.file_url ? 'text-gray-400 hover:text-blue-600 hover:bg-blue-50' : 'text-gray-200 opacity-20 cursor-not-allowed'}`}
+                                                    <button
+                                                        onClick={() => handleViewDocument(doc)}
+                                                        className="p-2 transition-all rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50"
+                                                        title="View document"
                                                     >
                                                         <Eye size={16} />
                                                     </button>
-                                                    <a 
-                                                        href={doc.file_url || '#'} 
-                                                        download
-                                                        className={`p-2 transition-all rounded-lg ${doc.file_url ? 'text-gray-400 hover:text-slate-900 hover:bg-gray-100' : 'text-gray-200 opacity-20 cursor-not-allowed pointer-events-none'}`}
+                                                    <button
+                                                        onClick={() => handleDownloadDocument(doc)}
+                                                        className="p-2 transition-all rounded-lg text-gray-400 hover:text-slate-900 hover:bg-gray-100"
+                                                        title="Download document"
                                                     >
                                                         <Download size={16} />
-                                                    </a>
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -1428,10 +1543,10 @@ export default function LenderCaseDetails() {
                 )}
 
                 {activeTab === "Bids" && (
-                    <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm animate-fade-in">
+                    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm animate-fade-in">
                         <div className="mb-6">
-                            <h3 className="text-lg font-black text-slate-900 tracking-tight uppercase">Live Auction Bids</h3>
-                            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Real-time bid monitoring — lenders can also place bids</p>
+                            <h3 className="text-lg font-semibold text-slate-900  uppercase">Live Auction Bids</h3>
+                            <p className="text-xs font-bold text-gray-400 uppercase mt-0.5">Real-time bid monitoring — lenders can also place bids</p>
                         </div>
                         <CaseBidPanel
                             caseId={id}
@@ -1455,30 +1570,30 @@ export default function LenderCaseDetails() {
                 )}
 
                 {activeTab === "Investment Memorandum" && (
-                    <div className="bg-gray-50/50 p-10 rounded-[40px] border border-gray-100 shadow-sm animate-fade-in space-y-10">
+                    <div className="bg-gray-50/50 p-6 rounded-xl border border-gray-100 shadow-sm animate-fade-in space-y-5">
                         {/* Header Controls */}
-                        <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
                             <div>
-                                <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Investment Memorandum</h3>
-                                <p className="text-[12px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Professional institutional-grade offering circular</p>
+                                <h3 className="text-2xl font-semibold text-slate-900  uppercase">Investment Memorandum</h3>
+                                <p className="text-xs font-bold text-slate-400 mt-1 uppercase">Professional institutional-grade offering circular</p>
                             </div>
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => setToast({ show: true, message: "Term modification request submitted. Compliance team will review and update the memorandum within 24 hours.", type: "info" })}
-                                    className="h-12 px-6 bg-white border border-gray-200 rounded-xl text-[12px] font-black text-slate-700 hover:bg-gray-50 flex items-center gap-2 transition-all active:scale-95"
+                                    className="h-12 px-6 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-slate-700 hover:bg-gray-50 flex items-center gap-2 transition-all active:scale-95"
                                 >
                                     <Edit3 size={16} className="text-slate-400" /> Modify Terms
                                 </button>
                                 <button
                                     onClick={() => window.print()}
-                                    className="h-12 px-6 bg-white border border-gray-200 rounded-xl text-[12px] font-black text-slate-700 hover:bg-gray-50 flex items-center gap-2 transition-all active:scale-95"
+                                    className="h-12 px-6 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-slate-700 hover:bg-gray-50 flex items-center gap-2 transition-all active:scale-95"
                                 >
                                     <Printer size={16} className="text-slate-400" /> Print IM
                                 </button>
                                 <button
                                     onClick={() => handleGenerateDoc('IM')}
                                     disabled={isGeneratingDoc.active}
-                                    className="h-12 px-8 bg-blue-900 text-white rounded-xl text-[12px] font-black hover:bg-blue-800 transition-all shadow-xl shadow-blue-900/10 flex items-center gap-2 active:scale-95 disabled:bg-slate-400"
+                                    className="h-12 px-8 bg-blue-900 text-white rounded-xl text-xs font-semibold hover:bg-blue-800 transition-all shadow-xl shadow-blue-900/10 flex items-center gap-2 active:scale-95 disabled:bg-slate-400"
                                 >
                                     {isGeneratingDoc.active && isGeneratingDoc.type === 'IM' ? <RefreshCw size={16} className="animate-spin" /> : <Sparkles size={16} />}
                                     {isGeneratingDoc.active && isGeneratingDoc.type === 'IM' ? 'Generating...' : 'Regenerate Document'}
@@ -1500,15 +1615,15 @@ export default function LenderCaseDetails() {
                                     <div className="w-full h-full bg-gradient-to-br from-[#1d2375] to-[#2d3a9a]" />
                                 )}
                                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent"></div>
-                                <div className="absolute top-10 left-10">
-                                    <div className="px-5 py-2 bg-rose-600 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-xl shadow-2xl">Institutional Opportunity</div>
+                                <div className="absolute top-6 left-10">
+                                    <div className="px-5 py-2 bg-rose-600 text-white text-xs font-semibold uppercase tracking-[0.3em] rounded-xl shadow-2xl">Institutional Opportunity</div>
                                 </div>
                                 <div className="absolute bottom-12 left-12 right-12">
                                     <div className="space-y-4">
-                                        <h2 className="text-5xl font-black text-white leading-none tracking-tighter">{caseData.address.split(',')[0]}</h2>
+                                        <h2 className="text-5xl font-semibold text-white leading-none ">{caseData.address.split(',')[0]}</h2>
                                         <div className="flex items-center gap-3 text-white/80">
                                             <MapPin size={20} className="text-blue-400" />
-                                            <span className="text-xl font-bold tracking-tight">{caseData.address.split(',').slice(1).join(',').trim()}</span>
+                                            <span className="text-xl font-bold ">{caseData.address.split(',').slice(1).join(',').trim()}</span>
                                         </div>
 
                                         <div className="flex gap-4 pt-4">
@@ -1519,7 +1634,7 @@ export default function LenderCaseDetails() {
                                             ].map((feature, i) => (
                                                 <div key={i} className="bg-white/10 backdrop-blur-xl border border-white/20 px-6 py-3 rounded-2xl flex items-center gap-3">
                                                     <span className="text-blue-400">{feature.icon}</span>
-                                                    <span className="text-white text-sm font-black">{feature.label}</span>
+                                                    <span className="text-white text-sm font-semibold">{feature.label}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -1529,31 +1644,31 @@ export default function LenderCaseDetails() {
 
                             {/* Floating Stats Bar */}
                             <div className="px-12 -mt-12 relative z-10">
-                                <div className="bg-white rounded-[32px] shadow-2xl border border-slate-100 flex divide-x divide-slate-100 p-2">
+                                <div className="bg-white rounded-xl shadow-2xl border border-slate-100 flex divide-x divide-slate-100 p-2">
                                     <div className="flex-1 px-8 py-6">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Asset Valuation</p>
-                                        <p className="text-3xl font-black text-slate-900 tracking-tighter">${(caseData.propertyValuation / 1000).toLocaleString()}k</p>
+                                        <p className="text-xs font-medium text-gray-500 mb-1.5">Asset Valuation</p>
+                                        <p className="text-3xl font-semibold text-slate-900 ">${(caseData.propertyValuation / 1000).toLocaleString()}k</p>
                                     </div>
                                     <div className="flex-1 px-8 py-6">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Lender Exposure</p>
-                                        <p className="text-3xl font-black text-blue-600 tracking-tighter">${(caseData.outstandingDebt / 1000).toLocaleString()}k</p>
+                                        <p className="text-xs font-medium text-gray-500 mb-1.5">Lender Exposure</p>
+                                        <p className="text-3xl font-semibold text-blue-600 ">${(caseData.outstandingDebt / 1000).toLocaleString()}k</p>
                                     </div>
                                     <div className="flex-1 px-8 py-6">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Expected IRR</p>
-                                        <p className="text-3xl font-black text-emerald-500 tracking-tighter">12.5%</p>
+                                        <p className="text-xs font-medium text-gray-500 mb-1.5">Expected IRR</p>
+                                        <p className="text-3xl font-semibold text-emerald-500 ">12.5%</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Executive Summary */}
-                            <div className="p-12 space-y-12">
-                                <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
+                            <div className="p-6 space-y-5">
+                                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                                     <div className="lg:col-span-3 space-y-6">
-                                        <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Executive Summary</h3>
-                                        <p className="text-[16px] text-slate-600 font-bold leading-relaxed">
+                                        <h3 className="text-2xl font-semibold text-slate-900  uppercase">Executive Summary</h3>
+                                        <p className="text-sm text-slate-600 font-bold leading-relaxed">
                                             This Investment Memorandum presents a secured secondary lending opportunity backed by a premium residential asset in {caseData.address.split(',')[1].trim()}. The property is currently in mortgage default, presenting a unique institutional entry point at a significant margin to the appraised market value.
                                         </p>
-                                        <p className="text-[16px] text-slate-600 font-bold leading-relaxed">
+                                        <p className="text-sm text-slate-600 font-bold leading-relaxed">
                                             The investment is secured by a first-registered mortgage with an extremely conservative LVR of {caseData.lvr}%, providing a substantial equity buffer of ${caseData.equity.toLocaleString()} against potential market volatility during the enforcement period.
                                         </p>
                                     </div>
@@ -1563,13 +1678,13 @@ export default function LenderCaseDetails() {
                                             { title: "Institutional Custody", desc: "Managed via Brickbanq Trust", color: "blue" },
                                             { title: "Verified Compliance", desc: "Full NCCP & AML/CTF clearance", color: "purple" }
                                         ].map((item, i) => (
-                                            <div key={i} className={`p-5 rounded-[24px] border border-gray-100 bg-white flex items-center gap-4 hover:shadow-lg transition-all`}>
+                                            <div key={i} className={`p-5 rounded-lg border border-gray-100 bg-white flex items-center gap-4 hover:shadow-lg transition-all`}>
                                                 <div className={`w-12 h-12 rounded-2xl bg-${item.color}-50 flex items-center justify-center text-${item.color}-600 shadow-inner`}>
                                                     <CheckCircle2 size={24} />
                                                 </div>
                                                 <div>
-                                                    <p className="text-[14px] font-black text-slate-900">{item.title}</p>
-                                                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{item.desc}</p>
+                                                    <p className="text-sm font-semibold text-slate-900">{item.title}</p>
+                                                    <p className="text-xs font-bold text-slate-400 uppercase">{item.desc}</p>
                                                 </div>
                                             </div>
                                         ))}
@@ -1577,8 +1692,8 @@ export default function LenderCaseDetails() {
                                 </div>
 
                                 {/* Investment Highlights */}
-                                <div className="space-y-8">
-                                    <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase">High-Yield Highlights</h3>
+                                <div className="space-y-4">
+                                    <h3 className="text-2xl font-semibold text-slate-900  uppercase">High-Yield Highlights</h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         {[
                                             { title: "Accelerated IRR", desc: "Target returns exceeding 12.5% through institutional default rate premium.", icon: <TrendingUp />, bg: "bg-emerald-50", color: "text-emerald-600" },
@@ -1586,13 +1701,13 @@ export default function LenderCaseDetails() {
                                             { title: "Verified Liquidity", desc: "Underlying asset demonstrates strong secondary market demand.", icon: <Target />, bg: "bg-purple-50", color: "text-purple-600" },
                                             { title: "Protocol Enforcement", desc: "Automated legal workflow initiated; estimated 5-month recovery cycle.", icon: <Scale />, bg: "bg-rose-50", color: "text-rose-600" }
                                         ].map((hl, i) => (
-                                            <div key={i} className="p-8 bg-slate-50/50 border border-slate-100 rounded-[32px] flex gap-6 hover:bg-white hover:shadow-xl transition-all">
+                                            <div key={i} className="p-5 bg-slate-50/50 border border-slate-100 rounded-xl flex gap-6 hover:bg-white hover:shadow-xl transition-all">
                                                 <div className={`w-14 h-14 rounded-2xl ${hl.bg} ${hl.color} flex items-center justify-center shadow-inner shrink-0`}>
                                                     {hl.icon}
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-[17px] font-black text-slate-900 mb-2">{hl.title}</h4>
-                                                    <p className="text-[14px] text-slate-500 font-bold leading-relaxed">{hl.desc}</p>
+                                                    <h4 className="text-base font-semibold text-slate-900 mb-2">{hl.title}</h4>
+                                                    <p className="text-sm text-slate-500 font-bold leading-relaxed">{hl.desc}</p>
                                                 </div>
                                             </div>
                                         ))}
@@ -1600,14 +1715,14 @@ export default function LenderCaseDetails() {
                                 </div>
 
                                 {/* Risk Matrix */}
-                                <div className="space-y-8">
-                                    <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Lender Risk Profile</h3>
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                        <div className="bg-slate-900 rounded-[40px] p-10 text-white relative overflow-hidden">
-                                            <div className="relative z-10 space-y-8">
+                                <div className="space-y-4">
+                                    <h3 className="text-2xl font-semibold text-slate-900  uppercase">Lender Risk Profile</h3>
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                        <div className="bg-slate-900 rounded-xl p-6 text-white relative overflow-hidden">
+                                            <div className="relative z-10 space-y-4">
                                                 <div className="flex items-center justify-between">
-                                                    <h4 className="text-sm font-black uppercase tracking-[0.2em] text-blue-300">Collateral Grade</h4>
-                                                    <span className="px-4 py-1.5 bg-emerald-500/20 text-emerald-400 rounded-xl text-[10px] font-black tracking-widest border border-emerald-500/20">Institutional Grade A+</span>
+                                                    <h4 className="text-sm font-semibold uppercase  text-blue-300">Collateral Grade</h4>
+                                                    <span className="px-4 py-1.5 bg-emerald-500/20 text-emerald-400 rounded-xl text-xs font-semibold border border-emerald-500/20">Institutional Grade A+</span>
                                                 </div>
                                                 <div className="space-y-6">
                                                     {[
@@ -1616,7 +1731,7 @@ export default function LenderCaseDetails() {
                                                         { label: "Enforcement Readiness", pct: 85, color: "bg-amber-400" }
                                                     ].map((row, i) => (
                                                         <div key={i} className="space-y-3">
-                                                            <div className="flex justify-between text-[11px] font-black uppercase tracking-widest">
+                                                            <div className="flex justify-between text-xs font-semibold uppercase">
                                                                 <span className="text-white/60">{row.label}</span>
                                                                 <span>{row.pct}%</span>
                                                             </div>
@@ -1630,10 +1745,10 @@ export default function LenderCaseDetails() {
                                             <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-blue-600/10 rounded-full blur-[100px]"></div>
                                         </div>
 
-                                        <div className="bg-rose-50 border border-rose-100 rounded-[40px] p-10">
-                                            <div className="flex items-center gap-3 text-rose-600 mb-8">
+                                        <div className="bg-rose-50 border border-rose-100 rounded-xl p-6">
+                                            <div className="flex items-center gap-3 text-rose-600 mb-4">
                                                 <AlertTriangle size={24} />
-                                                <h4 className="text-sm font-black uppercase tracking-[0.2em]">Institutional Safeguards</h4>
+                                                <h4 className="text-sm font-semibold uppercase ">Institutional Safeguards</h4>
                                             </div>
                                             <div className="space-y-6">
                                                 {[
@@ -1644,7 +1759,7 @@ export default function LenderCaseDetails() {
                                                 ].map((sg, i) => (
                                                     <div key={i} className="flex gap-4">
                                                         <CheckCircle2 size={18} className="text-rose-300 shrink-0 mt-0.5" />
-                                                        <p className="text-[14px] font-bold text-rose-800/80 leading-snug">{sg}</p>
+                                                        <p className="text-sm font-bold text-rose-800/80 leading-snug">{sg}</p>
                                                     </div>
                                                 ))}
                                             </div>
@@ -1654,21 +1769,21 @@ export default function LenderCaseDetails() {
                             </div>
 
                             {/* Footer Section */}
-                            <div className="bg-slate-900 p-16 text-white text-center border-t border-white/5">
-                                <h4 className="text-3xl font-black mb-4 tracking-tighter">Brickbanq Institutional Trust</h4>
-                                <p className="text-white/40 font-bold text-[12px] uppercase tracking-[0.4em] mb-12">Confidential Assignment Repository</p>
-                                <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all cursor-default">
+                            <div className="bg-slate-900 p-5 text-white text-center border-t border-white/5">
+                                <h4 className="text-3xl font-semibold mb-4 ">Brickbanq Institutional Trust</h4>
+                                <p className="text-white/40 font-bold text-xs uppercase tracking-[0.4em] mb-5">Confidential Assignment Repository</p>
+                                <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all cursor-default">
                                     <div className="bg-white/5 p-4 rounded-2xl border border-white/5 space-y-1">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Case Reference</p>
-                                        <p className="text-sm font-black">{caseData.id}</p>
+                                        <p className="text-xs font-semibold uppercase text-blue-400">Case Reference</p>
+                                        <p className="text-sm font-semibold">{caseData.case_number || caseData.id}</p>
                                     </div>
                                     <div className="bg-white/5 p-4 rounded-2xl border border-white/5 space-y-1">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Protocol Date</p>
-                                        <p className="text-sm font-black">March 2026</p>
+                                        <p className="text-xs font-semibold uppercase text-blue-400">Protocol Date</p>
+                                        <p className="text-sm font-semibold">March 2026</p>
                                     </div>
                                     <div className="bg-white/5 p-4 rounded-2xl border border-white/5 space-y-1">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Registry ID</p>
-                                        <p className="text-sm font-black">BB-MIP-P01</p>
+                                        <p className="text-xs font-semibold uppercase text-blue-400">Registry ID</p>
+                                        <p className="text-sm font-semibold">BB-MIP-P01</p>
                                     </div>
                                 </div>
                             </div>
@@ -1677,24 +1792,24 @@ export default function LenderCaseDetails() {
                 )}
 
                 {activeTab === "Settlement" && (
-                    <div className="space-y-8 animate-fade-in pb-12">
+                    <div className="space-y-4 animate-fade-in pb-6">
                         {/* Premium Sub-navigation */}
-                        <div className="bg-white/50 backdrop-blur-md p-2 rounded-[32px] border border-gray-100 max-w-4xl shadow-xl">
+                        <div className="bg-white p-1 rounded-xl border border-gray-200">
                             <div className="flex items-center gap-1">
                                 {[
-                                    { id: "AI Checklist Manager", icon: <ClipboardCheck size={18} /> },
-                                    { id: "Settlement Overview", icon: <FileText size={18} /> },
-                                    { id: "PEXA Settlement", icon: <Building size={18} /> }
+                                    { id: "AI Checklist Manager", icon: <ClipboardCheck size={16} /> },
+                                    { id: "Settlement Overview", icon: <FileText size={16} /> },
+                                    { id: "PEXA Settlement", icon: <Building size={16} /> }
                                 ].map((tab) => (
                                     <button
                                         key={tab.id}
                                         onClick={() => setSettlementSubTab(tab.id)}
-                                        className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-[24px] text-[13px] font-black uppercase tracking-widest transition-all duration-500 ${settlementSubTab === tab.id
-                                            ? "bg-blue-900 text-white shadow-2xl shadow-blue-900/20 scale-[1.02]"
-                                            : "text-slate-400 hover:text-slate-900 hover:bg-white"
+                                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${settlementSubTab === tab.id
+                                            ? "bg-indigo-600 text-white shadow-sm"
+                                            : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                                             }`}
                                     >
-                                        {tab.id === settlementSubTab ? <Sparkles size={18} className="animate-pulse" /> : tab.icon}
+                                        {tab.icon}
                                         {tab.id}
                                     </button>
                                 ))}
@@ -1702,12 +1817,12 @@ export default function LenderCaseDetails() {
                         </div>
 
                         {settlementSubTab === "AI Checklist Manager" && (
-                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
                                 {/* Professional Stats Grid */}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-                                    <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-2xl transition-all">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Protocol Status</p>
-                                        <div className="text-4xl font-black text-slate-900 leading-none mb-4">{caseSettlementData.summary.completed}/{caseSettlementData.summary.total}</div>
+                                    <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-2xl transition-all">
+                                        <p className="text-xs font-medium text-gray-500 mb-2">Protocol Status</p>
+                                        <div className="text-4xl font-semibold text-slate-900 leading-none mb-4">{caseSettlementData.summary.completed}/{caseSettlementData.summary.total}</div>
                                         <div className="w-full h-2 bg-slate-50 rounded-full overflow-hidden border border-slate-100 shadow-inner">
                                             <div className="h-full bg-blue-600 rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(37,99,235,0.5)]" style={{ width: `${(caseSettlementData.summary.completed / caseSettlementData.summary.total) * 100}%` }}></div>
                                         </div>
@@ -1718,35 +1833,35 @@ export default function LenderCaseDetails() {
                                         { label: "Blocked Protocol", value: caseSettlementData.summary.blocked, color: "text-amber-500", icon: <Pause size={24} />, bg: "bg-amber-50" },
                                         { label: "Est. Distribution", value: caseSettlementData.summary.estCompletion, color: "text-slate-900", icon: <Calendar size={24} />, bg: "bg-slate-50" }
                                     ].map((stat, i) => (
-                                        <div key={i} className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center group hover:shadow-2xl transition-all">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">{stat.label}</p>
-                                            <div className="text-3xl font-black text-slate-900 mb-4">{stat.value}</div>
+                                        <div key={i} className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center group hover:shadow-2xl transition-all">
+                                            <p className="text-xs font-medium text-gray-500 mb-3">{stat.label}</p>
+                                            <div className="text-3xl font-semibold text-slate-900 mb-4">{stat.value}</div>
                                             <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform`}>{stat.icon}</div>
                                         </div>
                                     ))}
                                 </div>
 
                                 {/* AI Intelligence Bar */}
-                                <div className="bg-slate-900 rounded-[48px] p-10 text-white flex flex-col lg:flex-row lg:items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
+                                <div className="bg-slate-900 rounded-[48px] p-6 text-white flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-2xl relative overflow-hidden">
                                     <div className="flex items-center gap-6 relative z-10">
-                                        <div className="w-20 h-20 bg-white/5 backdrop-blur-3xl rounded-[24px] flex items-center justify-center text-blue-400 border border-white/10 shadow-2xl">
+                                        <div className="w-20 h-20 bg-white/5 backdrop-blur-3xl rounded-lg flex items-center justify-center text-blue-400 border border-white/10 shadow-2xl">
                                             <Sparkles size={40} className="animate-pulse" />
                                         </div>
                                         <div>
-                                            <h4 className="text-2xl font-black tracking-tight">AI Settlement Intelligence</h4>
-                                            <p className="text-blue-100/60 font-bold text-[12px] uppercase tracking-[0.2em] mt-1">Autonomous Protocol Orchestration • Real-time Compliance Clearing</p>
+                                            <h4 className="text-2xl font-semibold ">AI Settlement Intelligence</h4>
+                                            <p className="text-blue-100/60 font-bold text-xs uppercase  mt-1">Autonomous Protocol Orchestration • Real-time Compliance Clearing</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-4 relative z-10">
                                         <button
                                             onClick={() => setToast({ show: true, message: "AI is analysing settlement protocol for optimisation opportunities. Results will appear in the checklist.", type: "info" })}
-                                            className="h-14 px-8 bg-white/5 backdrop-blur-xl rounded-2xl text-[12px] font-black uppercase tracking-widest hover:bg-white/10 transition-all border border-white/10 shadow-xl"
+                                            className="h-14 px-8 bg-white/5 backdrop-blur-xl rounded-2xl text-xs font-semibold uppercase hover:bg-white/10 transition-all border border-white/10 shadow-xl"
                                         >
                                             Optimize Protocol
                                         </button>
                                         <button
                                             onClick={() => setToast({ show: true, message: "Auto-settle protocol deployed. System will execute settlement triggers automatically when all conditions are met.", type: "success" })}
-                                            className="h-14 px-10 bg-blue-600 text-white rounded-2xl text-[12px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95 flex items-center gap-3"
+                                            className="h-14 px-10 bg-blue-600 text-white rounded-2xl text-xs font-semibold uppercase hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95 flex items-center gap-3"
                                         >
                                             <Scale size={20} /> Deploy Auto-Settle
                                         </button>
@@ -1755,28 +1870,28 @@ export default function LenderCaseDetails() {
                                 </div>
 
                                 {/* Checklist Architecture */}
-                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                                     <div className="lg:col-span-12 space-y-6">
                                         {caseSettlementData.categories.map((cat) => (
-                                            <div key={cat.id} className="bg-white rounded-[40px] border border-gray-100 overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500">
+                                            <div key={cat.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500">
                                                 <button
                                                     onClick={() => setExpandedCategory(expandedCategory === cat.title ? null : cat.title)}
-                                                    className="w-full p-10 flex items-center justify-between group"
+                                                    className="w-full p-6 flex items-center justify-between group"
                                                 >
-                                                    <div className="flex items-center gap-8">
-                                                        <div className={`w-16 h-16 ${cat.bg} rounded-[24px] flex items-center justify-center text-blue-600 shadow-inner group-hover:scale-110 transition-transform`}>
+                                                    <div className="flex items-center gap-4">
+                                                        <div className={`w-16 h-16 ${cat.bg} rounded-lg flex items-center justify-center text-blue-600 shadow-inner group-hover:scale-110 transition-transform`}>
                                                             {cat.icon}
                                                         </div>
                                                         <div className="text-left space-y-1">
-                                                            <h5 className="text-2xl font-black text-slate-800 tracking-tight">{cat.title}</h5>
+                                                            <h5 className="text-2xl font-semibold text-slate-800 ">{cat.title}</h5>
                                                             <div className="flex items-center gap-4">
-                                                                <span className="text-[12px] font-black text-slate-400 tracking-widest uppercase">{cat.completed}/{cat.total} Protocol Phases Secured</span>
+                                                                <span className="text-xs font-semibold text-slate-400 uppercase">{cat.completed}/{cat.total} Protocol Phases Secured</span>
                                                                 <div className="w-1 h-1 rounded-full bg-slate-300"></div>
-                                                                <span className="text-[12px] font-black text-blue-600 tracking-widest uppercase">{cat.progress}% COMPLETE</span>
+                                                                <span className="text-xs font-semibold text-blue-600 uppercase">{cat.progress}% COMPLETE</span>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div className="flex items-center gap-12">
+                                                    <div className="flex items-center gap-6">
                                                         <div className="hidden xl:block w-64 h-2 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
                                                             <div className="h-full bg-blue-900 rounded-full transition-all duration-1000" style={{ width: `${cat.progress}%` }}></div>
                                                         </div>
@@ -1787,11 +1902,11 @@ export default function LenderCaseDetails() {
                                                 </button>
 
                                                 {expandedCategory === cat.title && (
-                                                    <div className="p-10 pt-0 space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
-                                                        {cat.tasks.map((task) => (
-                                                            <div key={task.id} className="group p-8 bg-slate-50/50 rounded-[32px] border border-slate-100 hover:bg-white hover:shadow-2xl transition-all">
+                                                    <div className="p-6 pt-0 space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                                                        {cat.tasks.filter(t => !t.archived).map((task) => (
+                                                            <div key={task.id} className="group p-5 bg-slate-50/50 rounded-xl border border-slate-100 hover:bg-white hover:shadow-2xl transition-all">
                                                                 <div className="flex items-start justify-between">
-                                                                    <div className="flex gap-8">
+                                                                    <div className="flex gap-4">
                                                                         <div className="pt-1">
                                                                             <div className={`w-8 h-8 rounded-xl border-2 flex items-center justify-center transition-all cursor-pointer ${task.completed ? 'bg-emerald-500 border-emerald-500 scale-110' : 'bg-white border-slate-200 hover:border-blue-400'}`}>
                                                                                 {task.completed && <Check size={18} className="text-white" />}
@@ -1799,17 +1914,17 @@ export default function LenderCaseDetails() {
                                                                         </div>
                                                                         <div className="space-y-4">
                                                                             <div>
-                                                                                <h6 className={`text-xl font-black tracking-tight ${task.completed ? "text-slate-400 line-through" : "text-slate-800"}`}>{task.title}</h6>
-                                                                                <p className="text-[13px] font-bold text-slate-400 leading-relaxed uppercase tracking-widest max-w-2xl mt-1">{task.desc}</p>
+                                                                                <h6 className={`text-xl font-semibold  ${task.completed ? "text-slate-400 line-through" : "text-slate-800"}`}>{task.title}</h6>
+                                                                                <p className="text-sm font-bold text-slate-400 leading-relaxed uppercase max-w-2xl mt-1">{task.desc}</p>
                                                                             </div>
                                                                             <div className="flex flex-wrap items-center gap-6">
-                                                                                <div className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${task.status === "COMPLETED" ? "bg-emerald-50 text-emerald-600 border-emerald-100 shadow-emerald-100/20" : "bg-blue-50 text-blue-600 border-blue-100"}`}>{task.status}</div>
-                                                                                <div className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border ${task.priority === "CRITICAL" ? "bg-rose-50 text-rose-600 border-rose-100 animate-pulse" : "bg-white text-slate-500 border-slate-100"}`}>{task.priority}</div>
-                                                                                <div className="flex items-center gap-3 text-[12px] font-bold text-slate-500">
+                                                                                <div className={`px-4 py-1.5 rounded-xl text-xs font-semibold uppercase border transition-all ${task.status === "COMPLETED" ? "bg-emerald-50 text-emerald-600 border-emerald-100 shadow-emerald-100/20" : "bg-blue-50 text-blue-600 border-blue-100"}`}>{task.status}</div>
+                                                                                <div className={`px-4 py-1.5 rounded-xl text-xs font-semibold uppercase border ${task.priority === "CRITICAL" ? "bg-rose-50 text-rose-600 border-rose-100 animate-pulse" : "bg-white text-slate-500 border-slate-100"}`}>{task.priority}</div>
+                                                                                <div className="flex items-center gap-3 text-xs font-bold text-slate-500">
                                                                                     <div className="w-7 h-7 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400"><Users size={14} /></div>
                                                                                     {task.assignee}
                                                                                 </div>
-                                                                                <div className="flex items-center gap-3 text-[12px] font-bold text-slate-500">
+                                                                                <div className="flex items-center gap-3 text-xs font-bold text-slate-500">
                                                                                     <div className="w-7 h-7 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400"><Calendar size={14} /></div>
                                                                                     {task.date}
                                                                                 </div>
@@ -1819,14 +1934,36 @@ export default function LenderCaseDetails() {
                                                                     <div className="flex items-center gap-2">
                                                                         <button
                                                                             onClick={() => setToast({ show: true, message: `Protocol details for "${task.title}": ${task.desc}. Assignee: ${task.assignee}. Due: ${task.date}.`, type: "info" })}
-                                                                            className="h-10 px-4 bg-white border border-slate-100 rounded-xl text-[11px] font-black uppercase tracking-widest text-blue-900 hover:bg-blue-50 transition-all shadow-sm"
+                                                                            className="h-10 px-4 bg-white border border-slate-100 rounded-xl text-xs font-semibold uppercase text-blue-900 hover:bg-blue-50 transition-all shadow-sm"
                                                                         >Protocol Details</button>
-                                                                        <button
-                                                                            onClick={() => setToast({ show: true, message: "Task actions: Edit, Reassign, Set Priority, Archive, Escalate to Compliance.", type: "info" })}
-                                                                            className="w-10 h-10 flex items-center justify-center text-slate-300 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all"
-                                                                        >
-                                                                            <MoreHorizontal size={20} />
-                                                                        </button>
+                                                                        <div className="relative">
+                                                                            <button
+                                                                                onClick={() => setOpenTaskMenuId(openTaskMenuId === task.id ? null : task.id)}
+                                                                                className="w-10 h-10 flex items-center justify-center text-slate-300 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all"
+                                                                            >
+                                                                                <MoreHorizontal size={20} />
+                                                                            </button>
+                                                                            {openTaskMenuId === task.id && (
+                                                                                <div className="absolute right-0 top-12 bg-white border border-slate-200 rounded-xl shadow-xl z-50 min-w-[200px] overflow-hidden">
+                                                                                    {[
+                                                                                        { label: "Edit Task", icon: Edit3, type: "edit" },
+                                                                                        { label: "Reassign", icon: Users, type: "reassign" },
+                                                                                        { label: "Set Priority", icon: AlertTriangle, type: "priority" },
+                                                                                        { label: "Archive", icon: FileText, type: "archive" },
+                                                                                        { label: "Escalate to Compliance", icon: ShieldCheck, type: "escalate" }
+                                                                                    ].map((action) => (
+                                                                                        <button
+                                                                                            key={action.label}
+                                                                                            onClick={() => openTaskAction(action.type, task)}
+                                                                                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors text-left"
+                                                                                        >
+                                                                                            <action.icon size={16} className="text-slate-400" />
+                                                                                            {action.label}
+                                                                                        </button>
+                                                                                    ))}
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -1841,11 +1978,11 @@ export default function LenderCaseDetails() {
                         )}
 
                         {settlementSubTab === "Settlement Overview" && (
-                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
                                 {/* Property Hub Banner */}
-                                <div className="bg-white border border-gray-100 rounded-[48px] p-10 shadow-sm flex flex-col xl:flex-row xl:items-center justify-between gap-10 hover:shadow-2xl transition-all">
-                                    <div className="flex flex-col md:flex-row items-center gap-10">
-                                        <div className="w-56 h-40 rounded-[32px] overflow-hidden border border-slate-100 shadow-inner shrink-0 relative group">
+                                <div className="bg-white border border-gray-100 rounded-[48px] p-6 shadow-sm flex flex-col xl:flex-row xl:items-center justify-between gap-6 hover:shadow-2xl transition-all">
+                                    <div className="flex flex-col md:flex-row items-center gap-6">
+                                        <div className="w-56 h-40 rounded-xl overflow-hidden border border-slate-100 shadow-inner shrink-0 relative group">
                                             {(caseData?.image || settlementOverviewData.property.image) ? (
                                                 <img src={caseData?.image || settlementOverviewData.property.image} alt="Property" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                             ) : (
@@ -1855,27 +1992,27 @@ export default function LenderCaseDetails() {
                                         </div>
                                         <div className="text-center md:text-left space-y-4">
                                             <div>
-                                                <span className="px-4 py-1 bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-full mb-3 inline-block shadow-sm">Verified Institutional Asset</span>
-                                                <h3 className="text-4xl font-black text-slate-900 tracking-tight leading-none">{settlementOverviewData.property.title}</h3>
+                                                <span className="px-4 py-1 bg-blue-50 text-blue-600 text-xs font-semibold uppercase  rounded-full mb-3 inline-block shadow-sm">Verified Institutional Asset</span>
+                                                <h3 className="text-4xl font-semibold text-slate-900  leading-none">{settlementOverviewData.property.title}</h3>
                                             </div>
                                             <p className="text-slate-400 font-bold text-lg">{settlementOverviewData.property.location}</p>
                                             <div className="flex flex-wrap justify-center md:justify-start gap-4">
-                                                <div className="flex items-center gap-3 text-[13px] font-black text-slate-700 bg-slate-50 px-5 py-2.5 rounded-2xl border border-slate-100 shadow-sm">
+                                                <div className="flex items-center gap-3 text-sm font-semibold text-slate-700 bg-slate-50 px-5 py-2.5 rounded-2xl border border-slate-100 shadow-sm">
                                                     <Clock size={16} className="text-blue-600" />
                                                     Distribution Date: {settlementOverviewData.property.settlementDate}
                                                 </div>
-                                                <div className="flex items-center gap-3 text-[13px] font-black text-slate-700 bg-slate-50 px-5 py-2.5 rounded-2xl border border-slate-100 shadow-sm">
+                                                <div className="flex items-center gap-3 text-sm font-semibold text-slate-700 bg-slate-50 px-5 py-2.5 rounded-2xl border border-slate-100 shadow-sm">
                                                     <Target size={16} className="text-emerald-500" />
                                                     Lender ID: {settlementOverviewData.property.id}
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex flex-col items-center xl:items-end gap-6 min-w-[320px] bg-slate-50/50 p-8 rounded-[40px] border border-slate-100 shadow-inner">
+                                    <div className="flex flex-col items-center xl:items-end gap-6 min-w-[320px] bg-slate-50/50 p-5 rounded-xl border border-slate-100 shadow-inner">
                                         <div className="w-full space-y-3">
                                             <div className="flex justify-between items-end">
-                                                <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Protocol Preparedness</p>
-                                                <span className="text-4xl font-black text-blue-600 tabular-nums">{settlementOverviewData.property.readiness}%</span>
+                                                <p className="text-xs font-medium text-gray-500">Protocol Preparedness</p>
+                                                <span className="text-4xl font-semibold text-blue-600 tabular-nums">{settlementOverviewData.property.readiness}%</span>
                                             </div>
                                             <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200 p-0.5 shadow-inner">
                                                 <div className="h-full bg-blue-600 rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(37,99,235,0.4)]" style={{ width: `${settlementOverviewData.property.readiness}%` }}></div>
@@ -1883,68 +2020,68 @@ export default function LenderCaseDetails() {
                                         </div>
                                         <button
                                             onClick={() => setToast({ show: true, message: "Disbursement authorization initiated. Awaiting dual-approval from compliance and finance team. You will be notified when approved.", type: "success" })}
-                                            className="w-full h-14 bg-blue-900 text-white rounded-[20px] font-black text-[13px] uppercase tracking-widest hover:bg-blue-800 transition-all shadow-xl shadow-blue-900/20 active:scale-95 flex items-center justify-center gap-3"
+                                            className="w-full h-14 bg-blue-900 text-white rounded-[20px] font-semibold text-sm uppercase hover:bg-blue-800 transition-all shadow-xl shadow-blue-900/20 active:scale-95 flex items-center justify-center gap-3"
                                         >
                                             <CheckCircle2 size={20} /> Authorize Final Disbursement
                                         </button>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                                     {/* Critical Protocol Alerts */}
-                                    <div className="lg:col-span-5 bg-white border border-gray-100 rounded-[48px] p-10 space-y-8 shadow-sm hover:shadow-2xl transition-all">
+                                    <div className="lg:col-span-5 bg-white border border-gray-100 rounded-[48px] p-6 space-y-4 shadow-sm hover:shadow-2xl transition-all">
                                         <div className="flex items-center justify-between">
-                                            <h4 className="text-2xl font-black text-slate-800 tracking-tight">Protocol Exceptions</h4>
+                                            <h4 className="text-2xl font-semibold text-slate-800 ">Protocol Exceptions</h4>
                                             <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500 shadow-inner">
                                                 <AlertTriangle size={24} className="animate-pulse" />
                                             </div>
                                         </div>
                                         <div className="space-y-4">
                                             {settlementOverviewData.outstanding.map(item => (
-                                                <div key={item.id} className="p-8 rounded-[32px] bg-slate-50/50 border border-slate-100 flex items-center justify-between group hover:bg-white hover:border-slate-300 transition-all cursor-pointer">
+                                                <div key={item.id} className="p-5 rounded-xl bg-slate-50/50 border border-slate-100 flex items-center justify-between group hover:bg-white hover:border-slate-300 transition-all cursor-pointer">
                                                     <div className="space-y-1">
-                                                        <h5 className="text-[17px] font-black text-slate-800">{item.title}</h5>
-                                                        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">{item.responsible} Priority Action</p>
+                                                        <h5 className="text-base font-semibold text-slate-800">{item.title}</h5>
+                                                        <p className="text-xs font-medium text-gray-500">{item.responsible} Priority Action</p>
                                                     </div>
-                                                    <div className={`px-5 py-2.5 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-sm ${item.status === 'overdue' ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
+                                                    <div className={`px-5 py-2.5 rounded-2xl text-xs font-semibold uppercase shadow-sm ${item.status === 'overdue' ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
                                                         {item.days}
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
-                                        <button className="w-full h-14 border-2 border-dashed border-slate-200 rounded-[28px] text-[12px] font-black uppercase tracking-widest text-slate-400 hover:border-blue-900 hover:text-blue-900 hover:bg-blue-50/50 transition-all">
+                                        <button className="w-full h-14 border-2 border-dashed border-slate-200 rounded-xl text-xs font-semibold uppercase text-slate-400 hover:border-blue-900 hover:text-blue-900 hover:bg-blue-50/50 transition-all">
                                             Request Protocol Waiver
                                         </button>
                                     </div>
 
                                     {/* Encrypted Protocol Thread */}
                                     <div className="lg:col-span-7 bg-white border border-gray-100 rounded-[48px] overflow-hidden flex flex-col shadow-sm hover:shadow-2xl transition-all h-[600px]">
-                                        <div className="p-10 border-b border-slate-50 bg-white sticky top-0 z-10">
-                                            <h4 className="text-2xl font-black text-slate-800 tracking-tight">Institutional Protocol Ledger</h4>
-                                            <p className="text-[12px] font-bold text-slate-400 mt-1 uppercase tracking-[0.2em]">End-to-end encrypted settlement communication</p>
+                                        <div className="p-6 border-b border-slate-50 bg-white sticky top-0 z-10">
+                                            <h4 className="text-2xl font-semibold text-slate-800 ">Institutional Protocol Ledger</h4>
+                                            <p className="text-xs font-bold text-slate-400 mt-1 uppercase ">End-to-end encrypted settlement communication</p>
                                         </div>
-                                        <div className="flex-1 overflow-y-auto p-10 space-y-8 scrollbar-hide">
+                                        <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-hide">
                                             {settlementOverviewData.thread.map((msg) => (
                                                 <div key={msg.id} className="flex gap-6 group">
-                                                    <div className={`w-14 h-14 rounded-[24px] ${msg.color} text-white flex items-center justify-center font-black text-lg shadow-xl shrink-0 group-hover:scale-110 transition-transform`}>
+                                                    <div className={`w-14 h-14 rounded-lg ${msg.color} text-white flex items-center justify-center font-semibold text-lg shadow-xl shrink-0 group-hover:scale-110 transition-transform`}>
                                                         {msg.initials}
                                                     </div>
                                                     <div className="flex-1 space-y-3">
                                                         <div className="flex items-center justify-between">
                                                             <div className="flex items-center gap-3">
-                                                                <span className="text-[15px] font-black text-slate-900">{msg.user}</span>
-                                                                <span className="px-2 py-0.5 bg-slate-50 border border-slate-100 rounded-lg text-[9px] font-black text-slate-400 uppercase tracking-widest">{msg.role}</span>
+                                                                <span className="text-sm font-semibold text-slate-900">{msg.user}</span>
+                                                                <span className="px-2 py-0.5 bg-slate-50 border border-slate-100 rounded-lg text-xs font-semibold text-slate-400 uppercase">{msg.role}</span>
                                                             </div>
-                                                            <span className="text-[11px] font-bold text-slate-300 tabular-nums">{msg.time}</span>
+                                                            <span className="text-xs font-bold text-slate-300 tabular-nums">{msg.time}</span>
                                                         </div>
-                                                        <div className="bg-slate-50/50 group-hover:bg-white border border-transparent group-hover:border-slate-100 p-6 rounded-[28px] shadow-sm transition-all">
-                                                            <p className="text-[15px] text-slate-600 font-bold leading-relaxed">{msg.message}</p>
+                                                        <div className="bg-slate-50/50 group-hover:bg-white border border-transparent group-hover:border-slate-100 p-6 rounded-xl shadow-sm transition-all">
+                                                            <p className="text-sm text-slate-600 font-bold leading-relaxed">{msg.message}</p>
                                                         </div>
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
-                                        <div className="p-10 bg-slate-50/50 border-t border-slate-100">
+                                        <div className="p-6 bg-slate-50/50 border-t border-slate-100">
                                             <div className="relative flex items-center gap-4">
                                                 <input ref={settlementFileInputRef} type="file" className="hidden" onChange={(e) => {
                                                     const file = e.target.files?.[0];
@@ -1966,7 +2103,7 @@ export default function LenderCaseDetails() {
                                                         value={settlementMessage}
                                                         onChange={(e) => setSettlementMessage(e.target.value)}
                                                         placeholder="Enter formal protocol communication..."
-                                                        className="w-full bg-white border border-slate-200 rounded-2xl px-8 py-4 text-[15px] font-bold outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-900 shadow-inner transition-all h-14"
+                                                        className="w-full bg-white border border-slate-200 rounded-2xl px-8 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-900 shadow-inner transition-all h-14"
                                                     />
                                                 </div>
                                                 <button onClick={handleSendMessage} className="h-14 w-14 bg-blue-900 text-white rounded-2xl flex items-center justify-center hover:bg-blue-800 active:scale-95 transition-all shadow-2xl shadow-blue-900/20">
@@ -1983,19 +2120,19 @@ export default function LenderCaseDetails() {
                             <div className="bg-white p-32 rounded-[60px] border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center animate-fade-in relative overflow-hidden group">
                                 <div className="absolute inset-0 bg-blue-50/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="relative z-10 flex flex-col items-center">
-                                    <div className="w-32 h-32 bg-white rounded-[40px] flex items-center justify-center mb-10 shadow-2xl border border-blue-50 group-hover:scale-110 transition-transform duration-700">
+                                    <div className="w-32 h-32 bg-white rounded-xl flex items-center justify-center mb-4 shadow-2xl border border-blue-50 group-hover:scale-110 transition-transform duration-700">
                                         <Building size={64} className="text-blue-600" />
                                     </div>
-                                    <h3 className="text-4xl font-black text-slate-900 tracking-tighter uppercase mb-6">PEXA Exchange Interface</h3>
-                                    <p className="text-[17px] font-bold text-slate-400 max-w-xl leading-relaxed uppercase tracking-[0.1em] mb-12">
+                                    <h3 className="text-4xl font-semibold text-slate-900  uppercase mb-6">PEXA Exchange Interface</h3>
+                                    <p className="text-base font-bold text-slate-400 max-w-xl leading-relaxed uppercase tracking-[0.1em] mb-5">
                                         The electronic settlement workspace is configured for institutional funds clearance.
                                         Lender legal representation has finalized protocol workspace BB-2026-X01.
                                     </p>
                                     <div className="flex gap-4">
-                                        <button className="h-16 px-12 bg-blue-900 text-white rounded-[24px] font-black text-[14px] uppercase tracking-widest hover:bg-blue-800 transition-all shadow-2xl shadow-blue-900/20 active:scale-95 flex items-center gap-4">
+                                        <button className="h-16 px-12 bg-blue-900 text-white rounded-lg font-semibold text-sm uppercase hover:bg-blue-800 transition-all shadow-2xl shadow-blue-900/20 active:scale-95 flex items-center gap-4">
                                             <Handshake size={24} /> Sync PEXA Workspace
                                         </button>
-                                        <button className="h-16 px-12 bg-white border border-slate-200 text-slate-700 rounded-[24px] font-black text-[14px] uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95">
+                                        <button className="h-16 px-12 bg-white border border-slate-200 text-slate-700 rounded-lg font-semibold text-sm uppercase hover:bg-slate-50 transition-all active:scale-95">
                                             Audit Trails
                                         </button>
                                     </div>
@@ -2006,6 +2143,126 @@ export default function LenderCaseDetails() {
                     </div>
                 )}
             </div>
+            {/* ── Task Action Modals ──────────────────────────────────────── */}
+            {taskActionModal && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setTaskActionModal(null)} />
+                    <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-100 w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+                        {/* Modal Header */}
+                        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                            <div>
+                                <h3 className="text-base font-semibold text-slate-900">
+                                    {taskActionModal.type === 'edit' && 'Edit Task'}
+                                    {taskActionModal.type === 'reassign' && 'Reassign Task'}
+                                    {taskActionModal.type === 'priority' && 'Set Priority'}
+                                    {taskActionModal.type === 'archive' && 'Archive Task'}
+                                    {taskActionModal.type === 'escalate' && 'Escalate to Compliance'}
+                                </h3>
+                                <p className="text-xs font-medium text-slate-400 mt-0.5 truncate max-w-[280px]">{taskActionModal.task.title}</p>
+                            </div>
+                            <button onClick={() => setTaskActionModal(null)} className="p-1.5 hover:bg-slate-50 rounded-lg text-slate-400 transition-colors"><X size={18} /></button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-6 space-y-4">
+                            {taskActionModal.type === 'edit' && (
+                                <>
+                                    <div>
+                                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">Task Title</label>
+                                        <input className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" value={taskActionForm.title || ''} onChange={e => setTaskActionForm(f => ({ ...f, title: e.target.value }))} />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">Description</label>
+                                        <input className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" value={taskActionForm.desc || ''} onChange={e => setTaskActionForm(f => ({ ...f, desc: e.target.value }))} />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">Assignee</label>
+                                            <input className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" value={taskActionForm.assignee || ''} onChange={e => setTaskActionForm(f => ({ ...f, assignee: e.target.value }))} />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">Due Date</label>
+                                            <input type="date" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" value={taskActionForm.date ? new Date(taskActionForm.date).toISOString().split('T')[0] : ''} onChange={e => setTaskActionForm(f => ({ ...f, date: e.target.value }))} />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">Priority</label>
+                                        <select className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" value={taskActionForm.priority || 'HIGH'} onChange={e => setTaskActionForm(f => ({ ...f, priority: e.target.value }))}>
+                                            {['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'].map(p => <option key={p} value={p}>{p}</option>)}
+                                        </select>
+                                    </div>
+                                </>
+                            )}
+                            {taskActionModal.type === 'reassign' && (
+                                <>
+                                    <div>
+                                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">Assign To</label>
+                                        <input className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" placeholder="e.g. John Smith" value={taskActionForm.assignee || ''} onChange={e => setTaskActionForm(f => ({ ...f, assignee: e.target.value }))} />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">Email (optional)</label>
+                                        <input type="email" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" placeholder="assignee@email.com" value={taskActionForm.email || ''} onChange={e => setTaskActionForm(f => ({ ...f, email: e.target.value }))} />
+                                    </div>
+                                </>
+                            )}
+                            {taskActionModal.type === 'priority' && (
+                                <div className="grid grid-cols-2 gap-3">
+                                    {['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'].map(p => (
+                                        <button key={p} onClick={() => setTaskActionForm(f => ({ ...f, priority: p }))}
+                                            className={`py-3 rounded-xl text-sm font-semibold border transition-all ${taskActionForm.priority === p ?
+                                                p === 'CRITICAL' ? 'bg-rose-600 text-white border-rose-600' :
+                                                p === 'HIGH' ? 'bg-amber-500 text-white border-amber-500' :
+                                                p === 'MEDIUM' ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-600 text-white border-slate-600'
+                                                : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'}`}>
+                                            {p}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                            {taskActionModal.type === 'archive' && (
+                                <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 flex items-start gap-3">
+                                    <AlertTriangle size={18} className="text-amber-600 shrink-0 mt-0.5" />
+                                    <p className="text-sm font-medium text-amber-900">This task will be archived and hidden from the active checklist. You can restore it later if needed.</p>
+                                </div>
+                            )}
+                            {taskActionModal.type === 'escalate' && (
+                                <>
+                                    <div className="bg-rose-50 border border-rose-100 rounded-xl p-4 flex items-start gap-3">
+                                        <ShieldCheck size={18} className="text-rose-600 shrink-0 mt-0.5" />
+                                        <p className="text-sm font-medium text-rose-900">This task will be flagged as CRITICAL and escalated to the compliance team for urgent review.</p>
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">Escalation Reason</label>
+                                        <textarea rows={3} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 resize-none" placeholder="Describe why this needs compliance attention..." value={taskActionForm.reason || ''} onChange={e => setTaskActionForm(f => ({ ...f, reason: e.target.value }))} />
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                            <button onClick={() => setTaskActionModal(null)} className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">Cancel</button>
+                            <button
+                                onClick={handleTaskActionSave}
+                                disabled={taskActionSaving}
+                                className={`px-5 py-2 text-sm font-semibold text-white rounded-lg transition-all flex items-center gap-2 disabled:opacity-60 ${
+                                    taskActionModal.type === 'archive' ? 'bg-amber-600 hover:bg-amber-700' :
+                                    taskActionModal.type === 'escalate' ? 'bg-rose-600 hover:bg-rose-700' :
+                                    'bg-indigo-600 hover:bg-indigo-700'
+                                }`}
+                            >
+                                {taskActionSaving && <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+                                {taskActionModal.type === 'edit' && 'Save Changes'}
+                                {taskActionModal.type === 'reassign' && 'Reassign Task'}
+                                {taskActionModal.type === 'priority' && 'Set Priority'}
+                                {taskActionModal.type === 'archive' && 'Archive Task'}
+                                {taskActionModal.type === 'escalate' && 'Escalate Now'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Toast Notification */}
             {toast.show && (
                 <div className="fixed bottom-10 right-10 z-50 animate-in slide-in-from-right-4 duration-300">
@@ -2014,7 +2271,7 @@ export default function LenderCaseDetails() {
                             'bg-slate-900 text-white'
                         }`}>
                         {toast.type === 'success' ? <CheckCircle2 size={20} /> : <AlertTriangle size={20} />}
-                        <p className="text-[13px] font-black tracking-tight">{toast.message}</p>
+                        <p className="text-sm font-semibold ">{toast.message}</p>
                         <button onClick={() => setToast({ ...toast, show: false })} className="ml-2 opacity-50 hover:opacity-100 transition-opacity">
                             <X size={16} />
                         </button>
@@ -2026,11 +2283,11 @@ export default function LenderCaseDetails() {
             {isManageModalOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
                     <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsManageModalOpen(false)}></div>
-                    <div className="relative w-full max-w-4xl bg-white rounded-[40px] shadow-2xl border border-white/20 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in duration-300">
-                        <div className="p-8 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
+                    <div className="relative w-full max-w-4xl bg-white rounded-xl shadow-2xl border border-white/20 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in duration-300">
+                        <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
                             <div>
-                                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Case Management Console</h3>
-                                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Update institutional parameters for {caseData.id}</p>
+                                <h3 className="text-xl font-semibold text-slate-900 uppercase ">Case Management Console</h3>
+                                <p className="text-xs font-bold text-gray-400 uppercase mt-0.5">Update institutional parameters for {caseData.case_number || caseData.id}</p>
                             </div>
                             <button onClick={() => setIsManageModalOpen(false)} className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all">
                                 <X size={20} />
@@ -2042,22 +2299,22 @@ export default function LenderCaseDetails() {
                                 <button
                                     key={t}
                                     onClick={() => setManageModalTab(t)}
-                                    className={`px-6 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${manageModalTab === t ? 'bg-white text-blue-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                                    className={`px-6 py-2.5 rounded-xl text-xs font-semibold uppercase transition-all whitespace-nowrap ${manageModalTab === t ? 'bg-white text-blue-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                                 >
                                     {t}
                                 </button>
                             ))}
                         </div>
 
-                        <div className="flex-1 overflow-y-auto p-8 pt-6 space-y-8">
+                        <div className="flex-1 overflow-y-auto p-5 pt-6 space-y-4">
                             {manageModalTab === "Case Details" && (
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-1.5">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Case Status</label>
+                                        <label className="text-xs font-medium text-gray-500 ml-1">Case Status</label>
                                         <select
                                             value={formData.status}
                                             onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                            className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-5 text-[14px] font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                                            className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-5 text-sm font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all outline-none"
                                         >
                                             <option>In Auction</option>
                                             <option>Lawyer Review</option>
@@ -2066,11 +2323,11 @@ export default function LenderCaseDetails() {
                                         </select>
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Risk Profile</label>
+                                        <label className="text-xs font-medium text-gray-500 ml-1">Risk Profile</label>
                                         <select
                                             value={formData.riskLevel}
                                             onChange={(e) => setFormData({ ...formData, riskLevel: e.target.value })}
-                                            className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-5 text-[14px] font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                                            className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-5 text-sm font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all outline-none"
                                         >
                                             <option>Low Risk</option>
                                             <option>Medium Risk</option>
@@ -2079,12 +2336,12 @@ export default function LenderCaseDetails() {
                                         </select>
                                     </div>
                                     <div className="col-span-2 space-y-1.5">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Property Address</label>
+                                        <label className="text-xs font-medium text-gray-500 ml-1">Property Address</label>
                                         <input
                                             type="text"
                                             value={formData.address}
                                             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                                            className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-5 text-[14px] font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                                            className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-5 text-sm font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all outline-none"
                                         />
                                     </div>
                                 </div>
@@ -2093,39 +2350,39 @@ export default function LenderCaseDetails() {
                             {manageModalTab === "Financials" && (
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-1.5">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Outstanding Debt ($)</label>
+                                        <label className="text-xs font-medium text-gray-500 ml-1">Outstanding Debt ($)</label>
                                         <input
                                             type="number"
                                             value={formData.outstandingDebt}
                                             onChange={(e) => setFormData({ ...formData, outstandingDebt: Number(e.target.value) })}
-                                            className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-5 text-[14px] font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                                            className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-5 text-sm font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all outline-none"
                                         />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Market Valuation ($)</label>
+                                        <label className="text-xs font-medium text-gray-500 ml-1">Market Valuation ($)</label>
                                         <input
                                             type="number"
                                             value={formData.propertyValuation}
                                             onChange={(e) => setFormData({ ...formData, propertyValuation: Number(e.target.value) })}
-                                            className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-5 text-[14px] font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                                            className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-5 text-sm font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all outline-none"
                                         />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Lender Interest Rate (%)</label>
+                                        <label className="text-xs font-medium text-gray-500 ml-1">Lender Interest Rate (%)</label>
                                         <input
                                             type="number"
                                             value={formData.interestRate}
                                             onChange={(e) => setFormData({ ...formData, interestRate: Number(e.target.value) })}
-                                            className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-5 text-[14px] font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                                            className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-5 text-sm font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all outline-none"
                                         />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Default Penalty Rate (%)</label>
+                                        <label className="text-xs font-medium text-gray-500 ml-1">Default Penalty Rate (%)</label>
                                         <input
                                             type="number"
                                             value={formData.defaultRate}
                                             onChange={(e) => setFormData({ ...formData, defaultRate: Number(e.target.value) })}
-                                            className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-5 text-[14px] font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                                            className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-5 text-sm font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all outline-none"
                                         />
                                     </div>
                                 </div>
@@ -2133,10 +2390,10 @@ export default function LenderCaseDetails() {
 
                             {manageModalTab === "Compliance" && (
                                 <div className="space-y-6">
-                                    <div className="p-6 bg-blue-50 border border-blue-100 rounded-[32px] flex items-center justify-between">
+                                    <div className="p-6 bg-blue-50 border border-blue-100 rounded-xl flex items-center justify-between">
                                         <div>
-                                            <h4 className="text-[15px] font-black text-blue-900">Institutional Protocol Lock</h4>
-                                            <p className="text-[11px] font-bold text-blue-700/60 uppercase">Manual overrides require senior signatory authority</p>
+                                            <h4 className="text-sm font-semibold text-blue-900">Institutional Protocol Lock</h4>
+                                            <p className="text-xs font-bold text-blue-700/60 uppercase">Manual overrides require senior signatory authority</p>
                                         </div>
                                         <div className="w-12 h-6 bg-blue-200 rounded-full relative cursor-pointer">
                                             <div className="absolute right-1 top-1 w-4 h-4 bg-blue-600 rounded-full"></div>
@@ -2150,7 +2407,7 @@ export default function LenderCaseDetails() {
                                             "Force Settlement Status"
                                         ].map((opt, i) => (
                                             <div key={i} className="flex items-center justify-between p-4 border-b border-gray-50">
-                                                <span className="text-[13px] font-bold text-slate-700 uppercase tracking-tight">{opt}</span>
+                                                <span className="text-sm font-bold text-slate-700 uppercase ">{opt}</span>
                                                 <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-blue-900 focus:ring-blue-900" />
                                             </div>
                                         ))}
@@ -2174,7 +2431,7 @@ export default function LenderCaseDetails() {
                                         ))}
                                         <label className="flex flex-col items-center justify-center aspect-square rounded-2xl border-2 border-dashed border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all cursor-pointer">
                                             <Upload className="text-gray-400 mb-2" />
-                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Add Media</span>
+                                            <span className="text-xs font-medium text-gray-500">Add Media</span>
                                             <input type="file" multiple className="hidden" onChange={handleImageUpload} />
                                         </label>
                                     </div>
@@ -2182,12 +2439,12 @@ export default function LenderCaseDetails() {
                             )}
                         </div>
 
-                        <div className="p-8 border-t border-gray-100 bg-gray-50 flex items-center justify-between sticky bottom-0 z-10">
-                            <button onClick={() => setIsManageModalOpen(false)} className="px-8 py-3 text-[12px] font-black text-slate-500 uppercase tracking-widest hover:text-slate-700">Cancel Changes</button>
+                        <div className="p-5 border-t border-gray-100 bg-gray-50 flex items-center justify-between sticky bottom-0 z-10">
+                            <button onClick={() => setIsManageModalOpen(false)} className="px-8 py-3 text-xs font-semibold text-slate-500 uppercase hover:text-slate-700">Cancel Changes</button>
                             <button
                                 onClick={handleSave}
                                 disabled={isSaving}
-                                className="h-14 px-12 bg-blue-900 text-white rounded-2xl font-black text-[13px] uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-blue-900/10 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
+                                className="h-14 px-12 bg-blue-900 text-white rounded-2xl font-semibold text-sm uppercase hover:bg-black transition-all shadow-xl shadow-blue-900/10 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
                             >
                                 {isSaving ? <RotateCcw size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
                                 {isSaving ? "Synchronizing..." : "Serialize Changes"}
@@ -2201,41 +2458,41 @@ export default function LenderCaseDetails() {
             {isBulkCommModalOpen && (
                 <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setIsBulkCommModalOpen(false)}></div>
-                    <div className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden animate-in zoom-in duration-300">
-                        <div className="p-8 border-b border-gray-100 flex items-center justify-between">
+                    <div className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden animate-in zoom-in duration-300">
+                        <div className="p-5 border-b border-gray-100 flex items-center justify-between">
                             <div>
-                                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Institutional Broadcast</h3>
-                                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Secure broadcast to verified stake-holders</p>
+                                <h3 className="text-xl font-semibold text-slate-900 uppercase ">Institutional Broadcast</h3>
+                                <p className="text-xs font-bold text-gray-400 uppercase mt-0.5">Secure broadcast to verified stake-holders</p>
                             </div>
                             <button onClick={() => setIsBulkCommModalOpen(false)} className="text-slate-400 hover:text-rose-500 transition-colors">
                                 <X size={24} />
                             </button>
                         </div>
-                        <div className="p-8 space-y-6">
+                        <div className="p-5 space-y-6">
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Message Subject</label>
+                                <label className="text-xs font-medium text-gray-500 ml-1">Message Subject</label>
                                 <input
                                     type="text"
                                     value={bulkMessage.subject}
                                     onChange={(e) => setBulkMessage({ ...bulkMessage, subject: e.target.value })}
-                                    className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-5 text-[14px] font-bold text-slate-700 outline-none focus:ring-4 focus:ring-blue-100 focus:bg-white transition-all"
+                                    className="w-full h-14 bg-gray-50 border border-gray-100 rounded-2xl px-5 text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-blue-100 focus:bg-white transition-all"
                                     placeholder="Institutional Protocol Update..."
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Message Body</label>
+                                <label className="text-xs font-medium text-gray-500 ml-1">Message Body</label>
                                 <textarea
                                     value={bulkMessage.body}
                                     onChange={(e) => setBulkMessage({ ...bulkMessage, body: e.target.value })}
-                                    className="w-full min-h-[160px] bg-gray-50 border border-gray-100 rounded-3xl p-6 text-[14px] font-bold text-slate-600 outline-none focus:ring-4 focus:ring-blue-100 focus:bg-white transition-all resize-none shadow-inner"
+                                    className="w-full min-h-[160px] bg-gray-50 border border-gray-100 rounded-3xl p-6 text-sm font-bold text-slate-600 outline-none focus:ring-4 focus:ring-blue-100 focus:bg-white transition-all resize-none shadow-inner"
                                     placeholder="Enter directive or protocol information..."
                                 />
                             </div>
                         </div>
-                        <div className="p-8 border-t border-gray-100 bg-gray-50 flex justify-end">
+                        <div className="p-5 border-t border-gray-100 bg-gray-50 flex justify-end">
                             <button
                                 onClick={handleSendBulkComm}
-                                className="h-14 px-12 bg-blue-900 text-white rounded-2xl font-black text-[13px] uppercase tracking-widest hover:bg-blue-800 transition-all shadow-xl active:scale-95 flex items-center gap-3"
+                                className="h-14 px-12 bg-blue-900 text-white rounded-2xl font-semibold text-sm uppercase hover:bg-blue-800 transition-all shadow-xl active:scale-95 flex items-center gap-3"
                             >
                                 <Send size={18} /> Broadcast Message
                             </button>

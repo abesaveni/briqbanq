@@ -448,6 +448,8 @@ async def get_borrower_profile(
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db),
 ):
+    if "BORROWER" not in current_user.get("roles", []):
+        raise HTTPException(status_code=403, detail="Only borrowers can access this profile")
     # Return the current user profile from the JWT claims + DB lookup
     from app.modules.identity.repository import UserRepository
     repo = UserRepository(db)

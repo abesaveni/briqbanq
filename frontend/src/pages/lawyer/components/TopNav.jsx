@@ -3,7 +3,6 @@ import { NavLink, useNavigate } from 'react-router-dom'
 const NAV_ITEMS = [
   { name: 'Dashboard', path: '/lawyer/dashboard', icon: 'dashboard' },
   { name: 'Assigned Cases', path: '/lawyer/assigned-cases', icon: 'cases' },
-  { name: 'E-Signatures', path: '/lawyer/e-signatures', icon: 'esign' },
   { name: 'Contract Review', path: '/lawyer/contract-review', icon: 'contract' },
   { name: 'Task Center', path: '/lawyer/task-center', icon: 'task' },
   { name: 'Notifications', path: '/lawyer/notifications', icon: 'bell' },

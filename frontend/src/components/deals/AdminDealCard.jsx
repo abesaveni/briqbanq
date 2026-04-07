@@ -119,13 +119,13 @@ export default function AdminDealCard({ deal, onRefresh }) {
           {isLive ? (
             <>
               <button
-                onClick={(e) => { e.stopPropagation(); navigate(`/admin/buy-now/${deal.id}`); }}
+                onClick={(e) => { e.stopPropagation(); navigate(`/admin/auction-room/${deal.id}`); }}
                 className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5"
               >
                 <Gavel size={12} />Auction
               </button>
               <button
-                onClick={(e) => { e.stopPropagation(); navigate(`/admin/buy-now/${deal.id}`); }}
+                onClick={(e) => { e.stopPropagation(); navigate(`/admin/case-details/${deal.case_id || deal.id}`); }}
                 className="border border-slate-200 hover:bg-slate-50 text-slate-500 px-2 py-1.5 rounded-lg"
               >
                 <Eye size={14} />

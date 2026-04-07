@@ -67,7 +67,7 @@ export default function InvestorAlerts({ investments = [] }) {
                         </button>
                     ) : (
                         <button
-                            onClick={() => navigate("/investor/settlements")}
+                            onClick={() => navigate("/investor/escrow")}
                             className="bg-white text-blue-700 border border-blue-100 px-3 py-1 rounded-lg text-[10px] font-black hover:bg-blue-50 transition-all shadow-sm active:scale-95"
                         >
                             View Settlements

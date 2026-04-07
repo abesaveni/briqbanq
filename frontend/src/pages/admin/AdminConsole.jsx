@@ -7,6 +7,7 @@ function GeneralSettingsTab() {
     const [settings, setSettings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [savedKey, setSavedKey] = useState(null);
     const [form, setForm] = useState({
         platform_name: 'BrickBanq',
         support_email: 'support@brickbanq.com',
@@ -32,6 +33,8 @@ function GeneralSettingsTab() {
         setSaving(true);
         await adminService.updateSettings({ key, value }).catch(() => {});
         setSaving(false);
+        setSavedKey(key);
+        setTimeout(() => setSavedKey(null), 2000);
     };
 
     const fields = [
@@ -72,13 +75,19 @@ function GeneralSettingsTab() {
                                     className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 w-48 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                 />
                             )}
-                            <button
-                                onClick={() => handleSave(f.key, form[f.key])}
-                                disabled={saving}
-                                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
-                            >
-                                <Save className="w-3 h-3" /> Save
-                            </button>
+                            {savedKey === f.key ? (
+                                <span className="flex items-center gap-1 text-xs font-semibold text-green-600 bg-green-50 border border-green-200 px-3 py-1.5 rounded-lg">
+                                    <Activity className="w-3 h-3" /> Saved
+                                </span>
+                            ) : (
+                                <button
+                                    onClick={() => handleSave(f.key, form[f.key])}
+                                    disabled={saving}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                                >
+                                    <Save className="w-3 h-3" /> Save
+                                </button>
+                            )}
                         </div>
                     </div>
                 ))}
@@ -158,9 +167,9 @@ function SecurityTab() {
                             <span className="text-gray-500">Secret Key</span>
                             <div className="flex items-center gap-1">
                                 <span className="font-mono text-gray-800 text-[10px]">
-                                    {show2FA ? '••••••••••••••••' : '••••••••'}
+                                    {show2FA ? 'HS256-JWT-SECRET-KEY-****' : '••••••••••••••••'}
                                 </span>
-                                <button onClick={() => setShow2FA(!show2FA)} className="text-gray-400 hover:text-gray-600">
+                                <button onClick={() => setShow2FA(!show2FA)} className="text-gray-400 hover:text-gray-600" title={show2FA ? 'Hide key' : 'Show key'}>
                                     {show2FA ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                                 </button>
                             </div>
@@ -336,7 +345,7 @@ export default function AdminConsole() {
                             <Settings className="w-8 h-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold tracking-tight">Admin Center</h1>
+                            <h1 className="text-3xl font-bold tracking-tight">Admin Centre</h1>
                             <p className="text-sm font-medium opacity-90">Centralized integration management &amp; system configuration</p>
                         </div>
                     </div>

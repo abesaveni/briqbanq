@@ -59,10 +59,3 @@ export async function getNotifications() {
   return wrap(api.get('/api/v1/notifications'))
 }
 
-export async function getEsignatureData() {
-  return { data: { stats: {}, tasks: [], alerts: [], activity: [], envelopes: [], documents: [], templates: [], hsmCluster: {}, certificates: [], evidenceChain: {}, evidenceEvents: [], adminSovereignty: {}, adminPolicies: [], adminSecurity: [] }, error: null }
-}
-
-export async function getGovSignData() {
-  return { data: { stats: {}, tasks: [], alerts: [], activity: [], envelopes: [], documents: [], templates: [], hsmCluster: {}, certificates: [], evidenceChain: {}, evidenceEvents: [], adminSovereignty: {}, adminPolicies: [], adminSecurity: [], reportTypes: [], reports: [], helpFaq: [], helpLinks: [] }, error: null }
-}

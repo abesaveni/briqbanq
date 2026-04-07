@@ -32,12 +32,13 @@ export default function InvestorReports() {
                 analyticsService.getRecentActivity()
             ]);
 
-            if (summaryRes.success && chartsRes.success && activityRes.success) {
-                setSummary(summaryRes.data);
-                setCharts(chartsRes.data);
+            if (summaryRes.success) setSummary(summaryRes.data);
+            if (chartsRes.success) setCharts(chartsRes.data);
+            if (activityRes.success) {
                 const activityData = activityRes.data;
                 setActivity(Array.isArray(activityData) ? activityData : (activityData?.items || []));
-            } else {
+            }
+            if (!summaryRes.success && !chartsRes.success && !activityRes.success) {
                 setError(summaryRes.error || chartsRes.error || activityRes.error || "Failed to load reports");
             }
         } catch (err) {
@@ -104,9 +105,19 @@ export default function InvestorReports() {
         });
     };
 
-    const handleExportExcel = async (section) => {
-        // Export as PDF per user requirements
-        await handleExportPDF(section);
+    const handleExportExcel = (section) => {
+        const rows = buildSectionRows(section);
+        const csvContent = [
+            ['Metric', 'Value'],
+            ...rows,
+        ].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `investor-${section.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
     };
 
     const handleViewDetails = (type) => {

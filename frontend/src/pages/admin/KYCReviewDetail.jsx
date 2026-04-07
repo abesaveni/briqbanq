@@ -1,16 +1,33 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
     ArrowLeft, Shield, CheckCircle, XCircle, AlertTriangle, AlertCircle, FileText,
     Mail, Download, Activity, ExternalLink, ChevronRight, CheckSquare, X, Loader2, Send
 } from 'lucide-react';
 import { generateBrandedPDF } from '../../utils/pdfGenerator';
+import { kycService } from '../../api/dataService';
 
 export default function KYCReviewDetail() {
     const navigate = useNavigate();
+    const { id } = useParams();
     const [status, setStatus] = useState('pending_review');
     const [riskLevel, setRiskLevel] = useState('Low');
     const [activeTab, setActiveTab] = useState('Overview');
+    const [kycRecord, setKycRecord] = useState(null);
+
+    useEffect(() => {
+        if (!id) return;
+        kycService.getKYCById(id).then(res => {
+            if (res.success && res.data) {
+                setKycRecord(res.data);
+                const s = res.data.status?.toLowerCase();
+                if (s === 'approved') setStatus('approved');
+                else if (s === 'rejected') setStatus('rejected');
+                else setStatus('pending_review');
+                if (res.data.risk_level) setRiskLevel(res.data.risk_level);
+            }
+        }).catch(() => {});
+    }, [id]);
 
     // Modals
     const [showRequestModal, setShowRequestModal] = useState(false);
@@ -104,7 +121,7 @@ export default function KYCReviewDetail() {
                 <ChevronRight className="w-4 h-4" />
                 <button onClick={() => navigate('/admin/kyc-review')} className="hover:text-gray-900">KYC Review</button>
                 <ChevronRight className="w-4 h-4" />
-                <span className="text-gray-900 font-medium">Jennifer Brown</span>
+                <span className="text-gray-900 font-medium">{kycRecord?.full_name || kycRecord?.user_name || 'KYC Review'}</span>
             </div>
 
             {/* Header */}
@@ -148,13 +165,19 @@ export default function KYCReviewDetail() {
                             <AlertCircle className="w-4 h-4 text-gray-500" /> Request More Info
                         </button>
                         <button
-                            onClick={() => setStatus('rejected')}
+                            onClick={async () => {
+                                if (id) await kycService.rejectKYC(id, 'Rejected by admin').catch(() => {});
+                                setStatus('rejected');
+                            }}
                             className="flex items-center gap-2 px-4 py-2 border border-red-200 text-red-600 font-medium rounded-lg hover:bg-red-50 transition-colors"
                         >
                             <XCircle className="w-4 h-4" /> Reject
                         </button>
                         <button
-                            onClick={() => setStatus('approved')}
+                            onClick={async () => {
+                                if (id) await kycService.approveKYC(id).catch(() => {});
+                                setStatus('approved');
+                            }}
                             className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors"
                         >
                             <CheckCircle className="w-4 h-4 text-white" /> Approve KYC
@@ -229,10 +252,10 @@ export default function KYCReviewDetail() {
                                 <h3 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-4"><span className="text-indigo-600">👤</span> Personal Information</h3>
                                 <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                                     {[
-                                        { label: 'Full Name', value: 'Jennifer Brown' },
-                                        { label: 'Date of Birth', value: '15/03/1985' },
-                                        { label: 'Email', value: 'jennifer.brown@example.com' },
-                                        { label: 'Phone', value: '+61 412 345 678' },
+                                        { label: 'Full Name', value: kycRecord?.full_name || kycRecord?.user_name || 'N/A' },
+                                        { label: 'Date of Birth', value: kycRecord?.date_of_birth ? new Date(kycRecord.date_of_birth).toLocaleDateString('en-AU') : (kycRecord?.dob || 'N/A') },
+                                        { label: 'Email', value: kycRecord?.email || kycRecord?.user_email || 'N/A' },
+                                        { label: 'Phone', value: kycRecord?.phone || kycRecord?.phone_number || 'N/A' },
                                     ].map(({ label, value }) => (
                                         <div key={label} className="bg-gray-50 p-3 rounded-lg">
                                             <span className="text-xs text-gray-500 font-medium block mb-1">{label}</span>
@@ -241,31 +264,31 @@ export default function KYCReviewDetail() {
                                     ))}
                                     <div className="col-span-2 bg-gray-50 p-3 rounded-lg">
                                         <span className="text-xs text-gray-500 font-medium block mb-1">Address</span>
-                                        <span className="text-sm text-gray-900 font-semibold">123 Collins Street, Melbourne VIC 3000</span>
+                                        <span className="text-sm text-gray-900 font-semibold">{kycRecord?.address || kycRecord?.residential_address || 'N/A'}</span>
                                     </div>
                                     <div className="bg-gray-50 p-3 rounded-lg">
                                         <span className="text-xs text-gray-500 font-medium block mb-1">Nationality</span>
-                                        <span className="text-sm text-gray-900 font-semibold">Australian</span>
+                                        <span className="text-sm text-gray-900 font-semibold">{kycRecord?.nationality || 'Australian'}</span>
                                     </div>
                                     <div className="bg-gray-50 p-3 rounded-lg">
                                         <span className="text-xs text-gray-500 font-medium block mb-1">Role</span>
-                                        <span className="text-xs mt-1 inline-block bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded font-medium">Investor</span>
+                                        <span className="text-xs mt-1 inline-block bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded font-medium capitalize">{kycRecord?.user_role || kycRecord?.role || 'N/A'}</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-                                <h3 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-4"><span className="text-indigo-600">🏢</span> Organization Information</h3>
+                                <h3 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-4"><span className="text-indigo-600">🏢</span> Organisation Information</h3>
                                 <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                                     <div className="col-span-2 bg-gray-50 p-3 rounded-lg">
                                         <span className="text-xs text-gray-500 font-medium block mb-1">Company Name</span>
-                                        <span className="text-sm text-gray-900 font-semibold">Brown Capital Partners Pty Ltd</span>
+                                        <span className="text-sm text-gray-900 font-semibold">{kycRecord?.company_name || kycRecord?.business_name || 'N/A'}</span>
                                     </div>
                                     {[
-                                        { label: 'ABN', value: '12 345 678 901' },
-                                        { label: 'ACN', value: '123 456 789' },
-                                        { label: 'Entity Type', value: 'Private Company' },
-                                        { label: 'Website', value: 'www.browncapital.com.au' },
+                                        { label: 'ABN', value: kycRecord?.abn || 'N/A' },
+                                        { label: 'ACN', value: kycRecord?.acn || 'N/A' },
+                                        { label: 'Entity Type', value: kycRecord?.entity_type || kycRecord?.business_type || 'N/A' },
+                                        { label: 'Website', value: kycRecord?.website || kycRecord?.business_website || 'N/A' },
                                     ].map(({ label, value }) => (
                                         <div key={label} className="bg-gray-50 p-3 rounded-lg">
                                             <span className="text-xs text-gray-500 font-medium block mb-1">{label}</span>
@@ -274,7 +297,7 @@ export default function KYCReviewDetail() {
                                     ))}
                                     <div className="col-span-2 bg-gray-50 p-3 rounded-lg">
                                         <span className="text-xs text-gray-500 font-medium block mb-1">Business Address</span>
-                                        <span className="text-sm text-gray-900 font-semibold">123 Collins Street, Melbourne VIC 3000</span>
+                                        <span className="text-sm text-gray-900 font-semibold">{kycRecord?.business_address || kycRecord?.address || 'N/A'}</span>
                                     </div>
                                 </div>
                             </div>

@@ -303,7 +303,7 @@ export default function InvestmentMemorandum({ deal }) {
                 <div className="grid md:grid-cols-2 gap-10 max-w-6xl mx-auto mb-8 text-left">
                     {/* Left: Contact Info */}
                     <div className="space-y-4">
-                        <h3 className="text-xl font-bold tracking-tight">Contact Information</h3>
+                        <h3 className="text-xl font-bold tracking-tight text-indigo-400">Contact Information</h3>
                         <p className="text-gray-400 text-xs leading-relaxed">
                             For further information or to arrange property inspection:
                         </p>

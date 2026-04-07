@@ -35,10 +35,7 @@ function normalizeDeal(d) {
     const asking = Number(d.asking_price) || 0
     const estimated = Number(d.estimated_value) || 0
 
-    const primaryImageDoc = (d.documents || []).find(doc =>
-        (doc.document_type || doc.type) === 'Property Image'
-    );
-
+    // Build property_images list from all sources
     let property_images = d.property_images || [];
     if (typeof property_images === 'string') {
         try { property_images = JSON.parse(property_images) } catch (e) { property_images = [] }
@@ -47,11 +44,16 @@ function normalizeDeal(d) {
         property_images = d.metadata_json_case.property_images;
     }
 
-    const resolvedImage = primaryImageDoc ? primaryImageDoc.file_url : (property_images[0] || null);
-    // Use relative path so Vite proxy handles /uploads/* → localhost:8000
-    const finalImage = resolvedImage
-        ? (resolvedImage.startsWith('http') ? resolvedImage : resolvedImage)
-        : null;
+    // Use property_images first (proper /uploads/... URLs).
+    // Fall back to documents only if the file_url is a real URL (not local:// stub).
+    let finalImage = property_images[0] || null;
+    if (!finalImage) {
+        const imgDoc = (d.documents || []).find(doc =>
+            (doc.document_type || doc.type) === 'Property Image' &&
+            doc.file_url && !doc.file_url.startsWith('local://')
+        );
+        finalImage = imgDoc ? imgDoc.file_url : null;
+    }
 
     const meta = d.metadata_json_case || {};
 
@@ -66,7 +68,7 @@ function normalizeDeal(d) {
         buyNowPrice: asking,
         type: d.property_type || meta.property_type || 'Property',
         lvr: estimated > 0 ? Math.round((asking / estimated) * 100) : 0,
-        returnRate: 0,
+        returnRate: Number(d.interest_rate) || Number(meta.interest_rate) || 0,
         bedrooms: meta.bedrooms || d.bedrooms || 0,
         bathrooms: meta.bathrooms || d.bathrooms || 0,
         parking: meta.parking || d.parking || 0,

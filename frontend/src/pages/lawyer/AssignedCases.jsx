@@ -4,6 +4,7 @@ import CaseCard from './components/CaseCard'
 import RiskBadge from './components/RiskBadge'
 import NewCase from '../borrower/NewCase'
 import { lawyerService } from '../../api/dataService'
+import { generateCasesTablePDF } from '../../utils/pdfGenerator'
 
 const STAT_ICONS = {
   total: () => <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
@@ -93,21 +94,18 @@ export default function AssignedCases() {
   }
 
   const handleExport = () => {
-    const csv = [
-      ['Case Number', 'Borrower', 'Property', 'Debt', 'Valuation', 'Status', 'Risk', 'Created'].join(','),
-      ...filtered.map((c) =>
-        [c.case_number || c.id, c.borrower_name, c.property_address, c.loan_amount, c.property_value, c.status, c.risk_level, c.created_at].join(',')
-      ),
-    ].join('\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'assigned-cases.csv'
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    generateCasesTablePDF({
+      title: 'Assigned Cases Report',
+      role: 'Lawyer',
+      cases: filtered.map((c) => ({
+        id: c.case_number || c.id,
+        property: c.property_address || '—',
+        borrower: c.borrower_name || '—',
+        status: c.status,
+        value: c.loan_amount,
+      })),
+      dateRange: 'All time',
+    })
   }
 
   const stats = {
@@ -122,7 +120,7 @@ export default function AssignedCases() {
       <h1 className="text-2xl font-bold text-slate-800">Assigned Cases</h1>
 
       <div className="flex justify-end">
-        <button type="button" onClick={() => setShowNewCase(true)} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">
+        <button type="button" disabled title="Case submission is handled by borrowers" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gray-300 text-gray-500 text-sm font-medium cursor-not-allowed opacity-60">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
           Submit New Case
         </button>

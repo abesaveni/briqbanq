@@ -29,15 +29,18 @@ function formatDueDate(isoDate) {
 }
 
 function normalizeTask(t) {
+    const displayStatus = STATUS_DISPLAY[t.status] || t.status;
     return {
         ...t,
-        status: STATUS_DISPLAY[t.status] || t.status,
+        status: displayStatus,
         priority: PRIORITY_DISPLAY[t.priority] || t.priority,
         dueDate: formatDueDate(t.due_date),
         dueDateObj: t.due_date ? new Date(t.due_date) : new Date(),
         caseNumber: t.case_number || null,
         checked: t.status === 'COMPLETED',
         tags: t.tags || [],
+        hasStartButton: t.status === 'PENDING',
+        hasMoveAndMarkCompleteButtons: t.status === 'IN_PROGRESS',
     };
 }
 
@@ -201,7 +204,7 @@ export default function AdminTaskCenter() {
             <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
                 <button
                     onClick={() => { setStatusFilter('All Status'); setPriorityFilter('All Priorities'); }}
-                    className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${statusFilter === 'All Status' ? 'border-indigo-600 ring-1 ring-indigo-600' : 'border-gray-100 shadow-sm'}`}
+                    className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${statusFilter === 'All Status' && priorityFilter === 'All Priorities' ? 'border-indigo-600 ring-1 ring-indigo-600' : 'border-gray-100 shadow-sm'}`}
                 >
                     <div>
                         <h3 className="text-2xl font-bold text-gray-900 mb-0.5 sm:mb-1">{activeTasksCount}</h3>

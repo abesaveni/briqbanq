@@ -16,6 +16,7 @@ export default function LenderSubmitNewCase() {
     const { addNotification } = useNotifications();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
+    const [uploadedDocs, setUploadedDocs] = useState(new Set());
 
     // Unified Form State for all steps
     const [formData, setFormData] = useState({
@@ -363,7 +364,7 @@ export default function LenderSubmitNewCase() {
                     },
                     case_id_prefix: 'MIP',
                 };
-                const res = await casesService.submitCase(payload);
+                const res = await casesService.createCase(payload);
 
                 if (res.success) {
                     const caseId = res.data?.case_number || res.data?.id || res.caseId || 'NEW';
@@ -3197,18 +3198,24 @@ function PropertyFeaturesStep({ formData, updateFormData }) {
 
                     <div className="space-y-2">
                         <label className="text-[11px] font-semibold text-slate-900 uppercase tracking-widest">Rates Certificate</label>
-                        <button type="button" className="w-full h-14 bg-white border border-gray-100 rounded-2xl px-6 flex items-center justify-center gap-3 text-[13px] font-semibold text-slate-600 hover:bg-gray-50 transition-all shadow-sm active:scale-95 duration-200">
+                        <label className="w-full h-14 bg-white border border-gray-100 rounded-2xl px-6 flex items-center justify-center gap-3 text-[13px] font-semibold text-slate-600 hover:bg-gray-50 transition-all shadow-sm active:scale-95 duration-200 cursor-pointer">
                             <Upload size={18} className="text-indigo-600" />
                             Upload Certificate
-                        </button>
+                            <input type="file" className="hidden" accept=".pdf,.doc,.docx,.jpg,.png" onChange={(e) => {
+                                if (e.target.files?.[0]) toast.success(`Rates certificate uploaded: ${e.target.files[0].name}`);
+                            }} />
+                        </label>
                     </div>
 
                     <div className="space-y-2">
                         <label className="text-[11px] font-semibold text-slate-900 uppercase tracking-widest">Building/Pest Inspection</label>
-                        <button type="button" className="w-full h-14 bg-white border border-gray-100 rounded-2xl px-6 flex items-center justify-center gap-3 text-[13px] font-semibold text-slate-600 hover:bg-gray-50 transition-all shadow-sm active:scale-95 duration-200">
+                        <label className="w-full h-14 bg-white border border-gray-100 rounded-2xl px-6 flex items-center justify-center gap-3 text-[13px] font-semibold text-slate-600 hover:bg-gray-50 transition-all shadow-sm active:scale-95 duration-200 cursor-pointer">
                             <Upload size={18} className="text-indigo-600" />
                             Upload Report
-                        </button>
+                            <input type="file" className="hidden" accept=".pdf,.doc,.docx,.jpg,.png" onChange={(e) => {
+                                if (e.target.files?.[0]) toast.success(`Building inspection uploaded: ${e.target.files[0].name}`);
+                            }} />
+                        </label>
                     </div>
                 </div>
             </div>
@@ -3422,23 +3429,32 @@ function LenderDetailsStep({ formData, updateFormData }) {
                                     <h5 className="text-[14px] font-semibold text-slate-800 tracking-tight">{doc.name} {doc.req && <span className="text-rose-500">*</span>}</h5>
                                     <p className="text-[11px] font-medium text-slate-400 mt-1 uppercase tracking-tight">{doc.desc}</p>
                                 </div>
-                                <label className="bg-blue-900 text-white px-6 py-3 rounded-2xl font-semibold text-[11px] uppercase tracking-widest hover:bg-blue-800 transition-all flex items-center justify-center gap-2 shadow-[0_10px_20px_-5px_rgba(30,58,138,0.2)] group-hover:bg-blue-600 shrink-0 active:scale-95 duration-300 cursor-pointer">
-                                    <Upload size={16} />
-                                    Upload
-                                    <input type="file" className="hidden" accept=".pdf,.doc,.docx,.jpg,.png" onChange={(e) => {
-                                        if (e.target.files?.[0]) toast.success(`${doc.name} uploaded: ${e.target.files[0].name}`);
-                                    }} />
-                                </label>
+                                {uploadedDocs.has(idx) ? (
+                                    <span className="bg-green-600 text-white px-6 py-3 rounded-2xl font-semibold text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 shrink-0">
+                                        <CheckCircle size={16} /> Uploaded
+                                    </span>
+                                ) : (
+                                    <label className="bg-blue-900 text-white px-6 py-3 rounded-2xl font-semibold text-[11px] uppercase tracking-widest hover:bg-blue-800 transition-all flex items-center justify-center gap-2 shadow-[0_10px_20px_-5px_rgba(30,58,138,0.2)] group-hover:bg-blue-600 shrink-0 active:scale-95 duration-300 cursor-pointer">
+                                        <Upload size={16} />
+                                        Upload
+                                        <input type="file" className="hidden" accept=".pdf,.doc,.docx,.jpg,.png" onChange={(e) => {
+                                            if (e.target.files?.[0]) {
+                                                toast.success(`${doc.name} uploaded: ${e.target.files[0].name}`);
+                                                setUploadedDocs(prev => new Set([...prev, idx]));
+                                            }
+                                        }} />
+                                    </label>
+                                )}
                             </div>
                         ))}
                     </div>
 
                     <div className="flex flex-col md:flex-row md:items-center justify-between pt-6 border-t border-gray-100 gap-4">
                         <p className="text-[13px] font-semibold text-slate-400 uppercase tracking-widest">
-                            <span className="text-slate-800">0 of 12</span> categories completed
+                            <span className="text-slate-800">{uploadedDocs.size} of 12</span> categories completed
                         </p>
                         <p className="text-[11px] font-medium text-rose-500 uppercase tracking-widest">
-                            10 required documents missing
+                            {Math.max(0, 10 - uploadedDocs.size)} required documents missing
                         </p>
                     </div>
                 </div>

@@ -89,13 +89,6 @@ export default function LenderMyCases() {
                     <h2 className="text-xl font-bold text-slate-900 mb-1">Management Console</h2>
                     <p className="text-gray-500 text-[13px] font-medium">Viewing {cases.length} records in your active high-assurance portfolio</p>
                 </div>
-                <button
-                    onClick={() => navigate('/lender/submit-case')}
-                    className="px-5 py-2.5 bg-blue-800 text-white rounded-xl text-[13px] font-bold hover:bg-blue-900 transition-all active:scale-95 shadow-sm flex items-center gap-2"
-                >
-                    <Plus size={16} strokeWidth={2.5} />
-                    Submit New Case
-                </button>
             </div>
 
             {/* Main Table Area */}

@@ -5,7 +5,6 @@ const navigation = [
   { name: 'Dashboard', path: 'dashboard', icon: '📊' },
   { name: 'Assigned Cases', path: 'assigned-cases', icon: '📁' },
   { name: 'Live Auctions', path: 'live-auctions', icon: '🏠' },
-  { name: 'E-Signatures', path: 'e-signatures', icon: '✍️' },
   { name: 'Contract Review', path: 'contract-review', icon: '📄' },
   { name: 'Task Center', path: 'task-center', icon: '✅' },
   { name: 'Notifications', path: 'notifications', icon: '🔔' },

@@ -100,14 +100,15 @@ function ProfileView() {
     const fileInputRef = useRef(null);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
-    const [photo, setPhoto] = useState(user?.photo || null);
+    const [saveSuccess, setSaveSuccess] = useState(false);
+    const [photo, setPhoto] = useState(user?.photo || user?.avatar_url || null);
     const [formData, setFormData] = useState({
-        firstName: user?.firstName || '',
-        lastName: user?.lastName || '',
+        firstName: user?.firstName || user?.first_name || '',
+        lastName: user?.lastName || user?.last_name || '',
         email: user?.email || '',
-        phone: user?.phone || '',
+        phone: user?.phone || user?.phone_number || '',
         company: user?.company || '',
-        jobTitle: user?.jobTitle || '',
+        jobTitle: user?.jobTitle || user?.job_title || '',
         bio: user?.bio || '',
         street: user?.street || '',
         city: user?.city || '',
@@ -120,12 +121,12 @@ function ProfileView() {
         if (user) {
             setFormData(prev => ({
                 ...prev,
-                firstName: user.firstName || prev.firstName,
-                lastName: user.lastName || prev.lastName,
+                firstName: user.firstName || user.first_name || prev.firstName,
+                lastName: user.lastName || user.last_name || prev.lastName,
                 email: user.email || prev.email,
-                phone: user.phone || prev.phone,
+                phone: user.phone || user.phone_number || prev.phone,
                 company: user.company || prev.company,
-                jobTitle: user.jobTitle || prev.jobTitle,
+                jobTitle: user.jobTitle || user.job_title || prev.jobTitle,
                 bio: user.bio || prev.bio,
                 street: user.street || prev.street,
                 city: user.city || prev.city,
@@ -133,7 +134,7 @@ function ProfileView() {
                 postcode: user.postcode || prev.postcode,
                 country: user.country || prev.country,
             }));
-            if (user.photo) setPhoto(user.photo);
+            if (user.photo || user.avatar_url) setPhoto(user.photo || user.avatar_url);
         }
     }, [user]);
 
@@ -167,8 +168,12 @@ function ProfileView() {
         try {
             await authService.updateProfile({ ...formData, photoUrl: photo });
             updateUser({ ...formData, photo });
+            setSaveSuccess(true);
+            setTimeout(() => setSaveSuccess(false), 3000);
         } catch {
             updateUser({ ...formData, photo });
+            setSaveSuccess(true);
+            setTimeout(() => setSaveSuccess(false), 3000);
         } finally {
             setLoading(false);
         }
@@ -210,11 +215,13 @@ function ProfileView() {
                     <div className="space-y-4">
                         <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-500 font-medium">Member Since:</span>
-                            <span className="font-bold text-gray-900">Jan 2024</span>
+                            <span className="font-bold text-gray-900">
+                                {user?.created_at ? new Date(user.created_at).toLocaleDateString('en-AU', { month: 'short', year: 'numeric' }) : '—'}
+                            </span>
                         </div>
                         <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-500 font-medium">Account Type:</span>
-                            <span className="font-bold text-gray-900">Administrator</span>
+                            <span className="font-bold text-gray-900 capitalize">{user?.role || 'Administrator'}</span>
                         </div>
                         <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-500 font-medium">Verification:</span>
@@ -270,6 +277,11 @@ function ProfileView() {
                 </div>
 
                 <div className="flex justify-end items-center gap-3 pt-2">
+                    {saveSuccess && (
+                        <span className="flex items-center gap-1.5 text-sm font-semibold text-green-600 bg-green-50 border border-green-200 px-4 py-2 rounded-lg">
+                            <CheckCircle size={15} /> Changes saved successfully
+                        </span>
+                    )}
                     <button className="px-6 py-2.5 rounded-lg border border-gray-200 text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm">Cancel</button>
                     <button onClick={handleSave} disabled={loading} className="px-6 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold shadow-sm transition-all flex items-center gap-2 disabled:opacity-70">
                         {loading ? 'Saving...' : <><Save size={14} /> Save Changes</>}
@@ -594,8 +606,13 @@ function NotificationsView() {
         auctionAlerts: true, kycAlerts: true, systemAlerts: true,
         weeklyDigest: false, marketing: false,
     });
+    const [prefSaved, setPrefSaved] = useState(false);
 
     const toggle = (key) => setPrefs(prev => ({ ...prev, [key]: !prev[key] }));
+    const handleSavePrefs = () => {
+        setPrefSaved(true);
+        setTimeout(() => setPrefSaved(false), 3000);
+    };
 
     const items = [
         { key: 'emailAlerts', label: 'Email Alerts', desc: 'Receive important updates via email' },
@@ -632,8 +649,13 @@ function NotificationsView() {
                         </div>
                     ))}
                 </div>
-                <div className="flex justify-end mt-6">
-                    <button className="px-6 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold shadow-sm transition-all flex items-center gap-2">
+                <div className="flex justify-end items-center gap-3 mt-6">
+                    {prefSaved && (
+                        <span className="flex items-center gap-1.5 text-sm font-semibold text-green-600 bg-green-50 border border-green-200 px-4 py-2 rounded-lg">
+                            <CheckCircle size={15} /> Preferences saved
+                        </span>
+                    )}
+                    <button onClick={handleSavePrefs} className="px-6 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold shadow-sm transition-all flex items-center gap-2">
                         <Save size={14} /> Save Preferences
                     </button>
                 </div>

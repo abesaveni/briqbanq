@@ -31,23 +31,25 @@ function timeAgo(dateStr) {
 
 function getRelatedUrl(notification) {
     const id = notification.entity_id
-    switch (notification.type) {
-        case 'bid':
-            return id ? `/admin/case-details/${id}/bids` : '/admin/auction-control'
+    // entity_type identifies what entity_id points to (case, auction, bid, kyc, contract)
+    // notification.type is the delivery channel (IN_APP, EMAIL) — not useful for routing
+    const entityType = (notification.entity_type || '').toLowerCase()
+
+    switch (entityType) {
+        case 'case':
+            return id ? `/admin/case-details/${id}/overview` : '/admin/case-management'
         case 'auction':
-            return id ? `/admin/case-details/${id}/bids` : '/admin/auction-control'
+            return id ? `/admin/auction-room/${id}` : '/admin/auction-control'
         case 'kyc':
             return id ? `/admin/kyc-review/${id}` : '/admin/kyc-review'
         case 'contract':
             return id ? `/admin/case-details/${id}/settlement` : '/admin/case-management'
-        case 'message':
-            return id ? `/admin/case-details/${id}/messages` : '/admin/case-management'
-        case 'payment':
-            return id ? `/admin/case-details/${id}/overview` : '/admin/case-management'
-        case 'system':
-            return '/admin/settings'
+        case 'bid':
+            // bid entity_id is the bid's own ID — no direct page; go to auction control
+            return '/admin/auction-control'
         default:
-            return id ? `/admin/case-details/${id}/overview` : '/admin/case-management'
+            // Fallback: if entity_id looks like a UUID and no entity_type, try case-details
+            return id ? `/admin/case-details/${id}/overview` : '/admin/dashboard'
     }
 }
 
@@ -109,7 +111,7 @@ export default function Notifications() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <AdminStatCard label="Unread" value={unreadCount.toString()} icon={Bell} iconBg="bg-red-100" iconColor="text-red-600" />
                 <AdminStatCard label="Total Notifications" value={notifications.length.toString()} icon={Mail} iconBg="bg-blue-100" iconColor="text-blue-600" />
-                <AdminStatCard label="This Week" value="7" icon={MessageSquare} iconBg="bg-green-100" iconColor="text-green-600" />
+                <AdminStatCard label="This Week" value={notifications.filter(n => { const d = new Date(n.time); return !isNaN(d) && (Date.now() - d.getTime()) < 7 * 86400000; }).length.toString()} icon={MessageSquare} iconBg="bg-green-100" iconColor="text-green-600" />
             </div>
 
             {/* Filter Bar */}

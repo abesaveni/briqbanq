@@ -588,9 +588,9 @@ export default function LenderTaskCenter() {
 
             {/* New Task Modal */}
             {isNewTaskModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setIsNewTaskModalOpen(false)}>
-                    <div className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100" onClick={(e) => e.stopPropagation()}>
-                        <div className="px-8 py-6 flex items-center justify-between border-b border-gray-100">
+                <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto" onClick={() => setIsNewTaskModalOpen(false)}>
+                    <div className="bg-white rounded-[1.5rem] w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200 border border-slate-100 my-auto" onClick={(e) => e.stopPropagation()}>
+                        <div className="px-6 py-5 flex items-center justify-between border-b border-gray-100">
                             <h2 className="text-lg font-bold text-slate-900">Create New Task</h2>
                             <button
                                 onClick={() => setIsNewTaskModalOpen(false)}
@@ -601,7 +601,7 @@ export default function LenderTaskCenter() {
                         </div>
 
                         <form onSubmit={handleCreateTask}>
-                            <div className="p-8 space-y-5">
+                            <div className="p-6 space-y-4">
                                 <div>
                                     <label className="block text-[11px] font-bold text-gray-700 mb-1.5 pl-1 uppercase tracking-wider">Task Title</label>
                                     <input
@@ -610,7 +610,7 @@ export default function LenderTaskCenter() {
                                         value={newTask.title}
                                         onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
                                         placeholder="Enter task title..."
-                                        className="w-full px-5 py-3 text-sm border border-gray-200 rounded-[1.25rem] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                                        className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                                     />
                                 </div>
 

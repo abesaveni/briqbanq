@@ -34,14 +34,17 @@ export default function Reports() {
 
   const loadData = async () => {
     setRefreshing(true)
-    const [casesRes, dashRes] = await Promise.all([
-      casesService.getCases(),
-      adminService.getDashboardStats(),
-    ])
-    if (casesRes.success) setAllCases(casesRes.data || [])
-    if (dashRes.success) setDashStats(dashRes.data)
-    setRefreshing(false)
-    setLoading(false)
+    try {
+      const [casesRes, dashRes] = await Promise.all([
+        casesService.getCases(),
+        adminService.getDashboardStats(),
+      ])
+      if (casesRes?.success) setAllCases(casesRes.data || [])
+      if (dashRes?.success) setDashStats(dashRes.data)
+    } catch { /* stay silent on network error */ } finally {
+      setRefreshing(false)
+      setLoading(false)
+    }
   }
 
   useEffect(() => { loadData() }, [])
@@ -52,7 +55,42 @@ export default function Reports() {
 
   const handleRefresh = () => loadData()
 
+  const buildSectionRows = (section) => {
+    if (section === 'Cases') {
+      return filteredCases.map(c => [
+        c.case_number || c.id,
+        c.borrower_name || c.borrower || '—',
+        c.property_address || c.title || '—',
+        c.status,
+        c.loan_amount ? `$${Number(c.loan_amount).toLocaleString()}` : '—',
+      ])
+    }
+    return [
+      ['Total Cases', String(allCases.length)],
+      ['Active Cases', String(allCases.filter(c => ['active', 'listed'].includes(c.status)).length)],
+      ['Completed', String(allCases.filter(c => c.status === 'completed').length)],
+      ['Platform Users', String(dashStats?.total_users ?? '—')],
+    ]
+  }
+
   const handleExport = async (format, section) => {
+    if (format === 'Excel') {
+      const header = section === 'Cases'
+        ? ['Case ID', 'Borrower', 'Property', 'Status', 'Value']
+        : ['Metric', 'Value']
+      const rows = buildSectionRows(section)
+      const csvContent = [header, ...rows]
+        .map(row => row.map(cell => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(','))
+        .join('\r\n')
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `lawyer-${section.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+      return
+    }
     if (section === 'Cases') {
       await generateCasesTablePDF({
         title: 'Lawyer Cases Report',
@@ -75,12 +113,7 @@ export default function Reports() {
         sections: [{
           heading: section,
           head: ['Metric', 'Value'],
-          rows: [
-            ['Total Cases', String(allCases.length)],
-            ['Active Cases', String(allCases.filter(c => ['active', 'listed'].includes(c.status)).length)],
-            ['Completed', String(allCases.filter(c => c.status === 'completed').length)],
-            ['Platform Users', String(dashStats?.total_users ?? '—')],
-          ],
+          rows: buildSectionRows(section),
         }],
         fileName: `lawyer-${section.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}.pdf`,
       })

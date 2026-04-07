@@ -70,6 +70,7 @@ async def init_db():
     import app.modules.contracts.models
     import app.modules.settlement.models
     import app.modules.platform.models
+    import app.modules.communications.models
 
     print(f"Initializing database... Tables: {list(Base.metadata.tables.keys())}")
     async with engine.begin() as conn:

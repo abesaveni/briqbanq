@@ -33,9 +33,65 @@ export default function InvestorBuyNowRoom() {
             try {
                 setLoading(true);
                 setError(null);
-                const res = await dealsService.getDealById(id || "MIP-2026-002");
+                const res = await dealsService.getDealById(id);
                 if (res.success) {
-                    setDeal(res.data);
+                    const raw = res.data || {};
+                    const meta = raw.metadata_json_case || raw.metadata_json || {};
+
+                    // Resolve property images
+                    let propertyImages = Array.isArray(raw.property_images) && raw.property_images.length > 0
+                        ? raw.property_images
+                        : (meta.property_images || []);
+                    if (propertyImages.length === 0) {
+                        const imgDoc = (raw.documents || []).find(doc =>
+                            (doc.document_type || doc.type) === 'Property Image' &&
+                            doc.file_url && !doc.file_url.startsWith('local://')
+                        );
+                        if (imgDoc) propertyImages = [imgDoc.file_url];
+                    }
+
+                    const loanAmount = parseFloat(raw.asking_price) || 0;
+                    const propertyValue = parseFloat(raw.estimated_value) || 0;
+                    const lvr = propertyValue > 0 ? Math.round((loanAmount / propertyValue) * 100) : 0;
+
+                    setDeal({
+                        ...raw,
+                        title: raw.title || raw.property_address || "Investment Property",
+                        suburb: raw.suburb || meta.suburb || "",
+                        state: raw.state || meta.state || "",
+                        postcode: raw.postcode || meta.postcode || "",
+                        buyNowPrice: loanAmount,
+                        propertyValue,
+                        images: propertyImages,
+                        image: propertyImages[0] || null,
+                        metrics: {
+                            lvr,
+                            interestRate: parseFloat(raw.interest_rate) || 0,
+                            defaultRate: parseFloat(meta.default_rate) || 0,
+                            daysInDefault: parseInt(meta.days_in_default) || 0,
+                            daysInArrears: parseInt(meta.days_in_arrears) || parseInt(meta.days_in_default) || 0,
+                            totalArrears: parseFloat(meta.total_arrears) || 0,
+                            missedPayments: parseInt(meta.missed_payments) || 0,
+                            timeToSettlement: meta.time_to_settlement || null,
+                        },
+                        financials: {
+                            originalLoanAmount: parseFloat(meta.original_loan_amount) || loanAmount,
+                            outstandingDebt: parseFloat(raw.outstanding_debt) || loanAmount,
+                            lastPaymentDate: meta.last_payment_date || null,
+                            lastPaymentAmount: parseFloat(meta.last_payment_amount) || null,
+                            equityAvailable: Math.max(0, propertyValue - loanAmount),
+                            missedPayments: parseInt(meta.missed_payments) || 0,
+                        },
+                        propertyDetails: {
+                            type: raw.property_type || meta.property_type || "",
+                            bedrooms: parseInt(meta.bedrooms) || 0,
+                            bathrooms: parseInt(meta.bathrooms) || 0,
+                            parking: parseInt(meta.parking) || 0,
+                            landSize: meta.land_size || null,
+                            valuer: meta.valuer_name || meta.valuation_provider || null,
+                            valuationDate: meta.valuation_date || null,
+                        },
+                    });
 
                     // Fetch investor documents
                     const docsRes = await userService.getInvestorDocuments();
@@ -59,7 +115,7 @@ export default function InvestorBuyNowRoom() {
     if (!deal) return <div className="p-10 text-center text-gray-400 font-bold italic uppercase tracking-widest">Asset Not Found</div>;
 
     const { metrics = {}, financials = {}, propertyDetails = {}, images = [] } = deal;
-    const galleryImages = images.length > 0 ? images : [deal.image];
+    const galleryImages = images.length > 0 ? images : (deal.image ? [deal.image] : []);
 
     const handleNextImage = () => {
         setCurrentImageIndex((prev) => (prev + 1) % galleryImages.length);
@@ -73,7 +129,7 @@ export default function InvestorBuyNowRoom() {
     const handlePurchase = async () => {
         if (!agreedToTerms) return;
         try {
-            const res = await dealsService.purchaseDeal(id || "MIP-2026-002");
+            const res = await dealsService.purchaseDeal(id);
             if (res.success) {
                 addNotification({
                     type: 'success',

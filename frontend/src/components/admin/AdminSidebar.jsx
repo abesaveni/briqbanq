@@ -27,7 +27,7 @@ const navItems = [
     { label: 'Document Library', path: '/admin/document-library', icon: FolderOpen },
     { label: 'Reports & Analytics', path: '/admin/reports-analytics', icon: BarChart2 },
     { label: 'Task Center', path: '/admin/task-center', icon: CheckSquare },
-    { label: 'Admin Center', path: '/admin/admin-center', icon: Shield },
+    { label: 'Admin Centre', path: '/admin/admin-center', icon: Shield },
     { label: 'Notifications', path: '/admin/notifications', icon: Bell },
     { label: 'Settings', path: '/admin/settings', icon: Settings },
 ]

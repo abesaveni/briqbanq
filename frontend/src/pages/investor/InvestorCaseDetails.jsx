@@ -2701,7 +2701,7 @@ export default function InvestorCaseDetails() {
                         <div className="bg-slate-900 px-12 py-16 text-white border-t border-white/5">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-16 mb-12">
                                 <div>
-                                    <h3 className="text-2xl font-bold text-white mb-6 tracking-tight">Contact Information</h3>
+                                    <h3 className="text-2xl font-bold text-indigo-400 mb-6 tracking-tight">Contact Information</h3>
                                     <p className="text-gray-400 text-[15px] mb-6 font-medium leading-relaxed">For further information or to arrange property inspection:</p>
                                     <h4 className="text-[17px] font-bold text-white mb-4">Brickbanq Virtual MIP Platform</h4>
                                     <div className="space-y-3">

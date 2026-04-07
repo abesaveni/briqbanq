@@ -167,5 +167,11 @@ class Deal(BaseEntityMixin, Base):
         meta = self.case.metadata_json or {} if self.case else {}
         return meta.get("property_images", [])
 
+    @property
+    def current_highest_bid(self) -> Optional[Decimal]:
+        if self.auctions:
+            return self.auctions[0].current_highest_bid
+        return None
+
     def __repr__(self) -> str:
         return f"<Deal(id={self.id}, title={self.title}, status={self.status})>"

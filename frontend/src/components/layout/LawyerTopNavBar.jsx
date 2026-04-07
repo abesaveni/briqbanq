@@ -8,7 +8,6 @@ const navItems = [
     { label: 'Assigned Cases', path: '/lawyer/assigned-cases', icon: 'cases', color: 'text-blue-500' },
     { label: 'KYC Review', path: '/lawyer/kyc-review', icon: 'kyc', color: 'text-emerald-600' },
     { label: 'Live Auctions', path: '/lawyer/live-auctions', icon: 'auction', color: 'text-orange-500' },
-    { label: 'E-Signatures', path: '/lawyer/e-signatures', icon: 'sign', color: 'text-[#00C853]' },
     { label: 'Contract Review', path: '/lawyer/contract-review', icon: 'contract', color: 'text-[#6A0DAD]' },
     { label: 'Task Centre', path: '/lawyer/task-center', icon: 'task', color: 'text-amber-500' },
     { label: 'Reports', path: '/lawyer/reports', icon: 'reports', color: 'text-indigo-500' },

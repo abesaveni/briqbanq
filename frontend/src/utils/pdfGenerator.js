@@ -21,23 +21,19 @@ const BRAND = {
 // No fallback image — PDFs only use real property images attached to the case
 const FALLBACK_PROPERTY_IMAGE = null;
 
-/** Load a remote image URL and return a data-URL string via canvas. */
+/** Load a remote image URL and return a data-URL string via fetch (avoids CORS canvas taint). */
 async function loadImageAsDataUrl(url) {
   try {
     const proxyUrl = url.startsWith("http") ? url : `${window.location.origin}${url}`;
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
-      img.src = proxyUrl;
+    const response = await fetch(proxyUrl);
+    if (!response.ok) return null;
+    const blob = await response.blob();
+    return await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
     });
-    const canvas = document.createElement("canvas");
-    canvas.width = img.naturalWidth || 800;
-    canvas.height = img.naturalHeight || 450;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0);
-    return canvas.toDataURL("image/jpeg", 0.85);
   } catch {
     return null;
   }
@@ -181,17 +177,20 @@ export async function generateBrandedPDF({
     doc.rect(contentLeft, curY + imgH - 28, contentWidth, 28, "F");
     doc.setGState(new doc.GState({ opacity: 1 }));
 
-    // Title over image
-    doc.setFontSize(16);
+    // Title over image (split long titles to avoid overflow)
+    doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(...BRAND.white);
-    doc.text(title, contentLeft + 4, curY + imgH - 16);
+    const titleLines = doc.splitTextToSize(title, contentWidth - 8);
+    const titleY = titleLines.length > 1 ? curY + imgH - 20 : curY + imgH - 16;
+    doc.text(titleLines, contentLeft + 4, titleY);
 
     if (subtitle) {
       doc.setFontSize(9);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(200, 215, 255);
-      doc.text(subtitle, contentLeft + 4, curY + imgH - 8);
+      const subLines = doc.splitTextToSize(subtitle, contentWidth - 8);
+      doc.text(subLines, contentLeft + 4, curY + imgH - 8);
     }
 
     curY += imgH + 8;
@@ -199,15 +198,17 @@ export async function generateBrandedPDF({
     // No image — text-only cover block
     doc.setFillColor(...BRAND.navy);
     doc.rect(contentLeft, curY, contentWidth, 36, "F");
-    doc.setFontSize(18);
+    doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(...BRAND.white);
-    doc.text(title, contentLeft + 6, curY + 16);
+    const coverTitleLines = doc.splitTextToSize(title, contentWidth - 12);
+    doc.text(coverTitleLines, contentLeft + 6, curY + 14);
     if (subtitle) {
-      doc.setFontSize(10);
+      doc.setFontSize(9);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(200, 215, 255);
-      doc.text(subtitle, contentLeft + 6, curY + 27);
+      const coverSubLines = doc.splitTextToSize(subtitle, contentWidth - 12);
+      doc.text(coverSubLines, contentLeft + 6, curY + 27);
     }
     curY += 44;
   }

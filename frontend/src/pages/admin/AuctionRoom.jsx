@@ -113,11 +113,13 @@ function Documents({ documents }) {
     const handleDownload = async (doc) => {
         const url = getUrl(doc)
         if (url) { window.open(url, '_blank'); return }
-        await generateBrandedPDF({
-            title: getName(doc), subtitle: getType(doc),
-            fileName: `${getName(doc).replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`,
-            infoItems: [{ label: 'Document', value: getName(doc) }, { label: 'Type', value: getType(doc) }],
-        })
+        try {
+            await generateBrandedPDF({
+                title: getName(doc), subtitle: getType(doc),
+                fileName: `${getName(doc).replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`,
+                infoItems: [{ label: 'Document', value: getName(doc) }, { label: 'Type', value: getType(doc) }],
+            })
+        } catch { /* ignore */ }
     }
 
     return (

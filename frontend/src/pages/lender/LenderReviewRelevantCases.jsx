@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Home, ChevronRight, AlertTriangle, Search, Filter, Eye, ArrowRight } from "lucide-react";
+import React, { useState, useEffect, useMemo } from 'react';
+import { Home, ChevronRight, AlertTriangle, Search, Filter, Eye, ArrowRight, X } from "lucide-react";
 import { Link, useNavigate } from 'react-router-dom';
 import { casesService } from '../../api/dataService';
 import { LoadingState, ErrorState } from '../../components/common/States';
@@ -9,18 +9,20 @@ export default function LenderReviewRelevantCases() {
     const [cases, setCases] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [search, setSearch] = useState('');
+    const [statusFilter, setStatusFilter] = useState('All');
+    const [showFilters, setShowFilters] = useState(false);
 
     useEffect(() => {
         const fetchCases = async () => {
             try {
                 setLoading(true);
-                const res = await casesService.getCases();
+                const res = await casesService.getLiveListings();
                 if (res.success) {
-                    // Simulating "Relevant Cases" (e.g. those requiring compliance review)
-                    const relevant = res.data.filter(c => c.status === 'Pending' || Math.random() > 0.7);
-                    setCases(relevant);
+                    const data = Array.isArray(res.data) ? res.data : (res.data?.items || []);
+                    setCases(data);
                 } else {
-                    setError(res.error);
+                    setError(res.error || 'Failed to load cases');
                 }
             } catch (err) {
                 setError(err.message);
@@ -31,11 +33,22 @@ export default function LenderReviewRelevantCases() {
         fetchCases();
     }, []);
 
+    const filteredCases = useMemo(() => {
+        return cases.filter(c => {
+            const matchesSearch = !search ||
+                (c.id || '').toString().toLowerCase().includes(search.toLowerCase()) ||
+                (c.borrower || c.borrower_name || '').toLowerCase().includes(search.toLowerCase()) ||
+                (c.property_address || c.property || '').toLowerCase().includes(search.toLowerCase());
+            const matchesStatus = statusFilter === 'All' || c.status === statusFilter;
+            return matchesSearch && matchesStatus;
+        });
+    }, [cases, search, statusFilter]);
+
     if (loading) return <div className="p-8"><LoadingState /></div>;
-    if (error) return <div className="p-8"><ErrorState message={error} /></div>;
+    if (error) return <div className="p-8"><ErrorState message={error} onRetry={() => window.location.reload()} /></div>;
 
     return (
-        <div className="max-w-[1240px] mx-auto px-6 py-6 animate-fade-in font-['Inter',sans-serif]">
+        <div className="max-w-[1240px] mx-auto px-6 py-6 animate-fade-in">
             {/* Header */}
             <div className="mb-6">
                 <h1 className="text-2xl font-bold text-slate-900 mb-1">Review Relevant Cases</h1>
@@ -66,17 +79,45 @@ export default function LenderReviewRelevantCases() {
 
             {/* Cases Grid/Table */}
             <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
-                    <h3 className="font-bold text-slate-900 text-[15px]">Flagged Cases ({cases.length})</h3>
+                <div className="p-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/30 gap-3 flex-wrap">
+                    <h3 className="font-bold text-slate-900 text-[15px]">Flagged Cases ({filteredCases.length})</h3>
                     <div className="flex items-center gap-2">
                          <div className="relative">
                             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                            <input type="text" placeholder="Search..." className="pl-9 pr-4 py-1.5 bg-white border border-slate-200 rounded-lg text-[12px] outline-none focus:ring-2 focus:ring-indigo-500/10 placeholder:text-slate-400 font-medium" />
+                            <input
+                                type="text"
+                                placeholder="Search..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="pl-9 pr-4 py-1.5 bg-white border border-slate-200 rounded-lg text-[12px] outline-none focus:ring-2 focus:ring-indigo-500/10 placeholder:text-slate-400 font-medium"
+                            />
                          </div>
-                         <button className="p-1.5 bg-white border border-slate-200 rounded-lg text-slate-400 hover:text-indigo-600 transition-all">
+                         <button
+                            onClick={() => setShowFilters(p => !p)}
+                            className={`p-1.5 bg-white border rounded-lg transition-all ${showFilters ? 'border-indigo-300 text-indigo-600' : 'border-slate-200 text-slate-400 hover:text-indigo-600'}`}
+                         >
                              <Filter size={16} />
                          </button>
                     </div>
+                    {showFilters && (
+                        <div className="w-full flex items-center gap-3 pt-2 flex-wrap">
+                            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Status:</span>
+                            {['All', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'LISTED'].map(s => (
+                                <button
+                                    key={s}
+                                    onClick={() => setStatusFilter(s)}
+                                    className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all ${statusFilter === s ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:border-indigo-300'}`}
+                                >
+                                    {s === 'All' ? 'All' : s.replace(/_/g, ' ')}
+                                </button>
+                            ))}
+                            {(search || statusFilter !== 'All') && (
+                                <button onClick={() => { setSearch(''); setStatusFilter('All'); }} className="flex items-center gap-1 text-[11px] font-bold text-rose-500 hover:text-rose-700">
+                                    <X size={12} /> Clear
+                                </button>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 <div className="overflow-x-auto">
@@ -91,11 +132,14 @@ export default function LenderReviewRelevantCases() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
-                            {cases.map((c) => (
+                            {filteredCases.length === 0 && (
+                                <tr><td colSpan={5} className="px-6 py-12 text-center text-[13px] font-medium text-slate-400">No cases found.</td></tr>
+                            )}
+                            {filteredCases.map((c) => (
                                 <tr key={c.id} className="hover:bg-slate-50/50 transition-colors group">
-                                    <td className="px-6 py-4 text-[13px] font-bold text-slate-900">{c.id}</td>
-                                    <td className="px-6 py-4 text-[13px] font-medium text-slate-600">{c.borrower}</td>
-                                    <td className="px-6 py-4 text-[13px] font-medium text-slate-400">{c.property}</td>
+                                    <td className="px-6 py-4 text-[13px] font-bold text-slate-900">{c.case_number || c.id}</td>
+                                    <td className="px-6 py-4 text-[13px] font-medium text-slate-600">{c.borrower || c.borrower_name || '—'}</td>
+                                    <td className="px-6 py-4 text-[13px] font-medium text-slate-400">{c.property_address || c.property || '—'}</td>
                                     <td className="px-6 py-4">
                                         <span className="px-2 py-1 bg-amber-50 text-amber-600 text-[10px] font-bold rounded-md border border-amber-100 uppercase tracking-tighter">Review Pending</span>
                                     </td>

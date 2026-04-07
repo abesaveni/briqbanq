@@ -29,6 +29,24 @@ export default function ProfileTab() {
   const [photoUrl, setPhotoUrl] = useState(null)
   const fileInputRef = useRef(null)
 
+  // Sync form when user loads from auth context (async)
+  useEffect(() => {
+    if (!user) return
+    setForm((prev) => ({
+      ...prev,
+      firstName: user.first_name || user.firstName || prev.firstName,
+      lastName: user.last_name || user.lastName || prev.lastName,
+      email: user.email || prev.email,
+      phone: user.phone || prev.phone,
+      accountType: user.role || prev.accountType,
+      memberSince: user.created_at
+        ? new Date(user.created_at).toLocaleDateString('en-AU', { month: 'short', year: 'numeric' })
+        : prev.memberSince,
+      verification: user.kyc_status === 'approved' ? 'Verified' : (user.kyc_status || ''),
+    }))
+    if (user.photo || user.avatar_url) setPhotoUrl(user.photo || user.avatar_url)
+  }, [user])
+
   const handleUploadPhoto = () => fileInputRef.current?.click()
   const handleRemovePhoto = () => setPhotoUrl(null)
   const handlePhotoChange = (e) => {

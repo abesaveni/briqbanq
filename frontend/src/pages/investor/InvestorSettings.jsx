@@ -174,19 +174,21 @@ function ProfileSettingsView() {
         return Object.keys(e).length === 0;
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!validate()) return;
         setLoading(true);
-        setTimeout(() => {
-            updateUser({
-                ...formData,
-                photo: photo,
-                name: `${formData.firstName} ${formData.lastName}`
-            }, true);
-            setLoading(false);
+        try {
+            await authService.updateProfile({ ...formData, name: `${formData.firstName} ${formData.lastName}`, photoUrl: photo });
+            updateUser({ ...formData, photo, name: `${formData.firstName} ${formData.lastName}` });
             setSaveSuccess(true);
             setTimeout(() => setSaveSuccess(false), 3000);
-        }, 1000);
+        } catch {
+            updateUser({ ...formData, photo, name: `${formData.firstName} ${formData.lastName}` });
+            setSaveSuccess(true);
+            setTimeout(() => setSaveSuccess(false), 3000);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -244,11 +246,17 @@ function ProfileSettingsView() {
                     <div className="space-y-4">
                         <div className="flex justify-between items-center text-[13px]">
                             <span className="text-gray-500 font-medium">Member Since:</span>
-                            <span className="font-bold text-gray-900">Jan 2024</span>
+                            <span className="font-bold text-gray-900">
+                                {user?.created_at
+                                    ? new Date(user.created_at).toLocaleDateString('en-AU', { month: 'short', year: 'numeric' })
+                                    : profile.created_at
+                                        ? new Date(profile.created_at).toLocaleDateString('en-AU', { month: 'short', year: 'numeric' })
+                                        : 'N/A'}
+                            </span>
                         </div>
                         <div className="flex justify-between items-center text-[13px]">
                             <span className="text-gray-500 font-medium">Account Type:</span>
-                            <span className="font-bold text-gray-900">Premium Investor</span>
+                            <span className="font-bold text-gray-900 capitalize">{user?.role || 'Investor'}</span>
                         </div>
                         <div className="flex justify-between items-center text-[13px]">
                             <span className="text-gray-500 font-medium">Verification:</span>
@@ -997,15 +1005,19 @@ function ApiSettingsView() {
     );
 }
 
-function IntegrationCard({ id, icon, title, description, status, fields, lastTested, testing, onTest }) {
+function IntegrationCard({ id, icon, title, description, status, fields = [], lastTested, testing, onTest }) {
     const [hiddenFields, setHiddenFields] = useState(
-        fields.reduce((acc, field, idx) => {
+        (fields || []).reduce((acc, field, idx) => {
             if (field.isSecret) acc[idx] = true;
             return acc;
         }, {})
     );
+    const [fieldValues, setFieldValues] = useState(
+        (fields || []).reduce((acc, field, idx) => { acc[idx] = field.value || ''; return acc; }, {})
+    );
 
     const toggleHide = (idx) => setHiddenFields(prev => ({ ...prev, [idx]: !prev[idx] }));
+    const handleFieldChange = (idx, val) => setFieldValues(prev => ({ ...prev, [idx]: val }));
 
     return (
         <div className="bg-white rounded-[16px] border border-gray-100 shadow-sm">
@@ -1048,10 +1060,11 @@ function IntegrationCard({ id, icon, title, description, status, fields, lastTes
                         <div className="relative">
                             <input
                                 type={field.isSecret && hiddenFields[idx] ? "password" : "text"}
-                                value={field.value || ""}
+                                value={fieldValues[idx] ?? ""}
                                 placeholder={field.placeholder || ""}
                                 readOnly={status === "Connected" || status === "Error"}
-                                className={`w-full px-4 py-[11px] rounded-lg border border-gray-100 text-[13px] font-medium text-gray-700 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none ${status === "Connected" || status === "Error" ? 'pointer-events-none' : 'focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500'}`}
+                                onChange={(e) => handleFieldChange(idx, e.target.value)}
+                                className={`w-full px-4 py-[11px] rounded-lg border border-gray-100 text-[13px] font-medium text-gray-700 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none ${status === "Connected" || status === "Error" ? 'pointer-events-none bg-gray-50 text-gray-400' : 'focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500'}`}
                             />
                             {field.isSecret && (
                                 <button

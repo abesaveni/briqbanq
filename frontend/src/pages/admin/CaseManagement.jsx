@@ -32,7 +32,8 @@ export default function CaseManagement() {
         const res = await casesService.getCases()
         if (res.success) {
             // Backend returns CaseListResponse: { items: [...], total, page, page_size }
-            const data = Array.isArray(res.data) ? res.data : (res.data?.items || [])
+            // Exclude DRAFT cases — borrower is still filling the form
+            const data = (Array.isArray(res.data) ? res.data : (res.data?.items || [])).filter(c => c.status !== 'DRAFT')
             setAllCases(data)
             applyFilters(data, statusFilter, searchTerm)
         } else {
@@ -73,7 +74,7 @@ export default function CaseManagement() {
 
     // Maps display label → array of API status values
     const STATUS_FILTER_MAP = {
-        'Under Review': ['DRAFT', 'SUBMITTED', 'UNDER_REVIEW'],
+        'Under Review': ['SUBMITTED', 'UNDER_REVIEW'],
         'Approved': ['APPROVED'],
         'Listed': ['LISTED', 'FUNDED'],
         'In Auction': ['AUCTION'],

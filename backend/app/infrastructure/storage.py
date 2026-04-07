@@ -14,8 +14,15 @@ _LOCAL_DIR = pathlib.Path(__file__).parent.parent.parent / "uploads" / "document
 _LOCAL_DIR.mkdir(parents=True, exist_ok=True)
 
 
+_PLACEHOLDER_KEYS = {"your-access-key", "your-secret-key", "your-bucket", "your-bucket-name", "", None}
+
 def _use_s3() -> bool:
-    return bool(settings.aws_access_key_id and settings.aws_secret_access_key)
+    return (
+        bool(settings.aws_access_key_id) and
+        bool(settings.aws_secret_access_key) and
+        settings.aws_access_key_id not in _PLACEHOLDER_KEYS and
+        settings.aws_secret_access_key not in _PLACEHOLDER_KEYS
+    )
 
 
 class StorageClient:

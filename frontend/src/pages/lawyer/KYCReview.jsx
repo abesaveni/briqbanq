@@ -114,13 +114,13 @@ export default function KYCReview() {
                   <td className="px-4 py-3 text-sm text-gray-900">{kyc.documents || kyc.document_count || 0} files</td>
                   <td className="px-4 py-3">
                     {(kyc.status === 'Pending' || kyc.status === 'pending') && (
-                      <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-300">
+                      <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 border border-amber-200">
                         Pending
                       </span>
                     )}
                     {(kyc.status === 'Approved' || kyc.status === 'approved') && (
-                      <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 border border-indigo-200">
-                        approved
+                      <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                        Approved
                       </span>
                     )}
                     {(kyc.status === 'Rejected' || kyc.status === 'rejected') && (

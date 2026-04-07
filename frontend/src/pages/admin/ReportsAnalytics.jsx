@@ -115,7 +115,7 @@ export default function ReportsAnalytics() {
         },
     ]
 
-    const maxCasesInMonth = Math.max(...(caseStats?.monthly?.map(m => m.cases) || [1]))
+    const maxCasesInMonth = Math.max(1, ...(caseStats?.monthly?.map(m => m.cases) || [0]))
 
     return (
         <div className="space-y-6">
@@ -211,13 +211,20 @@ export default function ReportsAnalytics() {
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-base font-semibold text-gray-900">Case Volume Trend</h3>
                     </div>
-                    <div className="h-48 flex items-end gap-3 px-4">
+                    <div className="h-48 flex items-end gap-2 px-2 pt-6">
                         {(caseStats?.monthly || []).map((m, i) => {
-                            const pct = maxCasesInMonth > 0 ? Math.round((m.cases / maxCasesInMonth) * 100) : 0
+                            const barH = Math.round((m.cases / maxCasesInMonth) * 130)
                             return (
                                 <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                                    <div className="w-full rounded-t-sm bg-indigo-500 hover:bg-indigo-600 transition-colors cursor-pointer" style={{ height: `${pct}%` }} title={`${m.cases} cases`} />
-                                    <span className="text-xs text-gray-400">{m.month}</span>
+                                    {m.cases > 0 && (
+                                        <span className="text-[10px] font-semibold text-indigo-700 mb-0.5">{m.cases}</span>
+                                    )}
+                                    <div
+                                        className="w-full rounded-t bg-indigo-500 hover:bg-indigo-600 transition-all cursor-pointer"
+                                        style={{ height: `${Math.max(barH, m.cases > 0 ? 4 : 0)}px` }}
+                                        title={`${m.cases} cases`}
+                                    />
+                                    <span className="text-xs text-gray-400 mt-1">{m.month}</span>
                                 </div>
                             )
                         })}

@@ -302,10 +302,11 @@ export default function InvestorContracts() {
         </div>
         <button
           type="button"
-          onClick={() => setShowCreateModal(true)}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black uppercase tracking-widest px-6 py-3.5 rounded-xl inline-flex items-center gap-2 transition-all active:scale-95 shadow-xl shadow-indigo-100 group"
+          disabled
+          title="Contracts are generated automatically when an auction is won"
+          className="bg-gray-200 text-gray-400 text-xs font-black uppercase tracking-widest px-6 py-3.5 rounded-xl inline-flex items-center gap-2 cursor-not-allowed opacity-60"
         >
-          <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300" />
+          <Plus size={18} />
           <span>New Contract</span>
         </button>
       </div>

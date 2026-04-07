@@ -46,8 +46,8 @@ export default function InvestmentMemorandum() {
             auction_end: fmtDate(caseData.auctionEnd),
         })
     }
-    const heroImage = caseData.image || null
-    const galleryImages = Array.from({ length: 4 }, (_, i) => images?.[i]?.url || null)
+    const heroImage = caseData.image || images?.[0]?.url || (typeof images?.[0] === 'string' ? images[0] : null) || null
+    const galleryImages = Array.from({ length: 4 }, (_, i) => images?.[i]?.url || (typeof images?.[i] === 'string' ? images[i] : null))
 
     return (
         <div className="space-y-6 pb-10">
@@ -280,9 +280,16 @@ export default function InvestmentMemorandum() {
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-                    <p className="text-xs text-gray-400">© 2026 Brickbanq · Confidential Investment Document</p>
-                    <p className="text-xs text-gray-300">Generated: {new Date().toLocaleString('en-AU', { timeZoneName: 'short' })}</p>
+                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                        <p className="text-xs text-gray-600 font-medium">© 2026 Brickbanq · Confidential Investment Document</p>
+                        <p className="text-xs text-gray-500">Generated: {new Date().toLocaleString('en-AU', { timeZoneName: 'short' })}</p>
+                    </div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                        <p className="text-xs text-gray-500">support@brickbanq.com.au</p>
+                        <p className="text-xs text-gray-500">1800 275 426</p>
+                        <p className="text-xs text-gray-500">www.brickbanq.com.au</p>
+                    </div>
                 </div>
             </div>
         </div>

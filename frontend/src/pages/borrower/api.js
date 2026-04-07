@@ -36,34 +36,6 @@ export const updateBorrowerProfile = (data) => api.put('/api/v1/borrower/profile
 export const uploadProfilePhoto = (formData) =>
   api.post('/api/v1/borrower/profile/photo', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
 
-export const getEnvelopes = () => api.get('/api/v1/borrower/govsign/envelopes')
-export const reviewEnvelope = (envelopeId) => api.get(`/api/v1/borrower/govsign/envelopes/${envelopeId}`)
-export const signEnvelope = (envelopeId, data) =>
-  api.post(`/api/v1/borrower/govsign/envelopes/${envelopeId}/sign`, data)
-
-// GovSign / E-Signatures — integration-friendly; backend can implement these routes.
-// GET /api/v1/borrower/govsign/data should return { stats, tasks, alerts, activity, envelopes, documents, templates, hsmCluster, certificates, evidenceChain, evidenceEvents, adminSovereignty, adminPolicies, adminSecurity } (see borrowerMockData.js MOCK_GOVSIGN_* for shapes).
-export const getGovSignData = () => api.get('/api/v1/borrower/govsign/data')
-export const getGovSignEnvelopes = (params) => api.get('/api/v1/borrower/govsign/envelopes', { params })
-export const createGovSignEnvelope = (data) => api.post('/api/v1/borrower/govsign/envelopes', data)
-export const getGovSignEnvelope = (id) => api.get(`/api/v1/borrower/govsign/envelopes/${id}`)
-export const downloadGovSignEnvelope = (id) =>
-  api.get(`/api/v1/borrower/govsign/envelopes/${id}/download`, { responseType: 'blob' })
-export const getGovSignCertificates = () => api.get('/api/v1/borrower/govsign/certificates')
-export const issueGovSignCertificate = (data) => api.post('/api/v1/borrower/govsign/certificates', data)
-export const renewGovSignCertificate = (id) => api.post(`/api/v1/borrower/govsign/certificates/${id}/renew`)
-export const exportGovSignCertificate = (id) =>
-  api.get(`/api/v1/borrower/govsign/certificates/${id}/export`, { responseType: 'blob' })
-export const getGovSignEvidenceLedger = () => api.get('/api/v1/borrower/govsign/evidence/summary')
-export const getGovSignEvidenceEvents = (params) => api.get('/api/v1/borrower/govsign/evidence/events', { params })
-export const exportGovSignLedgerProof = () =>
-  api.get('/api/v1/borrower/govsign/evidence/export', { responseType: 'blob' })
-export const getGovSignAdmin = () => api.get('/api/v1/borrower/govsign/admin')
-export const updateGovSignAdminSetting = (id, payload) => api.patch(`/api/v1/borrower/govsign/admin/settings/${id}`, payload)
-export const getGovSignDocuments = () => api.get('/api/v1/borrower/govsign/documents')
-export const getGovSignTemplates = () => api.get('/api/v1/borrower/govsign/templates')
-export const createGovSignTemplate = (data) => api.post('/api/v1/borrower/govsign/templates', data)
-export const deleteGovSignTemplate = (id) => api.delete(`/api/v1/borrower/govsign/templates/${id}`)
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
@@ -198,25 +170,6 @@ export const borrowerApi = {
   connectIntegration: (integrationId) => api.post(`/api/v1/borrower/integrations/${integrationId}/connect`),
   disconnectIntegration: (integrationId) => api.delete(`/api/v1/borrower/integrations/${integrationId}/disconnect`),
 
-  // GovSign / E-Signatures
-  getGovSignData: () => api.get('/api/v1/borrower/govsign/data'),
-  getGovSignEnvelopes: (params) => api.get('/api/v1/borrower/govsign/envelopes', { params }),
-  createGovSignEnvelope: (data) => api.post('/api/v1/borrower/govsign/envelopes', data),
-  getGovSignEnvelope: (id) => api.get(`/api/v1/borrower/govsign/envelopes/${id}`),
-  downloadGovSignEnvelope: (id) => api.get(`/api/v1/borrower/govsign/envelopes/${id}/download`, { responseType: 'blob' }),
-  getGovSignCertificates: () => api.get('/api/v1/borrower/govsign/certificates'),
-  issueGovSignCertificate: (data) => api.post('/api/v1/borrower/govsign/certificates', data),
-  renewGovSignCertificate: (id) => api.post(`/api/v1/borrower/govsign/certificates/${id}/renew`),
-  exportGovSignCertificate: (id) => api.get(`/api/v1/borrower/govsign/certificates/${id}/export`, { responseType: 'blob' }),
-  getGovSignEvidenceLedger: () => api.get('/api/v1/borrower/govsign/evidence/summary'),
-  getGovSignEvidenceEvents: (params) => api.get('/api/v1/borrower/govsign/evidence/events', { params }),
-  exportGovSignLedgerProof: () => api.get('/api/v1/borrower/govsign/evidence/export', { responseType: 'blob' }),
-  getGovSignAdmin: () => api.get('/api/v1/borrower/govsign/admin'),
-  updateGovSignAdminSetting: (id, payload) => api.patch(`/api/v1/borrower/govsign/admin/settings/${id}`, payload),
-  getGovSignDocuments: () => api.get('/api/v1/borrower/govsign/documents'),
-  getGovSignTemplates: () => api.get('/api/v1/borrower/govsign/templates'),
-  createGovSignTemplate: (data) => api.post('/api/v1/borrower/govsign/templates', data),
-  deleteGovSignTemplate: (id) => api.delete(`/api/v1/borrower/govsign/templates/${id}`),
 }
 
 export default api

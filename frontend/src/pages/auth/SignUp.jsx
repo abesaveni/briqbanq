@@ -7,7 +7,7 @@ import {
   validateFirstName, validateLastName, validateEmail,
   validateAuPhone, validatePassword,
 } from "../../utils/auValidation";
-import { Building2, ArrowRight } from "lucide-react";
+import { Building2, ArrowRight, Eye, EyeOff } from "lucide-react";
 
 
 export default function SignUp() {
@@ -28,6 +28,7 @@ export default function SignUp() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resendSuccess, setResendSuccess] = useState(false);
   const [devOtp, setDevOtp] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const cooldownRef = useRef(null);
 
   useEffect(() => {
@@ -56,6 +57,20 @@ export default function SignUp() {
     return Object.keys(errs).length === 0;
   };
 
+  const parseApiError = (err, fallback) => {
+    let detail = err.response?.data?.detail;
+    if (typeof detail === 'string') {
+      try { detail = JSON.parse(detail); } catch {}
+    }
+    if (Array.isArray(detail)) {
+      return detail.map((e) => e.msg?.replace(/^Value error,\s*/i, '') || e.message || JSON.stringify(e)).join(' ');
+    }
+    if (typeof detail === 'string') return detail;
+    const msg = err.response?.data?.message;
+    if (typeof msg === 'string') return msg;
+    return fallback;
+  };
+
   const handleSendOTP = async (e) => {
     e.preventDefault();
     setError("");
@@ -70,11 +85,7 @@ export default function SignUp() {
       setStep("otp");
       startCooldown();
     } catch (err) {
-      const msg =
-        err.response?.data?.detail ||
-        err.response?.data?.message ||
-        "Failed to send OTP. Please try again.";
-      setError(typeof msg === "string" ? msg : JSON.stringify(msg));
+      setError(parseApiError(err, "Failed to send OTP. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -96,8 +107,7 @@ export default function SignUp() {
       setResendSuccess(true);
       startCooldown();
     } catch (err) {
-      const msg = err.response?.data?.detail || err.response?.data?.message || "Failed to resend OTP.";
-      setError(typeof msg === "string" ? msg : JSON.stringify(msg));
+      setError(parseApiError(err, "Failed to resend OTP."));
     } finally {
       setLoading(false);
     }
@@ -126,11 +136,14 @@ export default function SignUp() {
       login(tokens.access_token, user);
       navigate(getDashboardPath(role), { replace: true });
     } catch (err) {
-      const msg =
-        err.response?.data?.detail ||
-        err.response?.data?.message ||
-        "Invalid or expired OTP.";
-      setError(typeof msg === "string" ? msg : JSON.stringify(msg));
+      const parsed = parseApiError(err, "Invalid or expired OTP.");
+      // If the error is about password, navigate back to form so user can fix it
+      if (parsed.toLowerCase().includes('password')) {
+        setStep("form");
+        setFieldErrors((prev) => ({ ...prev, password: parsed }));
+      } else {
+        setError(parsed);
+      }
     } finally {
       setLoading(false);
     }
@@ -284,15 +297,26 @@ export default function SignUp() {
 
                   <div>
                     <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-1.5">Password</label>
-                    <input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => { setPassword(e.target.value); setFieldErrors(p => ({ ...p, password: undefined })); }}
-                      placeholder="Min 8 chars, uppercase, number"
-                      autoComplete="new-password"
-                      className={inputClass(fieldErrors.password)}
-                    />
+                    <div className="relative">
+                      <input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => { setPassword(e.target.value); setFieldErrors(p => ({ ...p, password: undefined })); }}
+                        placeholder="Min 8 chars, A-Z, 0-9, special char"
+                        autoComplete="new-password"
+                        className={`${inputClass(fieldErrors.password)} pr-11`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(v => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
+                        tabIndex={-1}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
                     {fieldErrors.password && <p className="text-red-500 text-xs mt-1">{fieldErrors.password}</p>}
                   </div>
 

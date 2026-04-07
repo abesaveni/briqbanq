@@ -185,22 +185,54 @@ async def get_document(
     return await service.get_document(document_id)
 
 
-@router.get("/{document_id}/download", response_model=DocumentDownloadResponse)
+@router.get("/{document_id}/download")
 async def download_document(
     document_id: uuid.UUID,
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db),
 ):
-    """Get a signed download URL for a document."""
+    """Download a document — streams local files directly, returns signed URL for S3."""
+    from fastapi.responses import FileResponse
     service = DocumentService(db)
     document = await service.get_document(document_id)
-    download_url = await service.get_download_url(document_id)
+    s3_key: str = document.s3_key  # type: ignore[assignment]
 
-    return DocumentDownloadResponse(
-        document_id=document.id,
-        document_name=document.document_name,  # type: ignore[arg-type]
-        download_url=download_url,
-    )
+    upload_dir = pathlib.Path(__file__).parent.parent.parent.parent / "uploads" / "documents"
+
+    # Local file (local:// prefix or non-S3 key) — stream directly
+    if s3_key.startswith("local://") or not s3_key.startswith("cases/"):
+        filename = s3_key[len("local://"):] if s3_key.startswith("local://") else pathlib.Path(s3_key).name
+        local_path = upload_dir / filename
+        if local_path.exists():
+            return FileResponse(
+                path=str(local_path),
+                filename=document.document_name or filename,  # type: ignore[arg-type]
+                media_type=document.content_type or "application/octet-stream",
+            )
+        raise HTTPException(status_code=404, detail="Document file not found on server")
+
+    # S3-format key — try S3 first, fall back to scanning local uploads by original filename
+    from app.infrastructure.storage import _use_s3
+    if _use_s3():
+        download_url = await service.get_download_url(document_id)
+        return DocumentDownloadResponse(
+            document_id=document.id,
+            document_name=document.document_name,  # type: ignore[arg-type]
+            download_url=download_url,
+        )
+
+    # S3 not configured: scan local uploads for any file ending with the original filename
+    original_name = pathlib.Path(s3_key).name
+    matches = list(upload_dir.glob(f"*_{original_name}"))
+    if matches:
+        local_path = matches[0]  # take first match
+        return FileResponse(
+            path=str(local_path),
+            filename=document.document_name or original_name,  # type: ignore[arg-type]
+            media_type=document.content_type or "application/octet-stream",
+        )
+
+    raise HTTPException(status_code=404, detail="Document file not found on server")
 
 
 @router.post("/{document_id}/approve", response_model=DocumentResponse)

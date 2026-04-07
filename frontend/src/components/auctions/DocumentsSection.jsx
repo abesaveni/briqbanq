@@ -1,6 +1,6 @@
-import { Eye, Download, FileText, Lock } from "lucide-react";
+import { useState } from "react";
+import { Eye, Download, FileText, Lock, X, Info } from "lucide-react";
 import PropTypes from 'prop-types';
-import { generateBrandedPDF } from "../../utils/pdfGenerator";
 
 /**
  * DocumentsSection: Displays a list of downloadable/viewable property documents.
@@ -9,27 +9,16 @@ import { generateBrandedPDF } from "../../utils/pdfGenerator";
 export default function DocumentsSection({ deal, documents: providedDocs, title = "Investment Documents", icon: Icon = FileText }) {
   // Defensive fallbacks for data stability
   const documents = Array.isArray(providedDocs) ? providedDocs : (Array.isArray(deal?.documents) ? deal.documents : []);
+  const [previewDoc, setPreviewDoc] = useState(null);
 
   const handleView = (doc) => {
-    if (doc.file) {
-      window.open(doc.file, "_blank");
-    } else {
-      generateBrandedPDF({
-        title: doc.name || "Investment Document",
-        subtitle: deal?.title || deal?.address || "",
-        sections: [{ heading: "Document Details", body: `This document (${doc.name || "Untitled"}) is currently being processed and will be available for download shortly.` }],
-      });
-    }
+    setPreviewDoc(doc);
   };
 
   const handleDownload = async (e, doc) => {
     if (doc.file) return; // let native <a download> handle it
     e.preventDefault();
-    generateBrandedPDF({
-      title: doc.name || "Investment Document",
-      subtitle: deal?.title || deal?.address || "",
-      sections: [{ heading: "Document Details", body: `This document (${doc.name || "Untitled"}) is currently being processed and will be available for download shortly.` }],
-    });
+    setPreviewDoc(doc);
   };
 
   if (documents.length === 0) {
@@ -115,6 +104,63 @@ export default function DocumentsSection({ deal, documents: providedDocs, title 
           Disclaimer: Investment involves risk. Ensure you have reviewed all financial memoranda and disclosures before placing a bid. All downloads are monitored for compliance.
         </p>
       </div>
+
+      {/* Document Preview Modal — shown when no file URL exists */}
+      {previewDoc && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setPreviewDoc(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-8 max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <div className="bg-indigo-50 p-2.5 rounded-xl">
+                  <FileText size={20} className="text-indigo-600" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 text-[15px]">{previewDoc.name || "Document"}</h3>
+                  <p className="text-xs text-gray-400 font-medium mt-0.5">{previewDoc.size || "Processing"} • {String(previewDoc.type || "PDF").toUpperCase()}</p>
+                </div>
+              </div>
+              <button onClick={() => setPreviewDoc(null)} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400">
+                <X size={18} />
+              </button>
+            </div>
+            {previewDoc.file ? (
+              <div className="space-y-3">
+                <p className="text-[13px] text-slate-600 font-medium">Click the button below to open or download this document.</p>
+                <div className="flex gap-2">
+                  <a
+                    href={previewDoc.file}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    <Info size={14} /> Open Document
+                  </a>
+                  <a
+                    href={previewDoc.file}
+                    download
+                    className="flex-1 py-2.5 bg-slate-100 text-slate-700 text-sm font-bold rounded-xl hover:bg-slate-200 transition-colors active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    <Download size={14} /> Download
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                <Info size={16} className="text-blue-500 mt-0.5 shrink-0" />
+                <p className="text-[13px] text-blue-700 font-medium leading-relaxed">
+                  This document is currently being processed and will be available for viewing shortly. Please check back later or contact support if the issue persists.
+                </p>
+              </div>
+            )}
+            <button
+              onClick={() => setPreviewDoc(null)}
+              className="mt-5 w-full py-2.5 bg-slate-50 border border-slate-200 text-slate-600 text-sm font-bold rounded-xl hover:bg-slate-100 transition-colors active:scale-95"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -7,7 +7,6 @@ import InvestorAuctions from "../pages/investor/InvestorAuctions";
 import InvestorLayout from "../components/layout/InvestorLayout";
 import LenderLayout from "../components/layout/LenderLayout";
 import InvestorContracts from "../pages/investor/InvestorContracts";
-import InvestorContractSigning from "../pages/investor/InvestorContractSigning";
 import InvestorEscrow from "../pages/investor/InvestorEscrow";
 import InvestorAuctionRoom from "../pages/investor/InvestorAuctionRoom";
 import InvestorBuyNowRoom from "../pages/investor/InvestorBuyNowRoom";
@@ -26,7 +25,6 @@ import LenderBuyNowRoom from "../pages/lender/LenderBuyNowRoom";
 import LenderContracts from "../pages/lender/LenderContracts";
 import LenderMyCases from "../pages/lender/LenderMyCases";
 import LenderCommunications from "../pages/lender/LenderCommunications";
-import LenderESignatures from "../pages/lender/LenderESignatures";
 import LenderTaskCenter from "../pages/lender/LenderTaskCenter";
 import LenderReports from "../pages/lender/LenderReports";
 import LenderReviewRelevantCases from "../pages/lender/LenderReviewRelevantCases";
@@ -43,7 +41,6 @@ import LawyerLayout from "../pages/lawyer/LawyerLayout.jsx";
 import LawyerDashboard from "../pages/lawyer/Dashboard.jsx";
 import LawyerAssignedCases from "../pages/lawyer/AssignedCases";
 import LawyerCaseDetail from "../pages/lawyer/CaseDetail";
-import LawyerESignatures from "../pages/lawyer/ESignatures";
 import LawyerTaskCenter from "../pages/lawyer/TaskCenter";
 import LawyerContractReview from "../pages/lawyer/ContractReview";
 import LawyerNotifications from "../pages/lawyer/Notifications";
@@ -83,7 +80,6 @@ import BorrowerLayout from "../pages/borrower/BorrowerLayout";
 import BorrowerDashboard from "../pages/borrower/BorrowerDashboard";
 import BorrowerNewCase from "../pages/borrower/NewCase";
 import MyCase from "../pages/borrower/MyCase";
-import BorrowerESignatures from "../pages/borrower/ESignatures";
 import BorrowerContracts from "../pages/borrower/Contracts";
 import IdentityVerification from "../pages/borrower/IdentityVerification";
 import BorrowerTaskCenter from "../pages/borrower/TaskCenter";
@@ -148,7 +144,6 @@ export default function AppRoutes() {
         <Route path="dashboard" element={<BorrowerDashboard />} />
         <Route path="new-case" element={<BorrowerNewCase />} />
         <Route path="my-case" element={<MyCase />} />
-        <Route path="e-signatures" element={<BorrowerESignatures />} />
         <Route path="contracts" element={<BorrowerContracts />} />
         <Route path="identity-verification" element={<IdentityVerification />} />
         <Route path="task-center" element={<BorrowerTaskCenter />} />
@@ -171,7 +166,6 @@ export default function AppRoutes() {
         <Route path="reports" element={<InvestorReports />} />
         <Route path="documents" element={<InvestorDocuments />} />
         <Route path="case-details/:id" element={<InvestorCaseDetails />} />
-        <Route path="contracts/:id" element={<InvestorContractSigning />} />
         <Route path="place-bid/:id" element={<InvestorPlaceBid />} />
         <Route path="buy-now/:id" element={<InvestorBuyNowRoom />} />
         <Route path="notifications" element={<InvestorNotifications />} />
@@ -181,23 +175,22 @@ export default function AppRoutes() {
       {/* Lender Routes Layout */}
       <Route path="/lender" element={<LenderLayout />}>
         <Route index element={<Navigate to="/lender/dashboard" replace />} />
-        <Route path="dashboard" element={<LenderDashboard />} />
-        <Route path="deals" element={<LenderAllDeals />} />
-        <Route path="my-cases" element={<LenderMyCases />} />
-        <Route path="communications" element={<LenderCommunications />} />
-        <Route path="e-signatures" element={<LenderESignatures />} />
-        <Route path="tasks" element={<LenderTaskCenter />} />
-        <Route path="auctions" element={<LenderAuctions />} />
+        <Route path="dashboard" element={<RouteErrorBoundary key="lender-dashboard" routeLabel="Dashboard"><LenderDashboard /></RouteErrorBoundary>} />
+        <Route path="deals" element={<RouteErrorBoundary key="lender-deals" routeLabel="Deals"><LenderAllDeals /></RouteErrorBoundary>} />
+        <Route path="my-cases" element={<RouteErrorBoundary key="lender-my-cases" routeLabel="My Cases"><LenderMyCases /></RouteErrorBoundary>} />
+        <Route path="communications" element={<RouteErrorBoundary key="lender-communications" routeLabel="Client Communications"><LenderCommunications /></RouteErrorBoundary>} />
+        <Route path="tasks" element={<RouteErrorBoundary key="lender-tasks" routeLabel="Task Centre"><LenderTaskCenter /></RouteErrorBoundary>} />
+        <Route path="auctions" element={<RouteErrorBoundary key="lender-auctions" routeLabel="Auctions"><LenderAuctions /></RouteErrorBoundary>} />
         <Route path="auctions/:id" element={<RouteErrorBoundary key="lender-auction-room" routeLabel="Auction Room"><LenderAuctionRoom /></RouteErrorBoundary>} />
         <Route path="buy-now/:id" element={<RouteErrorBoundary key="lender-buy-now" routeLabel="Buy Now Room"><LenderBuyNowRoom /></RouteErrorBoundary>} />
-        <Route path="contracts" element={<LenderContracts />} />
-        <Route path="reports" element={<LenderReports />} />
-        <Route path="review-relevant-cases" element={<LenderReviewRelevantCases />} />
-        <Route path="trend-analysis" element={<LenderTrendAnalysis />} />
-        <Route path="case-details/:id" element={<LenderCaseDetails />} />
-        <Route path="submit-case" element={<LenderSubmitNewCase />} />
-        <Route path="notifications" element={<LenderNotifications />} />
-        <Route path="settings" element={<LenderSettings />} />
+        <Route path="contracts" element={<RouteErrorBoundary key="lender-contracts" routeLabel="Contracts"><LenderContracts /></RouteErrorBoundary>} />
+        <Route path="reports" element={<RouteErrorBoundary key="lender-reports" routeLabel="Reports"><LenderReports /></RouteErrorBoundary>} />
+        <Route path="review-relevant-cases" element={<RouteErrorBoundary key="lender-review-cases" routeLabel="Review Relevant Cases"><LenderReviewRelevantCases /></RouteErrorBoundary>} />
+        <Route path="trend-analysis" element={<RouteErrorBoundary key="lender-trend-analysis" routeLabel="Trend Analysis"><LenderTrendAnalysis /></RouteErrorBoundary>} />
+        <Route path="case-details/:id" element={<RouteErrorBoundary key="lender-case-details" routeLabel="Case Details"><LenderCaseDetails /></RouteErrorBoundary>} />
+        <Route path="submit-case" element={<RouteErrorBoundary key="lender-submit-case" routeLabel="Submit New Case"><LenderSubmitNewCase /></RouteErrorBoundary>} />
+        <Route path="notifications" element={<RouteErrorBoundary key="lender-notifications" routeLabel="Notifications"><LenderNotifications /></RouteErrorBoundary>} />
+        <Route path="settings" element={<RouteErrorBoundary key="lender-settings" routeLabel="Settings"><LenderSettings /></RouteErrorBoundary>} />
       </Route>
 
 
@@ -211,7 +204,6 @@ export default function AppRoutes() {
         <Route path="admin-console" element={<LawyerAdminConsole />} />
         <Route path="assigned-cases" element={<LawyerAssignedCases />} />
         <Route path="assigned-cases/:caseId" element={<LawyerCaseDetail />} />
-        <Route path="e-signatures" element={<LawyerESignatures />} />
         <Route path="contract-review" element={<LawyerContractReview />} />
         <Route path="task-center" element={<LawyerTaskCenter />} />
         <Route path="notifications" element={<LawyerNotifications />} />

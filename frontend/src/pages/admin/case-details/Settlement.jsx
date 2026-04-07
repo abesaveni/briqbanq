@@ -8,6 +8,7 @@ export default function Settlement() {
     const { caseData } = useCaseContext()
     const [finalising, setFinalising] = useState(false)
     const [finalised, setFinalised] = useState(false)
+    const [finaliseError, setFinaliseError] = useState('')
     const [messages, setMessages] = useState([
         { id: 1, sender: 'System', role: 'Automated', time: 'Today', text: 'Settlement workflow initiated for this case.', isSystem: true },
     ])
@@ -29,17 +30,24 @@ export default function Settlement() {
     const handleFinalise = async () => {
         if (!caseData?._id || finalising || finalised) return
         setFinalising(true)
-        const res = await settlementService.markReadyForSettlement(caseData._id)
-        if (res.success) {
-            setFinalised(true)
-            setMessages(prev => [...prev, {
-                id: Date.now(),
-                sender: 'System',
-                role: 'Automated',
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                text: 'Settlement has been marked as ready for finalisation.',
-                isSystem: true,
-            }])
+        setFinaliseError('')
+        try {
+            const res = await settlementService.markReadyForSettlement(caseData._id)
+            if (res.success) {
+                setFinalised(true)
+                setMessages(prev => [...prev, {
+                    id: Date.now(),
+                    sender: 'System',
+                    role: 'Automated',
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    text: 'Settlement has been marked as ready for finalisation.',
+                    isSystem: true,
+                }])
+            } else {
+                setFinaliseError(res.error || 'Failed to finalise settlement. Please try again.')
+            }
+        } catch {
+            setFinaliseError('Failed to finalise settlement. Please try again.')
         }
         setFinalising(false)
     }
@@ -65,6 +73,12 @@ export default function Settlement() {
                     {finalised ? 'Settlement Finalised' : finalising ? 'Finalising...' : 'Finalise Settlement'}
                 </button>
             </div>
+
+            {finaliseError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-sm text-red-700">
+                    {finaliseError}
+                </div>
+            )}
 
             {/* Progress */}
             <div className="bg-white rounded-lg border border-gray-200 p-5">

@@ -6,10 +6,13 @@ import AuctionStats from "../../components/auctions/AuctionStats";
 import { casesService } from "../../api/dataService";
 import { LoadingState, ErrorState, EmptyState } from "../../components/common/States";
 
-function resolveImageUrl(url) {
-  if (!url) return null;
-  // Relative paths (e.g. /uploads/...) are proxied by server.js in production
-  return url;
+function resolveImage(propertyImages, documents) {
+  if (Array.isArray(propertyImages) && propertyImages.length > 0) return propertyImages[0];
+  const imgDoc = (documents || []).find(doc =>
+    (doc.document_type || doc.type) === 'Property Image' &&
+    doc.file_url && !doc.file_url.startsWith('local://')
+  );
+  return imgDoc ? imgDoc.file_url : null;
 }
 
 function mapCaseToAuction(c) {
@@ -20,7 +23,6 @@ function mapCaseToAuction(c) {
   const equity = propertyValue - outstandingDebt;
   const returnRate = parseFloat(c.interest_rate) || 0;
 
-  // Use auction_status as source of truth; case status AUCTION only means "in auction process" not necessarily live
   const cardStatus = c.auction_status === "LIVE" ? "live"
     : c.auction_status === "ENDED" ? "ended"
     : c.auction_status === "PAUSED" ? "paused"
@@ -28,9 +30,9 @@ function mapCaseToAuction(c) {
     : c.status === "AUCTION" ? "upcoming"
     : "active";
 
-  // First property image or null
-  const images = Array.isArray(c.property_images) ? c.property_images : (meta.property_images || []);
-  const image = images.length > 0 ? resolveImageUrl(images[0]) : null;
+  const images = Array.isArray(c.property_images) && c.property_images.length > 0
+    ? c.property_images
+    : (meta.property_images || []);
 
   const suburb = meta.suburb || c.suburb || "";
   const state = meta.state || c.state || "";
@@ -38,9 +40,10 @@ function mapCaseToAuction(c) {
 
   return {
     id: c.id,
+    case_number: c.case_number || null,
     title: c.title || c.property_address || "Investment Property",
     status: cardStatus,
-    image,
+    image: resolveImage(images, c.documents),
     suburb,
     state,
     postcode,
@@ -56,8 +59,9 @@ function mapCaseToAuction(c) {
     bathrooms: meta.bathrooms ?? c.bathrooms ?? 0,
     parking: meta.parking ?? c.parking ?? 0,
     bidders: c.bid_count || 0,
-    defaultDays: 0,
-    arrearsDays: 0,
+    defaultDays: parseInt(meta.days_in_default) || 0,
+    arrearsDays: parseInt(meta.days_in_arrears) || parseInt(meta.days_in_default) || 0,
+    totalArrears: parseFloat(meta.total_arrears) || 0,
     _raw: c,
   };
 }

@@ -9,7 +9,6 @@ const navItems = [
   { label: 'My Case', path: '/borrower/my-case', icon: 'briefcase', color: 'text-blue-500' },
   { label: 'New Case', path: '/borrower/new-case', icon: 'add', color: 'text-green-600' },
   { label: 'Auction Room', path: '/borrower/auction', icon: 'auction', color: 'text-orange-500' },
-  { label: 'E-Signatures', path: '/borrower/e-signatures', icon: 'sign', color: 'text-emerald-600' },
   { label: 'Contracts', path: '/borrower/contracts', icon: 'contract', color: 'text-violet-600' },
   { label: 'Identity Verification', path: '/borrower/identity-verification', icon: 'shield', color: 'text-amber-600' },
   { label: 'Task Center', path: '/borrower/task-center', icon: 'task', color: 'text-slate-600' },

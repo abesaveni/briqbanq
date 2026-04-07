@@ -73,12 +73,13 @@ function mapApiCase(apiCase) {
 
     const images = property_images.map(url => ({ url: resolveImageUrl(url) }))
 
-    // Prioritize the first 'Property Image' from documents for the hero/main image
-    const firstDocImage = (apiCase.documents || []).find(d => 
-        (d.document_type === 'Property Image' || d.type === 'Property Image') && d.file_url
+    // Use property_images first; fall back to documents only for real (non-local://) URLs
+    const firstDocImage = (apiCase.documents || []).find(d =>
+        (d.document_type === 'Property Image' || d.type === 'Property Image') &&
+        d.file_url && !d.file_url.startsWith('local://')
     )?.file_url;
-    
-    const resolvedImage = firstDocImage ? firstDocImage : (property_images[0] || null);
+
+    const resolvedImage = (property_images[0] || null) || firstDocImage || null;
 
     return {
         image: resolveImageUrl(resolvedImage),

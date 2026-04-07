@@ -292,7 +292,7 @@ export default function MyCase() {
       await generateInvestmentMemorandumPDF({
         title: c?.property?.address || c?.id || 'Case Report',
         location: [c?.property?.suburb, c?.property?.state].filter(Boolean).join(', '),
-        image: c?.image || null,
+        image: (c?.property_images?.[0]) || c?.image || null,
         propertyValue: c?.property?.valuation,
         outstandingDebt: c?.lender?.outstandingDebt ?? c?.financials?.outstandingPrincipal,
         lvr: c?.property?.lvr,

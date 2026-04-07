@@ -48,8 +48,10 @@ v1_router.include_router(wallet_alias_router)
 # Phase 5: Contract & Settlement
 from app.modules.contracts.routes import router as contracts_router
 from app.modules.settlement.routes import router as settlement_router
+from app.modules.settlement.case_routes import router as settlement_case_router
 v1_router.include_router(contracts_router)
 v1_router.include_router(settlement_router)
+v1_router.include_router(settlement_case_router)
 
 # Phase 6: Notifications
 from app.modules.notifications.routes import router as notifications_router
@@ -73,3 +75,7 @@ v1_router.include_router(lawyer_router)
 # Phase 8: Platform supplemental routes
 from app.modules.platform.routes import router as platform_router
 v1_router.include_router(platform_router)
+
+# Phase 9: Communications (DB-backed)
+from app.modules.communications.routes import router as communications_router
+v1_router.include_router(communications_router)

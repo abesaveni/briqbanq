@@ -12,9 +12,10 @@ function normaliseNotif(n) {
     message: n.message || n.body || '',
     description: n.body || n.message || '',
     time: n.created_at ? new Date(n.created_at).toLocaleString('en-AU') : 'Just now',
-    unread: n.is_read === false || n.read_at === null || n.read_at === undefined,
+    unread: n.is_read === false || n.is_read === 0,
     type: n.type || n.notification_type || 'info',
     entity_id: n.entity_id || null,
+    entity_type: n.entity_type || null,
   };
 }
 
@@ -27,6 +28,7 @@ export const useNotifications = () => {
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const deletedIds = React.useRef(new Set());
+  const markedReadIds = React.useRef(new Set());
 
   const fetchNotifications = useCallback(async () => {
     if (!localStorage.getItem('token')) return;
@@ -36,7 +38,11 @@ export const NotificationProvider = ({ children }) => {
         const list = Array.isArray(res.data) ? res.data
           : Array.isArray(res.data?.items) ? res.data.items
           : null;
-        if (list) setNotifications(list.map(normaliseNotif).filter(n => !deletedIds.current.has(n.id)));
+        if (list) setNotifications(
+          list.map(normaliseNotif)
+            .filter(n => !deletedIds.current.has(n.id))
+            .map(n => markedReadIds.current.has(n.id) ? { ...n, unread: false } : n)
+        );
       }
     } catch { /* stay silent on network error */ }
   }, []);
@@ -55,12 +61,13 @@ export const NotificationProvider = ({ children }) => {
   }, []);
 
   const markAsRead = useCallback(async (id) => {
+    markedReadIds.current.add(id);
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, unread: false } : n));
     try { await notificationService.markAsRead(id); } catch { /* ignore */ }
   }, []);
 
   const markAllRead = useCallback(async () => {
-    setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
+    setNotifications(prev => { prev.forEach(n => markedReadIds.current.add(n.id)); return prev.map(n => ({ ...n, unread: false })); });
     try { await notificationService.markAllAsRead(); } catch { /* ignore */ }
   }, []);
 

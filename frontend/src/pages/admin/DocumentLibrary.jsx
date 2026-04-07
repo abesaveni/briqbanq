@@ -17,12 +17,14 @@ export default function DocumentLibrary() {
                     name: d.document_name || d.name || 'Untitled',
                     type: (d.document_name || d.name || '').split('.').pop()?.toLowerCase() || 'pdf',
                     size: d.file_size ? `${(d.file_size / 1024).toFixed(1)} KB` : '—',
+                    fileSizeBytes: d.file_size || 0,
                     category: d.document_type || d.category || 'Contract',
                     uploader: d.uploaded_by_name || d.uploader || 'Admin',
                     date: d.created_at ? new Date(d.created_at).toLocaleDateString('en-AU') : '—',
-                    mipId: d.case_id ? `${d.case_id}`.slice(0, 8) : null,
+                    createdAt: d.created_at || null,
+                    caseNumber: d.case_number || null,
                     starred: false,
-                    url: d.url || null,
+                    url: d.file_url || null,
                     status: d.status || 'Available',
                 }))
                 if (mapped.length) setDocuments(mapped)
@@ -65,12 +67,27 @@ export default function DocumentLibrary() {
     }
 
     const handleDownload = async (doc) => {
-        if (doc.url) {
+        const openUrl = (url) => {
             const a = document.createElement('a')
-            a.href = doc.url
-            a.download = doc.name
+            a.href = url
+            a.download = doc.name || 'document'
+            a.rel = 'noopener noreferrer'
+            document.body.appendChild(a)
             a.click()
+            document.body.removeChild(a)
+        }
+        if (doc.url) {
+            openUrl(doc.url)
             return
+        }
+        if (doc.id) {
+            try {
+                const res = await documentService.getDocumentUrl(doc.id)
+                if (res.success && res.data?.download_url) {
+                    openUrl(res.data.download_url)
+                    return
+                }
+            } catch {}
         }
         await generateBrandedPDF({
             title: doc.name || 'Document',
@@ -81,7 +98,7 @@ export default function DocumentLibrary() {
                 { label: 'Category', value: doc.category || '—' },
                 { label: 'Type', value: doc.type || '—' },
                 { label: 'Size', value: doc.size || '—' },
-                { label: 'Uploaded', value: doc.uploaded || doc.date || '—' },
+                { label: 'Uploaded', value: doc.date || '—' },
                 { label: 'Status', value: doc.status || 'Available' },
             ],
         })
@@ -114,7 +131,7 @@ export default function DocumentLibrary() {
 
     const filteredDocuments = documents.filter(doc => {
         const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (doc.mipId && doc.mipId.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (doc.caseNumber && doc.caseNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (doc.uploader && doc.uploader.toLowerCase().includes(searchTerm.toLowerCase()))
         const matchesCategory = categoryFilter === 'All Categories' || doc.category === categoryFilter
         const matchesType = typeFilter === 'All Types' || doc.type?.toLowerCase() === typeFilter.toLowerCase()
@@ -123,6 +140,16 @@ export default function DocumentLibrary() {
     })
 
     const starredCount = documents.filter(d => d.starred).length
+    const thisWeekCount = documents.filter(d => {
+        if (!d.createdAt) return false
+        return (Date.now() - new Date(d.createdAt).getTime()) < 7 * 86400000
+    }).length
+    const totalBytes = documents.reduce((sum, d) => sum + (d.fileSizeBytes || 0), 0)
+    const storageLabel = totalBytes >= 1_048_576
+        ? `${(totalBytes / 1_048_576).toFixed(1)} MB`
+        : totalBytes >= 1024
+        ? `${(totalBytes / 1024).toFixed(0)} KB`
+        : totalBytes > 0 ? `${totalBytes} B` : '—'
 
     return (
         <div className="space-y-6">
@@ -141,9 +168,9 @@ export default function DocumentLibrary() {
             {/* Stat Cards */}
             <div className="grid grid-cols-4 gap-4">
                 <AdminStatCard label="Total Documents" value={documents.length.toString()} icon={FileText} iconBg="bg-blue-100" iconColor="text-blue-600" />
-                <AdminStatCard label="Storage Used" value="23.2 MB" icon={FolderOpen} iconBg="bg-green-100" iconColor="text-green-600" />
+                <AdminStatCard label="Storage Used" value={storageLabel} icon={FolderOpen} iconBg="bg-green-100" iconColor="text-green-600" />
                 <AdminStatCard label="Starred" value={starredCount.toString()} icon={Star} iconBg="bg-amber-100" iconColor="text-amber-600" />
-                <AdminStatCard label="This Week" value="3" icon={Upload} iconBg="bg-indigo-100" iconColor="text-indigo-600" />
+                <AdminStatCard label="This Week" value={thisWeekCount.toString()} icon={Upload} iconBg="bg-indigo-100" iconColor="text-indigo-600" />
             </div>
 
             {/* Filter Bar */}
@@ -235,9 +262,9 @@ export default function DocumentLibrary() {
                                                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${getCategoryColor(doc.category)}`}>
                                                         {doc.category}
                                                     </span>
-                                                    {doc.mipId && (
-                                                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
-                                                            {doc.mipId}
+                                                    {doc.caseNumber && (
+                                                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+                                                            {doc.caseNumber}
                                                         </span>
                                                     )}
                                                 </div>
@@ -338,10 +365,10 @@ export default function DocumentLibrary() {
                                     <p className="text-gray-500 text-xs font-medium mb-1">Date</p>
                                     <p className="font-bold text-gray-900">{viewDoc.date}</p>
                                 </div>
-                                {viewDoc.mipId && (
+                                {viewDoc.caseNumber && (
                                     <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
-                                        <p className="text-gray-500 text-xs font-medium mb-1">MIP ID</p>
-                                        <p className="font-bold text-gray-900">{viewDoc.mipId}</p>
+                                        <p className="text-gray-500 text-xs font-medium mb-1">Case Number</p>
+                                        <p className="font-bold text-gray-900">{viewDoc.caseNumber}</p>
                                     </div>
                                 )}
                             </div>

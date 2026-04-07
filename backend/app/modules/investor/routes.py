@@ -127,7 +127,7 @@ async def get_summary_stats(
 
 @router.get("/analytics/charts")
 async def get_analytics_charts(
-    range: str = "Last 30 Days",
+    date_range: str = "Last 30 Days",
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db)
 ):
@@ -141,13 +141,13 @@ async def get_analytics_charts(
 
     # Determine date window
     now = datetime.now(timezone.utc)
-    if range == "Last 7 Days":
+    if date_range == "Last 7 Days":
         since = now - timedelta(days=7)
-    elif range == "Last 90 Days":
+    elif date_range == "Last 90 Days":
         since = now - timedelta(days=90)
-    elif range == "This Year":
+    elif date_range == "This Year":
         since = datetime(now.year, 1, 1, tzinfo=timezone.utc)
-    elif range == "All Time":
+    elif date_range == "All Time":
         since = datetime(2000, 1, 1, tzinfo=timezone.utc)
     else:  # Last 30 Days default
         since = now - timedelta(days=30)

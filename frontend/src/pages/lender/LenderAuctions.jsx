@@ -5,12 +5,17 @@ import AuctionStats from "../../components/auctions/AuctionStats";
 import { casesService } from "../../api/dataService";
 import { LoadingState, ErrorState, EmptyState } from "../../components/common/States";
 
-function resolveImageUrl(url) {
-    if (!url) return null;
-    return url;
+function resolveImage(propertyImages, documents) {
+    if (Array.isArray(propertyImages) && propertyImages.length > 0) return propertyImages[0];
+    const imgDoc = (documents || []).find(doc =>
+        (doc.document_type || doc.type) === 'Property Image' &&
+        doc.file_url && !doc.file_url.startsWith('local://')
+    );
+    return imgDoc ? imgDoc.file_url : null;
 }
 
 function mapCaseToAuction(c) {
+    const meta = c.metadata_json || {};
     const outstandingDebt = parseFloat(c.outstanding_debt) || 0;
     const propertyValue = parseFloat(c.estimated_value) || 0;
     const lvr = propertyValue > 0 ? Math.round((outstandingDebt / propertyValue) * 100) : 0;
@@ -24,34 +29,23 @@ function mapCaseToAuction(c) {
         : c.status === "AUCTION" ? "upcoming"
         : "active";
 
-    const images = Array.isArray(c.property_images) ? c.property_images : [];
-    const image = images.length > 0 ? resolveImageUrl(images[0]) : null;
+    const images = Array.isArray(c.property_images) && c.property_images.length > 0
+        ? c.property_images
+        : (meta.property_images || []);
 
-    let suburb = "";
-    let state = "";
-    if (c.property_address) {
-        const parts = c.property_address.split(",");
-        if (parts.length >= 2) {
-            const lastPart = parts[parts.length - 1].trim();
-            const tokens = lastPart.split(" ").filter(Boolean);
-            if (tokens.length >= 2 && /^\d{4}$/.test(tokens[tokens.length - 1])) {
-                state = tokens[tokens.length - 2];
-                suburb = tokens.slice(0, tokens.length - 2).join(" ") || parts[parts.length - 2]?.trim();
-            } else {
-                suburb = parts[parts.length - 2]?.trim() || "";
-                state = lastPart;
-            }
-        }
-    }
+    const suburb = meta.suburb || c.suburb || "";
+    const state = meta.state || c.state || "";
+    const postcode = meta.postcode || c.postcode || "";
 
     return {
         id: c.id,
         case_number: c.case_number || null,
         title: c.title || c.property_address || "Investment Property",
         status: cardStatus,
-        image,
+        image: resolveImage(images, c.documents),
         suburb,
         state,
+        postcode,
         outstandingDebt,
         propertyValue,
         lvr,
@@ -60,12 +54,13 @@ function mapCaseToAuction(c) {
         expectedReturn: returnRate,
         currentBid: parseFloat(c.current_highest_bid) || 0,
         endTime: c.auction_scheduled_end || null,
-        bedrooms: c.metadata_json?.bedrooms || 0,
-        bathrooms: c.metadata_json?.bathrooms || 0,
-        parking: c.metadata_json?.parking || 0,
+        bedrooms: meta.bedrooms ?? c.bedrooms ?? 0,
+        bathrooms: meta.bathrooms ?? c.bathrooms ?? 0,
+        parking: meta.parking ?? c.parking ?? 0,
         bidders: c.bid_count || 0,
-        defaultDays: 0,
-        arrearsDays: 0,
+        defaultDays: parseInt(meta.days_in_default) || 0,
+        arrearsDays: parseInt(meta.days_in_arrears) || parseInt(meta.days_in_default) || 0,
+        totalArrears: parseFloat(meta.total_arrears) || 0,
         _raw: c,
     };
 }

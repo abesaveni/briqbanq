@@ -266,7 +266,7 @@ function NotificationDetailModal({ notification, onClose, onDelete }) {
                         </div>
                         <div>
                             <h3 className="text-lg font-bold text-gray-900 leading-tight">{notification.title}</h3>
-                            <p className="text-xs text-gray-400 font-medium">February 14th, 2026 4:51 PM</p>
+                            <p className="text-xs text-gray-400 font-medium">{notification.created_at ? new Date(notification.created_at).toLocaleString('en-AU', { dateStyle: 'medium', timeStyle: 'short' }) : notification.time || '—'}</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="p-1.5 hover:bg-gray-50 rounded-full text-gray-400 transition-colors">

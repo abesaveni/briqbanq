@@ -5,7 +5,6 @@ import {
     Gavel,
     FileText,
     MessageSquare,
-    PenTool,
     ChevronDown,
     Bell,
     Settings,
@@ -37,7 +36,6 @@ export default function LenderHeader() {
     const moreLinks = [
         { to: "/lender/auctions", icon: Gavel, label: "Active Auctions" },
         { to: "/lender/communications", icon: MessageSquare, label: "Client Communications" },
-        { to: "/lender/e-signatures", icon: PenTool, label: "E-Signatures" },
         { to: "/lender/contracts", icon: FileText, label: "My Contracts" },
         { to: "/lender/tasks", icon: ClipboardList, label: "Task Center" },
         { to: "/lender/notifications", icon: Bell, label: "Notifications" },

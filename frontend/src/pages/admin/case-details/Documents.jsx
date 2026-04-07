@@ -130,14 +130,20 @@ export default function Documents() {
                                             >
                                                 <Eye className="w-4 h-4" />
                                             </button>
-                                            <a 
-                                                href={doc.file || '#'} 
-                                                download 
-                                                className={`p-1.5 rounded-lg transition-colors ${doc.file ? 'text-gray-400 hover:text-green-600 hover:bg-green-50' : 'text-gray-200 cursor-not-allowed pointer-events-none'}`} 
-                                                title="Download"
-                                            >
-                                                <Download className="w-4 h-4" />
-                                            </a>
+                                            {doc.file ? (
+                                                <a
+                                                    href={doc.file}
+                                                    download
+                                                    className="p-1.5 rounded-lg transition-colors text-gray-400 hover:text-green-600 hover:bg-green-50"
+                                                    title="Download"
+                                                >
+                                                    <Download className="w-4 h-4" />
+                                                </a>
+                                            ) : (
+                                                <span className="p-1.5 rounded-lg text-gray-200 cursor-not-allowed" title="File not available">
+                                                    <Download className="w-4 h-4" />
+                                                </span>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>

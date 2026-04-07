@@ -188,10 +188,19 @@ export const lawyerService = {
 // ─── Communication Service ────────────────────────────────────────────────────
 
 export const communicationService = {
-  getTemplates: () => wrap(api.get("/api/v1/admin/extra/communications/templates")),
-  getCampaigns: () => wrap(api.get("/api/v1/admin/extra/communications/campaigns")),
-  getSegments: () => wrap(api.get("/api/v1/admin/extra/communications/segments")),
-  getAnalytics: () => wrap(api.get("/api/v1/admin/extra/communications/analytics")),
+  getTemplates: () => wrap(api.get("/api/v1/communications/templates")),
+  createTemplate: (data) => wrap(api.post("/api/v1/communications/templates", data)),
+  deleteTemplate: (id) => wrap(api.delete(`/api/v1/communications/templates/${id}`)),
+
+  getCampaigns: () => wrap(api.get("/api/v1/communications/campaigns")),
+  createCampaign: (data) => wrap(api.post("/api/v1/communications/campaigns", data)),
+  deleteCampaign: (id) => wrap(api.delete(`/api/v1/communications/campaigns/${id}`)),
+
+  getSegments: () => wrap(api.get("/api/v1/communications/segments")),
+  createSegment: (data) => wrap(api.post("/api/v1/communications/segments", data)),
+  deleteSegment: (id) => wrap(api.delete(`/api/v1/communications/segments/${id}`)),
+
+  getAnalytics: () => wrap(api.get("/api/v1/communications/analytics")),
 };
 
 // ─── Activity Service ─────────────────────────────────────────────────────────
@@ -286,11 +295,16 @@ export const walletService = {
 
 export const settlementService = {
   getSettlement: (caseId) => wrap(api.get(`/api/v1/settlement/case/${caseId}`)),
+  saveChecklist: (caseId, checklist) =>
+    wrap(api.patch(`/api/v1/settlement/case/${caseId}/checklist`, { checklist })),
+  updateTask: (caseId, taskId, data) =>
+    wrap(api.patch(`/api/v1/settlement/case/${caseId}/tasks/${taskId}`, data)),
+  archiveTask: (caseId, taskId) =>
+    wrap(api.delete(`/api/v1/settlement/case/${caseId}/tasks/${taskId}`)),
+  escalateTask: (caseId, taskId, reason) =>
+    wrap(api.post(`/api/v1/settlement/case/${caseId}/tasks/${taskId}/escalate`, { reason })),
   updateSettlementBreakdown: (settlementId, breakdown) =>
     wrap(api.patch(`/api/v1/settlements/${settlementId}/breakdown`, { breakdown })),
-  updateSettlementItem: (caseId, itemId, data) =>
-
-    wrap(api.patch(`/api/v1/settlement/case/${caseId}/items/${itemId}`, data)),
   markReadyForSettlement: (caseId) =>
     wrap(api.post(`/api/v1/settlement/case/${caseId}/ready`)),
 };

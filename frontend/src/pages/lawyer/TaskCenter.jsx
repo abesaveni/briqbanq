@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Badge from './components/Badge'
-import DatePicker from '../../components/common/DatePicker'
 import { taskService } from '../../api/dataService'
 
 const priorityVariant = { Urgent: 'urgent', High: 'high', Medium: 'medium', Done: 'done' }
@@ -604,10 +603,11 @@ export default function TaskCenter() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
-                  <DatePicker
+                  <input
+                    type="date"
                     value={newTaskForm.dueDate}
-                    onChange={(val) => setNewTaskField('dueDate', val)}
-                    placeholderText="DD/MM/YYYY"
+                    onChange={(e) => setNewTaskField('dueDate', e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white"
                   />
                 </div>
               </div>

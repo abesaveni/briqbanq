@@ -61,6 +61,7 @@ class DealResponse(BaseModel):
     case_number: Optional[str] = None
     auction_status: Optional[str] = None
     auction_id: Optional[uuid.UUID] = None
+    current_highest_bid: Optional[Decimal] = None
     property_images: List[str] = []
 
     # Unified Assets

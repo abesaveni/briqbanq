@@ -206,9 +206,13 @@ const normalizeMemo = (raw) => {
   // Backend returns raw CaseResponse — map fields to memo shape
   if (!d.images && (d.metadata_json || d.property_address)) {
     const meta = d.metadata_json || {}
-    const rawImgs = Array.isArray(meta.property_images) ? meta.property_images : []
+    // Use property_images from top-level (CaseResponse validator) or from metadata
+    const rawImgs = (Array.isArray(d.property_images) && d.property_images.length > 0)
+      ? d.property_images
+      : (Array.isArray(meta.property_images) ? meta.property_images : [])
+    const docHero = (d.documents || []).find(doc => (doc.document_type === 'Property Image' || doc.type === 'Property Image') && doc.file_url)?.file_url
     d.images = {
-      hero: (d.documents || []).find(doc => (doc.document_type === 'Property Image' || doc.type === 'Property Image') && doc.file_url)?.file_url || rawImgs[0] || null,
+      hero: docHero || rawImgs[0] || null,
       thumbnails: rawImgs.slice(1, 5),
       gallery: rawImgs,
     }
@@ -228,18 +232,50 @@ const normalizeMemo = (raw) => {
       floorArea: meta.floor_area ? `${meta.floor_area} m²` : '',
     }
   }
-  if (!d.financials && (d.estimated_value || d.outstanding_debt)) {
+  // Always (re)build financials so extended fields are populated
+  {
+    const meta = d.metadata_json || {}
     const pv = parseFloat(d.estimated_value) || 0
     const debt = parseFloat(d.outstanding_debt) || 0
     const rate = parseFloat(d.interest_rate) || 0
     const lvr = pv > 0 ? Math.round((debt / pv) * 1000) / 10 : 0
     d.financials = {
+      ...(d.financials || {}),
       propertyValue: pv,
       outstandingDebt: debt,
       expectedReturn: rate,
       ltvRatio: lvr,
+      originalLoanAmount: parseFloat(meta.original_loan_amount) || null,
+      originalInterestRate: rate || null,
+      defaultRate: parseFloat(meta.default_rate) || null,
     }
   }
+
+  // Build defaultStatus from metadata
+  if (!d.defaultStatus) {
+    const meta = d.metadata_json || {}
+    const daysInDefault = parseInt(meta.days_in_default) || null
+    const totalArrears = parseFloat(meta.total_arrears) || null
+    const missed = parseInt(meta.missed_payments) || null
+    d.defaultStatus = {
+      daysInDefault,
+      daysInArrears: daysInDefault,
+      arrearsAmount: totalArrears,
+      missedPayments: missed,
+    }
+  }
+
+  // Build valuation from metadata
+  if (!d.valuation) {
+    const meta = d.metadata_json || {}
+    d.valuation = {
+      currentValue: parseFloat(d.estimated_value) || null,
+      valuationDate: meta.valuation_date || null,
+      valuer: meta.valuation_provider || meta.valuer_name || null,
+      method: meta.valuation_method || null,
+    }
+  }
+
   if (!d.contact) {
     const meta = d.metadata_json || {}
     d.contact = {

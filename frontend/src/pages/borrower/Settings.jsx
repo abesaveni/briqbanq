@@ -4,6 +4,8 @@ import { useBorrowerProfile } from './BorrowerProfileContext'
 import SettingsTabBar from './settings/SettingsTabBar'
 import { borrowerApi } from './api'
 import { TABS } from './settings/SettingsTabBar'
+import { useAuth } from '../../context/AuthContext'
+import { authService } from '../../api/dataService'
 
 // ——— Breadcrumb ———
 function BreadcrumbSettings({ currentLabel }) {
@@ -46,23 +48,29 @@ const initialProfile = () => ({
 export default function Settings() {
   const navigate = useNavigate()
   const { user: profileUser, setUser: setBorrowerUser } = useBorrowerProfile()
+  const { user: authUser, updateUser: updateAuthUser } = useAuth()
   const [activeTab, setActiveTab] = useState('profile')
   const [profile, setProfile] = useState(initialProfile)
   const [profilePhotoUrl, setProfilePhotoUrl] = useState(null)
   const [bioLength, setBioLength] = useState(profile.bio?.length ?? 0)
   const [saveMessage, setSaveMessage] = useState('')
 
-  // Sync profile form name from header context on mount so form shows current header name
+  // Sync profile form from auth user on mount
   useEffect(() => {
-    if (profileUser?.name) {
-      const parts = profileUser.name.trim().split(/\s+/)
+    const src = authUser || profileUser
+    if (src) {
+      const name = src.name || ''
+      const parts = name.trim().split(/\s+/)
       setProfile((p) => ({
         ...p,
-        firstName: parts[0] ?? p.firstName,
-        lastName: parts.slice(1).join(' ') ?? p.lastName,
+        firstName: src.first_name || src.firstName || parts[0] || p.firstName,
+        lastName: src.last_name || src.lastName || parts.slice(1).join(' ') || p.lastName,
+        email: src.email || p.email,
+        phone: src.phone || src.phone_number || p.phone,
+        bio: src.bio || p.bio,
       }))
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- sync from context only on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Organization
@@ -112,15 +120,15 @@ export default function Settings() {
     if (profilePhotoUrl) URL.revokeObjectURL(profilePhotoUrl)
     setProfilePhotoUrl(null)
   }
-  const handleSaveProfile = (e) => {
+  const handleSaveProfile = async (e) => {
     e.preventDefault()
     const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ').trim() || profileUser?.name || 'Borrower'
     const initials = fullName.split(/\s+/).map((s) => s[0]).join('').toUpperCase().slice(0, 2) || 'B'
-    setBorrowerUser({
-      name: fullName,
-      role: profileUser?.role ?? 'Borrower',
-      initials,
-    })
+    try {
+      await authService.updateProfile({ ...profile, name: fullName, photoUrl: profilePhotoUrl })
+      updateAuthUser({ ...profile, name: fullName, photo: profilePhotoUrl })
+    } catch {}
+    setBorrowerUser({ name: fullName, role: profileUser?.role ?? 'Borrower', initials })
     setSaveMessage('Settings saved successfully.')
     setTimeout(() => setSaveMessage(''), 4000)
   }

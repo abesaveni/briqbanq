@@ -6,12 +6,17 @@ import { SlidersHorizontal, X } from "lucide-react";
 
 const DEFAULT_ADVANCED = { minLvr: '', maxLvr: '', minLoan: '', maxLoan: '', minBeds: '' };
 
-function resolveImageUrl(url) {
-    if (!url) return null;
-    return url;
+function resolveImage(propertyImages, documents) {
+    if (Array.isArray(propertyImages) && propertyImages.length > 0) return propertyImages[0];
+    const imgDoc = (documents || []).find(doc =>
+        (doc.document_type || doc.type) === 'Property Image' &&
+        doc.file_url && !doc.file_url.startsWith('local://')
+    );
+    return imgDoc ? imgDoc.file_url : null;
 }
 
 function mapDealToCard(d) {
+    const meta = d.metadata_json_case || d.metadata_json || {};
     const loanAmount = parseFloat(d.asking_price) || 0;
     const estimatedValue = parseFloat(d.estimated_value) || 0;
     const lvr = estimatedValue > 0 ? Math.round((loanAmount / estimatedValue) * 100) : 0;
@@ -23,42 +28,47 @@ function mapDealToCard(d) {
         CLOSED: "Sold",
         DRAFT: "Coming Soon",
     };
-    const images = Array.isArray(d.property_images) ? d.property_images : [];
-    const rawImg = images[0] || null;
-    const image = rawImg ? (rawImg.startsWith('http') ? rawImg : `${API_BASE}${rawImg}`) : null;
+    const images = Array.isArray(d.property_images) && d.property_images.length > 0
+        ? d.property_images
+        : (meta.property_images || []);
     return {
         id: d.id,
         case_id: d.case_id,
         case_number: d.case_number || null,
         title: d.title || d.property_address || "Investment Property",
         status: dealStatusMap[d.status] || "Coming Soon",
-        image,
-        suburb: d.suburb || "",
-        state: d.state || "",
-        postcode: d.postcode || "",
+        image: resolveImage(images, d.documents),
+        suburb: d.suburb || meta.suburb || "",
+        state: d.state || meta.state || "",
+        postcode: d.postcode || meta.postcode || "",
         loanAmount,
         lvr,
         returnRate,
         expectedReturn: returnRate,
         tenure: d.tenure,
         equity: Math.max(0, estimatedValue - loanAmount),
-        auctionEnd: null,
-        type: d.property_type || (d.metadata_json_case?.property_type) || "Property",
-        bedrooms: d.metadata_json_case?.bedrooms || 0,
-        bathrooms: d.metadata_json_case?.bathrooms || 0,
-        parking: d.metadata_json_case?.parking || 0,
+        auctionEnd: d.auction_scheduled_end || null,
+        currentBid: parseFloat(d.current_highest_bid) || 0,
+        type: d.property_type || meta.property_type || "",
+        bedrooms: meta.bedrooms ?? d.bedrooms ?? 0,
+        bathrooms: meta.bathrooms ?? d.bathrooms ?? 0,
+        parking: meta.parking ?? d.parking ?? 0,
     };
 }
 
 function mapCaseToDeal(c) {
+    const meta = c.metadata_json || {};
     const loanAmount = parseFloat(c.outstanding_debt) || 0;
     const estimatedValue = parseFloat(c.estimated_value) || 0;
     const lvr = estimatedValue > 0 ? Math.round((loanAmount / estimatedValue) * 100) : 0;
     const returnRate = parseFloat(c.interest_rate) || 0;
-    const images = Array.isArray(c.property_images) ? c.property_images : [];
-    const image = images.length > 0 ? resolveImageUrl(images[0]) : null;
-    let suburb = ""; let state = ""; let postcode = "";
-    if (c.property_address) {
+    const images = Array.isArray(c.property_images) && c.property_images.length > 0
+        ? c.property_images
+        : (meta.property_images || []);
+    let suburb = meta.suburb || c.suburb || "";
+    let state = meta.state || c.state || "";
+    let postcode = meta.postcode || c.postcode || "";
+    if (!suburb && c.property_address) {
         const parts = c.property_address.split(",");
         if (parts.length >= 2) {
             const lastPart = parts[parts.length - 1].trim();
@@ -84,7 +94,7 @@ function mapCaseToDeal(c) {
             : c.auction_status === "ENDED" ? "Ended"
             : c.status === "AUCTION" ? "Live Auction"
             : "Active",
-        image,
+        image: resolveImage(images, c.documents),
         suburb,
         state,
         postcode,
@@ -94,11 +104,12 @@ function mapCaseToDeal(c) {
         expectedReturn: returnRate,
         tenure: c.tenure,
         equity: Math.max(0, estimatedValue - loanAmount),
-        auctionEnd: null,
-        type: c.property_type || c.metadata_json?.property_type || "Property",
-        bedrooms: c.metadata_json?.bedrooms || 0,
-        bathrooms: c.metadata_json?.bathrooms || 0,
-        parking: c.metadata_json?.parking || 0,
+        auctionEnd: c.auction_scheduled_end || null,
+        currentBid: parseFloat(c.current_highest_bid) || 0,
+        type: c.property_type || meta.property_type || "",
+        bedrooms: meta.bedrooms ?? c.bedrooms ?? 0,
+        bathrooms: meta.bathrooms ?? c.bathrooms ?? 0,
+        parking: meta.parking ?? c.parking ?? 0,
     };
 }
 

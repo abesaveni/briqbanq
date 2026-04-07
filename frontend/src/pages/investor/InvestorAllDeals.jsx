@@ -4,19 +4,19 @@ import InvestorDealCard from "../../components/deals/InvestorDealCard";
 import { dealsService, casesService } from "../../api/dataService";
 import { LoadingState, ErrorState, EmptyState } from "../../components/common/States";
 
-function resolveImageUrl(url) {
-  if (!url) return null;
-  return url;
-}
-
-function firstImage(images) {
-  if (!Array.isArray(images) || images.length === 0) return null;
-  return resolveImageUrl(images[0]);
+function resolveImage(propertyImages, documents) {
+  if (Array.isArray(propertyImages) && propertyImages.length > 0) return propertyImages[0];
+  const imgDoc = (documents || []).find(doc =>
+    (doc.document_type || doc.type) === 'Property Image' &&
+    doc.file_url && !doc.file_url.startsWith('local://')
+  );
+  return imgDoc ? imgDoc.file_url : null;
 }
 
 // Map backend DealResponse → InvestorDealCard shape
 function mapDealToCard(d) {
-  const meta = d.metadata_json || {};
+  // DealResponse: case metadata is in metadata_json_case, deal's own metadata in metadata_json
+  const meta = d.metadata_json_case || d.metadata_json || {};
   const loanAmount = parseFloat(d.asking_price) || 0;
   const estimatedValue = parseFloat(d.estimated_value) || 0;
   const lvr = estimatedValue > 0 ? Math.round((loanAmount / estimatedValue) * 100) : 0;
@@ -28,14 +28,16 @@ function mapDealToCard(d) {
     CLOSED: "Sold",
     DRAFT: "Coming Soon",
   };
-  const images = Array.isArray(d.property_images) ? d.property_images : (meta.property_images || []);
+  const images = Array.isArray(d.property_images) && d.property_images.length > 0
+    ? d.property_images
+    : (meta.property_images || []);
   return {
     id: d.id,
     case_id: d.case_id,
     case_number: d.case_number || null,
     title: d.title || d.property_address || "Investment Property",
     status: dealStatusMap[d.status] || "Coming Soon",
-    image: firstImage(images),
+    image: resolveImage(images, d.documents),
     suburb: d.suburb || meta.suburb || "",
     state: d.state || meta.state || "",
     postcode: d.postcode || meta.postcode || "",
@@ -45,8 +47,9 @@ function mapDealToCard(d) {
     expectedReturn: returnRate,
     tenure: d.tenure,
     equity: Math.max(0, estimatedValue - loanAmount),
-    auctionEnd: null,
-    type: d.property_type || meta.property_type || "House",
+    auctionEnd: d.auction_scheduled_end || null,
+    currentBid: parseFloat(d.current_highest_bid) || 0,
+    type: d.property_type || meta.property_type || "",
     bedrooms: meta.bedrooms ?? d.bedrooms ?? 0,
     bathrooms: meta.bathrooms ?? d.bathrooms ?? 0,
     kitchens: meta.kitchens ?? d.kitchens ?? 0,
@@ -61,8 +64,9 @@ function mapCaseToDeal(c) {
   const estimatedValue = parseFloat(c.estimated_value) || 0;
   const lvr = estimatedValue > 0 ? Math.round((loanAmount / estimatedValue) * 100) : 0;
   const returnRate = parseFloat(c.interest_rate) || 0;
-  const images = Array.isArray(c.property_images) ? c.property_images : (meta.property_images || []);
-  // Parse suburb/state/postcode from metadata first, then address
+  const images = Array.isArray(c.property_images) && c.property_images.length > 0
+    ? c.property_images
+    : (meta.property_images || []);
   let suburb = meta.suburb || c.suburb || "";
   let state = meta.state || c.state || "";
   let postcode = meta.postcode || c.postcode || "";
@@ -92,7 +96,7 @@ function mapCaseToDeal(c) {
       : c.auction_status === "ENDED" ? "Ended"
       : c.status === "AUCTION" ? "Live Auction"
       : "Active",
-    image: firstImage(images),
+    image: resolveImage(images, c.documents),
     suburb,
     state,
     postcode,
@@ -102,8 +106,9 @@ function mapCaseToDeal(c) {
     expectedReturn: returnRate,
     tenure: c.tenure,
     equity: Math.max(0, estimatedValue - loanAmount),
-    auctionEnd: null,
-    type: c.property_type || meta.property_type || "House",
+    auctionEnd: c.auction_scheduled_end || null,
+    currentBid: parseFloat(c.current_highest_bid) || 0,
+    type: c.property_type || meta.property_type || "",
     bedrooms: meta.bedrooms ?? c.bedrooms ?? 0,
     bathrooms: meta.bathrooms ?? c.bathrooms ?? 0,
     kitchens: meta.kitchens ?? c.kitchens ?? 0,

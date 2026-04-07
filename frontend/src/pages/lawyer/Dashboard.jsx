@@ -7,7 +7,7 @@ const QUICK_ACTIONS = [
   { id: 'kyc', label: 'Review KYC', sub: 'Pending approvals', path: '/lawyer/kyc-review' },
   { id: 'cases', label: 'Manage Cases', sub: 'Active cases', path: '/lawyer/assigned-cases' },
   { id: 'reports', label: 'View Reports', sub: 'Generate', path: '/lawyer/reports' },
-  { id: 'esign', label: 'E-Signatures', sub: 'Review contracts', path: '/lawyer/e-signatures' },
+  { id: 'contracts', label: 'Contract Review', sub: 'Review contracts', path: '/lawyer/contract-review' },
 ]
 
 export default function Dashboard() {
