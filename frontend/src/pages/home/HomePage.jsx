@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
 import {
   Building2, TrendingUp, Scale, Shield, Briefcase,
-  ArrowRight, CheckCircle, Star, ChevronRight
+  ArrowRight, CheckCircle, ChevronRight, Gavel,
+  FileCheck, Users, BarChart3, Clock, CircleDot
 } from "lucide-react";
-
-import { PROPERTY_PLACEHOLDER } from '../../utils/propertyPlaceholder'
 
 const ROLES = [
   {
@@ -191,29 +190,80 @@ export default function HomePage() {
                 Start now <ChevronRight size={16} />
               </Link>
             </div>
-            <div className="relative">
-              <div className="rounded-2xl overflow-hidden shadow-2xl">
-                <img
-                  src={PROPERTY_PLACEHOLDER}
-                  alt="Australian property"
-                  className="w-full h-80 md:h-96 object-cover"
-                />
-              </div>
-              {/* Floating badge */}
-              <div className="absolute -bottom-5 -left-5 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 flex items-center gap-3">
-                <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
-                  <Shield size={18} className="text-emerald-600" />
+            {/* Platform dashboard illustration */}
+            <div className="bg-[#0C1E3C] rounded-2xl shadow-2xl p-5 space-y-4">
+              {/* Header bar */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 bg-[#5B9BD5] rounded-md flex items-center justify-center">
+                    <Building2 size={12} className="text-white" />
+                  </div>
+                  <span className="text-xs font-bold text-white">BriqBanq Dashboard</span>
                 </div>
-                <div>
-                  <p className="text-xs font-bold text-slate-900">Bank-grade security</p>
-                  <p className="text-xs text-slate-400">AES-256 encrypted data</p>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-xs text-white/50">Live</span>
                 </div>
               </div>
-              <div className="absolute -top-5 -right-5 bg-[#1B3A6B] rounded-2xl shadow-xl p-4 flex items-center gap-3">
-                <Star size={16} className="text-[#F5C842] fill-[#F5C842]" />
-                <div>
-                  <p className="text-xs font-bold text-white">AFCA Compliant</p>
-                  <p className="text-xs text-white/60">Regulatory standards met</p>
+
+              {/* Stats row */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { icon: Gavel, label: "Active Auctions", value: "12", color: "bg-violet-500/20 text-violet-300" },
+                  { icon: FileCheck, label: "Cases Open", value: "47", color: "bg-blue-500/20 text-blue-300" },
+                  { icon: Users, label: "Stakeholders", value: "230", color: "bg-emerald-500/20 text-emerald-300" },
+                ].map(({ icon: Icon, label, value, color }) => (
+                  <div key={label} className="bg-white/5 rounded-xl p-3 border border-white/10">
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center mb-2 ${color}`}>
+                      <Icon size={14} />
+                    </div>
+                    <p className="text-lg font-extrabold text-white">{value}</p>
+                    <p className="text-[10px] text-white/40 leading-tight mt-0.5">{label}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Case pipeline */}
+              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-semibold text-white/70">Case Pipeline</span>
+                  <BarChart3 size={14} className="text-white/30" />
+                </div>
+                <div className="space-y-2.5">
+                  {[
+                    { stage: "Assessment", pct: 85, color: "bg-blue-400" },
+                    { stage: "Auction", pct: 60, color: "bg-violet-400" },
+                    { stage: "Settlement", pct: 40, color: "bg-emerald-400" },
+                  ].map(({ stage, pct, color }) => (
+                    <div key={stage} className="flex items-center gap-3">
+                      <span className="text-[11px] text-white/50 w-20 shrink-0">{stage}</span>
+                      <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className="text-[11px] text-white/40 w-6 text-right">{pct}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Recent activity */}
+              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-semibold text-white/70">Recent Activity</span>
+                  <Clock size={14} className="text-white/30" />
+                </div>
+                <div className="space-y-2.5">
+                  {[
+                    { dot: "bg-emerald-400", text: "Auction #A-1042 closed", time: "2m ago" },
+                    { dot: "bg-blue-400", text: "KYC approved · Case #C-389", time: "14m ago" },
+                    { dot: "bg-violet-400", text: "New bid — $1.2M on #A-1041", time: "31m ago" },
+                  ].map(({ dot, text, time }, i) => (
+                    <div key={i} className="flex items-center gap-2.5">
+                      <CircleDot size={12} className={`${dot === "bg-emerald-400" ? "text-emerald-400" : dot === "bg-blue-400" ? "text-blue-400" : "text-violet-400"} shrink-0`} />
+                      <span className="text-[11px] text-white/60 flex-1 truncate">{text}</span>
+                      <span className="text-[10px] text-white/30 shrink-0">{time}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
