@@ -137,15 +137,16 @@ export default function LenderCaseDetails() {
                     property_images = fetchedCase.metadata_json.property_images;
                 }
 
-                // Resolve image: if we have a document ID, fetch a real presigned URL
+                // Resolve image URL — prefer metadata property_images, fall back to document file_url
                 let image = null;
-                const rawImageUrl = primaryImageDoc?.file_url || property_images[0] || null;
+                const rawImageUrl = property_images[0] || primaryImageDoc?.file_url || null;
                 if (rawImageUrl) {
                     const isFullUrl = rawImageUrl.startsWith('http://') || rawImageUrl.startsWith('https://') || rawImageUrl.startsWith('blob:') || rawImageUrl.startsWith('data:');
-                    if (isFullUrl) {
+                    const isLocalUpload = rawImageUrl.startsWith('/uploads/');
+                    if (isFullUrl || isLocalUpload) {
                         image = rawImageUrl;
                     } else if (primaryImageDoc?.id) {
-                        // S3 key — fetch presigned URL via document download endpoint
+                        // Try presigned URL via document download endpoint (S3 / cloud storage)
                         try {
                             const token = localStorage.getItem('token') || localStorage.getItem('authToken') || '';
                             const imgRes = await fetch(`/api/v1/documents/${primaryImageDoc.id}/download`, {
@@ -260,6 +261,16 @@ export default function LenderCaseDetails() {
                 setFormData({ ...mappedData });
                 setCaseMessages(fetchedCase.messages || []);
                 setBidHistory(fetchedCase.bidHistory || []);
+
+                // Load property images for the media gallery
+                const allImages = property_images.length > 0 ? property_images : [];
+                if (allImages.length > 0) {
+                    setPropertyImages(allImages.map((url, idx) => ({
+                        id: idx,
+                        url,
+                        name: url.split('/').pop()
+                    })));
+                }
 
                 // Populate settlement overview property from real case data
                 setSettlementOverviewData(prev => ({
