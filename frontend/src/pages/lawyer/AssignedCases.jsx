@@ -73,6 +73,7 @@ export default function AssignedCases() {
   const handleView = (id) => navigate(`/lawyer/assigned-cases/${id}`)
 
   const handleDelete = async (id) => {
+    if (!window.confirm(`Delete case ${id}?`)) return
     setCases((prev) => prev.filter((c) => c.id !== id))
     try { await casesService.deleteCase(id) } catch (_) {}
   }

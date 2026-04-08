@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import StatCard from './components/StatCard'
 import { casesService, lawyerService, auctionService } from '../../api/dataService'
@@ -30,22 +30,25 @@ export default function Dashboard() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  useEffect(() => {
-    const load = async () => {
-      const [dashRes, casesRes, auctionsRes] = await Promise.all([
-        lawyerService.getDashboard(),
-        lawyerService.getMyAssignedCases(),
-        auctionService.getAuctions(),
-      ])
-      if (dashRes.success) setDashStats(dashRes.data)
-      const casesArr = Array.isArray(casesRes.data) ? casesRes.data : (casesRes.data?.items || casesRes.data?.cases || [])
-      if (casesRes.success) setCases(casesArr.slice(0, 5))
-      const auctionsArr = Array.isArray(auctionsRes.data) ? auctionsRes.data : (auctionsRes.data?.items || auctionsRes.data?.auctions || [])
-      if (auctionsRes.success) setAuctions(auctionsArr)
-      setLoading(false)
-    }
-    load()
+  const load = useCallback(async () => {
+    const [dashRes, casesRes, auctionsRes] = await Promise.all([
+      lawyerService.getDashboard(),
+      lawyerService.getMyAssignedCases(),
+      auctionService.getAuctions(),
+    ])
+    if (dashRes.success) setDashStats(dashRes.data)
+    const casesArr = Array.isArray(casesRes.data) ? casesRes.data : (casesRes.data?.items || casesRes.data?.cases || [])
+    if (casesRes.success) setCases(casesArr.slice(0, 5))
+    const auctionsArr = Array.isArray(auctionsRes.data) ? auctionsRes.data : (auctionsRes.data?.items || auctionsRes.data?.auctions || [])
+    if (auctionsRes.success) setAuctions(auctionsArr)
+    setLoading(false)
   }, [])
+
+  useEffect(() => {
+    load()
+    window.addEventListener('focus', load)
+    return () => window.removeEventListener('focus', load)
+  }, [load])
 
   const d = dashStats || {}
   const liveAuctions = auctions.filter(a => a.status === 'active' || a.status === 'ACTIVE').length
@@ -130,10 +133,9 @@ export default function Dashboard() {
                 onClick={() => navigate(`/lawyer/assigned-cases/${c.id}`)}>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded ${
-                      c.status === 'listed' ? 'bg-blue-50 text-blue-600' :
-                      c.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'
-                    }`}>{(c.status || 'pending').toUpperCase()}</span>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded uppercase ${
+                      {DRAFT:'bg-slate-100 text-slate-600',SUBMITTED:'bg-blue-50 text-blue-700',UNDER_REVIEW:'bg-amber-50 text-amber-700',APPROVED:'bg-emerald-50 text-emerald-700',LISTED:'bg-indigo-50 text-indigo-700',AUCTION:'bg-purple-50 text-purple-700',FUNDED:'bg-teal-50 text-teal-700',CLOSED:'bg-slate-100 text-slate-500',REJECTED:'bg-red-50 text-red-700',active:'bg-emerald-50 text-emerald-700',listed:'bg-indigo-50 text-indigo-700',completed:'bg-slate-100 text-slate-500',pending:'bg-amber-50 text-amber-700'}[c.status] || 'bg-gray-100 text-gray-700'
+                    }`}>{(c.status || 'DRAFT').toUpperCase()}</span>
                     <span className="text-sm font-medium text-slate-800">{c.case_number || c.id}</span>
                   </div>
                   <p className="text-sm font-medium text-slate-800 mt-0.5">{c.title || c.property_address || 'Untitled Case'}</p>
