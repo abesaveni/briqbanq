@@ -23,7 +23,7 @@ function mapBid(b, index) {
 function mapDocument(d) {
     return {
         id: d.id,
-        name: d.document_name || d.filename || d.original_filename || d.name || 'Document',
+        name: d.document_name || d.file_name || d.filename || d.original_filename || d.name || 'Document',
         type: d.document_type || d.type || 'Document',
         uploadedBy: d.uploaded_by_name || d.uploader_name || (d.uploaded_by && d.uploaded_by.length < 40 ? d.uploaded_by : 'Borrower'),
         date: d.created_at ? new Date(d.created_at).toLocaleDateString('en-AU') : '',

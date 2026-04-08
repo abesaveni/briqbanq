@@ -96,16 +96,19 @@ async def approve_bid(
     db=Depends(get_db),
     trace_id: str = Depends(get_trace_id),
 ):
-    """Borrower or admin approves the winning bid — closes auction and sends all notifications."""
-    is_admin = "ADMIN" in [r.upper() for r in current_user.get("roles", [])]
+    """Admin accepts the winning bid — closes auction and sends all notifications."""
+    roles = [r.upper() for r in current_user.get("roles", [])]
+    if "ADMIN" not in roles:
+        from app.core.exceptions import AuthorizationError
+        raise AuthorizationError(message="Only Admins can accept bids.")
     service = BidService(db)
     bid = await service.approve_bid(
         bid_id=bid_id,
         borrower_id=uuid.UUID(current_user["user_id"]),
-        is_admin=is_admin,
+        is_admin=True,
     )
     from app.modules.audit.service import AuditService
-    actor_role = "ADMIN" if is_admin else "BORROWER"
+    actor_role = "ADMIN"
     await AuditService(db).log(
         actor_id=current_user["user_id"], actor_role=actor_role,
         entity_type="bid", entity_id=str(bid_id),

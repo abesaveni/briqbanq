@@ -261,11 +261,11 @@ export default function TaskCenter() {
   const completedCount = tasks.filter((t) => t.status === 'Completed').length
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="flex flex-wrap justify-between items-start gap-4">
+    <div className="space-y-4 pb-6">
+      <div className="flex flex-wrap justify-between items-start gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Task Center</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage all your tasks across BriqBanq</p>
+          <h1 className="text-lg font-semibold text-slate-900">Task Center</h1>
+          <p className="text-sm text-slate-500">Manage all your tasks across BriqBanq</p>
         </div>
         <button
           type="button"
@@ -284,7 +284,7 @@ export default function TaskCenter() {
         >
           <span className="text-gray-500">📋</span>
           <div>
-            <p className="text-xl font-bold text-slate-800">{tasks.length}</p>
+            <p className="text-lg font-bold text-slate-800">{tasks.length}</p>
             <p className="text-xs text-gray-500">Total Tasks</p>
           </div>
         </button>

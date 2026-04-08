@@ -8,11 +8,11 @@ import { Link } from "react-router-dom";
 export default class RouteErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, errorRouteLabel: null };
+    this.state = { hasError: false, errorRouteLabel: null, errorMessage: null };
   }
 
-  static getDerivedStateFromError() {
-    return { hasError: true };
+  static getDerivedStateFromError(error) {
+    return { hasError: true, errorMessage: error?.message || String(error) };
   }
 
   // Reset error state when navigating to a different route
@@ -36,9 +36,14 @@ export default class RouteErrorBoundary extends React.Component {
       return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 bg-gray-50 text-center">
           <h1 className="text-xl font-bold text-gray-900 mb-2">Something went wrong</h1>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 mb-4">
             We couldn’t load {label}. Try refreshing or go back to the home page.
           </p>
+          {this.state.errorMessage && (
+            <p className="text-xs text-red-500 bg-red-50 border border-red-200 rounded px-3 py-2 mb-4 font-mono break-all max-w-lg">
+              {this.state.errorMessage}
+            </p>
+          )}
           <div className="flex flex-wrap gap-3 justify-center">
             <Link
               to="/"

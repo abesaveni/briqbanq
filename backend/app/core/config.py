@@ -62,6 +62,11 @@ class Settings(BaseSettings):
         default=None, description="SQS queue URL"
     )
 
+    # Square Payments
+    square_access_token: Optional[str] = Field(default=None, description="Square API access token")
+    square_location_id: Optional[str] = Field(default=None, description="Square location ID")
+    square_environment: str = Field(default="sandbox", description="Square environment: sandbox or production")
+
     # Rate Limiting
     rate_limit_default: str = Field(
         default="100/minute", description="Default rate limit"

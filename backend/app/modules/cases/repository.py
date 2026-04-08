@@ -6,7 +6,7 @@ Raw database access only — no business rules.
 import uuid
 from typing import List, Optional
 
-from sqlalchemy import select, func
+from sqlalchemy import select, func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.cases.models import Case
@@ -110,10 +110,10 @@ class CaseRepository:
     async def get_by_lender_id(
         self, lender_id: uuid.UUID, offset: int = 0, limit: int = 50
     ) -> List[Case]:
-        """Get cases assigned to a specific lender."""
+        """Get cases assigned to or created by a specific lender."""
         result = await self.db.execute(
             select(Case)
-            .where(Case.assigned_lender_id == lender_id)
+            .where(or_(Case.assigned_lender_id == lender_id, Case.borrower_id == lender_id))
             .offset(offset)
             .limit(limit)
             .order_by(Case.created_at.desc())

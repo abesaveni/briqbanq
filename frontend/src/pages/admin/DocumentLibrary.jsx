@@ -14,8 +14,8 @@ export default function DocumentLibrary() {
                 const raw = Array.isArray(res.data) ? res.data : (res.data?.items || [])
                 const mapped = raw.map(d => ({
                     id: d.id,
-                    name: d.document_name || d.name || 'Untitled',
-                    type: (d.document_name || d.name || '').split('.').pop()?.toLowerCase() || 'pdf',
+                    name: d.document_name || d.file_name || d.name || 'Untitled',
+                    type: (d.file_name || d.document_name || d.name || '').split('.').pop()?.toLowerCase() || 'pdf',
                     size: d.file_size ? `${(d.file_size / 1024).toFixed(1)} KB` : '—',
                     fileSizeBytes: d.file_size || 0,
                     category: d.document_type || d.category || 'Contract',

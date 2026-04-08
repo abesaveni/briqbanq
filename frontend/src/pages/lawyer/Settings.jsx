@@ -352,7 +352,7 @@ export default function Settings() {
       <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
         {/* Page title â€” Figma */}
         <div className="mb-2">
-          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+          <h1 className="text-lg font-semibold text-slate-900">Settings</h1>
           <p className="text-sm text-gray-500 mt-1">Manage your account, organisation and preferences</p>
         </div>
 

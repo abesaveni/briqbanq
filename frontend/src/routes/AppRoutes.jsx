@@ -49,6 +49,7 @@ import LawyerKYCReview from "../pages/lawyer/KYCReview";
 import LawyerReports from "../pages/lawyer/Reports";
 import LawyerAdminConsole from "../pages/lawyer/AdminConsole";
 import LawyerLiveAuctions from "../pages/lawyer/LiveAuctions";
+import LawyerSubmitNewCase from "../pages/lawyer/SubmitNewCase";
 
 
 
@@ -78,10 +79,13 @@ import AdminBuyNowRoom from "../pages/admin/AdminBuyNowRoom";
 // Borrower Imports
 import BorrowerLayout from "../pages/borrower/BorrowerLayout";
 import BorrowerDashboard from "../pages/borrower/BorrowerDashboard";
-import BorrowerNewCase from "../pages/borrower/NewCase";
+
 import MyCase from "../pages/borrower/MyCase";
 import BorrowerContracts from "../pages/borrower/Contracts";
 import IdentityVerification from "../pages/borrower/IdentityVerification";
+import LenderIdentityVerification from "../pages/borrower/IdentityVerification";
+import LawyerIdentityVerification from "../pages/borrower/IdentityVerification";
+import InvestorIdentityVerification from "../pages/borrower/IdentityVerification";
 import BorrowerTaskCenter from "../pages/borrower/TaskCenter";
 import BorrowerAuctionRoom from "../pages/borrower/AuctionRoom";
 import BorrowerNotifications from "../pages/borrower/Notifications";
@@ -142,10 +146,8 @@ export default function AppRoutes() {
       <Route path="/borrower" element={<RouteErrorBoundary routeLabel="the borrower panel"><BorrowerLayout /></RouteErrorBoundary>}>
         <Route index element={<Navigate to="/borrower/dashboard" replace />} />
         <Route path="dashboard" element={<BorrowerDashboard />} />
-        <Route path="new-case" element={<BorrowerNewCase />} />
         <Route path="my-case" element={<MyCase />} />
         <Route path="contracts" element={<BorrowerContracts />} />
-        <Route path="identity-verification" element={<IdentityVerification />} />
         <Route path="task-center" element={<BorrowerTaskCenter />} />
         <Route path="auction" element={<BorrowerAuctionRoom />} />
         <Route path="notifications" element={<BorrowerNotifications />} />
@@ -170,6 +172,7 @@ export default function AppRoutes() {
         <Route path="buy-now/:id" element={<InvestorBuyNowRoom />} />
         <Route path="notifications" element={<InvestorNotifications />} />
         <Route path="settings" element={<InvestorSettings />} />
+        <Route path="identity-verification" element={<InvestorIdentityVerification />} />
       </Route>
 
       {/* Lender Routes Layout */}
@@ -191,6 +194,7 @@ export default function AppRoutes() {
         <Route path="submit-case" element={<RouteErrorBoundary key="lender-submit-case" routeLabel="Submit New Case"><LenderSubmitNewCase /></RouteErrorBoundary>} />
         <Route path="notifications" element={<RouteErrorBoundary key="lender-notifications" routeLabel="Notifications"><LenderNotifications /></RouteErrorBoundary>} />
         <Route path="settings" element={<RouteErrorBoundary key="lender-settings" routeLabel="Settings"><LenderSettings /></RouteErrorBoundary>} />
+        <Route path="identity-verification" element={<RouteErrorBoundary key="lender-kyc" routeLabel="Identity Verification"><LenderIdentityVerification /></RouteErrorBoundary>} />
       </Route>
 
 
@@ -208,7 +212,9 @@ export default function AppRoutes() {
         <Route path="task-center" element={<LawyerTaskCenter />} />
         <Route path="notifications" element={<LawyerNotifications />} />
         <Route path="settings" element={<LawyerSettings />} />
+        <Route path="identity-verification" element={<LawyerIdentityVerification />} />
         <Route path="live-auctions" element={<LawyerLiveAuctions />} />
+        <Route path="submit-case" element={<RouteErrorBoundary key="lawyer-submit-case" routeLabel="Submit New Case"><LawyerSubmitNewCase /></RouteErrorBoundary>} />
       </Route>
 
       {/* 404 Fallback */}

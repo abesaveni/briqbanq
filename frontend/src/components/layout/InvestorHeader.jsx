@@ -13,7 +13,8 @@ import {
     Menu,
     X,
     Folder,
-    BarChart2
+    BarChart2,
+    ShieldCheck
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
@@ -40,6 +41,7 @@ export default function InvestorHeader() {
         { to: "/investor/tasks", icon: ClipboardList, label: "Tasks" },
         { to: "/investor/reports", icon: BarChart2, label: "Reports" },
         { to: "/investor/documents", icon: Folder, label: "Documents" },
+        { to: "/investor/identity-verification", icon: ShieldCheck, label: "Identity Verification" },
         { to: "/investor/notifications", icon: Bell, label: "Notifications" },
         { to: "/investor/settings", icon: Settings, label: "Settings" },
     ];

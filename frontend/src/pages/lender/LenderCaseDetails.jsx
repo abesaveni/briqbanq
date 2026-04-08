@@ -52,85 +52,47 @@ export default function LenderCaseDetails() {
 
     const [caseSettlementData, setCaseSettlementData] = useState({
         summary: {
-            completed: 8,
-            total: 22,
-            inProgress: 6,
-            overdue: 1,
+            completed: 0,
+            total: 0,
+            inProgress: 0,
+            overdue: 0,
             blocked: 0,
-            estCompletion: "15 Mar 2026",
-            daysLeft: 12
+            estCompletion: "—",
+            daysLeft: 0
         },
-        categories: [
-            {
-                id: "legal",
-                title: "Legal Requirements",
-                icon: <FileText size={18} className="text-blue-600" />,
-                bg: "bg-blue-50/50",
-                completed: 4,
-                total: 6,
-                progress: 66,
-                tasks: [
-                    { id: "s32", title: "Section 32 Statement Review", desc: "Verify Vendor Statement accuracy", status: "COMPLETED", priority: "CRITICAL", assignee: "Lender Lawyer", email: "legal@brickbanq.com", date: "10 Feb 2026", days: "-20 days", completed: true, notes: ["Reviewed and approved"], isExpanded: false, showNoteInput: false, currentNoteText: "" },
-                    { id: "mda", title: "Mortgage Discharge Authority", desc: "Obtain discharge from existing lender", status: "COMPLETED", priority: "HIGH", assignee: "Case Manager", email: "support@brickbanq.com", date: "25 Feb 2026", days: "-5 days", completed: true, notes: [], isExpanded: false, showNoteInput: false, currentNoteText: "" },
-                    { id: "tld", title: "Transfer of Land Docs", desc: "Prepare Land Registry lodgement", status: "IN PROGRESS", priority: "CRITICAL", assignee: "Conveyancer", email: "legal@brickbanq.com", date: "05 Mar 2026", days: "3 days", completed: false, notes: [], isExpanded: false, showNoteInput: false, currentNoteText: "" }
-                ]
-            },
-            {
-                id: "financial",
-                title: "Financial Settlement",
-                icon: <DollarSign size={18} className="text-emerald-600" />,
-                bg: "bg-emerald-50/50",
-                completed: 2,
-                total: 5,
-                progress: 40,
-                tasks: [
-                    { id: "ffc", title: "Settlement Figure Calculation", desc: "Calculate final payout and adjustments", status: "COMPLETED", priority: "CRITICAL", assignee: "Accountant", email: "finance@brickbanq.com", date: "28 Feb 2026", days: "-2 days", completed: true, notes: [], isExpanded: false, showNoteInput: false, currentNoteText: "" },
-                    { id: "bta", title: "Bank Transfer Authorization", desc: "Pre-authorize PEXA funds transfer", status: "IN PROGRESS", priority: "HIGH", assignee: "Finance Manager", email: "finance@brickbanq.com", date: "04 Mar 2026", days: "2 days", completed: false, notes: [], isExpanded: false, showNoteInput: false, currentNoteText: "" }
-                ]
-            }
-        ]
+        categories: []
     });
 
     const [settlementOverviewData, setSettlementOverviewData] = useState({
         property: {
-            id: "MIP-2026-001",
-            title: "45 Victoria Street",
-            location: "Potts Point, NSW",
+            id: "",
+            title: "",
+            location: "",
             image: null,
-            settlementDate: "15 Mar 2026",
-            readiness: 72,
-            status: "In Progress"
+            settlementDate: "—",
+            readiness: 0,
+            status: "Pending"
         },
-        checklist: [
-            { id: 1, item: "Executed Loan Agreement", responsible: "Lender", dueDate: "01 Mar 2026", status: "Approved", uploadStatus: "uploaded" },
-            { id: 2, item: "Mortgage Discharge Certificate", responsible: "Existing Lender", dueDate: "05 Mar 2026", status: "Submitted", uploadStatus: "uploaded" },
-            { id: 3, item: "Verification of Identity (VOI)", responsible: "Borrower", dueDate: "28 Feb 2026", status: "Open", uploadStatus: "overdue" }
-        ],
-        outstanding: [
-            { id: 1, title: "Borrower VOI Confirmation", responsible: "Borrower", status: "overdue", days: "2 days overdue" },
-            { id: 2, title: "Final Payout Figure Approval", responsible: "Lender", status: "due_soon", days: "2 days left" }
-        ],
-        thread: [
-            { id: 1, user: "Alex Thompson", role: "Case Manager", time: "09:45", message: "Settlement pack sent to legal for final review.", initials: "AT", color: "bg-blue-600" },
-            { id: 2, user: "Sarah Miller", role: "Lender", time: "10:30", message: "Discharge authority received from CBA.", initials: "SM", color: "bg-indigo-600" }
-        ]
+        checklist: [],
+        outstanding: [],
+        thread: []
     });
 
-    // Enforcement Steps State
+    // Enforcement Steps State — loaded from backend metadata
     const [enforcementSteps, setEnforcementSteps] = useState([
-        { id: 1, title: 'Mortgage Default Notice (s88)', status: 'compliant', date: '10 Jan 2026', notes: 'Verified notice period of 30 days served correctly.' },
-        { id: 2, title: 'Statement of Claim Served', status: 'compliant', date: '15 Jan 2026', notes: 'Personal service confirmed by process server.' },
-        { id: 3, title: 'Eviction/Possession Order', status: 'pending', date: '-', notes: '' },
-        { id: 4, title: 'Auction Reserve Setting', status: 'pending', date: '-', notes: '' }
+        { id: 1, title: 'Mortgage Default Notice (s88)', status: 'pending', date: '—', notes: '' },
+        { id: 2, title: 'Statement of Claim Served', status: 'pending', date: '—', notes: '' },
+        { id: 3, title: 'Eviction/Possession Order', status: 'pending', date: '—', notes: '' },
+        { id: 4, title: 'Auction Reserve Setting', status: 'pending', date: '—', notes: '' }
     ]);
 
-    // Loan Compliance State
+    // Loan Compliance State — loaded from backend metadata
     const [loanCompliance, setLoanCompliance] = useState([
-        { id: 1, title: 'Loan Agreement terms reviewed', checked: true, critical: true },
-        { id: 2, title: 'Mortgage registration verified', checked: true, critical: true },
-        { id: 3, title: 'No priority issues detected', checked: true, critical: true },
-        { id: 4, title: 'Rate calculations/arreas verified', checked: true, critical: false },
-        { id: 5, title: 'Default process compliant with NCCP', checked: true, critical: true }
+        { id: 1, title: 'Loan Agreement terms reviewed', checked: false, critical: true },
+        { id: 2, title: 'Mortgage registration verified', checked: false, critical: true },
+        { id: 3, title: 'No priority issues detected', checked: false, critical: true },
+        { id: 4, title: 'Rate calculations/arrears verified', checked: false, critical: false },
+        { id: 5, title: 'Default process compliant with NCCP', checked: false, critical: true }
     ]);
 
     // Missing Investor View States
@@ -164,7 +126,7 @@ export default function LenderCaseDetails() {
                 const res = await casesService.getCaseById(id || "MIP-2026-001");
                 const fetchedCase = res?.data || {};
 
-                const primaryImageDoc = (fetchedCase.documents || []).find(d => 
+                const primaryImageDoc = (fetchedCase.documents || []).find(d =>
                     (d.document_type || d.type) === 'Property Image'
                 );
                 let property_images = fetchedCase.property_images || [];
@@ -175,8 +137,35 @@ export default function LenderCaseDetails() {
                     property_images = fetchedCase.metadata_json.property_images;
                 }
 
-                const resolvedImage = primaryImageDoc ? primaryImageDoc.file_url : (property_images[0] || null);
-                const image = resolvedImage || null;
+                // Resolve image: if we have a document ID, fetch a real presigned URL
+                let image = null;
+                const rawImageUrl = primaryImageDoc?.file_url || property_images[0] || null;
+                if (rawImageUrl) {
+                    const isFullUrl = rawImageUrl.startsWith('http://') || rawImageUrl.startsWith('https://') || rawImageUrl.startsWith('blob:') || rawImageUrl.startsWith('data:');
+                    if (isFullUrl) {
+                        image = rawImageUrl;
+                    } else if (primaryImageDoc?.id) {
+                        // S3 key — fetch presigned URL via document download endpoint
+                        try {
+                            const token = localStorage.getItem('token') || localStorage.getItem('authToken') || '';
+                            const imgRes = await fetch(`/api/v1/documents/${primaryImageDoc.id}/download`, {
+                                headers: { Authorization: `Bearer ${token}` }
+                            });
+                            if (imgRes.ok) {
+                                const ct = imgRes.headers.get('content-type') || '';
+                                if (ct.includes('application/json')) {
+                                    const json = await imgRes.json();
+                                    image = json.download_url || null;
+                                } else {
+                                    const blob = await imgRes.blob();
+                                    image = URL.createObjectURL(blob);
+                                }
+                            }
+                        } catch (imgErr) {
+                            console.warn("Could not load property image:", imgErr);
+                        }
+                    }
+                }
 
                 // Map real data or fallback to zero/empty state
                 const meta = fetchedCase.metadata_json || {};
@@ -249,7 +238,7 @@ export default function LenderCaseDetails() {
                     recentActivity: fetchedCase.recentActivity || [],
                     documents: (fetchedCase.documents || []).map(doc => ({
                         id: doc.id,
-                        name: doc.document_name || doc.name || 'Document',
+                        name: doc.document_name || doc.file_name || doc.name || 'Document',
                         type: doc.document_type || doc.type || 'Document',
                         uploadedBy: doc.uploaded_by_name || doc.uploaded_by || 'Unknown',
                         date: doc.created_at ? new Date(doc.created_at).toLocaleDateString('en-AU') : (doc.date || ''),
@@ -662,11 +651,23 @@ export default function LenderCaseDetails() {
 
     const handleViewDocument = async (doc) => {
         try {
-            const blob = await _fetchDocBlob(doc.id);
+            const token = localStorage.getItem('token') || localStorage.getItem('authToken') || '';
+            const res = await fetch(`/api/v1/documents/${doc.id}/download`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error(`Server returned ${res.status}`);
+            const ct = res.headers.get('content-type') || '';
+            if (ct.includes('application/json')) {
+                const json = await res.json();
+                const url = json.download_url || json.url;
+                if (url) { window.open(url, '_blank', 'noopener,noreferrer'); return; }
+            }
+            // Binary blob (e.g. image served directly)
+            const blob = await res.blob();
             const url = URL.createObjectURL(blob);
             window.open(url, '_blank', 'noopener,noreferrer');
         } catch (err) {
-            setToast({ show: true, message: "Failed to open document.", type: "error" });
+            setToast({ show: true, message: "Failed to open document. " + (err.message || ""), type: "error" });
         }
     };
 
@@ -704,109 +705,87 @@ export default function LenderCaseDetails() {
         setIsAddTaskModalOpen(false);
     };
 
+    const caseDisplayId = caseData.case_number || (caseData.id ? caseData.id.substring(0, 8).toUpperCase() : "—");
+    const addrParts = (caseData.address || "").split(',');
+    const addrStreet = addrParts[0] || caseData.address || "—";
+    const addrRest = addrParts.slice(1).join(',').trim() || "";
+
     return (
-        <div id="case-details-container" className="space-y-4 animate-in fade-in duration-700 pb-20 max-w-[1400px] mx-auto text-slate-900 px-6 relative">
-            {/* Header Section */}
-            <div className="flex flex-col gap-0.5 pt-2">
-                <div className="flex items-center gap-2 text-xs font-medium text-gray-500">
-                    <button onClick={() => navigate('/lender/dashboard')} className="hover:text-gray-700 flex items-center gap-1.5">
-                        <Home size={14} className="text-gray-400" />
-                    </button>
-                    <ChevronRight size={12} className="text-gray-400" />
-                    <button onClick={() => navigate('/lender/dashboard')} className="hover:text-gray-700 font-bold">Dashboard</button>
-                    <ChevronRight size={12} className="text-gray-400" />
-                    <span className="text-gray-400">Cases</span>
-                    <ChevronRight size={12} className="text-gray-400" />
-                    <span className="text-gray-900 font-semibold">{caseData.case_number || caseData.id}</span>
+        <div className="space-y-3 pb-10 max-w-[1280px] mx-auto text-slate-900 px-4">
+            {/* Compact Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                <div>
+                    <div className="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+                        <button onClick={() => navigate('/lender/dashboard')} className="hover:text-slate-600"><Home size={12} /></button>
+                        <ChevronRight size={10} />
+                        <button onClick={() => navigate('/lender/my-cases')} className="hover:text-slate-600">My Cases</button>
+                        <ChevronRight size={10} />
+                        <span className="text-slate-600 font-medium">{caseDisplayId}</span>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <h1 className="text-base font-semibold text-slate-900">{caseDisplayId}</h1>
+                        <span className="px-2 py-0.5 bg-[#1B3A6B] text-white rounded text-[10px] font-semibold uppercase">{caseData.status}</span>
+                        <span className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-100 rounded text-[10px] font-semibold uppercase">{caseData.riskLevel}</span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1"><MapPin size={11} />{caseData.address}</p>
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900 mt-2">Lender Dashboard: {caseData.case_number || caseData.id}</h1>
-                <p className="text-sm text-gray-500">Institutional recovery and settlement management</p>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => generateBrandedPDF({
+                            title: `Recovery Pack — ${caseDisplayId}`,
+                            subtitle: caseData.address,
+                            sections: [
+                                { heading: "Borrower", body: caseData.borrower },
+                                { heading: "Lead Institution", body: caseData.lender },
+                                { heading: "Outstanding Debt", body: `$${caseData.outstandingDebt.toLocaleString()}` },
+                                { heading: "Property Valuation", body: `$${caseData.propertyValuation.toLocaleString()}` },
+                                { heading: "LVR", body: `${caseData.lvr}%` },
+                                { heading: "Status", body: caseData.status },
+                            ],
+                        })}
+                        className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                    >
+                        Export Pack
+                    </button>
+                    <button
+                        onClick={() => { setFormData({ ...caseData }); setIsManageModalOpen(true); }}
+                        className="px-3 py-1.5 bg-[#1B3A6B] text-white rounded-lg text-xs font-medium hover:bg-[#142d55] transition-colors"
+                    >
+                        Manage Case
+                    </button>
+                </div>
             </div>
 
-            {/* Case Main Card */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mt-1 text-slate-900">
-                <div className="p-5 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-slate-900">
-                    <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-3">
-                            <h2 className="text-2xl font-bold text-gray-900">{caseData.case_number || caseData.id}</h2>
-                            <div className="flex gap-2">
-                                <span className="px-2.5 py-1 bg-blue-900 text-white rounded-md text-xs font-semibold uppercase">
-                                    {caseData.status}
-                                </span>
-                                <span className="px-2.5 py-1 bg-amber-50 text-amber-600 rounded-md text-xs font-semibold uppercase border border-amber-100">
-                                    {caseData.riskLevel}
-                                </span>
-                            </div>
-                        </div>
-                        <p className="text-sm text-gray-500 flex items-center gap-2">
-                            <MapPin size={14} /> {caseData.address}
-                        </p>
+            {/* Case Summary Strip */}
+            <div className="bg-white rounded-xl border border-slate-200 grid grid-cols-2 sm:grid-cols-4 divide-x divide-slate-100">
+                {[
+                    { label: "Borrower", value: caseData.borrower },
+                    { label: "Institution", value: caseData.lender },
+                    { label: "Outstanding Debt", value: `$${caseData.outstandingDebt.toLocaleString()}` },
+                    { label: "Property Valuation", value: `$${caseData.propertyValuation.toLocaleString()}` },
+                ].map((item, i) => (
+                    <div key={i} className="px-4 py-3">
+                        <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-0.5">{item.label}</p>
+                        <p className="text-sm font-semibold text-slate-900 truncate">{item.value}</p>
                     </div>
-
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={() => generateBrandedPDF({
-                                title: `Recovery Pack — ${caseData.case_number || caseData.id}`,
-                                subtitle: caseData.address,
-                                sections: [
-                                    { heading: "Borrower", body: caseData.borrower },
-                                    { heading: "Lead Institution", body: caseData.lender },
-                                    { heading: "Outstanding Debt", body: `$${caseData.outstandingDebt.toLocaleString()}` },
-                                    { heading: "Property Valuation", body: `$${caseData.propertyValuation.toLocaleString()}` },
-                                    { heading: "LVR", body: `${caseData.lvr}%` },
-                                    { heading: "Status", body: caseData.status },
-                                ],
-                            })}
-                            className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-all"
-                        >
-                            Export Recovery Pack
-                        </button>
-                        <button
-                            onClick={() => {
-                                setFormData({ ...caseData });
-                                setIsManageModalOpen(true);
-                            }}
-                            className="px-4 py-2 bg-blue-900 text-white rounded-lg text-sm font-semibold hover:bg-black transition-all"
-                        >
-                            Manage Case
-                        </button>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-2 lg:grid-cols-4 border-t border-gray-100 text-slate-900">
-                    <div className="p-5">
-                        <p className="text-xs font-medium text-gray-500r mb-1.5">Borrower</p>
-                        <p className="font-bold text-gray-900">{caseData.borrower}</p>
-                    </div>
-                    <div className="p-5 border-l border-gray-100 text-slate-900">
-                        <p className="text-xs font-medium text-gray-500r mb-1.5">Lead Institution</p>
-                        <p className="font-bold text-gray-900">{caseData.lender}</p>
-                    </div>
-                    <div className="p-5 border-t lg:border-t-0 border-l lg:border-l border-gray-100 text-slate-900">
-                        <p className="text-xs font-medium text-gray-500r mb-1.5">Outstanding Debt</p>
-                        <p className="font-bold text-gray-900">${caseData.outstandingDebt.toLocaleString()}</p>
-                    </div>
-                    <div className="p-5 border-t lg:border-t-0 border-l border-gray-100 text-slate-900">
-                        <p className="text-xs font-medium text-gray-500r mb-1.5">Property Valuation</p>
-                        <p className="font-bold text-gray-900">${caseData.propertyValuation.toLocaleString()}</p>
-                    </div>
-                </div>
+                ))}
             </div>
 
             {/* Tabs Navigation */}
-            <div className="grid grid-cols-10 gap-0.5 bg-gray-50 p-1 rounded-xl border border-gray-200 mb-4">
+            <div className="flex gap-0.5 bg-slate-100 p-0.5 rounded-lg overflow-x-auto">
                 {tabs.map((tab) => (
                     <button
                         key={tab.label}
                         onClick={() => setActiveTab(tab.label)}
                         title={tab.label}
-                        className={`flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-lg text-[11px] font-medium transition-all ${activeTab === tab.label
-                            ? "bg-white text-indigo-700 shadow-sm border border-gray-100"
-                            : "text-gray-500 hover:bg-white/60 hover:text-gray-800"
-                            }`}
+                        className={`flex items-center gap-1.5 py-1.5 px-3 rounded-md text-[11px] font-medium whitespace-nowrap transition-all ${
+                            activeTab === tab.label
+                                ? "bg-white text-[#1B3A6B] shadow-sm"
+                                : "text-slate-500 hover:text-slate-700 hover:bg-white/50"
+                        }`}
                     >
-                        <tab.icon size={14} className={activeTab === tab.label ? "text-indigo-600" : "text-gray-400"} />
-                        <span className="truncate w-full text-center leading-tight">{tab.short}</span>
+                        <tab.icon size={12} />
+                        <span>{tab.short}</span>
                     </button>
                 ))}
             </div>
@@ -814,30 +793,38 @@ export default function LenderCaseDetails() {
             {/* Tab Panels */}
             <div className="min-h-[500px]">
                 {activeTab === "Dashboard" && (
-                    <div className="space-y-6 animate-fade-in">
-                        {/* Summary Section */}
-                        <div className="bg-blue-900 rounded-xl p-6 text-white relative overflow-hidden shadow-2xl">
-                            <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                                <div>
-                                    <h3 className="text-2xl font-semibold mb-2 ">Lender Case Intelligence Dashboard</h3>
-                                    <p className="text-blue-100 font-bold text-sm max-w-xl leading-relaxed opacity-80">
-                                        Active monitoring of recovery progress and asset protection. Current LVR is within acceptable institutional risk parameters.
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={handleRefreshIntelligence}
-                                    className="h-12 px-10 bg-white text-blue-900 rounded-xl font-semibold text-xs uppercase hover:bg-blue-50 transition-all shadow-xl active:scale-95 flex items-center gap-2"
-                                >
-                                    <RefreshCw size={16} className={loading ? "animate-spin" : ""} /> Refresh Intelligence
-                                </button>
+                    <div className="space-y-4 animate-fade-in">
+                        {/* Compact banner */}
+                        <div className="bg-[#1B3A6B] rounded-xl px-4 py-3 flex items-center justify-between">
+                            <div>
+                                <p className="text-xs font-semibold text-white">Case Intelligence Dashboard</p>
+                                <p className="text-[10px] text-blue-200/70 mt-0.5">Active monitoring — LVR {caseData.lvr}% · {caseData.status}</p>
                             </div>
-                            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-blue-600 rounded-full translate-x-1/2 -translate-y-1/2 blur-[100px] opacity-20" />
+                            <button onClick={handleRefreshIntelligence}
+                                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 border border-white/20 text-white rounded-lg text-xs font-medium hover:bg-white/20 transition-colors">
+                                <RefreshCw size={12} /> Refresh
+                            </button>
+                        </div>
+
+                        {/* KPI cards row */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            {[
+                                { label: "Outstanding Debt",     value: `$${(caseData.outstandingDebt/1000).toFixed(0)}k`,  color: "text-rose-600" },
+                                { label: "Property Valuation",   value: `$${(caseData.propertyValuation/1000).toFixed(0)}k`, color: "text-slate-900" },
+                                { label: "LVR",                  value: `${caseData.lvr}%`,                                  color: "text-amber-600" },
+                                { label: "Net Equity",           value: `$${(caseData.equity/1000).toFixed(0)}k`,            color: "text-emerald-600" },
+                            ].map((k, i) => (
+                                <div key={i} className="bg-white rounded-xl border border-slate-200 px-4 py-3">
+                                    <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-1">{k.label}</p>
+                                    <p className={`text-lg font-bold ${k.color}`}>{k.value}</p>
+                                </div>
+                            ))}
                         </div>
 
                         {/* Gauges Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {/* Risk Assessment */}
-                            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center relative min-h-[200px]">
+                            <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-col items-center relative">
                                 <div className="w-full flex items-center gap-2 mb-4">
                                     <ShieldCheck size={18} className="text-slate-900" />
                                     <p className="text-sm font-semibold text-slate-900">Risk Assessment</p>
@@ -880,7 +867,7 @@ export default function LenderCaseDetails() {
                             </div>
 
                             {/* Loan to Value Ratio */}
-                            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center relative min-h-[320px] group hover:shadow-xl transition-all duration-500">
+                            <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-col items-center relative group hover:shadow-sm transition-all">
                                 <div className="absolute top-0 right-0 p-6">
                                     <div className="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-500 shadow-inner">
                                         <TrendingUp size={20} />
@@ -938,7 +925,7 @@ export default function LenderCaseDetails() {
                             </div>
 
                             {/* Financial Breakdown */}
-                            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center relative min-h-[320px] group hover:shadow-xl transition-all duration-500">
+                            <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-col items-center relative group hover:shadow-sm transition-all">
                                 <div className="absolute top-0 right-0 p-6">
                                     <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 shadow-inner">
                                         <DollarSign size={20} />
@@ -983,9 +970,9 @@ export default function LenderCaseDetails() {
                         </div>
 
                         {/* Middle Row - Completion & Parties */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {/* Document Collection */}
-                            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                            <div className="bg-white p-4 rounded-xl border border-slate-200">
                                 <div className="flex items-center gap-2 mb-4">
                                     <FileText size={18} className="text-slate-900" />
                                     <p className="text-sm font-semibold text-slate-900">Document Collection</p>
@@ -1007,7 +994,7 @@ export default function LenderCaseDetails() {
                             </div>
 
                             {/* Verification Status */}
-                            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                            <div className="bg-white p-4 rounded-xl border border-slate-200">
                                 <div className="flex items-center gap-2 mb-4">
                                     <ShieldCheck size={18} className="text-slate-900" />
                                     <p className="text-sm font-semibold text-slate-900">Verification Status</p>
@@ -1029,7 +1016,7 @@ export default function LenderCaseDetails() {
                             </div>
 
                             {/* Parties & Representatives */}
-                            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                            <div className="bg-white p-4 rounded-xl border border-slate-200">
                                 <div className="flex items-center gap-2 mb-4">
                                     <Users size={18} className="text-slate-900" />
                                     <p className="text-sm font-semibold text-slate-900">Parties & Representatives</p>
@@ -1138,72 +1125,53 @@ export default function LenderCaseDetails() {
                 )}
 
                 {activeTab === "Full Details" && (
-                    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm animate-fade-in space-y-5">
-                        {/* Security Details Section */}
+                    <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-5 animate-fade-in">
+                        {/* Security Details */}
                         <div>
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
-                                    <Shield size={20} />
-                                </div>
-                                <h4 className="text-lg font-semibold text-slate-900 ">Security & Title Information</h4>
+                            <div className="flex items-center gap-2 mb-3">
+                                <Shield size={14} className="text-blue-600" />
+                                <h4 className="text-sm font-semibold text-slate-900">Security & Title Information</h4>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-8">
-                                <div>
-                                    <p className="text-xs font-medium text-gray-500 mb-1.5">Title Reference</p>
-                                    <p className="text-sm font-semibold text-slate-900">LOT 45 DP 12890-NSW</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs font-medium text-gray-500 mb-1.5">Mortgage ID</p>
-                                    <p className="text-sm font-semibold text-slate-900">M-992384-22</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs font-medium text-gray-500 mb-1.5">Priority</p>
-                                    <p className="text-sm font-semibold text-slate-900">1st Registered Mortgage</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs font-medium text-gray-500 mb-1.5">Registration Date</p>
-                                    <p className="text-sm font-semibold text-slate-900">18 June 2024</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs font-medium text-gray-500 mb-1.5">Council/LGA</p>
-                                    <p className="text-sm font-semibold text-slate-900">City of Sydney</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs font-medium text-gray-500 mb-1.5">Estimated Sale Value</p>
-                                    <p className="text-sm font-semibold text-emerald-600">$1,320,000</p>
-                                </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-8 gap-y-4">
+                                {[
+                                    { label: "Case ID",           value: caseDisplayId },
+                                    { label: "Property Type",     value: caseData.propertyType || "—" },
+                                    { label: "Suburb",            value: caseData.suburb || "—" },
+                                    { label: "Postcode",          value: caseData.postcode || "—" },
+                                    { label: "State",             value: caseData.state || "—" },
+                                    { label: "Property Address",  value: caseData.address || "—" },
+                                    { label: "Interest Rate",     value: caseData.interestRate ? `${caseData.interestRate}%` : "—" },
+                                    { label: "Default Rate",      value: caseData.defaultRate ? `${caseData.defaultRate}%` : "—" },
+                                    { label: "Days in Default",   value: caseData.daysInDefault || "—" },
+                                ].map((f, i) => (
+                                    <div key={i}>
+                                        <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-0.5">{f.label}</p>
+                                        <p className="text-xs font-semibold text-slate-800">{f.value}</p>
+                                    </div>
+                                ))}
                             </div>
                         </div>
 
-                        <div className="h-px bg-gray-50"></div>
+                        <div className="h-px bg-slate-100" />
 
-                        {/* Financial Analysis Section */}
+                        {/* Financial Summary */}
                         <div>
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="p-2.5 bg-purple-50 text-purple-600 rounded-xl">
-                                    <DollarSign size={20} />
-                                </div>
-                                <h4 className="text-lg font-semibold text-slate-900 ">Loan Balance & Financial Recovery</h4>
+                            <div className="flex items-center gap-2 mb-3">
+                                <DollarSign size={14} className="text-purple-600" />
+                                <h4 className="text-sm font-semibold text-slate-900">Financial Summary</h4>
                             </div>
-                            <div className="bg-gray-50/50 rounded-3xl p-5 border border-gray-100">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                    <div>
-                                        <p className="text-xs font-medium text-gray-500 mb-1.5">Original Principal</p>
-                                        <p className="text-xl font-semibold text-slate-900">$850,000.00</p>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                {[
+                                    { label: "Outstanding Debt",    value: `$${caseData.outstandingDebt.toLocaleString()}`,   color: "text-rose-600" },
+                                    { label: "Property Valuation",  value: `$${caseData.propertyValuation.toLocaleString()}`, color: "text-slate-900" },
+                                    { label: "Net Equity",          value: `$${caseData.equity.toLocaleString()}`,            color: "text-emerald-600" },
+                                    { label: "LVR",                 value: `${caseData.lvr}%`,                               color: "text-amber-600" },
+                                ].map((f, i) => (
+                                    <div key={i} className="bg-slate-50 border border-slate-100 rounded-lg p-3">
+                                        <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-1">{f.label}</p>
+                                        <p className={`text-sm font-bold ${f.color}`}>{f.value}</p>
                                     </div>
-                                    <div>
-                                        <p className="text-xs font-medium text-gray-500 mb-1.5">Principal Outstanding</p>
-                                        <p className="text-xl font-semibold text-slate-900">$920,450.12</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs font-medium text-gray-500 mb-1.5">Interest in Arrears</p>
-                                        <p className="text-xl font-semibold text-rose-600">$45,220.88</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs font-medium text-gray-500 mb-1.5">Total Payoff Amount</p>
-                                        <p className="text-xl font-semibold text-rose-600">$980,000.00</p>
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -1211,138 +1179,72 @@ export default function LenderCaseDetails() {
 
                 {activeTab === "Lawyer Review" && (
                     <div className="space-y-4 animate-fade-in">
-                        {/* Compliance Overview */}
-                        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
-                                        <ClipboardCheck size={20} />
-                                    </div>
-                                    <div>
-                                        <h4 className="text-lg font-semibold text-slate-900 ">Loan Compliance Registry</h4>
-                                        <p className="text-xs font-bold text-gray-400 uppercase mt-0.5">Automated protocol verification</p>
-                                    </div>
-                                </div>
+                        {/* Read-only notice for lender */}
+                        <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 flex items-center gap-2">
+                            <Info size={14} className="text-blue-600 shrink-0" />
+                            <p className="text-xs text-blue-700 font-medium">This section is managed by the assigned lawyer. You can view the status but cannot modify it.</p>
+                        </div>
+
+                        {/* Loan Compliance — read-only */}
+                        <div className="bg-white rounded-xl border border-slate-200 p-4">
+                            <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-xs font-medium text-gray-500">Compliance Score</span>
-                                    <span className="text-lg font-semibold text-emerald-600">92%</span>
+                                    <ClipboardCheck size={15} className="text-emerald-600" />
+                                    <h4 className="text-sm font-semibold text-slate-900">Loan Compliance Registry</h4>
                                 </div>
+                                <span className="text-xs font-medium text-slate-500">
+                                    {loanCompliance.filter(c => c.checked).length}/{loanCompliance.length} verified
+                                </span>
                             </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {loanCompliance.map((check, index) => (
-                                    <div key={check.id} className="p-4 bg-gray-50/50 border border-gray-100 rounded-2xl flex items-center justify-between hover:bg-white transition-all group">
-                                        <div className="flex items-center gap-4">
-                                            <div
-                                                onClick={() => handleUpdateCompliance('loanCompliance', index, { checked: !check.checked })}
-                                                className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer ${check.checked ? 'bg-emerald-500 border-emerald-500' : 'bg-white border-slate-200'}`}
-                                            >
-                                                {check.checked && <CheckCircle size={14} className="text-white" />}
-                                            </div>
-                                            <div>
-                                                <p className={`text-sm font-semibold  ${check.checked ? "text-slate-400" : "text-slate-800"}`}>{check.title}</p>
-                                                {check.critical && <span className="text-xs font-medium text-rose-500">Mandatory</span>}
-                                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {loanCompliance.map(check => (
+                                    <div key={check.id} className="flex items-center gap-2.5 p-3 bg-slate-50 rounded-lg border border-slate-100">
+                                        <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 ${check.checked ? 'bg-emerald-500' : 'bg-white border border-slate-300'}`}>
+                                            {check.checked && <CheckCircle size={12} className="text-white" />}
                                         </div>
-                                        <Info size={14} className="text-slate-300 group-hover:text-blue-500 cursor-pointer" />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Enforcement Workflow */}
-                        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="p-2.5 bg-amber-50 text-amber-600 rounded-xl">
-                                    <Scale size={20} />
-                                </div>
-                                <div>
-                                    <h4 className="text-lg font-semibold text-slate-900 ">Legal Enforcement Workflow</h4>
-                                    <p className="text-xs font-bold text-gray-400 uppercase mt-0.5">Lender's Rights of Possession & Sale (Real Property Act)</p>
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                {enforcementSteps.map((step, index) => (
-                                    <div key={step.id} className="bg-gray-50/50 rounded-2xl border border-gray-100 p-6">
-                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-xs ${step.status === 'compliant' ? 'bg-blue-900 text-white' : 'bg-gray-200 text-gray-400'
-                                                    }`}>
-                                                    {step.id}
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-semibold text-slate-900">{step.title}</p>
-                                                    <p className="text-xs font-bold text-gray-400">{step.notes || "Awaiting verification..."}</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <button
-                                                    onClick={() => handleUpdateCompliance('enforcementSteps', index, { status: step.status === 'compliant' ? 'pending' : 'compliant' })}
-                                                    className={`px-4 py-2 rounded-xl text-xs font-semibold uppercase transition-all ${step.status === 'compliant'
-                                                        ? 'bg-blue-50 text-blue-900 border border-blue-100'
-                                                        : 'bg-white text-slate-400 border border-slate-100 hover:border-blue-200 hover:text-blue-500'
-                                                        }`}
-                                                >
-                                                    {step.status === 'compliant' ? 'Verified' : 'Verify'}
-                                                </button>
-                                            </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className={`text-xs font-medium ${check.checked ? 'text-slate-500' : 'text-slate-800'}`}>{check.title}</p>
+                                            {check.critical && <span className="text-[10px] text-rose-500">Mandatory</span>}
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Statement of Advice / Legal Review Content */}
-                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
-                            <div>
-                                <h4 className="text-sm font-semibold text-slate-900  mb-6 flex items-center gap-2">
-                                    <Edit3 size={16} className="text-blue-600" />
-                                    Institutional Professional Commentary
-                                </h4>
-                                <textarea
-                                    className="w-full min-h-[160px] bg-gray-50 border border-gray-100 rounded-3xl p-5 text-sm font-bold text-slate-600 outline-none focus:ring-4 focus:ring-blue-100 focus:bg-white transition-all resize-none shadow-inner"
-                                    placeholder="Add professional review notes, findings, and recommendations..."
-                                    value={lawyerReviewNotes}
-                                    onChange={(e) => setLawyerReviewNotes(e.target.value)}
-                                    onBlur={(e) => persistCompliance({ enforcementSteps, loanCompliance, lawyerReviewNotes: e.target.value })}
-                                />
+                        {/* Enforcement Workflow — read-only */}
+                        <div className="bg-white rounded-xl border border-slate-200 p-4">
+                            <div className="flex items-center gap-2 mb-3">
+                                <Scale size={15} className="text-amber-600" />
+                                <h4 className="text-sm font-semibold text-slate-900">Legal Enforcement Workflow</h4>
                             </div>
-
-                            <div className="bg-blue-50 border border-blue-100 rounded-3xl p-5 flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm">
-                                        <FileText size={20} />
+                            <div className="space-y-2">
+                                {enforcementSteps.map(step => (
+                                    <div key={step.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
+                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${step.status === 'compliant' ? 'bg-[#1B3A6B] text-white' : 'bg-slate-200 text-slate-400'}`}>
+                                            {step.id}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs font-semibold text-slate-800">{step.title}</p>
+                                            {step.notes && <p className="text-[10px] text-slate-400 mt-0.5">{step.notes}</p>}
+                                        </div>
+                                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded shrink-0 ${step.status === 'compliant' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                                            {step.status === 'compliant' ? 'Verified' : 'Pending'}
+                                        </span>
                                     </div>
-                                    <div>
-                                        <p className="text-sm font-semibold text-blue-900 uppercase">Formal Statement of Advice (SOA)</p>
-                                        <p className="text-xs font-bold text-blue-700/60 uppercase">Required for institutional audit trail</p>
-                                    </div>
-                                </div>
-                                <label className="h-12 px-6 bg-blue-900 text-white rounded-xl text-xs font-semibold uppercase flex items-center gap-2 cursor-pointer shadow-lg shadow-blue-900/10 hover:bg-blue-800 transition-all active:scale-95">
-                                    <Upload size={16} />
-                                    Upload & Register
-                                    <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={async (e) => {
-                                        const file = e.target.files?.[0];
-                                        if (!file) return;
-                                        setSoaFile(file);
-                                        setToast({ show: true, message: "Uploading SOA to audit trail...", type: "info" });
-                                        try {
-                                            const formData = new FormData();
-                                            formData.append('file', file);
-                                            formData.append('case_id', id);
-                                            formData.append('document_type', 'SOA');
-                                            const res = await documentService.uploadDocument(id, formData);
-                                            setToast({ show: true, message: res.success ? "SOA uploaded and registered to audit trail." : `Upload failed: ${res.error}`, type: res.success ? "success" : "error" });
-                                        } catch (err) {
-                                            setToast({ show: true, message: "SOA registered locally. Backend sync pending.", type: "success" });
-                                        }
-                                        setTimeout(() => setToast({ show: false, message: "", type: "success" }), 4000);
-                                        e.target.value = '';
-                                    }} />
-                                </label>
+                                ))}
                             </div>
                         </div>
+
+                        {/* Lawyer Notes — read-only */}
+                        {lawyerReviewNotes && (
+                            <div className="bg-white rounded-xl border border-slate-200 p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <FileText size={14} className="text-slate-500" />
+                                    <h4 className="text-sm font-semibold text-slate-900">Lawyer Review Notes</h4>
+                                </div>
+                                <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-lg p-3 border border-slate-100">{lawyerReviewNotes}</p>
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -1384,6 +1286,7 @@ export default function LenderCaseDetails() {
                                             src={caseData.image}
                                             alt="Property"
                                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                            onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling && (e.currentTarget.nextSibling.style.display = 'flex'); }}
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-5">
                                             <button
@@ -1410,15 +1313,15 @@ export default function LenderCaseDetails() {
                             <div className="bg-gray-50/50 border border-gray-100 rounded-xl p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
                                     <p className="text-xs font-medium text-gray-500 mb-1.5">Market Valuation</p>
-                                    <p className="text-2xl font-semibold text-slate-900 ">$1,250,000</p>
+                                    <p className="text-base font-semibold text-slate-900">${caseData.propertyValuation ? caseData.propertyValuation.toLocaleString() : "—"}</p>
                                 </div>
                                 <div>
                                     <p className="text-xs font-medium text-gray-500 mb-1.5">Valuation Date</p>
-                                    <p className="text-2xl font-semibold text-slate-900 ">15 Jan 2026</p>
+                                    <p className="text-base font-semibold text-slate-900">{caseData.valuationDate || "—"}</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs font-medium text-gray-500 mb-1.5">Valuer License</p>
-                                    <p className="text-2xl font-semibold text-slate-900 ">PRP-NSW-293</p>
+                                    <p className="text-xs font-medium text-gray-500 mb-1.5">Valuer</p>
+                                    <p className="text-base font-semibold text-slate-900">{caseData.valuerName || "—"}</p>
                                 </div>
                             </div>
                         </div>
@@ -1610,10 +1513,10 @@ export default function LenderCaseDetails() {
                                         src={caseData.image}
                                         alt="Property"
                                         className="w-full h-full object-cover"
+                                        onError={e => { e.currentTarget.style.display = 'none'; }}
                                     />
-                                ) : (
-                                    <div className="w-full h-full bg-gradient-to-br from-[#1d2375] to-[#2d3a9a]" />
-                                )}
+                                ) : null}
+                                <div className="w-full h-full bg-gradient-to-br from-[#1d2375] to-[#2d3a9a]" style={caseData.image ? { display: 'none' } : {}} />
                                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent"></div>
                                 <div className="absolute top-6 left-10">
                                     <div className="px-5 py-2 bg-rose-600 text-white text-xs font-semibold uppercase tracking-[0.3em] rounded-xl shadow-2xl">Institutional Opportunity</div>
@@ -1666,7 +1569,7 @@ export default function LenderCaseDetails() {
                                     <div className="lg:col-span-3 space-y-6">
                                         <h3 className="text-2xl font-semibold text-slate-900  uppercase">Executive Summary</h3>
                                         <p className="text-sm text-slate-600 font-bold leading-relaxed">
-                                            This Investment Memorandum presents a secured secondary lending opportunity backed by a premium residential asset in {caseData.address.split(',')[1].trim()}. The property is currently in mortgage default, presenting a unique institutional entry point at a significant margin to the appraised market value.
+                                            This Investment Memorandum presents a secured secondary lending opportunity backed by a premium residential asset in {(caseData.address.split(',')[1] || caseData.address.split(',')[0] || caseData.address).trim()}. The property is currently in mortgage default, presenting a unique institutional entry point at a significant margin to the appraised market value.
                                         </p>
                                         <p className="text-sm text-slate-600 font-bold leading-relaxed">
                                             The investment is secured by a first-registered mortgage with an extremely conservative LVR of {caseData.lvr}%, providing a substantial equity buffer of ${caseData.equity.toLocaleString()} against potential market volatility during the enforcement period.

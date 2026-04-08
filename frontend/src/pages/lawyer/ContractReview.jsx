@@ -203,11 +203,11 @@ export default function ContractReview() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto w-full min-w-0">
+    <div className="space-y-4 pb-6 w-full min-w-0">
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Contracts</h1>
+          <h1 className="text-lg font-semibold text-slate-900">Contracts</h1>
           <p className="text-sm text-gray-500 mt-0.5">Manage your mortgage resolution contracts</p>
         </div>
         <button

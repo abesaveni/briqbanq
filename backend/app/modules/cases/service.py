@@ -109,9 +109,10 @@ class CaseService:
         """
         case = await self._get_case_or_404(case_id)
 
-        # Verify ownership
+        # Verify ownership — creator can always edit their own case
+        # (borrower_id stores the creator's user_id for non-borrower created cases)
         if case.borrower_id != borrower_id:  # type: ignore[comparison-overlap]
-            raise AuthorizationError(message="You can only update your own cases")
+            raise AuthorizationError(message="You can only update cases you created")
 
         # Always allow metadata-only updates; only restrict structural fields to DRAFT
         has_structural_changes = any(v is not None for v in [title, description, property_address, property_type, estimated_value, outstanding_debt, interest_rate, tenure])
@@ -218,7 +219,7 @@ class CaseService:
         case = await self._get_case_or_404(case_id)
 
         if case.borrower_id != borrower_id:  # type: ignore[comparison-overlap]
-            raise AuthorizationError(message="You can only submit your own cases")
+            raise AuthorizationError(message="You can only submit cases you created")
 
         # Idempotent: already submitted or under review → return as-is without error
         if case.status in (CaseStatus.SUBMITTED, CaseStatus.UNDER_REVIEW):  # type: ignore[comparison-overlap]

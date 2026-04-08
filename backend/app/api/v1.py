@@ -79,3 +79,7 @@ v1_router.include_router(platform_router)
 # Phase 9: Communications (DB-backed)
 from app.modules.communications.routes import router as communications_router
 v1_router.include_router(communications_router)
+
+# Phase 10: Payments (Square)
+from app.modules.payments.routes import router as payments_router
+v1_router.include_router(payments_router)

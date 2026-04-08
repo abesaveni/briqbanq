@@ -20,8 +20,8 @@ class CaseCreateRequest(BaseModel):
     description: Optional[str] = None
     property_address: str = Field(..., min_length=1)
     property_type: str = Field(..., min_length=1, max_length=50)
-    estimated_value: Decimal = Field(..., gt=0)
-    outstanding_debt: Decimal = Field(..., gt=0)
+    estimated_value: Decimal = Field(..., ge=0)
+    outstanding_debt: Decimal = Field(..., ge=0)
     interest_rate: Optional[Decimal] = Field(None, ge=0, le=999.99)
     tenure: Optional[int] = Field(None, gt=0)
     metadata_json: Optional[dict] = None

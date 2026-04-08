@@ -150,38 +150,41 @@ export default function Notifications() {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold text-slate-800">Notifications</h1>
+    <div className="space-y-4 pb-6">
+      <div>
+        <h1 className="text-lg font-semibold text-slate-900">Notifications</h1>
+        <p className="text-sm text-slate-500">Stay updated on case activity and platform events</p>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex items-center justify-between">
+        <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-500">Unread</p>
-            <p className="text-2xl font-bold text-slate-800">{unread}</p>
-            <p className="text-xs text-gray-500 mt-0.5">Requires attention</p>
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Unread</p>
+            <p className="text-2xl font-bold text-slate-900">{unread}</p>
+            <p className="text-xs text-slate-400 mt-0.5">Requires attention</p>
           </div>
-          <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-            <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+          <div className="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center">
+            <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex items-center justify-between">
+        <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-500">Total Notifications</p>
-            <p className="text-2xl font-bold text-slate-800">{notifications.length}</p>
-            <p className="text-xs text-gray-500 mt-0.5">All time</p>
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Total Notifications</p>
+            <p className="text-2xl font-bold text-slate-900">{notifications.length}</p>
+            <p className="text-xs text-slate-400 mt-0.5">All time</p>
           </div>
-          <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+          <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center">
+            <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex items-center justify-between">
+        <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-500">This Week</p>
-            <p className="text-2xl font-bold text-slate-800">{notifications.filter((n) => { const d = new Date(n.time || n.created_at); return !isNaN(d) && (Date.now() - d) < 7 * 86400000 }).length}</p>
-            <p className="text-xs text-gray-500 mt-0.5">Last 7 days</p>
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">This Week</p>
+            <p className="text-2xl font-bold text-slate-900">{notifications.filter((n) => { const d = new Date(n.time || n.created_at); return !isNaN(d) && (Date.now() - d) < 7 * 86400000 }).length}</p>
+            <p className="text-xs text-slate-400 mt-0.5">Last 7 days</p>
           </div>
-          <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-            <svg className="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+          <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center">
+            <svg className="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
           </div>
         </div>
       </div>
@@ -223,7 +226,7 @@ export default function Notifications() {
       </div>
 
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-800">Notifications ({notifications.length})</h2>
+        <h2 className="text-sm font-semibold text-slate-800">Notifications ({notifications.length})</h2>
         <button type="button" onClick={handleDeleteAll} className="px-3 py-2 rounded-lg bg-gray-100 text-red-600 text-sm font-medium hover:bg-red-50 flex items-center gap-1">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
           Delete All
@@ -232,7 +235,7 @@ export default function Notifications() {
 
       <div className="space-y-4">
         {filtered.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-200 p-8 text-center text-gray-500 text-sm">
+          <div className="bg-white rounded-xl border border-slate-200 p-6 text-center text-slate-400 text-xs">
             No notifications.
           </div>
         ) : (

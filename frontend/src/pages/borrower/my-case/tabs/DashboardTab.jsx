@@ -64,8 +64,45 @@ export default function DashboardTab({ caseData, onBorrowerStatusClick }) {
   const riskColor = riskScore >= 70 ? 'text-red-600' : riskScore >= 40 ? 'text-amber-600' : 'text-green-600'
   const riskStroke = riskScore >= 70 ? '#EF4444' : riskScore >= 40 ? '#F59E0B' : '#22C55E'
 
+  const payment = c.metadata_json || {}
+  const isPaid = payment.payment_status === 'paid'
+  const paymentAmountCents = payment.payment_amount_cents ?? 25000
+  const paymentDisplay = `A$${(paymentAmountCents / 100).toFixed(2)}`
+  const paymentDate = payment.payment_date || ''
+  const paymentRef = payment.payment_id || payment.payment_order_id || ''
+
   return (
     <div className="space-y-6">
+      {/* Payment receipt banner */}
+      {isPaid && (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+              <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <p className="font-bold text-emerald-800 text-sm">Onboarding Payment Received</p>
+              <p className="text-xs text-emerald-700 mt-0.5">
+                {paymentDisplay} paid successfully via Square
+                {paymentDate ? ` · ${paymentDate}` : ''}
+              </p>
+              {paymentRef && (
+                <p className="text-xs text-emerald-600 font-mono mt-0.5 truncate">Ref: {paymentRef}</p>
+              )}
+            </div>
+          </div>
+          <div className="shrink-0">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-600 text-white text-xs font-bold">
+              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              PAID
+            </span>
+          </div>
+        </div>
+      )}
       {/* Top row: 4 stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard

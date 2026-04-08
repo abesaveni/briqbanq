@@ -79,6 +79,82 @@ class EmailService:
         await EmailService.send_email(to_email, subject, body)
 
     @staticmethod
+    async def send_payment_receipt_email(
+        to_email: str,
+        borrower_name: str,
+        case_id: str,
+        case_number: str,
+        amount_display: str,
+        order_id: str,
+        payment_id: str,
+        paid_at: str,
+    ):
+        """Send payment receipt email to borrower after successful Square payment."""
+        subject = f"Payment Confirmed — {amount_display} | BrickBanq Case {case_number}"
+        html = f"""
+        <html>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background: #f5f5f5;">
+                <div style="max-width: 600px; margin: 30px auto; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <div style="background: #1a1a2e; padding: 24px 20px; text-align: center;">
+                        <h1 style="color: #fff; margin: 0; font-size: 24px; letter-spacing: 0.5px;">BrickBanq</h1>
+                        <p style="color: #a0a0b0; margin: 4px 0 0; font-size: 13px;">Mortgage Resolution Platform</p>
+                    </div>
+                    <div style="padding: 32px 28px;">
+                        <div style="text-align: center; margin-bottom: 24px;">
+                            <div style="display: inline-block; background: #dcfce7; border-radius: 50%; padding: 16px; margin-bottom: 12px;">
+                                <span style="font-size: 32px;">✓</span>
+                            </div>
+                            <h2 style="color: #16a34a; margin: 0; font-size: 22px;">Payment Successful</h2>
+                            <p style="color: #555; margin: 8px 0 0; font-size: 15px;">Your payment of <strong>{amount_display}</strong> has been received.</p>
+                        </div>
+                        <p style="margin: 0 0 20px;">Hi <strong>{borrower_name}</strong>,</p>
+                        <p style="margin: 0 0 20px;">Thank you for completing your payment. Your case has been successfully created on the BrickBanq platform. Our team will review your submission and be in touch shortly.</p>
+                        <table style="width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14px;">
+                            <tr style="background: #f0fdf4;">
+                                <td style="padding: 10px 14px; font-weight: 600; color: #166534; width: 42%; border-bottom: 1px solid #dcfce7;">Payment Status</td>
+                                <td style="padding: 10px 14px; color: #16a34a; font-weight: 700; border-bottom: 1px solid #dcfce7;">PAID ✓</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; font-weight: 600; color: #374151; border-bottom: 1px solid #f3f4f6;">Amount Paid</td>
+                                <td style="padding: 10px 14px; font-weight: 700; color: #111827; border-bottom: 1px solid #f3f4f6;">{amount_display}</td>
+                            </tr>
+                            <tr style="background: #f9fafb;">
+                                <td style="padding: 10px 14px; font-weight: 600; color: #374151; border-bottom: 1px solid #f3f4f6;">Case Reference</td>
+                                <td style="padding: 10px 14px; color: #374151; border-bottom: 1px solid #f3f4f6; font-family: monospace;">{case_number}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; font-weight: 600; color: #374151; border-bottom: 1px solid #f3f4f6;">Case ID</td>
+                                <td style="padding: 10px 14px; color: #6b7280; font-size: 12px; border-bottom: 1px solid #f3f4f6; font-family: monospace;">{case_id}</td>
+                            </tr>
+                            <tr style="background: #f9fafb;">
+                                <td style="padding: 10px 14px; font-weight: 600; color: #374151; border-bottom: 1px solid #f3f4f6;">Transaction ID</td>
+                                <td style="padding: 10px 14px; color: #6b7280; font-size: 12px; border-bottom: 1px solid #f3f4f6; font-family: monospace;">{payment_id}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; font-weight: 600; color: #374151;">Date &amp; Time</td>
+                                <td style="padding: 10px 14px; color: #374151;">{paid_at}</td>
+                            </tr>
+                        </table>
+                        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 14px 16px; margin: 24px 0; font-size: 13px; color: #1e40af;">
+                            <strong>What happens next?</strong><br/>
+                            Our team will review your case within 1–2 business days. You'll receive another email once your case moves to the review stage. You can log in to your BrickBanq dashboard at any time to track progress.
+                        </div>
+                        <div style="background: #f9fafb; border-radius: 8px; padding: 14px 16px; margin: 0 0 24px; font-size: 13px; color: #6b7280;">
+                            <strong style="color: #374151;">Verification Package Includes:</strong><br/>
+                            InfoTrack Property Search (A$85.00) · InfoTrack KYC/GreenID Verification (A$45.00) · Platform Onboarding Fee (A$120.00)
+                        </div>
+                    </div>
+                    <div style="background: #f0f0f0; padding: 16px; text-align: center; border-top: 1px solid #e5e7eb;">
+                        <p style="font-size: 12px; color: #9ca3af; margin: 0;">This is an automated receipt. Please keep it for your records.</p>
+                        <p style="font-size: 12px; color: #9ca3af; margin: 4px 0 0;">&copy; 2026 BrickBanq Pty Ltd. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+        </html>
+        """
+        await EmailService.send_email(to_email, subject, html)
+
+    @staticmethod
     async def send_case_approved_email(
         to_email: str,
         borrower_name: str,
@@ -106,7 +182,7 @@ class EmailService:
                         </table>
                         <p>Your property will shortly be listed in the live auction marketplace where lenders and investors can bid. You can monitor progress in your <strong>View My Auction</strong> dashboard.</p>
                         <div style="text-align: center; margin: 30px 0;">
-                            <a href="http://localhost:3000/borrower/auction-room" style="background: #4f46e5; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: bold;">View My Auction</a>
+                            <a href="https://brickbanq.au/borrower/auction-room" style="background: #4f46e5; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: bold;">View My Auction</a>
                         </div>
                     </div>
                     <div style="background: #f0f0f0; padding: 15px; text-align: center; border-radius: 0 0 8px 8px;">
@@ -301,7 +377,7 @@ class EmailService:
                             </ul>
                         </div>
                         <div style="text-align: center; margin: 30px 0;">
-                            <a href="http://localhost:3000/borrower/identity-verification" style="background: #4f46e5; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: bold;">View Verification Status</a>
+                            <a href="https://brickbanq.au/borrower/identity-verification" style="background: #4f46e5; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: bold;">View Verification Status</a>
                         </div>
                     </div>
                     <div style="background: #f0f0f0; padding: 15px; text-align: center; border-radius: 0 0 8px 8px;">
@@ -333,7 +409,7 @@ class EmailService:
                             <p style="margin: 0; color: #166534; font-size: 18px; font-weight: bold;">✓ KYC Approved</p>
                         </div>
                         <div style="text-align: center; margin: 30px 0;">
-                            <a href="http://localhost:3000/borrower/dashboard" style="background: #16a34a; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: bold;">Go to Dashboard</a>
+                            <a href="https://brickbanq.au/borrower/dashboard" style="background: #16a34a; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: bold;">Go to Dashboard</a>
                         </div>
                     </div>
                     <div style="background: #f0f0f0; padding: 15px; text-align: center; border-radius: 0 0 8px 8px;">
@@ -370,7 +446,7 @@ class EmailService:
                         {reason_section}
                         <p>Please resubmit with clear, valid documents. If you need assistance, contact our support team.</p>
                         <div style="text-align: center; margin: 30px 0;">
-                            <a href="http://localhost:3000/borrower/identity-verification" style="background: #4f46e5; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: bold;">Resubmit Documents</a>
+                            <a href="https://brickbanq.au/borrower/identity-verification" style="background: #4f46e5; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: bold;">Resubmit Documents</a>
                         </div>
                     </div>
                     <div style="background: #f0f0f0; padding: 15px; text-align: center; border-radius: 0 0 8px 8px;">

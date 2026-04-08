@@ -81,17 +81,23 @@ export default function SignIn() {
         headers: { Authorization: `Bearer ${access_token}` },
       });
       const userData = meRes.data;
-      const approvedRole = userData.user_roles?.find(
-        (r) => r.status === "APPROVED" || r.status === "approved"
-      )?.role_type?.toLowerCase();
-      const firstRole = userData.user_roles?.[0]?.role_type?.toLowerCase();
-      const actualRole = (userData.role || approvedRole || firstRole || "").toLowerCase();
 
-      if (actualRole && actualRole !== selectedRole) {
+      const roles = userData.user_roles ?? [];
+      const hasSelectedRole = roles.some(
+        (r) =>
+          (r.status === "APPROVED" || r.status === "approved") &&
+          r.role_type?.toLowerCase() === selectedRole
+      );
+
+      if (roles.length > 0 && !hasSelectedRole) {
         const labelMap = { borrower: "Borrower", lender: "Lender", investor: "Investor", lawyer: "Lawyer", admin: "Admin" };
+        const approvedRoles = roles
+          .filter((r) => r.status === "APPROVED" || r.status === "approved")
+          .map((r) => labelMap[r.role_type?.toLowerCase()] || r.role_type);
+        const roleList = approvedRoles.length > 0 ? approvedRoles.join(" or ") : "another";
         setError(
-          `These credentials belong to a ${labelMap[actualRole] || actualRole} account. ` +
-          `Please select "${labelMap[actualRole] || actualRole}" above and try again.`
+          `This account does not have the ${labelMap[selectedRole] || selectedRole} role. ` +
+          `Please select "${roleList}" above and try again.`
         );
         return;
       }

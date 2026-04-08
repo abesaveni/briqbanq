@@ -173,46 +173,48 @@ export default function CaseDetail() {
   }
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto pb-20 animate-fade-in">
-      <div className="flex items-center justify-between gap-4">
-        <div className="space-y-1">
-          <button 
+    <div className="space-y-4 pb-6">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <button
             onClick={() => navigate('/lawyer/assigned-cases')}
-            className="flex items-center gap-2 text-indigo-600 font-semibold hover:text-indigo-700 transition-colors mb-2 text-sm"
+            className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 transition-colors mb-1"
           >
-            <ArrowLeft size={16} />
+            <ArrowLeft size={13} />
             Back to Assigned Cases
           </button>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-            {caseItem.case_number || "Case Details"}
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-base font-semibold text-slate-900">
+              {caseItem.case_number || "Case Details"}
+            </h1>
             <StatusBadge status={caseItem.status} />
-          </h1>
-          <p className="text-sm text-slate-500 font-medium">Review and verify legal documents for this property resolution.</p>
+          </div>
+          <p className="text-xs text-slate-500 mt-0.5">Review and verify legal documents for this property resolution.</p>
         </div>
 
         {caseItem.status === 'UNDER_REVIEW' && (
           <button
             onClick={handleCompleteReview}
             disabled={completing}
-            className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50"
+            className="px-4 py-2 bg-[#1B3A6B] text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-[#142d55] transition-colors disabled:opacity-50"
           >
-            {completing ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle size={18} />}
+            {completing ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />}
             Complete Legal Review
           </button>
         )}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-4">
         {/* Main Details */}
-        <div className="lg:col-span-2 space-y-8">
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="px-8 py-6 border-b border-gray-50 bg-gray-50/30">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <Shield size={20} className="text-indigo-600" />
+        <div className="lg:col-span-2 space-y-4">
+          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+            <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/50">
+              <h2 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
+                <Shield size={15} className="text-[#1B3A6B]" />
                 Case Information
               </h2>
             </div>
-            <div className="p-8 grid md:grid-cols-2 gap-8">
+            <div className="p-4 grid md:grid-cols-2 gap-4">
               <DetailBox icon={<User size={16} />} label="Borrower Name" value={caseItem.borrower_name} />
               <DetailBox icon={<MapPin size={16} />} label="Property Address" value={caseItem.property_address} />
               <DetailBox icon={<DollarSign size={16} />} label="Loan Amount" value={caseItem.loan_amount ? `$${Number(caseItem.loan_amount).toLocaleString()}` : "TBD"} />
@@ -227,77 +229,65 @@ export default function CaseDetail() {
                 </div>
               </div>
             </div>
-            <div className="px-8 pb-8">
-               <div className="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
-                  <p className="text-xs text-indigo-900 leading-relaxed font-medium">
-                    <span className="font-bold">Lawyer Note:</span> Please verify all title searches and insurance policies before marking this review as complete. Upload any additional legal findings to the document repository.
+            <div className="px-4 pb-4">
+               <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
+                  <p className="text-xs text-blue-800 leading-relaxed">
+                    <span className="font-semibold">Note:</span> Verify all title searches and insurance policies before marking review as complete.
                   </p>
                </div>
             </div>
           </div>
 
           {/* Document Management */}
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <FileText size={20} className="text-indigo-600" />
+          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+            <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
+                <FileText size={15} className="text-[#1B3A6B]" />
                 Case Documents
               </h2>
               <label className="cursor-pointer">
-                <input 
-                  type="file" 
-                  className="hidden" 
+                <input
+                  type="file"
+                  className="hidden"
                   onChange={handleUpload}
                   disabled={uploading}
                 />
-                <div className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all active:scale-95 ${uploading ? 'bg-gray-100 text-gray-400' : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'}`}>
-                  {uploading ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
-                  {uploading ? 'Uploading...' : 'Upload Document'}
+                <div className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors ${uploading ? 'bg-slate-100 text-slate-400' : 'bg-[#1B3A6B] text-white hover:bg-[#142d55]'}`}>
+                  {uploading ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
+                  {uploading ? 'Uploading...' : 'Upload'}
                 </div>
               </label>
             </div>
-            <div className="p-4">
+            <div className="p-3">
               {documents.length === 0 ? (
-                <div className="py-12 text-center text-gray-400">
-                  <FileText className="w-12 h-12 mx-auto mb-4 opacity-10" />
-                  <p className="text-sm font-medium">No documents have been uploaded yet.</p>
+                <div className="py-8 text-center text-slate-300">
+                  <FileText className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                  <p className="text-xs font-medium text-slate-400">No documents uploaded yet</p>
                 </div>
               ) : (
-                <div className="grid gap-2">
+                <div className="divide-y divide-slate-50">
                   {documents.map((doc) => (
-                    <div key={doc.id} className="flex items-center justify-between p-4 rounded-2xl border border-gray-50 hover:border-indigo-100 hover:bg-indigo-50/30 transition-all group">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-white group-hover:text-indigo-600 transition-colors shadow-sm">
-                          {doc.document_type === 'Property Image' ? <MapPin size={20} /> : <FileText size={20} />}
+                    <div key={doc.id} className="flex items-center justify-between py-2.5 hover:bg-slate-50 px-1 rounded-lg transition-colors group">
+                      <div className="flex items-center gap-3">
+                        <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-[#1B3A6B]/10 group-hover:text-[#1B3A6B] transition-colors">
+                          {doc.document_type === 'Property Image' ? <MapPin size={13} /> : <FileText size={13} />}
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-slate-800">{doc.document_name || doc.file_name}</p>
-                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                          <p className="text-xs font-semibold text-slate-800">{doc.document_name || doc.file_name}</p>
+                          <p className="text-[10px] text-slate-400 uppercase tracking-wide">
                             {doc.document_type || 'General'} • {doc.created_at ? new Date(doc.created_at).toLocaleDateString() : 'Just now'}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                        <button 
-                          onClick={() => handleView(doc)}
-                          className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-white rounded-lg transition-all"
-                          title="View"
-                        >
-                          <Download size={18} className="rotate-180" />
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => handleView(doc)} className="p-1.5 text-slate-300 hover:text-[#1B3A6B] hover:bg-slate-100 rounded transition-colors" title="View">
+                          <Download size={13} className="rotate-180" />
                         </button>
-                        <button 
-                          onClick={() => handleDownload(doc)}
-                          className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-white rounded-lg transition-all"
-                          title="Download"
-                        >
-                          <Download size={18} />
+                        <button onClick={() => handleDownload(doc)} className="p-1.5 text-slate-300 hover:text-[#1B3A6B] hover:bg-slate-100 rounded transition-colors" title="Download">
+                          <Download size={13} />
                         </button>
-                        <button 
-                          onClick={() => handleDelete(doc.id)}
-                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-white rounded-lg transition-all"
-                          title="Delete"
-                        >
-                          <Trash2 size={18} />
+                        <button onClick={() => handleDelete(doc.id)} className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Delete">
+                          <Trash2 size={13} />
                         </button>
                       </div>
                     </div>
@@ -309,39 +299,36 @@ export default function CaseDetail() {
         </div>
 
         {/* Sidebar Info */}
-        <div className="space-y-8">
-           <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-xl relative overflow-hidden">
-             <div className="relative z-10 space-y-6">
-                <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
-                  <Shield size={24} className="text-indigo-400" />
+        <div className="space-y-4">
+          <div className="bg-[#1B3A6B] rounded-xl p-4 text-white relative overflow-hidden">
+            <div className="relative z-10">
+              <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center mb-3">
+                <Shield size={16} className="text-blue-300" />
+              </div>
+              <h3 className="text-sm font-semibold mb-1">Legal Verification</h3>
+              <p className="text-xs text-blue-200 leading-relaxed">
+                As the assigned legal officer, certify property security validity and ensure compliance before the case proceeds.
+              </p>
+              <div className="mt-4 pt-3 border-t border-white/10">
+                <div className="flex justify-between items-center text-xs mb-2">
+                  <span className="text-blue-300 font-medium">Verification Status</span>
+                  <span className="font-semibold text-white">{caseItem.status === 'APPROVED' ? 'COMPLETE' : 'PENDING'}</span>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold italic uppercase tracking-tight">Legal Verification</h3>
-                  <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                    As the assigned legal officer, you are responsible for certifying the validity of the property security and ensuring all compliance requirements are met before the case proceeds to auction.
-                  </p>
+                <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-blue-300 transition-all duration-700"
+                    style={{ width: caseItem.status === 'APPROVED' ? '100%' : '60%' }}
+                  />
                 </div>
-                <div className="pt-6 border-t border-white/10 space-y-4">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-400 font-bold uppercase tracking-widest">Verification Status</span>
-                    <span className="font-bold text-indigo-400">{caseItem.status === 'APPROVED' ? 'COMPLETE' : 'PENDING'}</span>
-                  </div>
-                  <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-indigo-500 transition-all duration-1000" 
-                      style={{ width: caseItem.status === 'APPROVED' ? '100%' : '60%' }}
-                    />
-                  </div>
-                </div>
-             </div>
-             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full translate-x-16 -translate-y-16 blur-2xl"></div>
-           </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Tabbed section: Messages & Activity */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="flex border-b border-gray-100">
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div className="flex border-b border-slate-100 overflow-x-auto">
           {[
             { key: 'documents', label: 'Documents', icon: FileText },
             { key: 'bids', label: 'Bids', icon: Gavel },
@@ -351,49 +338,49 @@ export default function CaseDetail() {
             <button
               key={tab.key}
               onClick={() => setActiveSection(tab.key)}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-medium border-b-2 whitespace-nowrap transition-colors ${
                 activeSection === tab.key
-                  ? 'border-indigo-600 text-indigo-600 bg-indigo-50/40'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-[#1B3A6B] text-[#1B3A6B] bg-blue-50/40'
+                  : 'border-transparent text-slate-500 hover:text-slate-700'
               }`}
             >
-              <tab.icon className="w-4 h-4" />
+              <tab.icon className="w-3.5 h-3.5" />
               {tab.label}
             </button>
           ))}
         </div>
-        <div className="p-6">
+        <div className="p-4">
           {activeSection === 'documents' && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-gray-900">Case Documents</h3>
-                <label className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-medium cursor-pointer hover:bg-indigo-700 transition-colors">
-                  <Upload className="w-3.5 h-3.5" />
+                <h3 className="text-xs font-semibold text-slate-800">Case Documents</h3>
+                <label className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1B3A6B] text-white rounded-lg text-xs font-medium cursor-pointer hover:bg-[#142d55] transition-colors">
+                  <Upload className="w-3 h-3" />
                   Upload
                   <input type="file" className="sr-only" onChange={handleUpload} accept=".pdf,.doc,.docx,.jpg,.png" />
                 </label>
               </div>
               {documents.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-8">No documents yet</p>
+                <p className="text-xs text-slate-400 text-center py-6">No documents yet</p>
               ) : (
-                <div className="divide-y divide-gray-50">
+                <div className="divide-y divide-slate-50">
                   {documents.map(doc => (
-                    <div key={doc.id} className="flex items-center justify-between py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center">
-                          <FileText className="w-4 h-4 text-indigo-500" />
+                    <div key={doc.id} className="flex items-center justify-between py-2.5">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 bg-slate-100 rounded-lg flex items-center justify-center">
+                          <FileText className="w-3.5 h-3.5 text-slate-500" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-900">{doc.document_name || doc.file_name}</p>
-                          <p className="text-xs text-gray-400">{doc.document_type}</p>
+                          <p className="text-xs font-medium text-slate-800">{doc.document_name || doc.file_name}</p>
+                          <p className="text-[10px] text-slate-400">{doc.document_type}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
-                        <button onClick={() => handleView(doc)} className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
-                          <Download className="w-4 h-4" />
+                        <button onClick={() => handleView(doc)} className="p-1.5 text-slate-400 hover:text-[#1B3A6B] hover:bg-blue-50 rounded transition-colors">
+                          <Download className="w-3.5 h-3.5" />
                         </button>
-                        <button onClick={() => handleDelete(doc.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                          <Trash2 className="w-4 h-4" />
+                        <button onClick={() => handleDelete(doc.id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
@@ -406,6 +393,7 @@ export default function CaseDetail() {
             <CaseBidPanel
               caseId={caseId}
               canBid={true}
+              canClose={false}
               currentUser={{ name: authUser?.name, role: 'Lawyer' }}
             />
           )}
@@ -421,13 +409,13 @@ export default function CaseDetail() {
   )
 }
 
-function DetailBox({ icon, label, value, color = "text-slate-900" }) {
+function DetailBox({ icon, label, value, color = "text-slate-800" }) {
   return (
-    <div className="space-y-1">
-      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1">
+    <div className="space-y-0.5">
+      <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide flex items-center gap-1">
         {icon} {label}
       </p>
-      <p className={`text-base font-bold tracking-tight ${color}`}>
+      <p className={`text-sm font-semibold ${color}`}>
         {value || "—"}
       </p>
     </div>

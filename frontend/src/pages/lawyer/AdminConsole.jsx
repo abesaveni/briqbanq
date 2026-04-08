@@ -246,11 +246,11 @@ export default function AdminConsole() {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-24">
+    <div className="space-y-4 pb-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">User Management</h1>
+          <h1 className="text-lg font-semibold text-slate-900">User Management</h1>
           <p className="text-sm text-gray-500 mt-0.5">Platform administration and compliance management</p>
           <p className="text-sm text-gray-500">Manage users and their access across all modules.</p>
         </div>

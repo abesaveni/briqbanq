@@ -1,227 +1,227 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, Filter, Download, Eye, Trash2, ChevronDown, RotateCcw, X, CheckCircle2 } from "lucide-react";
+import { Search, Download, Eye, Trash2, ChevronDown, RotateCcw, X, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { generateCasesTablePDF } from '../../utils/pdfGenerator';
+
+const STATUS_STYLES = {
+    DRAFT:        "bg-slate-100 text-slate-600 border-slate-200",
+    SUBMITTED:    "bg-blue-50 text-blue-700 border-blue-100",
+    UNDER_REVIEW: "bg-amber-50 text-amber-700 border-amber-100",
+    APPROVED:     "bg-emerald-50 text-emerald-700 border-emerald-100",
+    LISTED:       "bg-indigo-50 text-indigo-700 border-indigo-100",
+    AUCTION:      "bg-purple-50 text-purple-700 border-purple-100",
+    FUNDED:       "bg-teal-50 text-teal-700 border-teal-100",
+    CLOSED:       "bg-slate-100 text-slate-500 border-slate-200",
+    REJECTED:     "bg-red-50 text-red-700 border-red-100",
+    // legacy frontend statuses
+    Active:           "bg-emerald-50 text-emerald-700 border-emerald-100",
+    "In Auction":     "bg-purple-50 text-purple-700 border-purple-100",
+    Completed:        "bg-slate-100 text-slate-500 border-slate-200",
+    Pending:          "bg-amber-50 text-amber-700 border-amber-100",
+    "Under Contract": "bg-blue-50 text-blue-700 border-blue-100",
+};
+
+const RISK_STYLES = {
+    "Low Risk":    "bg-emerald-50 text-emerald-700",
+    "Medium Risk": "bg-amber-50 text-amber-700",
+    "High Risk":   "bg-red-50 text-red-700",
+};
+
+function formatCaseId(item) {
+    if (item.case_number) return item.case_number;
+    if (item.id) return item.id.substring(0, 8).toUpperCase();
+    return "N/A";
+}
+
+function formatCurrency(val) {
+    if (!val) return "A$0";
+    const n = Number(val);
+    if (n >= 1_000_000) return `A$${(n / 1_000_000).toFixed(2)}M`;
+    if (n >= 1_000) return `A$${(n / 1_000).toFixed(0)}k`;
+    return `A$${n.toLocaleString()}`;
+}
+
+const STATUS_OPTIONS = ["DRAFT", "SUBMITTED", "UNDER_REVIEW", "APPROVED", "LISTED", "AUCTION", "FUNDED", "CLOSED", "REJECTED"];
 
 export default function LenderMyCasesTable({ cases = [], onDelete, onStatusUpdate }) {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState("");
-    const [statusFilter, setStatusFilter] = useState("All Status");
+    const [statusFilter, setStatusFilter] = useState("All");
     const [selectedIds, setSelectedIds] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [toast, setToast] = useState(null);
     const itemsPerPage = 8;
 
-    // Filter logic
-    const filteredCases = useMemo(() => {
+    const filtered = useMemo(() => {
+        const q = searchTerm.toLowerCase();
         return cases.filter(item => {
-            const matchesSearch =
-                item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.borrower.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.property.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (item.suburb && item.suburb.toLowerCase().includes(searchTerm.toLowerCase()));
-
-            const matchesStatus = statusFilter === "All Status" || item.status === statusFilter;
-
-            return matchesSearch && matchesStatus;
+            const caseId = (item.case_number || item.id || "").toLowerCase();
+            const borrower = (item.borrower_name || item.borrower || "").toLowerCase();
+            const address = (item.property_address || item.property || item.title || "").toLowerCase();
+            const matchSearch = caseId.includes(q) || borrower.includes(q) || address.includes(q);
+            const matchStatus = statusFilter === "All" || item.status === statusFilter;
+            return matchSearch && matchStatus;
         });
     }, [cases, searchTerm, statusFilter]);
 
-    // Pagination
-    const totalPages = Math.max(1, Math.ceil(filteredCases.length / itemsPerPage));
-    const paginatedCases = filteredCases.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+    const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm, statusFilter]);
+    useEffect(() => { setCurrentPage(1); }, [searchTerm, statusFilter]);
 
-    const handleSelectAll = (e) => {
-        if (e.target.checked) {
-            setSelectedIds(paginatedCases.map(c => c.id));
-        } else {
-            setSelectedIds([]);
-        }
-    };
+    const allSelected = paginated.length > 0 && paginated.every(c => selectedIds.includes(c.id));
+    const toggleAll = (e) => setSelectedIds(e.target.checked ? paginated.map(c => c.id) : []);
+    const toggleOne = (id) => setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
 
-    const handleSelectOne = (id) => {
-        setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
-    };
-
-    const handleExport = async () => {
-        const target = selectedIds.length
-            ? filteredCases.filter(c => selectedIds.includes(c.id))
-            : filteredCases;
-        await generateCasesTablePDF({ title: 'My Cases Report', role: 'Lender', cases: target });
-        setToast({ message: `PDF downloaded — ${target.length} cases`, type: 'success' });
+    const showToast = (msg, type = 'success') => {
+        setToast({ message: msg, type });
         setTimeout(() => setToast(null), 3000);
     };
 
-    const handleStatusLocalUpdate = (caseId, newStatus) => {
-        onStatusUpdate(caseId, newStatus);
-        setToast({ message: `Status updated to ${newStatus}`, type: 'success' });
-        setTimeout(() => setToast(null), 2000);
+    const handleExport = async () => {
+        const target = selectedIds.length ? filtered.filter(c => selectedIds.includes(c.id)) : filtered;
+        await generateCasesTablePDF({ title: 'My Cases Report', role: 'Lender', cases: target });
+        showToast(`PDF downloaded — ${target.length} cases`);
     };
 
-    const formatCurrency = (val) => {
-        if (!val) return "A$0k";
-        return `A$${(val / 1000).toLocaleString()}k`;
+    const handleStatusUpdate = (caseId, newStatus) => {
+        onStatusUpdate?.(caseId, newStatus);
+        showToast(`Status updated to ${newStatus}`);
     };
-
-    const statusOptions = ["Active", "In Auction", "Completed", "Pending", "Under Contract"];
 
     return (
-        <div className="bg-white rounded-[22px] border border-slate-100 shadow-sm overflow-hidden flex flex-col relative min-h-[500px] font-['Inter',sans-serif]">
-            {/* Toast Notification */}
+        <div className="bg-white rounded-xl border border-slate-200 flex flex-col overflow-hidden relative">
+            {/* Toast */}
             {toast && (
-                <div className="absolute top-4 right-4 z-[100] animate-in slide-in-from-top-4 duration-300">
-                    <div className="bg-emerald-50 border border-emerald-100 text-emerald-700 px-4 py-3 rounded-xl shadow-lg flex items-center gap-3">
-                        <CheckCircle2 size={16} className="text-emerald-500" />
-                        <span className="text-[12px] font-bold">{toast.message}</span>
-                        <button onClick={() => setToast(null)} className="opacity-50 hover:opacity-100"><X size={14} /></button>
-                    </div>
+                <div className="absolute top-3 right-3 z-50 flex items-center gap-2 bg-white border border-slate-200 shadow-lg rounded-lg px-3 py-2">
+                    <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
+                    <span className="text-xs font-medium text-slate-700">{toast.message}</span>
+                    <button onClick={() => setToast(null)} className="text-slate-400 hover:text-slate-600 ml-1"><X size={13} /></button>
                 </div>
             )}
 
-            {/* Header & Controls */}
-            <div className="p-6 border-b border-slate-50 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-slate-50/30">
-                <div className="flex-1 min-w-[300px] relative">
-                    <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+            {/* Controls */}
+            <div className="px-5 py-3 border-b border-slate-100 flex flex-wrap items-center gap-2">
+                <div className="relative flex-1 min-w-[220px] max-w-sm">
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                         type="text"
-                        placeholder="Search by Case, Borrower, Property..."
+                        placeholder="Search case, borrower, property…"
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-[13px] font-medium text-slate-900 shadow-sm focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400"
+                        onChange={e => setSearchTerm(e.target.value)}
+                        className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
                     />
                 </div>
-
-                <div className="flex flex-wrap items-center gap-2">
-                    <div className="relative">
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                            className="appearance-none pl-4 pr-10 py-2.5 bg-white border border-slate-200 rounded-xl text-[13px] font-bold text-slate-700 shadow-sm outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 cursor-pointer"
-                        >
-                            <option>All Status</option>
-                            {statusOptions.map(opt => <option key={opt}>{opt}</option>)}
-                        </select>
-                        <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                    </div>
-
-                    <button
-                        onClick={handleExport}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-[13px] font-bold text-slate-700 shadow-sm hover:bg-slate-50 transition-all active:scale-95"
+                <div className="relative">
+                    <select
+                        value={statusFilter}
+                        onChange={e => setStatusFilter(e.target.value)}
+                        className="appearance-none pl-3 pr-8 py-2 text-xs bg-white border border-slate-200 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 cursor-pointer"
                     >
-                        <Download size={14} />
-                        Export Data
-                    </button>
-                    <button className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-slate-600 transition-all active:scale-95 shadow-sm">
-                        <RotateCcw size={16} onClick={() => { setSearchTerm(""); setStatusFilter("All Status"); }} />
-                    </button>
+                        <option value="All">All Status</option>
+                        {STATUS_OPTIONS.map(s => <option key={s}>{s}</option>)}
+                    </select>
+                    <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 </div>
+                <button onClick={handleExport}
+                    className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                    <Download size={13} /> Export
+                </button>
+                <button onClick={() => { setSearchTerm(""); setStatusFilter("All"); }}
+                    className="p-2 text-slate-400 hover:text-slate-600 border border-slate-200 rounded-lg bg-white hover:bg-slate-50 transition-colors">
+                    <RotateCcw size={13} />
+                </button>
             </div>
 
             {/* Table */}
-            <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                    <thead className="bg-slate-50/50 text-slate-400 text-[11px] font-bold uppercase tracking-wider border-b border-slate-50">
-                        <tr>
-                            <th className="pl-8 w-12 py-4">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedIds.length === paginatedCases.length && paginatedCases.length > 0}
-                                    onChange={handleSelectAll}
-                                    className="rounded border-slate-300 accent-[#1E40AF] w-4 h-4 cursor-pointer"
-                                />
+            <div className="overflow-x-auto flex-1">
+                <table className="w-full text-left text-xs">
+                    <thead>
+                        <tr className="bg-slate-50 border-b border-slate-100">
+                            <th className="pl-5 pr-3 py-3 w-8">
+                                <input type="checkbox" checked={allSelected} onChange={toggleAll}
+                                    className="rounded border-slate-300 accent-blue-600 w-3.5 h-3.5 cursor-pointer" />
                             </th>
-                            <th className="px-4 py-4">Case Details</th>
-                            <th className="px-4 py-4">Borrower</th>
-                            <th className="px-4 py-4 text-right">Loan Amount</th>
-                            <th className="px-4 py-4 text-center">Status</th>
-                            <th className="px-4 py-4 text-center">Risk Profile</th>
-                            <th className="pl-4 pr-8 py-4 text-right">Actions</th>
+                            <th className="px-3 py-3 font-semibold text-slate-500 uppercase tracking-wider">Case</th>
+                            <th className="px-3 py-3 font-semibold text-slate-500 uppercase tracking-wider">Borrower</th>
+                            <th className="px-3 py-3 font-semibold text-slate-500 uppercase tracking-wider text-right">Loan</th>
+                            <th className="px-3 py-3 font-semibold text-slate-500 uppercase tracking-wider text-center">Status</th>
+                            <th className="px-3 py-3 font-semibold text-slate-500 uppercase tracking-wider text-center">Risk</th>
+                            <th className="pl-3 pr-5 py-3 font-semibold text-slate-500 uppercase tracking-wider text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                        {paginatedCases.length > 0 ? paginatedCases.map((item) => (
-                            <tr key={item.id} className={`hover:bg-slate-50/50 transition-colors group ${selectedIds.includes(item.id) ? 'bg-indigo-50/30' : ''}`}>
-                                <td className="pl-8 py-5">
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedIds.includes(item.id)}
-                                        onChange={() => handleSelectOne(item.id)}
-                                        className="rounded border-slate-300 accent-[#1E40AF] w-4 h-4 cursor-pointer"
-                                    />
-                                </td>
-                                <td className="px-4 py-5">
-                                    <button
-                                        className="text-slate-900 font-bold text-[14px] hover:text-indigo-600 transition-colors mb-0.5 block"
-                                        onClick={() => navigate(`/lender/case-details/${item.id}`)}
-                                    >
-                                        {item.id}
-                                    </button>
-                                    <p className="text-slate-400 text-[11px] font-medium uppercase tracking-tight truncate max-w-[180px]">
-                                        {item.property}
-                                    </p>
-                                </td>
-                                <td className="px-4 py-5">
-                                    <span className="text-slate-700 font-semibold text-[13px]">{item.borrower}</span>
-                                    <p className="text-slate-400 text-[11px] font-medium mt-0.5">{item.suburb || 'Location N/A'}</p>
-                                </td>
-                                <td className="px-4 py-5 text-right whitespace-nowrap">
-                                    <span className="text-slate-900 font-bold text-[14px]">{formatCurrency(item.loanAmount || item.debt)}</span>
-                                    <p className="text-emerald-600 text-[11px] font-bold mt-0.5">LVR: {Math.round(((item.loanAmount || item.debt) / (item.valuation || 1)) * 100)}%</p>
-                                </td>
-                                <td className="px-4 py-5 text-center">
-                                    <div className="relative inline-block text-left">
-                                        <select
-                                            value={item.status}
-                                            onChange={(e) => handleStatusLocalUpdate(item.id, e.target.value)}
-                                            className={`appearance-none pl-3 pr-8 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-tight border cursor-pointer focus:ring-2 focus:ring-indigo-500/20 transition-all ${item.status === 'In Auction' ? 'bg-rose-50 text-rose-600 border-rose-100' :
-                                                    item.status === 'Active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                                                        item.status === 'Completed' ? 'bg-slate-100 text-slate-500 border-slate-200' :
-                                                            item.status === 'Pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                                                                'bg-blue-50 text-blue-600 border-blue-100'
-                                                }`}
-                                        >
-                                            {statusOptions.map(opt => <option key={opt}>{opt}</option>)}
-                                        </select>
-                                        <ChevronDown size={10} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-60" />
-                                    </div>
-                                </td>
-                                <td className="px-4 py-5 text-center">
-                                    <span className={`inline-flex px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-tight border ${item.risk === 'Low Risk' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                                            item.risk === 'Medium Risk' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                                                'bg-rose-50 text-rose-600 border-rose-100'
-                                        }`}>
-                                        {item.risk}
-                                    </span>
-                                </td>
-                                <td className="pl-4 pr-8 py-5 text-right whitespace-nowrap">
-                                    <div className="flex items-center justify-end gap-2">
+                        {paginated.length > 0 ? paginated.map(item => {
+                            const caseId = formatCaseId(item);
+                            const address = item.property_address || item.property || item.title || "—";
+                            const borrower = item.borrower_name || item.borrower || "N/A";
+                            const debt = item.outstanding_debt || item.loanAmount || item.debt || 0;
+                            const valuation = item.estimated_value || item.valuation || 0;
+                            const lvr = valuation > 0 ? Math.round((debt / valuation) * 100) : 0;
+                            const status = item.status || "DRAFT";
+                            const risk = item.risk_level || item.risk || "Medium Risk";
+
+                            return (
+                                <tr key={item.id}
+                                    className={`hover:bg-slate-50/60 transition-colors ${selectedIds.includes(item.id) ? 'bg-blue-50/20' : ''}`}>
+                                    <td className="pl-5 pr-3 py-3.5">
+                                        <input type="checkbox" checked={selectedIds.includes(item.id)} onChange={() => toggleOne(item.id)}
+                                            className="rounded border-slate-300 accent-blue-600 w-3.5 h-3.5 cursor-pointer" />
+                                    </td>
+                                    <td className="px-3 py-3.5">
                                         <button
                                             onClick={() => navigate(`/lender/case-details/${item.id}`)}
-                                            className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all active:scale-95"
+                                            className="font-semibold text-blue-700 hover:text-blue-900 transition-colors block"
                                         >
-                                            <Eye size={18} />
+                                            {caseId}
                                         </button>
-                                        <button
-                                            onClick={() => onDelete(item.id)}
-                                            className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all active:scale-95"
-                                        >
-                                            <Trash2 size={18} />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        )) : (
+                                        <p className="text-slate-400 truncate max-w-[160px] mt-0.5">{address}</p>
+                                    </td>
+                                    <td className="px-3 py-3.5">
+                                        <p className="font-medium text-slate-700">{borrower}</p>
+                                        <p className="text-slate-400 mt-0.5">{item.suburb || ""}</p>
+                                    </td>
+                                    <td className="px-3 py-3.5 text-right whitespace-nowrap">
+                                        <p className="font-semibold text-slate-900">{formatCurrency(debt)}</p>
+                                        <p className="text-emerald-600 font-medium mt-0.5">LVR: {lvr}%</p>
+                                    </td>
+                                    <td className="px-3 py-3.5 text-center">
+                                        <div className="relative inline-block">
+                                            <select
+                                                value={status}
+                                                onChange={e => handleStatusUpdate(item.id, e.target.value)}
+                                                className={`appearance-none pl-2.5 pr-6 py-1 rounded text-[10px] font-semibold uppercase tracking-wide border cursor-pointer focus:outline-none ${STATUS_STYLES[status] || "bg-slate-100 text-slate-600 border-slate-200"}`}
+                                            >
+                                                {STATUS_OPTIONS.map(s => <option key={s}>{s}</option>)}
+                                            </select>
+                                            <ChevronDown size={10} className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-50" />
+                                        </div>
+                                    </td>
+                                    <td className="px-3 py-3.5 text-center">
+                                        <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-semibold ${RISK_STYLES[risk] || "bg-slate-100 text-slate-600"}`}>
+                                            {risk}
+                                        </span>
+                                    </td>
+                                    <td className="pl-3 pr-5 py-3.5 text-right whitespace-nowrap">
+                                        <div className="flex items-center justify-end gap-1">
+                                            <button onClick={() => navigate(`/lender/case-details/${item.id}`)}
+                                                className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                                <Eye size={14} />
+                                            </button>
+                                            <button onClick={() => onDelete?.(item.id)}
+                                                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                                <Trash2 size={14} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        }) : (
                             <tr>
-                                <td colSpan="7" className="py-24 text-center">
-                                    <div className="flex flex-col items-center justify-center text-slate-200">
-                                        <Search size={48} className="mb-4 opacity-50" />
-                                        <h4 className="text-base font-bold text-slate-900">No cases matched your search</h4>
-                                        <p className="text-[13px] font-medium text-slate-400 mt-1">Try changing your filters or search keywords</p>
-                                    </div>
+                                <td colSpan="7" className="py-16 text-center">
+                                    <Search size={32} className="mx-auto mb-2 text-slate-200" />
+                                    <p className="text-sm font-medium text-slate-500">No cases found</p>
+                                    <p className="text-xs text-slate-400 mt-1">Try adjusting your search or filters</p>
                                 </td>
                             </tr>
                         )}
@@ -230,24 +230,19 @@ export default function LenderMyCasesTable({ cases = [], onDelete, onStatusUpdat
             </div>
 
             {/* Pagination */}
-            <div className="mt-auto p-6 bg-slate-50/50 border-t border-slate-50 flex justify-between items-center">
-                <p className="text-[13px] font-medium text-slate-500">
-                    Showing <span className="text-slate-900 font-bold">{paginatedCases.length}</span> of <span className="text-slate-900 font-bold">{filteredCases.length}</span> records
+            <div className="px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                <p className="text-xs text-slate-500">
+                    Showing <span className="font-semibold text-slate-700">{paginated.length}</span> of <span className="font-semibold text-slate-700">{filtered.length}</span> records
                 </p>
-                <div className="flex gap-2">
-                    <button
-                        disabled={currentPage === 1}
-                        onClick={() => setCurrentPage(prev => prev - 1)}
-                        className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[13px] font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm active:scale-95"
-                    >
-                        Previous
+                <div className="flex items-center gap-1.5">
+                    <button onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage === 1}
+                        className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors">
+                        <ChevronLeft size={12} /> Prev
                     </button>
-                    <button
-                        disabled={currentPage === totalPages}
-                        onClick={() => setCurrentPage(prev => prev + 1)}
-                        className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[13px] font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm active:scale-95"
-                    >
-                        Next
+                    <span className="text-xs font-medium text-slate-600 px-2">{currentPage} / {totalPages}</span>
+                    <button onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage === totalPages}
+                        className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors">
+                        Next <ChevronRight size={12} />
                     </button>
                 </div>
             </div>

@@ -105,7 +105,7 @@ export default function Dashboard() {
           <p className="text-sm text-slate-500 max-w-sm">You haven&apos;t submitted a mortgage resolution case yet. Create one to get started.</p>
           <button
             type="button"
-            onClick={() => navigate('/borrower/new-case')}
+            onClick={() => navigate('/borrower/new-case?new=1')}
             className="mt-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg"
           >
             Submit New Case

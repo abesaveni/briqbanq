@@ -5,6 +5,13 @@ import LenderMyCasesTable from "../../components/lender_dashboard/LenderMyCasesT
 import { lenderService, casesService } from "../../api/dataService";
 import { LoadingState, ErrorState } from "../../components/common/States";
 
+const STAT_CARDS = [
+    { label: "Total Cases",  filter: () => true,                                                          icon: FileText,     color: "text-blue-600",   bg: "bg-blue-50" },
+    { label: "Active",       filter: c => ['UNDER_REVIEW','APPROVED','LISTED','AUCTION'].includes(c.status), icon: Eye,          color: "text-emerald-600", bg: "bg-emerald-50" },
+    { label: "In Auction",   filter: c => ['LISTED','AUCTION'].includes(c.status),                        icon: RefreshCw,    color: "text-rose-600",   bg: "bg-rose-50" },
+    { label: "Completed",    filter: c => c.status === "CLOSED",                                          icon: CheckCircle2, color: "text-purple-600", bg: "bg-purple-50" },
+];
+
 export default function LenderMyCases() {
     const navigate = useNavigate();
     const [cases, setCases] = useState([]);
@@ -27,19 +34,14 @@ export default function LenderMyCases() {
         }
     }, []);
 
-    useEffect(() => {
-        fetchCases();
-    }, [fetchCases]);
+    useEffect(() => { fetchCases(); }, [fetchCases]);
 
-    const stats = useMemo(() => [
-        { label: "Total Cases", value: cases.length, icon: <FileText size={20} />, color: "text-blue-600", bg: "bg-blue-50" },
-        { label: "Active Cases", value: cases.filter(c => ['UNDER_REVIEW', 'APPROVED', 'LISTED', 'AUCTION'].includes(c.status)).length, icon: <Eye size={20} />, color: "text-emerald-600", bg: "bg-emerald-50" },
-        { label: "In Auction", value: cases.filter(c => ['LISTED', 'AUCTION'].includes(c.status)).length, icon: <RefreshCw size={20} />, color: "text-rose-600", bg: "bg-rose-50" },
-        { label: "Completed", value: cases.filter(c => c.status === "CLOSED").length, icon: <CheckCircle2 size={20} />, color: "text-purple-600", bg: "bg-purple-50" }
-    ], [cases]);
+    const stats = useMemo(() =>
+        STAT_CARDS.map(s => ({ ...s, value: cases.filter(s.filter).length })),
+    [cases]);
 
     const handleDeleteCase = (id) => {
-        if (window.confirm(`Are you sure you want to delete case ${id}?`)) {
+        if (window.confirm(`Delete case ${id}?`)) {
             setCases(prev => prev.filter(c => c.id !== id));
         }
     };
@@ -48,50 +50,58 @@ export default function LenderMyCases() {
         try {
             const res = await casesService.updateCaseStatus(caseId, newStatus);
             if (res.success) {
-                setCases(prev => prev.map(c =>
-                    c.id === caseId ? { ...c, status: newStatus } : c
-                ));
+                setCases(prev => prev.map(c => c.id === caseId ? { ...c, status: newStatus } : c));
             }
         } catch (err) {
             console.error("Failed to update status", err);
         }
     };
 
-    if (loading) return <div className="p-8 max-w-[1240px] mx-auto"><LoadingState /></div>;
-    if (error) return <div className="p-8 max-w-[1240px] mx-auto"><ErrorState message={error} /></div>;
+    if (loading) return <div className="p-6"><LoadingState /></div>;
+    if (error)   return <div className="p-6"><ErrorState message={error} /></div>;
 
     return (
-        <div className="max-w-[1240px] mx-auto px-6 py-6 animate-fade-in font-['Inter',sans-serif]">
-            {/* Page Header */}
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold text-slate-900 mb-1">My MIP Cases</h1>
-                <p className="text-gray-500 text-[13px] font-medium leading-none">Manage defaulted loans and auctions</p>
-            </div>
-
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                {stats.map((stat, idx) => (
-                    <div key={idx} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between hover:border-indigo-100 transition-all group">
-                        <div>
-                            <p className="text-slate-400 text-[11px] font-bold uppercase tracking-wider mb-2">{stat.label}</p>
-                            <p className="text-3xl font-bold text-slate-900 leading-none">{stat.value}</p>
-                        </div>
-                        <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300`}>
-                            {stat.icon}
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* Action Bar */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div className="space-y-5 pb-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-xl font-bold text-slate-900 mb-1">Management Console</h2>
-                    <p className="text-gray-500 text-[13px] font-medium">Viewing {cases.length} records in your active high-assurance portfolio</p>
+                    <h1 className="text-lg font-semibold text-slate-900">My MIP Cases</h1>
+                    <p className="text-sm text-slate-500">Manage defaulted loans and auctions</p>
+                </div>
+                <button
+                    onClick={() => navigate('/lender/submit-case')}
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-[#1B3A6B] text-white rounded-lg text-xs font-semibold hover:bg-[#142d55] transition-colors"
+                >
+                    <Plus size={13} strokeWidth={2.5} /> New Case
+                </button>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {stats.map((s, i) => {
+                    const Icon = s.icon;
+                    return (
+                        <div key={i} className="bg-white rounded-xl border border-slate-200 p-4 flex items-center justify-between">
+                            <div>
+                                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">{s.label}</p>
+                                <p className="text-2xl font-bold text-slate-900">{s.value}</p>
+                            </div>
+                            <div className={`w-10 h-10 ${s.bg} ${s.color} rounded-xl flex items-center justify-center`}>
+                                <Icon size={18} />
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* Section label */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-sm font-semibold text-slate-900">Case Management</h2>
+                    <p className="text-xs text-slate-500">{cases.length} records in your portfolio</p>
                 </div>
             </div>
 
-            {/* Main Table Area */}
             <LenderMyCasesTable
                 cases={cases}
                 onDelete={handleDeleteCase}

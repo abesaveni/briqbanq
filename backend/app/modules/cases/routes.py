@@ -55,7 +55,7 @@ async def create_case(
     db=Depends(get_db),
     trace_id: str = Depends(get_trace_id),
 ):
-    """Create a new MIP case (borrower only)."""
+    """Create a new MIP case (Lender, Lawyer, Investor, Admin only)."""
     CasePolicy.can_create_case(current_user)
     service = CaseService(db)
     case = await service.create_case(
@@ -76,7 +76,7 @@ async def create_case(
     audit_service = AuditService(db)
     await audit_service.log(
         actor_id=current_user["user_id"],
-        actor_role="BORROWER",
+        actor_role=current_user.get("roles", ["UNKNOWN"])[0],
         entity_type="case",
         entity_id=str(case.id),
         action="CREATE_CASE",
@@ -96,7 +96,8 @@ async def update_case(
     db=Depends(get_db),
     trace_id: str = Depends(get_trace_id),
 ):
-    """Update a case (only in DRAFT status, borrower only)."""
+    """Update a case (Lender, Lawyer, Admin only — in DRAFT status)."""
+    CasePolicy.can_edit_case(current_user, current_user["user_id"])
     service = CaseService(db)
     case = await service.update_case(
         case_id=case_id,
@@ -124,7 +125,7 @@ async def update_case(
     audit_service = AuditService(db)
     await audit_service.log(
         actor_id=current_user["user_id"],
-        actor_role="BORROWER",
+        actor_role=current_user.get("roles", ["UNKNOWN"])[0],
         entity_type="case",
         entity_id=str(case_id),
         action="UPDATE_CASE",
@@ -212,7 +213,7 @@ async def submit_case(
     db=Depends(get_db),
     trace_id: str = Depends(get_trace_id),
 ):
-    """Submit a case for review (borrower only)."""
+    """Submit a case for review (creator only)."""
     service = CaseService(db)
     case = await service.submit_case(
         case_id=case_id,
@@ -224,7 +225,7 @@ async def submit_case(
     audit_service = AuditService(db)
     await audit_service.log(
         actor_id=current_user["user_id"],
-        actor_role="BORROWER",
+        actor_role=current_user.get("roles", ["UNKNOWN"])[0],
         entity_type="case",
         entity_id=str(case_id),
         action="SUBMIT_CASE",

@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Eye, Trash2, RefreshCw, Download, FileText, CheckSquare, CheckCircle, Gavel, UserPlus, X } from 'lucide-react'
+import { Eye, Trash2, RefreshCw, Download, FileText, CheckSquare, CheckCircle, Gavel, UserPlus, X, Plus } from 'lucide-react'
 import AdminBreadcrumb from '../../components/admin/AdminBreadcrumb'
 import AdminStatCard from '../../components/admin/AdminStatCard'
 import AdminRiskBadge from '../../components/admin/AdminRiskBadge'
 import { generateCasesTablePDF } from '../../utils/pdfGenerator'
 import { casesService, adminUsersService } from '../../api/dataService'
+import SubmitCaseForm from '../../components/case/SubmitCaseForm'
 
 export default function CaseManagement() {
     const navigate = useNavigate()
     const [searchTerm, setSearchTerm] = useState('')
+    const [showNewCaseModal, setShowNewCaseModal] = useState(false)
     const [statusFilter, setStatusFilter] = useState('All Status')
     const [cases, setCases] = useState([])
     const [allCases, setAllCases] = useState([])
@@ -228,9 +230,18 @@ export default function CaseManagement() {
             ]} />
 
             {/* Page Header */}
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-900">Case Management</h1>
-                <p className="text-sm text-gray-500 mt-1">Platform administration and compliance management</p>
+            <div className="mb-6 flex items-start justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900">Case Management</h1>
+                    <p className="text-sm text-gray-500 mt-1">Platform administration and compliance management</p>
+                </div>
+                <button
+                    onClick={() => setShowNewCaseModal(true)}
+                    className="flex items-center gap-1.5 text-sm text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg transition-colors font-medium shrink-0"
+                >
+                    <Plus className="w-4 h-4" />
+                    New Case
+                </button>
             </div>
 
             {/* Stat Cards */}
@@ -430,6 +441,32 @@ export default function CaseManagement() {
                     </table>
                 </div>
             </div>
+
+            {/* New Case Modal */}
+            {showNewCaseModal && (
+                <div className="fixed inset-0 z-50 bg-black/40 overflow-y-auto">
+                    <div className="min-h-screen py-8 px-4 flex items-start justify-center">
+                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl relative">
+                            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                                <h2 className="text-lg font-semibold text-slate-900">Create New Case</h2>
+                                <button
+                                    onClick={() => setShowNewCaseModal(false)}
+                                    className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-gray-100 transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                            <div className="px-6">
+                                <SubmitCaseForm
+                                    role="admin"
+                                    onClose={() => setShowNewCaseModal(false)}
+                                    onSuccess={() => { setShowNewCaseModal(false); loadCases() }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Assign Lawyer / Lender Modal */}
             {assignModal.open && (

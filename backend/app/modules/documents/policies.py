@@ -11,21 +11,27 @@ class DocumentPolicy:
 
     @staticmethod
     def can_upload_document(current_user: dict) -> bool:
-        """Borrowers and lawyers can upload documents."""
-        allowed_roles = [RoleType.BORROWER.value, RoleType.LAWYER.value, RoleType.ADMIN.value]
+        """All authenticated roles can upload documents."""
+        allowed_roles = [
+            RoleType.BORROWER.value,
+            RoleType.LAWYER.value,
+            RoleType.ADMIN.value,
+            RoleType.LENDER.value,
+            RoleType.INVESTOR.value,
+        ]
         if not any(r in current_user.get("roles", []) for r in allowed_roles):
             raise AuthorizationError(
-                message="Only borrowers, lawyers, and admins can upload documents"
+                message="Only authenticated users can upload documents"
             )
         return True
 
     @staticmethod
     def can_review_document(current_user: dict) -> bool:
-        """Only admins and lawyers can review documents."""
-        allowed_roles = [RoleType.ADMIN.value, RoleType.LAWYER.value]
+        """Admins, lawyers, and lenders can review documents."""
+        allowed_roles = [RoleType.ADMIN.value, RoleType.LAWYER.value, RoleType.LENDER.value, RoleType.INVESTOR.value]
         if not any(r in current_user.get("roles", []) for r in allowed_roles):
             raise AuthorizationError(
-                message="Only administrators and lawyers can review documents"
+                message="Only administrators, lawyers, and lenders can review documents"
             )
         return True
 

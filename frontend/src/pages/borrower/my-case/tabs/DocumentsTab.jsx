@@ -72,7 +72,8 @@ function DocViewModal({ doc, onClose }) {
 
   const hasRealFile = !!doc._localFile || !!doc.file
   const fileUrl = doc._localFile ? objectUrl : doc.file
-  const ext = getExt(doc.name)
+  const extName = doc._fileName || doc.name
+  const ext = getExt(extName)
 
   const handleDownload = () => {
     const url = doc._localFile ? objectUrl : doc.file
@@ -95,12 +96,12 @@ function DocViewModal({ doc, onClose }) {
     >
       <div
         className="bg-white rounded-2xl shadow-2xl w-full flex flex-col overflow-hidden"
-        style={{ maxWidth: hasRealFile && (isPdf(doc.name) || isImage(doc.name)) ? 860 : 520, maxHeight: '92vh' }}
+        style={{ maxWidth: hasRealFile && (isPdf(extName) || isImage(extName)) ? 860 : 520, maxHeight: '92vh' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Toolbar */}
         <div className="flex items-center gap-3 px-5 py-3 bg-gray-900 flex-shrink-0">
-          <FileIcon name={doc.name} size={5} />
+          <FileIcon name={extName} size={5} />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-white truncate">{doc.name}</p>
             <p className="text-xs text-gray-400">{doc.size || '—'} · {doc.date}</p>
@@ -108,7 +109,7 @@ function DocViewModal({ doc, onClose }) {
           <span className={`flex-shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_COLORS[doc.status] || STATUS_COLORS.Pending}`}>
             {doc.status || 'Pending'}
           </span>
-          {hasRealFile && (isPdf(doc.name) || isImage(doc.name)) && (
+          {hasRealFile && (isPdf(extName) || isImage(extName)) && (
             <button
               type="button"
               onClick={handleOpenNewTab}
@@ -129,7 +130,7 @@ function DocViewModal({ doc, onClose }) {
 
         {/* Document preview area */}
         <div className="flex-1 overflow-auto bg-gray-100 min-h-0">
-          {hasRealFile && isPdf(doc.name) && fileUrl && (
+          {hasRealFile && isPdf(extName) && fileUrl && (
             <iframe
               src={fileUrl}
               title={doc.name}
@@ -137,7 +138,7 @@ function DocViewModal({ doc, onClose }) {
               style={{ minHeight: 520 }}
             />
           )}
-          {hasRealFile && isImage(doc.name) && fileUrl && (
+          {hasRealFile && isImage(extName) && fileUrl && (
             <div className="flex items-center justify-center p-6 min-h-[400px]">
               <img
                 src={fileUrl}
@@ -146,9 +147,9 @@ function DocViewModal({ doc, onClose }) {
               />
             </div>
           )}
-          {hasRealFile && !isPdf(doc.name) && !isImage(doc.name) && (
+          {hasRealFile && !isPdf(extName) && !isImage(extName) && (
             <div className="flex flex-col items-center justify-center py-16 px-8 text-center min-h-[300px]">
-              <FileIcon name={doc.name} size={16} />
+              <FileIcon name={extName} size={16} />
               <p className="mt-4 text-sm font-semibold text-gray-700">{doc.name}</p>
               <p className="text-xs text-gray-400 mt-1 mb-6">Preview not available for .{ext} files</p>
               <button
@@ -289,6 +290,7 @@ export default function DocumentsTab({ caseId, onDocumentUploaded }) {
           setDocs(items.map(d => ({
             id: d.id,
             name: d.document_name || d.file_name || d.name || 'Document',
+            _fileName: d.file_name || d.document_name || d.name || '',
             type: d.document_type || d.type || 'Upload',
             uploadedBy: d.uploaded_by_name || d.uploader_name || 'Borrower',
             date: d.created_at
@@ -494,7 +496,7 @@ export default function DocumentsTab({ caseId, onDocumentUploaded }) {
                 <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="flex-shrink-0"><FileIcon name={doc.name} size={8} /></div>
+                      <div className="flex-shrink-0"><FileIcon name={doc._fileName || doc.name} size={8} /></div>
                       <div className="min-w-0">
                         <p className="font-medium text-gray-900 truncate max-w-[200px]">{doc.name}</p>
                         <p className="text-xs text-gray-400">{doc.size || '—'}</p>

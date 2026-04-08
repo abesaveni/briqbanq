@@ -11,7 +11,7 @@ const fmtDate = (d) => d ? new Date(d).toLocaleString("en-AU", { day: "2-digit",
  * Props:
  *  caseId     : string — the case UUID
  *  canBid     : bool   — show bid placement form (investor/lender/lawyer/admin)
- *  canClose   : bool   — show "Accept & Close" button (borrower/admin)
+ *  canClose   : bool   — show "Accept & Close" button (admin only)
  *  currentUser: { name, role }
  */
 export default function CaseBidPanel({ caseId, canBid = false, canClose = false, currentUser = {} }) {
@@ -145,6 +145,35 @@ export default function CaseBidPanel({ caseId, canBid = false, canClose = false,
                     <p className={`text-sm font-black mt-0.5 ${isLive ? "text-green-700" : "text-gray-500"}`}>{auction?.status || "No Auction"}</p>
                 </div>
             </div>
+
+            {/* Accepted Bid Banner — shown to all roles when auction is closed */}
+            {auction?.status === "ENDED" && winningBid && (
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                            <CheckCircle size={16} className="text-emerald-600" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold text-emerald-800">Bid Accepted</p>
+                            <p className="text-xs text-emerald-600">This auction has been closed</p>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div className="bg-white rounded-xl p-3 border border-emerald-100">
+                            <p className="text-xs text-emerald-600 font-semibold uppercase tracking-wide">Accepted Price</p>
+                            <p className="text-xl font-black text-emerald-800 mt-0.5">{fmt(winningBid.amount)}</p>
+                        </div>
+                        <div className="bg-white rounded-xl p-3 border border-emerald-100">
+                            <p className="text-xs text-emerald-600 font-semibold uppercase tracking-wide">Winning Bidder</p>
+                            <p className="text-sm font-bold text-emerald-800 mt-0.5 truncate">{winningBid.bidder_name || "—"}</p>
+                        </div>
+                        <div className="bg-white rounded-xl p-3 border border-emerald-100 col-span-2">
+                            <p className="text-xs text-emerald-600 font-semibold uppercase tracking-wide">Accepted On</p>
+                            <p className="text-sm font-bold text-emerald-800 mt-0.5">{fmtDate(winningBid.updated_at || winningBid.created_at)}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Bid Placement Form */}
             {canBid && isLive && (

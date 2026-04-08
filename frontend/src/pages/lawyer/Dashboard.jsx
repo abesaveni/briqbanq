@@ -69,11 +69,14 @@ export default function Dashboard() {
   ]
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
+    <div className="space-y-4 pb-6">
+      <div>
+        <h1 className="text-lg font-semibold text-slate-900">Dashboard</h1>
+        <p className="text-sm text-slate-500">Overview of your legal case management</p>
+      </div>
 
       {/* Overview cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {dashboardStats.map((s) => (
           <StatCard
             key={s.id}
@@ -88,10 +91,10 @@ export default function Dashboard() {
       </div>
 
       {/* Platform Status + Recent Cases */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-slate-800 mb-4">Platform Status</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="bg-white rounded-xl border border-slate-200 p-4">
+          <h2 className="text-sm font-semibold text-slate-800 mb-3">Platform Status</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {platformStatus.map((s) => (
               <div key={s.id} className="p-3 rounded-lg border border-gray-100">
                 <div className="flex items-center gap-2">
@@ -108,9 +111,9 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-slate-800">Recent Cases</h2>
+        <div className="bg-white rounded-xl border border-slate-200 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-slate-800">Recent Cases</h2>
             <button type="button" onClick={() => navigate('/lawyer/assigned-cases')} className="text-sm font-medium text-blue-600 flex items-center gap-1">
               View All
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
@@ -146,17 +149,17 @@ export default function Dashboard() {
 
       {/* Quick Actions */}
       <div>
-        <h2 className="text-lg font-semibold text-slate-800 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <h2 className="text-sm font-semibold text-slate-800 mb-3">Quick Actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {QUICK_ACTIONS.map((a) => (
             <button
               key={a.id}
               type="button"
               onClick={() => a.path && navigate(a.path)}
-              className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 text-left hover:bg-gray-50 transition"
+              className="bg-white rounded-xl border border-slate-200 p-3 text-left hover:bg-slate-50 hover:border-slate-300 transition-colors"
             >
-              <p className="text-sm font-medium text-slate-800">{a.label}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{a.sub}</p>
+              <p className="text-xs font-semibold text-slate-800">{a.label}</p>
+              <p className="text-xs text-slate-400 mt-0.5">{a.sub}</p>
             </button>
           ))}
         </div>

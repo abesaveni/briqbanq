@@ -1,7 +1,8 @@
 import DatePicker from '../../components/common/DatePicker'
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { casesService as caseService, documentService } from '../../api/dataService'
+import SquarePaymentForm from '../../components/payments/SquarePaymentForm'
 import {
   validateFirstName, validateLastName, validateEmail, validateAuPhone,
   validateAuPostcode, validateAuState, validateABN, validateACN,
@@ -151,7 +152,15 @@ export default function NewCase() {
   const navigate = useNavigate()
 
   // Load saved draft from localStorage if present
-  const savedDraft = (() => {
+  const location = useLocation()
+  const isNewSession = new URLSearchParams(location.search).get('new') === '1'
+
+  // Clear saved draft when user explicitly starts a new case (?new=1)
+  if (isNewSession) {
+    try { localStorage.removeItem('briqbanq_newcase_draft') } catch {}
+  }
+
+  const savedDraft = isNewSession ? null : (() => {
     try {
       const raw = localStorage.getItem('briqbanq_newcase_draft')
       return raw ? JSON.parse(raw) : null
@@ -185,6 +194,8 @@ export default function NewCase() {
   const uploadedImagesRef = useRef(new Set())   // image names already uploaded to backend
   const uploadedDocsRef = useRef(new Set())     // doc keys already uploaded to backend
   const [runAnalysisLoading, setRunAnalysisLoading] = useState(false)
+  const [paymentComplete, setPaymentComplete] = useState(false)
+  const [squarePaymentId, setSquarePaymentId] = useState(null)
   const [runAnalysisResult, setRunAnalysisResult] = useState(null)
   const [pendingTrustee, setPendingTrustee] = useState(null)
   const [pendingGuarantor, setPendingGuarantor] = useState(null)
@@ -274,31 +285,13 @@ export default function NewCase() {
       }
       if (!formData.creditCheckConsent) newErrors.creditCheckConsent = 'Consent is required'
     } else if (s === 3) {
-      if (!checksComplete) newErrors.checks = 'Please run all checks before proceeding'
-      if (!formData.paymentMethod) newErrors.paymentMethod = 'Payment method is required'
-      if (formData.paymentMethod === 'Credit Card') {
-        if (!formData.cardholderName) newErrors.cardholderName = 'Cardholder name is required'
-        if (!formData.cardNumber) newErrors.cardNumber = 'Card number is required'
-        if (!formData.expiryDate) newErrors.expiryDate = 'Expiry date is required'
-        else if (!/^\d{2}\/\d{2}$/.test(formData.expiryDate)) newErrors.expiryDate = 'Enter expiry as MM/YY'
-        if (!formData.cvv) newErrors.cvv = 'CVV is required'
-        else if (!/^\d{3,4}$/.test(formData.cvv)) newErrors.cvv = 'CVV must be 3 or 4 digits'
-      } else if (formData.paymentMethod === 'Bank Transfer') {
-        if (!formData.bankAccountName) newErrors.bankAccountName = 'Account name is required'
-        if (!formData.bankBsb) newErrors.bankBsb = 'BSB is required'
-        if (!formData.bankAccountNumber) newErrors.bankAccountNumber = 'Account number is required'
-        if (!formData.bankName) newErrors.bankName = 'Bank name is required'
-      }
-      const billingPcErr = validateAuPostcode(formData.billingPostcode)
-      if (billingPcErr) newErrors.billingPostcode = billingPcErr
-      if (!formData.paymentAuthorized) newErrors.paymentAuthorized = 'Payment authorization is required'
+      // Payment is optional — no validation required
     } else if (s === 4) {
       if (!formData.lenderContact) newErrors.lenderContact = 'Lender contact is required'
       addError(newErrors, 'lenderEmail', validateEmail, formData.lenderEmail)
       addError(newErrors, 'lenderPhone', validateAuPhone, formData.lenderPhone)
       if (!formData.loanAccountNumber) newErrors.loanAccountNumber = 'Loan account number is required'
-      const missingDocs = LENDER_DOCS.filter(d => d.title.endsWith('*') && !uploadedLenderDocs[d.title])
-      if (missingDocs.length > 0) newErrors.lenderDocs = 'Please upload all required documents'
+      // Document uploads are optional — can be provided later
     } else if (s === 5) {
       addError(newErrors, 'outstandingDebt', (v) => validateCurrency(v, 'Outstanding debt', 0), formData.outstandingDebt)
       addError(newErrors, 'originalLoanAmount', (v) => validateCurrency(v, 'Original loan amount', 0), formData.originalLoanAmount)
@@ -312,7 +305,7 @@ export default function NewCase() {
       }
       if (!formData.missedPayments) newErrors.missedPayments = 'Number of missed payments is required'
       addError(newErrors, 'currentValuation', (v) => validateCurrency(v, 'Current valuation', 0), formData.currentValuation)
-      if (!valuationUploaded) newErrors.valuationReport = 'Valuation report is required'
+      // Valuation report upload is optional — can be provided later
     } else if (s === 7) {
       addError(newErrors, 'borrowerLawyerName', (v) => validateFirstName(v) ? 'Lawyer name: ' + validateFirstName(v) : null, formData.borrowerLawyerName)
       if (!formData.borrowerLawyerName) newErrors.borrowerLawyerName = 'Lawyer name is required'
@@ -1549,8 +1542,8 @@ export default function NewCase() {
 
         {step === 3 && (
           <div className="p-6 space-y-6">
-            <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">$ Payment & Automated Verification</h2>
-            <p className="text-sm text-slate-500">Complete payment - all searches will run automatically</p>
+            <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">$ Payment & Automated Verification <span className="text-xs font-normal text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">Optional</span></h2>
+            <p className="text-sm text-slate-500">Payment and verification checks are optional — you can complete them later.</p>
 
             {/* Automated Verification Package - blue card with Total Cost right */}
             <div className="bg-indigo-600 text-white rounded-lg p-6">
@@ -1588,7 +1581,7 @@ export default function NewCase() {
             </div>
 
             {/* Instant Automated Processing - purple */}
-            <div className={`bg-purple-600 text-white rounded-lg p-5 ${errors.checks ? 'ring-4 ring-offset-2 ring-red-500' : ''}`}>
+            <div className="bg-purple-600 text-white rounded-lg p-5">
               <h3 className="font-semibold text-white">Instant Automated Processing:</h3>
               <ul className="mt-3 space-y-1.5 text-sm text-purple-100">
                 {['Complete property AVM valuation from RP Data', 'Full title search and ownership verification', 'Encumbrances, caveats & zoning checks', 'GreenID + DVS identity verification', 'AUSTRAC sanctions & PEP screening', 'All reports automatically sent to you', 'Automatically attached to Credit Risk'].map((item) => (
@@ -1613,8 +1606,7 @@ export default function NewCase() {
                   </>
                 )}
               </button>
-              {errors.checks && <p className="mt-2 text-sm text-red-200 font-bold">{errors.checks}</p>}
-              <p className="text-xs text-purple-200 mt-3">By proceeding, you authorise Drove to charge $186.00 (inc. GST) to your account for automated verification services.</p>
+              <p className="text-xs text-purple-200 mt-3">Optional: By running checks, you authorise BrickBanq to charge $186.00 (inc. GST) for automated verification services.</p>
             </div>
 
             {/* Transparent Pricing */}
@@ -1647,80 +1639,25 @@ export default function NewCase() {
               </div>
             </div>
 
-            {/* Payment Method */}
+            {/* Square Payment */}
             <div className="rounded-lg border border-slate-200 bg-white p-5">
-              <h3 className="font-semibold text-slate-900">Payment Method</h3>
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-slate-700 mb-1">Select Payment Method *</label>
-                <select value={formData.paymentMethod ?? 'Credit Card'} onChange={(e) => update('paymentMethod', e.target.value)} className={`w-full border ${errors.paymentMethod ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300'} rounded-md px-3 py-2 text-sm bg-white`}>
-                  <option value="">Select method</option>
-                  <option>Credit Card</option>
-                  <option>Bank Transfer</option>
-                </select>
-                {errors.paymentMethod && <p className="mt-1 text-xs text-red-500">{errors.paymentMethod}</p>}
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                {formData.paymentMethod === 'Credit Card' && (<>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Cardholder Name *</label>
-                    <input type="text" value={formData.cardholderName} onChange={(e) => update('cardholderName', e.target.value)} className={`w-full border ${errors.cardholderName ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300'} rounded-md px-3 py-2 text-sm`} />
-                    {errors.cardholderName && <p className="mt-1 text-xs text-red-500">{errors.cardholderName}</p>}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Card Number *</label>
-                    <input type="text" value={formData.cardNumber} onChange={(e) => update('cardNumber', e.target.value)} className={`w-full border ${errors.cardNumber ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300'} rounded-md px-3 py-2 text-sm`} />
-                    {errors.cardNumber && <p className="mt-1 text-xs text-red-500">{errors.cardNumber}</p>}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Expiry Date (MM/YY) *</label>
-                    <input type="text" value={formData.expiryDate} onChange={(e) => update('expiryDate', e.target.value)} className={`w-full border ${errors.expiryDate ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300'} rounded-md px-3 py-2 text-sm`} />
-                    {errors.expiryDate && <p className="mt-1 text-xs text-red-500">{errors.expiryDate}</p>}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">CVV *</label>
-                    <input type="text" value={formData.cvv} onChange={(e) => update('cvv', e.target.value)} className={`w-full border ${errors.cvv ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300'} rounded-md px-3 py-2 text-sm`} />
-                    {errors.cvv && <p className="mt-1 text-xs text-red-500">{errors.cvv}</p>}
-                  </div>
-                </>)}
-                {formData.paymentMethod === 'Bank Transfer' && (<>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Account Name *</label>
-                    <input type="text" value={formData.bankAccountName || ''} onChange={(e) => update('bankAccountName', e.target.value)} className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm" placeholder="John Smith" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">BSB *</label>
-                    <input type="text" value={formData.bankBsb || ''} onChange={(e) => update('bankBsb', e.target.value)} className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm" placeholder="000-000" maxLength={7} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Account Number *</label>
-                    <input type="text" value={formData.bankAccountNumber || ''} onChange={(e) => update('bankAccountNumber', e.target.value)} className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm" placeholder="123456789" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Bank Name *</label>
-                    <input type="text" value={formData.bankName || ''} onChange={(e) => update('bankName', e.target.value)} className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm" placeholder="e.g. Commonwealth Bank" />
-                  </div>
-                </>)}
-                <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Billing Address</label>
-                  <input type="text" value={formData.billingAddress} onChange={(e) => update('billingAddress', e.target.value)} className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Billing Postcode *</label>
-                  <input type="text" value={formData.billingPostcode} onChange={(e) => update('billingPostcode', e.target.value)} className={`w-full border ${errors.billingPostcode ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300'} rounded-md px-3 py-2 text-sm`} />
-                  {errors.billingPostcode && <p className="mt-1 text-xs text-red-500">{errors.billingPostcode}</p>}
-                </div>
-              </div>
-               <div className="mt-4">
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <input type="checkbox" checked={formData.paymentAuthorized || false} onChange={(e) => update('paymentAuthorized', e.target.checked)} className={`rounded ${errors.paymentAuthorized ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300'} text-indigo-600 mt-1 shrink-0`} />
-                  <span className={`text-sm ${errors.paymentAuthorized ? 'text-red-700 font-medium' : 'text-slate-700'}`}>I authorize the charges outlined above * — I understand that these fees cover InfoTrack Verification services and platform onboarding. The charges are non-refundable once the checks have been initiated.</span>
-                </label>
-                {errors.paymentAuthorized && <p className="mt-1 text-xs text-red-500 font-bold">{errors.paymentAuthorized}</p>}
-              </div>
-              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg flex gap-3">
-                <span className="text-green-600 shrink-0">🔒</span>
-                <p className="text-sm text-green-800 font-medium">Secure Payment. All payment information is encrypted and processed securely. We never store your full card details.</p>
-              </div>
+              <h3 className="font-semibold text-slate-900 mb-4">Secure Payment via Square</h3>
+              {errors.payment && (
+                <p className="mb-3 text-sm text-red-600 font-medium">{errors.payment}</p>
+              )}
+              <SquarePaymentForm
+                amountCents={25000}
+                currency="AUD"
+                caseId={draftCaseId}
+                onSuccess={({ paymentId }) => {
+                  setPaymentComplete(true)
+                  setSquarePaymentId(paymentId)
+                  update('paymentAuthorized', true)
+                }}
+                onError={(msg) => {
+                  setErrors((prev) => ({ ...prev, payment: msg }))
+                }}
+              />
             </div>
           </div>
         )}

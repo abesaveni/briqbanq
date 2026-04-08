@@ -38,44 +38,43 @@ export default function KYCReview() {
   const closeReview = () => setReviewModal(null)
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-4 pb-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800">KYC Review</h1>
-        <p className="text-sm text-gray-500 mt-1">Review and approve or reject KYC submissions</p>
+        <h1 className="text-lg font-semibold text-slate-900">KYC Review</h1>
+        <p className="text-sm text-slate-500">Review and approve or reject KYC submissions</p>
       </div>
 
-      {/* Stat cards - Figma: Pending (orange eye), Approved Today (green check), Rejected Today (red x) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex justify-between items-start">
+        <div className="bg-white rounded-xl border border-slate-200 p-4 flex justify-between items-center">
           <div>
-            <p className="text-sm text-gray-500">Pending Reviews</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">{pendingCount}</p>
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Pending Reviews</p>
+            <p className="text-2xl font-bold text-slate-900">{pendingCount}</p>
           </div>
-          <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-            <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+          <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+            <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex justify-between items-start">
+        <div className="bg-white rounded-xl border border-slate-200 p-4 flex justify-between items-center">
           <div>
-            <p className="text-sm text-gray-500">Approved Today</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">{approvedToday}</p>
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Approved Today</p>
+            <p className="text-2xl font-bold text-slate-900">{approvedToday}</p>
           </div>
-          <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+          <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
+            <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex justify-between items-start">
+        <div className="bg-white rounded-xl border border-slate-200 p-4 flex justify-between items-center">
           <div>
-            <p className="text-sm text-gray-500">Rejected Today</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">{rejectedToday}</p>
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Rejected Today</p>
+            <p className="text-2xl font-bold text-slate-900">{rejectedToday}</p>
           </div>
-          <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-            <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+          <div className="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+            <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
@@ -83,9 +82,9 @@ export default function KYCReview() {
       </div>
 
       {/* KYC Submissions table */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">KYC Submissions</h2>
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100">
+          <h2 className="text-sm font-semibold text-slate-800">KYC Submissions</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
