@@ -186,16 +186,9 @@ export default function LenderMyCasesTable({ cases = [], onDelete, onStatusUpdat
                                         <p className="text-emerald-600 font-medium mt-0.5">LVR: {lvr}%</p>
                                     </td>
                                     <td className="px-3 py-3.5 text-center">
-                                        <div className="relative inline-block">
-                                            <select
-                                                value={status}
-                                                onChange={e => handleStatusUpdate(item.id, e.target.value)}
-                                                className={`appearance-none pl-2.5 pr-6 py-1 rounded text-[10px] font-semibold uppercase tracking-wide border cursor-pointer focus:outline-none ${STATUS_STYLES[status] || "bg-slate-100 text-slate-600 border-slate-200"}`}
-                                            >
-                                                {STATUS_OPTIONS.map(s => <option key={s}>{s}</option>)}
-                                            </select>
-                                            <ChevronDown size={10} className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-50" />
-                                        </div>
+                                        <span className={`inline-flex px-2.5 py-1 rounded text-[10px] font-semibold uppercase tracking-wide border ${STATUS_STYLES[status] || "bg-slate-100 text-slate-600 border-slate-200"}`}>
+                                            {status}
+                                        </span>
                                     </td>
                                     <td className="px-3 py-3.5 text-center">
                                         <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-semibold ${RISK_STYLES[risk] || "bg-slate-100 text-slate-600"}`}>

@@ -230,10 +230,10 @@ export default function LenderCaseDetails() {
                     valuationDate: meta.valuation_date || "-",
                     valuerName: meta.valuer_name || "-",
                     arrears: {
-                        total: outstandingDebt,
-                        missedPayments: 0,
-                        defaultDate: "-",
-                        reason: "-"
+                        total: Number(fetchedCase.total_arrears) || outstandingDebt,
+                        missedPayments: Number(fetchedCase.missed_payments) || 0,
+                        defaultDate: fetchedCase.default_notice_date || "-",
+                        reason: fetchedCase.default_reason || "-"
                     },
                     recentActivity: fetchedCase.recentActivity || [],
                     documents: (fetchedCase.documents || []).map(doc => ({
@@ -830,7 +830,7 @@ export default function LenderCaseDetails() {
                                     <p className="text-sm font-semibold text-slate-900">Risk Assessment</p>
                                 </div>
 
-                                <div className="relative w-48 h-24 mb-6">
+                                <div className="relative w-32 h-16 mb-3">
                                     <svg viewBox="0 0 100 50" className="w-full">
                                         <path
                                             d="M 10 45 A 35 35 0 0 1 90 45"
@@ -850,8 +850,8 @@ export default function LenderCaseDetails() {
                                             className="transition-all duration-1000 ease-out"
                                         />
                                     </svg>
-                                    <div className="absolute inset-0 flex items-end justify-center pb-2">
-                                        <span className="text-2xl font-semibold text-slate-900 uppercase">MEDIUM</span>
+                                    <div className="absolute inset-0 flex items-end justify-center pb-1">
+                                        <span className="text-xs font-semibold text-slate-900 uppercase">MEDIUM</span>
                                     </div>
                                 </div>
                                 <div className="mt-auto w-full flex justify-between items-end">
@@ -868,9 +868,9 @@ export default function LenderCaseDetails() {
 
                             {/* Loan to Value Ratio */}
                             <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-col items-center relative group hover:shadow-sm transition-all">
-                                <div className="absolute top-0 right-0 p-6">
-                                    <div className="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-500 shadow-inner">
-                                        <TrendingUp size={20} />
+                                <div className="absolute top-0 right-0 p-3">
+                                    <div className="w-8 h-8 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500 shadow-inner">
+                                        <TrendingUp size={14} />
                                     </div>
                                 </div>
                                 <div className="w-full mb-4">
@@ -878,7 +878,7 @@ export default function LenderCaseDetails() {
                                     <h4 className="text-sm font-semibold text-slate-900">Loan to Value Ratio</h4>
                                 </div>
 
-                                <div className="relative w-56 h-28 mb-4">
+                                <div className="relative w-36 h-18 mb-3">
                                     <svg viewBox="0 0 100 50" className="w-full">
                                         <defs>
                                             <linearGradient id="lvrGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -905,30 +905,30 @@ export default function LenderCaseDetails() {
                                             className="transition-all duration-1000 ease-out"
                                         />
                                     </svg>
-                                    <div className="absolute inset-0 flex items-end justify-center pb-2">
+                                    <div className="absolute inset-0 flex items-end justify-center pb-1">
                                         <div className="text-center">
-                                            <span className="text-3xl font-semibold text-slate-900 ">{caseData.lvr}%</span>
-                                            <p className="text-xs font-semibold text-slate-400 uppercase -mt-1">Current LVR</p>
+                                            <span className="text-sm font-semibold text-slate-900">{caseData.lvr}%</span>
+                                            <p className="text-[10px] font-semibold text-slate-400 uppercase">Current LVR</p>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="mt-auto w-full grid grid-cols-2 gap-4">
-                                    <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                                        <p className="text-xs font-semibold text-slate-400 uppercase mb-0.5">Total Debt</p>
-                                        <p className="text-sm font-semibold text-slate-900">${(caseData.outstandingDebt / 1000).toLocaleString()}k</p>
+                                <div className="mt-auto w-full grid grid-cols-2 gap-2">
+                                    <div className="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                                        <p className="text-[10px] font-semibold text-slate-400 uppercase mb-0.5">Total Debt</p>
+                                        <p className="text-xs font-semibold text-slate-900">${(caseData.outstandingDebt / 1000).toLocaleString()}k</p>
                                     </div>
-                                    <div className="bg-emerald-50 p-3 rounded-2xl border border-emerald-100">
-                                        <p className="text-xs font-semibold text-emerald-700/50 uppercase mb-0.5">Net Equity</p>
-                                        <p className="text-sm font-semibold text-emerald-600">${(caseData.equity / 1000).toLocaleString()}k</p>
+                                    <div className="bg-emerald-50 p-2 rounded-xl border border-emerald-100">
+                                        <p className="text-[10px] font-semibold text-emerald-700/50 uppercase mb-0.5">Net Equity</p>
+                                        <p className="text-xs font-semibold text-emerald-600">${(caseData.equity / 1000).toLocaleString()}k</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Financial Breakdown */}
                             <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-col items-center relative group hover:shadow-sm transition-all">
-                                <div className="absolute top-0 right-0 p-6">
-                                    <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 shadow-inner">
-                                        <DollarSign size={20} />
+                                <div className="absolute top-0 right-0 p-3">
+                                    <div className="w-8 h-8 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 shadow-inner">
+                                        <DollarSign size={14} />
                                     </div>
                                 </div>
                                 <div className="w-full mb-4">
@@ -936,7 +936,7 @@ export default function LenderCaseDetails() {
                                     <h4 className="text-sm font-semibold text-slate-900">Capital Structure</h4>
                                 </div>
 
-                                <div className="relative w-32 h-32 mb-6">
+                                <div className="relative w-20 h-20 mb-3">
                                     <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90">
                                         <circle cx="18" cy="18" r="16" fill="none" stroke="#10b981" strokeWidth="4" />
                                         <circle
@@ -946,22 +946,22 @@ export default function LenderCaseDetails() {
                                         />
                                     </svg>
                                     <div className="absolute inset-0 flex items-center justify-center">
-                                        <span className="text-sm font-semibold text-slate-900">72.8%</span>
+                                        <span className="text-xs font-semibold text-slate-900">72.8%</span>
                                     </div>
                                 </div>
 
-                                <div className="mt-auto w-full space-y-2.5">
-                                    <div className="flex items-center justify-between p-3 bg-rose-50 rounded-2xl border border-rose-100">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                                            <span className="text-xs font-semibold text-slate-600 uppercase">Institutional Debt</span>
+                                <div className="mt-auto w-full space-y-1.5">
+                                    <div className="flex items-center justify-between p-2 bg-rose-50 rounded-xl border border-rose-100">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div>
+                                            <span className="text-[10px] font-semibold text-slate-600 uppercase">Institutional Debt</span>
                                         </div>
                                         <span className="text-xs font-semibold text-slate-900">{caseData.lvr}%</span>
                                     </div>
-                                    <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-2xl border border-emerald-100">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                                            <span className="text-xs font-semibold text-slate-600 uppercase">Equity Buffer</span>
+                                    <div className="flex items-center justify-between p-2 bg-emerald-50 rounded-xl border border-emerald-100">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                            <span className="text-[10px] font-semibold text-slate-600 uppercase">Equity Buffer</span>
                                         </div>
                                         <span className="text-xs font-semibold text-slate-900">{(100 - caseData.lvr).toFixed(1)}%</span>
                                     </div>
@@ -1721,133 +1721,127 @@ export default function LenderCaseDetails() {
 
                         {settlementSubTab === "AI Checklist Manager" && (
                             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                                {/* Professional Stats Grid */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-                                    <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-2xl transition-all">
-                                        <p className="text-xs font-medium text-gray-500 mb-2">Protocol Status</p>
-                                        <div className="text-4xl font-semibold text-slate-900 leading-none mb-4">{caseSettlementData.summary.completed}/{caseSettlementData.summary.total}</div>
-                                        <div className="w-full h-2 bg-slate-50 rounded-full overflow-hidden border border-slate-100 shadow-inner">
-                                            <div className="h-full bg-blue-600 rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(37,99,235,0.5)]" style={{ width: `${(caseSettlementData.summary.completed / caseSettlementData.summary.total) * 100}%` }}></div>
+                                {/* Stats Grid */}
+                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                                    <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                                        <p className="text-xs font-medium text-gray-500 mb-1">Protocol Status</p>
+                                        <div className="text-xl font-semibold text-slate-900 leading-none mb-2">{caseSettlementData.summary.completed}/{caseSettlementData.summary.total}</div>
+                                        <div className="w-full h-1.5 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
+                                            <div className="h-full bg-blue-600 rounded-full transition-all duration-1000" style={{ width: `${(caseSettlementData.summary.completed / caseSettlementData.summary.total) * 100}%` }}></div>
                                         </div>
                                     </div>
                                     {[
-                                        { label: "In Active Workflow", value: caseSettlementData.summary.inProgress, color: "text-blue-600", icon: <Clock size={24} />, bg: "bg-blue-50" },
-                                        { label: "Overdue Actions", value: caseSettlementData.summary.overdue, color: "text-rose-600", icon: <AlertTriangle size={24} />, bg: "bg-rose-50" },
-                                        { label: "Blocked Protocol", value: caseSettlementData.summary.blocked, color: "text-amber-500", icon: <Pause size={24} />, bg: "bg-amber-50" },
-                                        { label: "Est. Distribution", value: caseSettlementData.summary.estCompletion, color: "text-slate-900", icon: <Calendar size={24} />, bg: "bg-slate-50" }
+                                        { label: "In Active Workflow", value: caseSettlementData.summary.inProgress, color: "text-blue-600", icon: <Clock size={16} />, bg: "bg-blue-50" },
+                                        { label: "Overdue Actions", value: caseSettlementData.summary.overdue, color: "text-rose-600", icon: <AlertTriangle size={16} />, bg: "bg-rose-50" },
+                                        { label: "Blocked Protocol", value: caseSettlementData.summary.blocked, color: "text-amber-500", icon: <Pause size={16} />, bg: "bg-amber-50" },
+                                        { label: "Est. Distribution", value: caseSettlementData.summary.estCompletion, color: "text-slate-900", icon: <Calendar size={16} />, bg: "bg-slate-50" }
                                     ].map((stat, i) => (
-                                        <div key={i} className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center group hover:shadow-2xl transition-all">
-                                            <p className="text-xs font-medium text-gray-500 mb-3">{stat.label}</p>
-                                            <div className="text-3xl font-semibold text-slate-900 mb-4">{stat.value}</div>
-                                            <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform`}>{stat.icon}</div>
+                                        <div key={i} className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex items-center gap-3">
+                                            <div className={`w-8 h-8 ${stat.bg} ${stat.color} rounded-lg flex items-center justify-center shrink-0`}>{stat.icon}</div>
+                                            <div>
+                                                <p className="text-[10px] font-medium text-gray-500">{stat.label}</p>
+                                                <div className="text-sm font-semibold text-slate-900">{stat.value}</div>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
 
                                 {/* AI Intelligence Bar */}
-                                <div className="bg-slate-900 rounded-[48px] p-6 text-white flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-2xl relative overflow-hidden">
-                                    <div className="flex items-center gap-6 relative z-10">
-                                        <div className="w-20 h-20 bg-white/5 backdrop-blur-3xl rounded-lg flex items-center justify-center text-blue-400 border border-white/10 shadow-2xl">
-                                            <Sparkles size={40} className="animate-pulse" />
+                                <div className="bg-slate-900 rounded-xl p-4 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative overflow-hidden">
+                                    <div className="flex items-center gap-3 relative z-10">
+                                        <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-blue-400 border border-white/10">
+                                            <Sparkles size={20} className="animate-pulse" />
                                         </div>
                                         <div>
-                                            <h4 className="text-2xl font-semibold ">AI Settlement Intelligence</h4>
-                                            <p className="text-blue-100/60 font-bold text-xs uppercase  mt-1">Autonomous Protocol Orchestration • Real-time Compliance Clearing</p>
+                                            <h4 className="text-sm font-semibold">AI Settlement Intelligence</h4>
+                                            <p className="text-blue-100/60 text-xs mt-0.5">Autonomous Protocol Orchestration • Real-time Compliance</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-4 relative z-10">
+                                    <div className="flex items-center gap-2 relative z-10">
                                         <button
                                             onClick={() => setToast({ show: true, message: "AI is analysing settlement protocol for optimisation opportunities. Results will appear in the checklist.", type: "info" })}
-                                            className="h-14 px-8 bg-white/5 backdrop-blur-xl rounded-2xl text-xs font-semibold uppercase hover:bg-white/10 transition-all border border-white/10 shadow-xl"
+                                            className="px-3 py-2 bg-white/5 rounded-lg text-xs font-semibold hover:bg-white/10 transition-all border border-white/10"
                                         >
                                             Optimize Protocol
                                         </button>
                                         <button
                                             onClick={() => setToast({ show: true, message: "Auto-settle protocol deployed. System will execute settlement triggers automatically when all conditions are met.", type: "success" })}
-                                            className="h-14 px-10 bg-blue-600 text-white rounded-2xl text-xs font-semibold uppercase hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95 flex items-center gap-3"
+                                            className="px-3 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition-all flex items-center gap-2"
                                         >
-                                            <Scale size={20} /> Deploy Auto-Settle
+                                            <Scale size={14} /> Deploy Auto-Settle
                                         </button>
                                     </div>
-                                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+                                    <div className="absolute top-0 right-0 w-48 h-48 bg-blue-600/10 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/2"></div>
                                 </div>
 
                                 {/* Checklist Architecture */}
-                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                                    <div className="lg:col-span-12 space-y-6">
-                                        {caseSettlementData.categories.map((cat) => (
-                                            <div key={cat.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500">
-                                                <button
-                                                    onClick={() => setExpandedCategory(expandedCategory === cat.title ? null : cat.title)}
-                                                    className="w-full p-6 flex items-center justify-between group"
-                                                >
-                                                    <div className="flex items-center gap-4">
-                                                        <div className={`w-16 h-16 ${cat.bg} rounded-lg flex items-center justify-center text-blue-600 shadow-inner group-hover:scale-110 transition-transform`}>
-                                                            {cat.icon}
-                                                        </div>
-                                                        <div className="text-left space-y-1">
-                                                            <h5 className="text-2xl font-semibold text-slate-800 ">{cat.title}</h5>
-                                                            <div className="flex items-center gap-4">
-                                                                <span className="text-xs font-semibold text-slate-400 uppercase">{cat.completed}/{cat.total} Protocol Phases Secured</span>
-                                                                <div className="w-1 h-1 rounded-full bg-slate-300"></div>
-                                                                <span className="text-xs font-semibold text-blue-600 uppercase">{cat.progress}% COMPLETE</span>
-                                                            </div>
+                                <div className="space-y-3">
+                                    {caseSettlementData.categories.map((cat) => (
+                                        <div key={cat.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
+                                            <button
+                                                onClick={() => setExpandedCategory(expandedCategory === cat.title ? null : cat.title)}
+                                                className="w-full p-4 flex items-center justify-between group"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-9 h-9 ${cat.bg} rounded-lg flex items-center justify-center text-blue-600`}>
+                                                        {cat.icon}
+                                                    </div>
+                                                    <div className="text-left">
+                                                        <h5 className="text-sm font-semibold text-slate-800">{cat.title}</h5>
+                                                        <div className="flex items-center gap-2 mt-0.5">
+                                                            <span className="text-xs text-slate-400">{cat.completed}/{cat.total} phases</span>
+                                                            <span className="text-xs font-semibold text-blue-600">{cat.progress}%</span>
                                                         </div>
                                                     </div>
-                                                    <div className="flex items-center gap-6">
-                                                        <div className="hidden xl:block w-64 h-2 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
-                                                            <div className="h-full bg-blue-900 rounded-full transition-all duration-1000" style={{ width: `${cat.progress}%` }}></div>
-                                                        </div>
-                                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border border-slate-100 transition-all ${expandedCategory === cat.title ? 'bg-blue-900 text-white border-blue-900 rotate-90' : 'bg-white text-slate-400 group-hover:bg-slate-50 group-hover:text-slate-900'}`}>
-                                                            <ChevronRight size={20} />
-                                                        </div>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="hidden sm:block w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                                        <div className="h-full bg-blue-900 rounded-full transition-all duration-1000" style={{ width: `${cat.progress}%` }}></div>
                                                     </div>
-                                                </button>
+                                                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center border border-slate-100 transition-all ${expandedCategory === cat.title ? 'bg-blue-900 text-white border-blue-900 rotate-90' : 'bg-white text-slate-400'}`}>
+                                                        <ChevronRight size={14} />
+                                                    </div>
+                                                </div>
+                                            </button>
 
-                                                {expandedCategory === cat.title && (
-                                                    <div className="p-6 pt-0 space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
-                                                        {cat.tasks.filter(t => !t.archived).map((task) => (
-                                                            <div key={task.id} className="group p-5 bg-slate-50/50 rounded-xl border border-slate-100 hover:bg-white hover:shadow-2xl transition-all">
-                                                                <div className="flex items-start justify-between">
-                                                                    <div className="flex gap-4">
-                                                                        <div className="pt-1">
-                                                                            <div className={`w-8 h-8 rounded-xl border-2 flex items-center justify-center transition-all cursor-pointer ${task.completed ? 'bg-emerald-500 border-emerald-500 scale-110' : 'bg-white border-slate-200 hover:border-blue-400'}`}>
-                                                                                {task.completed && <Check size={18} className="text-white" />}
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="space-y-4">
-                                                                            <div>
-                                                                                <h6 className={`text-xl font-semibold  ${task.completed ? "text-slate-400 line-through" : "text-slate-800"}`}>{task.title}</h6>
-                                                                                <p className="text-sm font-bold text-slate-400 leading-relaxed uppercase max-w-2xl mt-1">{task.desc}</p>
-                                                                            </div>
-                                                                            <div className="flex flex-wrap items-center gap-6">
-                                                                                <div className={`px-4 py-1.5 rounded-xl text-xs font-semibold uppercase border transition-all ${task.status === "COMPLETED" ? "bg-emerald-50 text-emerald-600 border-emerald-100 shadow-emerald-100/20" : "bg-blue-50 text-blue-600 border-blue-100"}`}>{task.status}</div>
-                                                                                <div className={`px-4 py-1.5 rounded-xl text-xs font-semibold uppercase border ${task.priority === "CRITICAL" ? "bg-rose-50 text-rose-600 border-rose-100 animate-pulse" : "bg-white text-slate-500 border-slate-100"}`}>{task.priority}</div>
-                                                                                <div className="flex items-center gap-3 text-xs font-bold text-slate-500">
-                                                                                    <div className="w-7 h-7 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400"><Users size={14} /></div>
-                                                                                    {task.assignee}
-                                                                                </div>
-                                                                                <div className="flex items-center gap-3 text-xs font-bold text-slate-500">
-                                                                                    <div className="w-7 h-7 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400"><Calendar size={14} /></div>
-                                                                                    {task.date}
-                                                                                </div>
-                                                                            </div>
+                                            {expandedCategory === cat.title && (
+                                                <div className="px-4 pb-4 space-y-2 animate-in fade-in slide-in-from-top-4 duration-300">
+                                                    {cat.tasks.filter(t => !t.archived).map((task) => (
+                                                        <div key={task.id} className="group p-3 bg-slate-50/50 rounded-lg border border-slate-100 hover:bg-white hover:shadow-sm transition-all">
+                                                            <div className="flex items-start justify-between">
+                                                                <div className="flex gap-3">
+                                                                    <div className="pt-0.5">
+                                                                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${task.completed ? 'bg-emerald-500 border-emerald-500' : 'bg-white border-slate-200 hover:border-blue-400'}`}>
+                                                                            {task.completed && <Check size={12} className="text-white" />}
                                                                         </div>
                                                                     </div>
-                                                                    <div className="flex items-center gap-2">
+                                                                    <div className="space-y-1.5">
+                                                                        <div>
+                                                                            <h6 className={`text-sm font-semibold ${task.completed ? "text-slate-400 line-through" : "text-slate-800"}`}>{task.title}</h6>
+                                                                            <p className="text-xs text-slate-400 leading-relaxed max-w-2xl mt-0.5">{task.desc}</p>
+                                                                        </div>
+                                                                        <div className="flex flex-wrap items-center gap-2">
+                                                                            <div className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase border ${task.status === "COMPLETED" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-blue-50 text-blue-600 border-blue-100"}`}>{task.status}</div>
+                                                                            <div className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase border ${task.priority === "CRITICAL" ? "bg-rose-50 text-rose-600 border-rose-100 animate-pulse" : "bg-white text-slate-500 border-slate-100"}`}>{task.priority}</div>
+                                                                            <span className="text-xs text-slate-500">{task.assignee}</span>
+                                                                            <span className="text-xs text-slate-400">{task.date}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                    <div className="flex items-center gap-1 shrink-0">
                                                                         <button
                                                                             onClick={() => setToast({ show: true, message: `Protocol details for "${task.title}": ${task.desc}. Assignee: ${task.assignee}. Due: ${task.date}.`, type: "info" })}
-                                                                            className="h-10 px-4 bg-white border border-slate-100 rounded-xl text-xs font-semibold uppercase text-blue-900 hover:bg-blue-50 transition-all shadow-sm"
-                                                                        >Protocol Details</button>
+                                                                            className="px-2 py-1 bg-white border border-slate-100 rounded-lg text-[10px] font-semibold text-blue-900 hover:bg-blue-50 transition-all"
+                                                                        >Details</button>
                                                                         <div className="relative">
                                                                             <button
                                                                                 onClick={() => setOpenTaskMenuId(openTaskMenuId === task.id ? null : task.id)}
-                                                                                className="w-10 h-10 flex items-center justify-center text-slate-300 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all"
+                                                                                className="w-7 h-7 flex items-center justify-center text-slate-300 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-all"
                                                                             >
-                                                                                <MoreHorizontal size={20} />
+                                                                                <MoreHorizontal size={14} />
                                                                             </button>
                                                                             {openTaskMenuId === task.id && (
-                                                                                <div className="absolute right-0 top-12 bg-white border border-slate-200 rounded-xl shadow-xl z-50 min-w-[200px] overflow-hidden">
+                                                                                <div className="absolute right-0 top-8 bg-white border border-slate-200 rounded-xl shadow-xl z-50 min-w-[180px] overflow-hidden">
                                                                                     {[
                                                                                         { label: "Edit Task", icon: Edit3, type: "edit" },
                                                                                         { label: "Reassign", icon: Users, type: "reassign" },
@@ -1858,9 +1852,9 @@ export default function LenderCaseDetails() {
                                                                                         <button
                                                                                             key={action.label}
                                                                                             onClick={() => openTaskAction(action.type, task)}
-                                                                                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors text-left"
+                                                                                            className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors text-left"
                                                                                         >
-                                                                                            <action.icon size={16} className="text-slate-400" />
+                                                                                            <action.icon size={14} className="text-slate-400" />
                                                                                             {action.label}
                                                                                         </button>
                                                                                     ))}
@@ -1875,7 +1869,6 @@ export default function LenderCaseDetails() {
                                                 )}
                                             </div>
                                         ))}
-                                    </div>
                                 </div>
                             </div>
                         )}
@@ -1883,109 +1876,108 @@ export default function LenderCaseDetails() {
                         {settlementSubTab === "Settlement Overview" && (
                             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
                                 {/* Property Hub Banner */}
-                                <div className="bg-white border border-gray-100 rounded-[48px] p-6 shadow-sm flex flex-col xl:flex-row xl:items-center justify-between gap-6 hover:shadow-2xl transition-all">
-                                    <div className="flex flex-col md:flex-row items-center gap-6">
-                                        <div className="w-56 h-40 rounded-xl overflow-hidden border border-slate-100 shadow-inner shrink-0 relative group">
+                                <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+                                    <div className="flex flex-col sm:flex-row items-center gap-4">
+                                        <div className="w-32 h-24 rounded-xl overflow-hidden border border-slate-100 shadow-inner shrink-0 relative group">
                                             {(caseData?.image || settlementOverviewData.property.image) ? (
                                                 <img src={caseData?.image || settlementOverviewData.property.image} alt="Property" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                             ) : (
                                                 <div className="w-full h-full bg-gradient-to-br from-[#1d2375] to-[#2d3a9a]" />
                                             )}
-                                            <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
                                         </div>
-                                        <div className="text-center md:text-left space-y-4">
+                                        <div className="text-center sm:text-left space-y-2">
                                             <div>
-                                                <span className="px-4 py-1 bg-blue-50 text-blue-600 text-xs font-semibold uppercase  rounded-full mb-3 inline-block shadow-sm">Verified Institutional Asset</span>
-                                                <h3 className="text-4xl font-semibold text-slate-900  leading-none">{settlementOverviewData.property.title}</h3>
+                                                <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-semibold uppercase rounded-full mb-1.5 inline-block">Verified Institutional Asset</span>
+                                                <h3 className="text-base font-semibold text-slate-900 leading-tight">{settlementOverviewData.property.title}</h3>
                                             </div>
-                                            <p className="text-slate-400 font-bold text-lg">{settlementOverviewData.property.location}</p>
-                                            <div className="flex flex-wrap justify-center md:justify-start gap-4">
-                                                <div className="flex items-center gap-3 text-sm font-semibold text-slate-700 bg-slate-50 px-5 py-2.5 rounded-2xl border border-slate-100 shadow-sm">
-                                                    <Clock size={16} className="text-blue-600" />
-                                                    Distribution Date: {settlementOverviewData.property.settlementDate}
+                                            <p className="text-slate-400 text-sm">{settlementOverviewData.property.location}</p>
+                                            <div className="flex flex-wrap justify-center sm:justify-start gap-2">
+                                                <div className="flex items-center gap-1.5 text-xs font-medium text-slate-700 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                                                    <Clock size={12} className="text-blue-600" />
+                                                    {settlementOverviewData.property.settlementDate}
                                                 </div>
-                                                <div className="flex items-center gap-3 text-sm font-semibold text-slate-700 bg-slate-50 px-5 py-2.5 rounded-2xl border border-slate-100 shadow-sm">
-                                                    <Target size={16} className="text-emerald-500" />
-                                                    Lender ID: {settlementOverviewData.property.id}
+                                                <div className="flex items-center gap-1.5 text-xs font-medium text-slate-700 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                                                    <Target size={12} className="text-emerald-500" />
+                                                    {settlementOverviewData.property.id}
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex flex-col items-center xl:items-end gap-6 min-w-[320px] bg-slate-50/50 p-5 rounded-xl border border-slate-100 shadow-inner">
-                                        <div className="w-full space-y-3">
-                                            <div className="flex justify-between items-end">
+                                    <div className="flex flex-col gap-3 min-w-[240px] bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                                        <div className="w-full space-y-1.5">
+                                            <div className="flex justify-between items-center">
                                                 <p className="text-xs font-medium text-gray-500">Protocol Preparedness</p>
-                                                <span className="text-4xl font-semibold text-blue-600 tabular-nums">{settlementOverviewData.property.readiness}%</span>
+                                                <span className="text-lg font-semibold text-blue-600 tabular-nums">{settlementOverviewData.property.readiness}%</span>
                                             </div>
-                                            <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200 p-0.5 shadow-inner">
-                                                <div className="h-full bg-blue-600 rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(37,99,235,0.4)]" style={{ width: `${settlementOverviewData.property.readiness}%` }}></div>
+                                            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                                                <div className="h-full bg-blue-600 rounded-full transition-all duration-1000" style={{ width: `${settlementOverviewData.property.readiness}%` }}></div>
                                             </div>
                                         </div>
                                         <button
                                             onClick={() => setToast({ show: true, message: "Disbursement authorization initiated. Awaiting dual-approval from compliance and finance team. You will be notified when approved.", type: "success" })}
-                                            className="w-full h-14 bg-blue-900 text-white rounded-[20px] font-semibold text-sm uppercase hover:bg-blue-800 transition-all shadow-xl shadow-blue-900/20 active:scale-95 flex items-center justify-center gap-3"
+                                            className="w-full py-2 bg-blue-900 text-white rounded-lg font-semibold text-xs uppercase hover:bg-blue-800 transition-all flex items-center justify-center gap-2"
                                         >
-                                            <CheckCircle2 size={20} /> Authorize Final Disbursement
+                                            <CheckCircle2 size={14} /> Authorize Final Disbursement
                                         </button>
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                                     {/* Critical Protocol Alerts */}
-                                    <div className="lg:col-span-5 bg-white border border-gray-100 rounded-[48px] p-6 space-y-4 shadow-sm hover:shadow-2xl transition-all">
+                                    <div className="lg:col-span-5 bg-white border border-gray-100 rounded-xl p-4 space-y-3 shadow-sm">
                                         <div className="flex items-center justify-between">
-                                            <h4 className="text-2xl font-semibold text-slate-800 ">Protocol Exceptions</h4>
-                                            <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500 shadow-inner">
-                                                <AlertTriangle size={24} className="animate-pulse" />
+                                            <h4 className="text-sm font-semibold text-slate-800">Protocol Exceptions</h4>
+                                            <div className="w-7 h-7 bg-rose-50 rounded-lg flex items-center justify-center text-rose-500">
+                                                <AlertTriangle size={14} className="animate-pulse" />
                                             </div>
                                         </div>
-                                        <div className="space-y-4">
+                                        <div className="space-y-2">
                                             {settlementOverviewData.outstanding.map(item => (
-                                                <div key={item.id} className="p-5 rounded-xl bg-slate-50/50 border border-slate-100 flex items-center justify-between group hover:bg-white hover:border-slate-300 transition-all cursor-pointer">
-                                                    <div className="space-y-1">
-                                                        <h5 className="text-base font-semibold text-slate-800">{item.title}</h5>
-                                                        <p className="text-xs font-medium text-gray-500">{item.responsible} Priority Action</p>
+                                                <div key={item.id} className="p-3 rounded-lg bg-slate-50/50 border border-slate-100 flex items-center justify-between cursor-pointer hover:bg-white hover:border-slate-200 transition-all">
+                                                    <div>
+                                                        <h5 className="text-xs font-semibold text-slate-800">{item.title}</h5>
+                                                        <p className="text-[10px] text-gray-500">{item.responsible} Priority</p>
                                                     </div>
-                                                    <div className={`px-5 py-2.5 rounded-2xl text-xs font-semibold uppercase shadow-sm ${item.status === 'overdue' ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
+                                                    <div className={`px-2 py-1 rounded-lg text-[10px] font-semibold uppercase ${item.status === 'overdue' ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
                                                         {item.days}
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
-                                        <button className="w-full h-14 border-2 border-dashed border-slate-200 rounded-xl text-xs font-semibold uppercase text-slate-400 hover:border-blue-900 hover:text-blue-900 hover:bg-blue-50/50 transition-all">
+                                        <button className="w-full py-2 border border-dashed border-slate-200 rounded-lg text-xs font-semibold uppercase text-slate-400 hover:border-blue-900 hover:text-blue-900 hover:bg-blue-50/50 transition-all">
                                             Request Protocol Waiver
                                         </button>
                                     </div>
 
                                     {/* Encrypted Protocol Thread */}
-                                    <div className="lg:col-span-7 bg-white border border-gray-100 rounded-[48px] overflow-hidden flex flex-col shadow-sm hover:shadow-2xl transition-all h-[600px]">
-                                        <div className="p-6 border-b border-slate-50 bg-white sticky top-0 z-10">
-                                            <h4 className="text-2xl font-semibold text-slate-800 ">Institutional Protocol Ledger</h4>
-                                            <p className="text-xs font-bold text-slate-400 mt-1 uppercase ">End-to-end encrypted settlement communication</p>
+                                    <div className="lg:col-span-7 bg-white border border-gray-100 rounded-xl overflow-hidden flex flex-col shadow-sm h-[420px]">
+                                        <div className="p-4 border-b border-slate-50 bg-white">
+                                            <h4 className="text-sm font-semibold text-slate-800">Institutional Protocol Ledger</h4>
+                                            <p className="text-[10px] text-slate-400 mt-0.5 uppercase">End-to-end encrypted settlement communication</p>
                                         </div>
-                                        <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-hide">
+                                        <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
                                             {settlementOverviewData.thread.map((msg) => (
-                                                <div key={msg.id} className="flex gap-6 group">
-                                                    <div className={`w-14 h-14 rounded-lg ${msg.color} text-white flex items-center justify-center font-semibold text-lg shadow-xl shrink-0 group-hover:scale-110 transition-transform`}>
+                                                <div key={msg.id} className="flex gap-3">
+                                                    <div className={`w-9 h-9 rounded-lg ${msg.color} text-white flex items-center justify-center font-semibold text-sm shrink-0`}>
                                                         {msg.initials}
                                                     </div>
-                                                    <div className="flex-1 space-y-3">
+                                                    <div className="flex-1 space-y-1">
                                                         <div className="flex items-center justify-between">
-                                                            <div className="flex items-center gap-3">
-                                                                <span className="text-sm font-semibold text-slate-900">{msg.user}</span>
-                                                                <span className="px-2 py-0.5 bg-slate-50 border border-slate-100 rounded-lg text-xs font-semibold text-slate-400 uppercase">{msg.role}</span>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-xs font-semibold text-slate-900">{msg.user}</span>
+                                                                <span className="px-1.5 py-0.5 bg-slate-50 border border-slate-100 rounded text-[10px] font-semibold text-slate-400 uppercase">{msg.role}</span>
                                                             </div>
-                                                            <span className="text-xs font-bold text-slate-300 tabular-nums">{msg.time}</span>
+                                                            <span className="text-[10px] text-slate-300 tabular-nums">{msg.time}</span>
                                                         </div>
-                                                        <div className="bg-slate-50/50 group-hover:bg-white border border-transparent group-hover:border-slate-100 p-6 rounded-xl shadow-sm transition-all">
-                                                            <p className="text-sm text-slate-600 font-bold leading-relaxed">{msg.message}</p>
+                                                        <div className="bg-slate-50/50 border border-transparent p-3 rounded-lg">
+                                                            <p className="text-xs text-slate-600 leading-relaxed">{msg.message}</p>
                                                         </div>
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
-                                        <div className="p-6 bg-slate-50/50 border-t border-slate-100">
-                                            <div className="relative flex items-center gap-4">
+                                        <div className="p-3 bg-slate-50/50 border-t border-slate-100">
+                                            <div className="flex items-center gap-2">
                                                 <input ref={settlementFileInputRef} type="file" className="hidden" onChange={(e) => {
                                                     const file = e.target.files?.[0];
                                                     if (file) {
@@ -1996,21 +1988,19 @@ export default function LenderCaseDetails() {
                                                 }} />
                                                 <button
                                                     onClick={() => settlementFileInputRef.current?.click()}
-                                                    className="h-14 w-14 bg-white border border-slate-200 rounded-2xl flex items-center justify-center text-slate-400 hover:text-blue-600 transition-all shadow-sm"
+                                                    className="h-9 w-9 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-slate-400 hover:text-blue-600 transition-all"
                                                 >
-                                                    <Paperclip size={22} />
+                                                    <Paperclip size={14} />
                                                 </button>
-                                                <div className="flex-1 relative">
-                                                    <input
-                                                        type="text"
-                                                        value={settlementMessage}
-                                                        onChange={(e) => setSettlementMessage(e.target.value)}
-                                                        placeholder="Enter formal protocol communication..."
-                                                        className="w-full bg-white border border-slate-200 rounded-2xl px-8 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-900 shadow-inner transition-all h-14"
-                                                    />
-                                                </div>
-                                                <button onClick={handleSendMessage} className="h-14 w-14 bg-blue-900 text-white rounded-2xl flex items-center justify-center hover:bg-blue-800 active:scale-95 transition-all shadow-2xl shadow-blue-900/20">
-                                                    <Send size={22} />
+                                                <input
+                                                    type="text"
+                                                    value={settlementMessage}
+                                                    onChange={(e) => setSettlementMessage(e.target.value)}
+                                                    placeholder="Enter formal protocol communication..."
+                                                    className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-900 h-9"
+                                                />
+                                                <button onClick={handleSendMessage} className="h-9 w-9 bg-blue-900 text-white rounded-lg flex items-center justify-center hover:bg-blue-800 active:scale-95 transition-all">
+                                                    <Send size={14} />
                                                 </button>
                                             </div>
                                         </div>
@@ -2020,27 +2010,25 @@ export default function LenderCaseDetails() {
                         )}
 
                         {settlementSubTab === "PEXA Settlement" && (
-                            <div className="bg-white p-32 rounded-[60px] border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center animate-fade-in relative overflow-hidden group">
-                                <div className="absolute inset-0 bg-blue-50/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="bg-white p-10 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center animate-fade-in relative overflow-hidden">
                                 <div className="relative z-10 flex flex-col items-center">
-                                    <div className="w-32 h-32 bg-white rounded-xl flex items-center justify-center mb-4 shadow-2xl border border-blue-50 group-hover:scale-110 transition-transform duration-700">
-                                        <Building size={64} className="text-blue-600" />
+                                    <div className="w-16 h-16 bg-blue-50 rounded-xl flex items-center justify-center mb-4 border border-blue-100">
+                                        <Building size={28} className="text-blue-600" />
                                     </div>
-                                    <h3 className="text-4xl font-semibold text-slate-900  uppercase mb-6">PEXA Exchange Interface</h3>
-                                    <p className="text-base font-bold text-slate-400 max-w-xl leading-relaxed uppercase tracking-[0.1em] mb-5">
+                                    <h3 className="text-lg font-semibold text-slate-900 uppercase mb-2">PEXA Exchange Interface</h3>
+                                    <p className="text-xs text-slate-400 max-w-md leading-relaxed mb-6">
                                         The electronic settlement workspace is configured for institutional funds clearance.
                                         Lender legal representation has finalized protocol workspace BB-2026-X01.
                                     </p>
-                                    <div className="flex gap-4">
-                                        <button className="h-16 px-12 bg-blue-900 text-white rounded-lg font-semibold text-sm uppercase hover:bg-blue-800 transition-all shadow-2xl shadow-blue-900/20 active:scale-95 flex items-center gap-4">
-                                            <Handshake size={24} /> Sync PEXA Workspace
+                                    <div className="flex gap-3">
+                                        <button className="px-5 py-2.5 bg-blue-900 text-white rounded-lg font-semibold text-xs uppercase hover:bg-blue-800 transition-all flex items-center gap-2">
+                                            <Handshake size={14} /> Sync PEXA Workspace
                                         </button>
-                                        <button className="h-16 px-12 bg-white border border-slate-200 text-slate-700 rounded-lg font-semibold text-sm uppercase hover:bg-slate-50 transition-all active:scale-95">
+                                        <button className="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-lg font-semibold text-xs uppercase hover:bg-slate-50 transition-all">
                                             Audit Trails
                                         </button>
                                     </div>
                                 </div>
-                                <div className="absolute top-0 left-0 w-80 h-80 bg-blue-600/5 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2"></div>
                             </div>
                         )}
                     </div>

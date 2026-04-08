@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import LenderHeroSection from "../../components/lender_dashboard/LenderHeroSection";
 import LenderAlerts from "../../components/lender_dashboard/LenderAlerts";
 import LenderMetricsGrid from "../../components/lender_dashboard/LenderMetricsGrid";
@@ -15,11 +15,17 @@ export default function LenderDashboard() {
     const [showSupportModal, setShowSupportModal] = useState(false);
     const [showContactModal, setShowContactModal] = useState(false);
 
-    useEffect(() => {
+    const fetchCases = useCallback(() => {
         lenderService.getMyCases()
             .then(res => { if (res.success) setCases(Array.isArray(res.data) ? res.data : []); })
             .catch(err => console.error("Failed to fetch cases", err));
     }, []);
+
+    useEffect(() => {
+        fetchCases();
+        window.addEventListener('focus', fetchCases);
+        return () => window.removeEventListener('focus', fetchCases);
+    }, [fetchCases]);
 
     const stats = useMemo(() => {
         if (!cases.length) return { portfolioValue: "0", activeLoans: 0, recoveryRate: "0.0", interestEarned: "0.00", defaultRate: "0.0", activeBids: "0", lvr: "0.0" };

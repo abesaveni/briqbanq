@@ -6,6 +6,22 @@ import NewCase from '../borrower/NewCase'
 import { lawyerService } from '../../api/dataService'
 import { generateCasesTablePDF } from '../../utils/pdfGenerator'
 
+const STATUS_BADGE = {
+  DRAFT:        "bg-slate-100 text-slate-600",
+  SUBMITTED:    "bg-blue-50 text-blue-700",
+  UNDER_REVIEW: "bg-amber-50 text-amber-700",
+  APPROVED:     "bg-emerald-50 text-emerald-700",
+  LISTED:       "bg-indigo-50 text-indigo-700",
+  AUCTION:      "bg-purple-50 text-purple-700",
+  FUNDED:       "bg-teal-50 text-teal-700",
+  CLOSED:       "bg-slate-100 text-slate-500",
+  REJECTED:     "bg-red-50 text-red-700",
+  active:       "bg-emerald-50 text-emerald-700",
+  pending:      "bg-amber-50 text-amber-700",
+  listed:       "bg-indigo-50 text-indigo-700",
+  completed:    "bg-slate-100 text-slate-500",
+}
+
 const STAT_ICONS = {
   total: () => <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
   active: () => <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>,
@@ -187,16 +203,9 @@ export default function AssignedCases() {
                   <td className="py-3 px-4 text-slate-800">{row.loan_amount ? `$${Number(row.loan_amount).toLocaleString()}` : '—'}</td>
                   <td className="py-3 px-4 text-slate-800">{row.property_value ? `$${Number(row.property_value).toLocaleString()}` : '—'}</td>
                   <td className="py-3 px-4">
-                    <select
-                      value={row.status}
-                      onChange={(e) => handleStatusChange(row.id, e.target.value)}
-                      className="border border-gray-300 rounded-lg px-2 py-1 text-sm bg-white text-slate-800"
-                    >
-                      <option value="active">Active</option>
-                      <option value="listed">In Auction</option>
-                      <option value="pending">Pending</option>
-                      <option value="completed">Completed</option>
-                    </select>
+                    <span className={`inline-flex px-2.5 py-1 rounded text-xs font-semibold uppercase ${STATUS_BADGE[row.status] || "bg-slate-100 text-slate-600"}`}>
+                      {row.status || "—"}
+                    </span>
                   </td>
                   <td className="py-3 px-4">
                     <RiskBadge risk={row.risk_level || row.risk} />
@@ -221,7 +230,6 @@ export default function AssignedCases() {
               key={c.id}
               case={{ ...c, caseNumber: c.case_number || c.id, borrower: c.borrower_name, property: c.property_address, debt: c.loan_amount, valuation: c.property_value, risk: c.risk_level }}
               onView={handleView}
-              onStatusChange={handleStatusChange}
             />
           ))}
         </div>

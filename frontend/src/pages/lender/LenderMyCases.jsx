@@ -40,9 +40,10 @@ export default function LenderMyCases() {
         STAT_CARDS.map(s => ({ ...s, value: cases.filter(s.filter).length })),
     [cases]);
 
-    const handleDeleteCase = (id) => {
+    const handleDeleteCase = async (id) => {
         if (window.confirm(`Delete case ${id}?`)) {
             setCases(prev => prev.filter(c => c.id !== id));
+            try { await casesService.deleteCase(id); } catch (err) { console.error("Delete failed", err); }
         }
     };
 
