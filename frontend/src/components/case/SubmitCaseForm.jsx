@@ -314,6 +314,21 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
         urgency: formData.urgency,
         additional_notes: formData.additionalNotes,
         metadata_json: {
+          // Address components (not DB columns — stored here so detail view can read them)
+          suburb: formData.suburb,
+          state: formData.state,
+          postcode: formData.postcode,
+          // Lender institution name (DB lender_name is the assigned user's name, not the firm)
+          lender_name: formData.lenderName,
+          // Loan / arrears data
+          missed_payments: parseInt(formData.missedPayments) || 0,
+          total_arrears: parseFloat(formData.totalArrears) || 0,
+          default_notice_date: formData.defaultNoticeDate || null,
+          default_reason: formData.defaultReason || null,
+          // Valuation
+          valuation_date: formData.valuationDate || null,
+          valuer_name: formData.valuationProvider || null,
+          // Property features
           year_built: formData.yearBuilt,
           floor_area: formData.floorArea,
           condition: formData.condition,
@@ -326,6 +341,9 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
           special_features: formData.specialFeatures,
           nccp_subject: formData.nccpSubject,
           licence_type: formData.licenceType,
+          borrower_name: formData.entityType === 'Personal'
+            ? `${formData.firstName || ''} ${formData.lastName || ''}`.trim()
+            : (formData.companyName || formData.trustName || ''),
           borrowers_lawyer: {
             name: formData.borrowersLawyerName,
             firm: formData.borrowersLawyerFirm,

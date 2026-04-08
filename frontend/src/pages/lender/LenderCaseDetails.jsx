@@ -202,7 +202,7 @@ export default function LenderCaseDetails() {
                     riskLevel: meta.risk_level || "N/A",
                     address: fetchedCase.property_address || "Address not provided",
                     borrower: meta.borrower_name || fetchedCase.borrower_name || "Unknown Borrower",
-                    lender: meta.lender_name || fetchedCase.lender_name || "Unknown Lender",
+                    lender: meta.lender_name || fetchedCase.lender_name || fetchedCase.borrower_name || "Unknown Lender",
                     outstandingDebt,
                     propertyValuation,
                     equity: Math.max(0, propertyValuation - outstandingDebt),
@@ -228,13 +228,13 @@ export default function LenderCaseDetails() {
                     suburb,
                     state,
                     postcode,
-                    valuationDate: meta.valuation_date || "-",
-                    valuerName: meta.valuer_name || "-",
+                    valuationDate: meta.valuation_date || fetchedCase.valuation_date || "-",
+                    valuerName: meta.valuer_name || meta.valuation_provider || fetchedCase.valuer_name || "-",
                     arrears: {
-                        total: Number(fetchedCase.total_arrears) || outstandingDebt,
-                        missedPayments: Number(fetchedCase.missed_payments) || 0,
-                        defaultDate: fetchedCase.default_notice_date || "-",
-                        reason: fetchedCase.default_reason || "-"
+                        total: Number(fetchedCase.total_arrears) || Number(meta.total_arrears) || 0,
+                        missedPayments: Number(fetchedCase.missed_payments) || Number(meta.missed_payments) || 0,
+                        defaultDate: fetchedCase.default_notice_date || meta.default_notice_date || "-",
+                        reason: fetchedCase.default_reason || meta.default_reason || "-"
                     },
                     recentActivity: fetchedCase.recentActivity || [],
                     documents: (fetchedCase.documents || []).map(doc => ({
