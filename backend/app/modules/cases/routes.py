@@ -610,13 +610,32 @@ async def delete_case_endpoint(
     user_role = user_roles[0] if user_roles else ""
 
     is_admin = "ADMIN" in user_roles
-    is_owner = (
-        str(getattr(case, "borrower_id", None)) == str(user_id)
-        or str(getattr(case, "assigned_lender_id", None)) == str(user_id)
-    )
+    case_status = case.status.value if hasattr(case.status, "value") else str(case.status)
 
-    if not is_admin and not is_owner:
-        raise AuthorizationError("You do not have permission to delete this case")
+    if is_admin:
+        # Admin can only delete cases that are UNDER_REVIEW or REJECTED
+        admin_deletable = {"UNDER_REVIEW", "REJECTED"}
+        if case_status.upper() not in admin_deletable:
+            raise AuthorizationError(
+                f"Admin can only delete cases with status UNDER_REVIEW or REJECTED. "
+                f"Current status: {case_status}"
+            )
+    else:
+        # Lawyer/Lender can only delete their own case before admin approval
+        is_owner = (
+            str(getattr(case, "borrower_id", None)) == str(user_id)
+            or str(getattr(case, "assigned_lender_id", None)) == str(user_id)
+            or str(getattr(case, "assigned_lawyer_id", None)) == str(user_id)
+        )
+        if not is_owner:
+            raise AuthorizationError("You do not have permission to delete this case")
+        # Only allow deletion before admin approval (DRAFT or SUBMITTED)
+        owner_deletable = {"DRAFT", "SUBMITTED"}
+        if case_status.upper() not in owner_deletable:
+            raise AuthorizationError(
+                f"You can only delete a case before it is approved. "
+                f"Current status: {case_status}"
+            )
 
     service = CaseService(db)
     await service.delete_case(

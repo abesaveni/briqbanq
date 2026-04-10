@@ -468,12 +468,14 @@ export default function CaseManagement() {
                                             >
                                                 <UserPlus className="w-4 h-4" />
                                             </button>
-                                            <button
-                                                onClick={() => handleDelete(caseItem.id)}
-                                                className="p-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
+                                            {['UNDER_REVIEW', 'REJECTED'].includes(caseItem.status) && (
+                                                <button
+                                                    onClick={() => handleDelete(caseItem.id)}
+                                                    className="p-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>
