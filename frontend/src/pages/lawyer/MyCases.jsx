@@ -175,7 +175,7 @@ export default function LawyerMyCases() {
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => navigate(`/lawyer/assigned-cases/${row.id}`)}
+                        onClick={() => navigate(`/lawyer/my-cases/${row.id}`)}
                         className="p-2 rounded-md text-slate-600 hover:bg-gray-100"
                         title="View"
                       >
@@ -187,7 +187,7 @@ export default function LawyerMyCases() {
                       {canEdit(row.status) && (
                         <button
                           type="button"
-                          onClick={() => navigate(`/lawyer/assigned-cases/${row.id}`)}
+                          onClick={() => navigate(`/lawyer/edit-case/${row.id}`)}
                           className="p-2 rounded-md text-indigo-600 hover:bg-indigo-50"
                           title="Edit"
                         >

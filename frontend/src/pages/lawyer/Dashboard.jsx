@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import StatCard from './components/StatCard'
-import { casesService, lawyerService, auctionService } from '../../api/dataService'
+import { lawyerService } from '../../api/dataService'
 
 const QUICK_ACTIONS = [
   { id: 'kyc', label: 'Review KYC', sub: 'Pending approvals', path: '/lawyer/kyc-review' },
@@ -16,7 +16,6 @@ export default function Dashboard() {
   const [openCaseMenu, setOpenCaseMenu] = useState(null)
   const [dashStats, setDashStats] = useState(null)
   const [cases, setCases] = useState([])
-  const [auctions, setAuctions] = useState([])
   const [loading, setLoading] = useState(true)
   const rangeMenuRef = useRef(null)
   const caseMenuRef = useRef(null)
@@ -31,16 +30,13 @@ export default function Dashboard() {
   }, [])
 
   const load = useCallback(async () => {
-    const [dashRes, casesRes, auctionsRes] = await Promise.all([
+    const [dashRes, casesRes] = await Promise.all([
       lawyerService.getDashboard(),
-      lawyerService.getMyAssignedCases(),
-      auctionService.getAuctions(),
+      lawyerService.getMyCases(),
     ])
     if (dashRes.success) setDashStats(dashRes.data)
     const casesArr = Array.isArray(casesRes.data) ? casesRes.data : (casesRes.data?.items || casesRes.data?.cases || [])
     if (casesRes.success) setCases(casesArr.slice(0, 5))
-    const auctionsArr = Array.isArray(auctionsRes.data) ? auctionsRes.data : (auctionsRes.data?.items || auctionsRes.data?.auctions || [])
-    if (auctionsRes.success) setAuctions(auctionsArr)
     setLoading(false)
   }, [])
 
@@ -51,24 +47,27 @@ export default function Dashboard() {
   }, [load])
 
   const d = dashStats || {}
-  const liveAuctions = auctions.filter(a => a.status === 'active' || a.status === 'ACTIVE').length
-  const totalCases = d.total_cases ?? cases.length
-  const activeCases = d.active_cases ?? 0
-  const pendingKYC = d.pending_kyc_reviews ?? 0
-  const pendingReview = d.pending_review ?? 0
+  const myCasesCount = d.my_cases_count ?? cases.filter(c => c.status !== 'DRAFT').length
+  const assignedCasesCount = d.assigned_cases_count ?? 0
+  const pendingReviewCount = d.pending_review_count ?? 0
+  const approvedCount = d.approved_count ?? 0
+  const liveAuctionsCount = d.live_auctions_count ?? 0
+  const myInAuctionCount = d.my_in_auction_count ?? 0
 
   const dashboardStats = [
-    { id: 'totalCases', label: 'My Total Cases', value: totalCases, subtitle: `${activeCases} active`, trend: null, trendUp: true, icon: 'folder' },
-    { id: 'activeAuctions', label: 'Active Auctions', value: liveAuctions, subtitle: `${auctions.length} total auctions`, trend: null, trendUp: true, icon: 'gavel' },
-    { id: 'pendingReview', label: 'Pending Review', value: pendingReview, subtitle: 'Cases awaiting review', trend: null, trendUp: false, icon: 'clock' },
-    { id: 'pendingKYC', label: 'Pending KYC', value: pendingKYC, subtitle: 'KYC submissions', trend: null, trendUp: false, icon: 'users' },
+    { id: 'myCases', label: 'My Cases', value: myCasesCount, subtitle: 'Cases I created', icon: 'folder', path: '/lawyer/my-cases' },
+    { id: 'assignedCases', label: 'Assigned Cases', value: assignedCasesCount, subtitle: 'Assigned to me by admin', icon: 'briefcase', path: '/lawyer/assigned-cases' },
+    { id: 'pendingReview', label: 'Pending Review', value: pendingReviewCount, subtitle: 'Submitted or under review', icon: 'clock', path: '/lawyer/my-cases' },
+    { id: 'approved', label: 'Approved', value: approvedCount, subtitle: 'My approved cases', icon: 'check', path: '/lawyer/my-cases' },
+    { id: 'liveAuctions', label: 'Live Auctions', value: liveAuctionsCount, subtitle: 'Platform-wide live auctions', icon: 'gavel', path: '/lawyer/live-auctions' },
+    { id: 'myInAuction', label: 'My Cases In Auction', value: myInAuctionCount, subtitle: 'My cases currently in auction', icon: 'tag', path: '/lawyer/my-cases' },
   ]
 
   const platformStatus = [
-    { id: 'live', label: 'Live Auctions', value: liveAuctions, detail: `Total: ${auctions.length}`, color: 'blue' },
-    { id: 'pending', label: 'Cases for Review', value: pendingReview, detail: `Under review by me`, color: 'orange' },
-    { id: 'active', label: 'Active Cases', value: activeCases, detail: `My assigned active cases`, color: 'green' },
-    { id: 'kyc', label: 'Pending KYC', value: pendingKYC, detail: 'Awaiting KYC review', color: 'red' },
+    { id: 'live', label: 'Live Auctions', value: liveAuctionsCount, detail: 'Platform-wide', color: 'blue' },
+    { id: 'pending', label: 'Pending Review', value: pendingReviewCount, detail: 'My cases awaiting review', color: 'orange' },
+    { id: 'assigned', label: 'Assigned Cases', value: assignedCasesCount, detail: 'Assigned to me by admin', color: 'green' },
+    { id: 'approved', label: 'Approved Cases', value: approvedCount, detail: 'My approved cases', color: 'teal' },
   ]
 
   return (
@@ -99,17 +98,21 @@ export default function Dashboard() {
       </div>
 
       {/* Overview cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {dashboardStats.map((s) => (
-          <StatCard
+          <button
             key={s.id}
-            label={s.label}
-            value={loading ? '—' : s.value}
-            subtitle={s.subtitle}
-            trend={s.trend}
-            trendUp={s.trendUp}
-            icon={s.icon}
-          />
+            type="button"
+            onClick={() => s.path && navigate(s.path)}
+            className="text-left"
+          >
+            <StatCard
+              label={s.label}
+              value={loading ? '—' : s.value}
+              subtitle={s.subtitle}
+              icon={s.icon}
+            />
+          </button>
         ))}
       </div>
 
@@ -123,8 +126,9 @@ export default function Dashboard() {
                 <div className="flex items-center gap-2">
                   <span className={`text-lg font-semibold ${
                     s.color === 'blue' ? 'text-blue-600' :
-                    s.color === 'orange' ? 'text-[#FF8C00]' :
-                    s.color === 'green' ? 'text-emerald-500' : 'text-[#FF4500]'
+                    s.color === 'orange' ? 'text-amber-600' :
+                    s.color === 'green' ? 'text-emerald-500' :
+                    s.color === 'teal' ? 'text-teal-600' : 'text-red-500'
                   }`}>{loading ? '—' : s.value}</span>
                   <span className="text-sm text-slate-800">{s.label}</span>
                 </div>
@@ -137,7 +141,7 @@ export default function Dashboard() {
         <div className="bg-white rounded-xl border border-slate-200 p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold text-slate-800">Recent Cases</h2>
-            <button type="button" onClick={() => navigate('/lawyer/assigned-cases')} className="text-sm font-medium text-blue-600 flex items-center gap-1">
+            <button type="button" onClick={() => navigate('/lawyer/my-cases')} className="text-sm font-medium text-blue-600 flex items-center gap-1">
               View All
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
             </button>
@@ -150,7 +154,7 @@ export default function Dashboard() {
           <ul className="space-y-3" ref={caseMenuRef}>
             {cases.map((c) => (
               <li key={c.id} className="flex items-center justify-between gap-2 p-3 rounded-lg bg-gray-50 border border-gray-100 cursor-pointer hover:bg-gray-100 transition-colors"
-                onClick={() => navigate(`/lawyer/assigned-cases/${c.id}`)}>
+                onClick={() => navigate(`/lawyer/my-cases/${c.id}`)}>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded uppercase ${

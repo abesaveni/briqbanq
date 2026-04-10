@@ -11,32 +11,48 @@ async def get_lawyer_dashboard(
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db),
 ):
-    """Lawyer dashboard summary."""
+    """Lawyer dashboard summary — returns 6 stat counts."""
     from app.modules.cases.repository import CaseRepository
-    from app.modules.kyc.repository import KYCRepository
-    from app.shared.enums import CaseStatus
+    from app.modules.auctions.repository import AuctionRepository
+    from app.shared.enums import CaseStatus, AuctionStatus
 
     lawyer_id = uuid.UUID(current_user["user_id"])
     case_repo = CaseRepository(db)
 
-    # Get assigned cases
-    assigned_cases = await case_repo.get_by_lawyer_id(lawyer_id)
-    active_statuses = {CaseStatus.UNDER_REVIEW, CaseStatus.APPROVED, CaseStatus.LISTED, CaseStatus.AUCTION}
-    active = [c for c in assigned_cases if c.status in active_statuses]
+    # My Cases: cases I created (borrower_id = me), excluding DRAFT
+    my_cases = await case_repo.get_by_borrower(lawyer_id, limit=1000)
+    my_cases_count = sum(1 for c in my_cases if c.status != CaseStatus.DRAFT)
 
-    # Get pending KYC count
+    # Assigned Cases: cases assigned to me by admin
+    assigned_cases = await case_repo.get_by_lawyer_id(lawyer_id, limit=1000)
+    assigned_cases_count = len(assigned_cases)
+
+    # Pending Review: my created cases awaiting review
+    pending_review_count = sum(
+        1 for c in my_cases
+        if c.status in {CaseStatus.SUBMITTED, CaseStatus.UNDER_REVIEW}
+    )
+
+    # Approved: my created cases that are APPROVED
+    approved_count = sum(1 for c in my_cases if c.status == CaseStatus.APPROVED)
+
+    # Live Auctions: all platform auctions that are LIVE
     try:
-        kyc_repo = KYCRepository(db)
-        pending_kyc = await kyc_repo.get_pending_reviews(limit=1000)
-        pending_kyc_count = len(pending_kyc)
+        auction_repo = AuctionRepository(db)
+        live_auctions_count = await auction_repo.count(status=AuctionStatus.LIVE)
     except Exception:
-        pending_kyc_count = 0
+        live_auctions_count = 0
+
+    # My Cases In Auction: my created cases in AUCTION status
+    my_in_auction_count = sum(1 for c in my_cases if c.status == CaseStatus.AUCTION)
 
     return {
-        "total_cases": len(assigned_cases),
-        "active_cases": len(active),
-        "pending_kyc_reviews": pending_kyc_count,
-        "pending_review": sum(1 for c in assigned_cases if c.status == CaseStatus.UNDER_REVIEW),
+        "my_cases_count": my_cases_count,
+        "assigned_cases_count": assigned_cases_count,
+        "pending_review_count": pending_review_count,
+        "approved_count": approved_count,
+        "live_auctions_count": live_auctions_count,
+        "my_in_auction_count": my_in_auction_count,
     }
 
 
