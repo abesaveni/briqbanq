@@ -151,10 +151,11 @@ export default function Dashboard() {
     const d = dashStats || {}
     const p = platformStats || {}
 
-    // Compute counts from actual fetched data for accuracy
-    const totalCases = allCases.length || d.total_cases || 0
-    const activeCases = allCases.filter(c => ['ACTIVE', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED'].includes(c.status)).length
-    const listedCases = allCases.filter(c => ['LISTED', 'AUCTION'].includes(c.status)).length
+    // Compute counts from actual fetched data — exclude DRAFT (incomplete submissions)
+    const nonDraftCases = allCases.filter(c => c.status !== 'DRAFT')
+    const totalCases = nonDraftCases.length || d.total_cases || 0
+    const activeCases = nonDraftCases.filter(c => ['ACTIVE', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED'].includes(c.status)).length
+    const listedCases = nonDraftCases.filter(c => ['LISTED', 'AUCTION'].includes(c.status)).length
     const activeAuctions = liveCases.filter(c => ['AUCTION', 'IN_AUCTION'].includes(c.status)).length || auctions.length
 
     const statCards = [
