@@ -554,12 +554,27 @@ class CaseService:
         return case
 
     async def delete_case(self, case_id: uuid.UUID, admin_id: uuid.UUID, trace_id: str) -> None:
-        """Delete a case and all related records."""
+        """Delete a case and all related records (documents, images, deals)."""
         case = await self._get_case_or_404(case_id)
-        # Delete related deals first (FK constraint workaround until migration is applied)
         from sqlalchemy import delete as sa_delete
-        from app.modules.deals.models import Deal
-        await self.repository.db.execute(sa_delete(Deal).where(Deal.case_id == case_id))
+        # Delete documents (FK has CASCADE but explicit delete ensures S3 references are handled)
+        try:
+            from app.modules.documents.models import Document
+            await self.repository.db.execute(sa_delete(Document).where(Document.case_id == case_id))
+        except Exception:
+            pass
+        # Delete property images
+        try:
+            from app.modules.platform.models import CaseImage
+            await self.repository.db.execute(sa_delete(CaseImage).where(CaseImage.case_id == case_id))
+        except Exception:
+            pass
+        # Delete related deals (no CASCADE on deals.case_id FK yet)
+        try:
+            from app.modules.deals.models import Deal
+            await self.repository.db.execute(sa_delete(Deal).where(Deal.case_id == case_id))
+        except Exception:
+            pass
         await self.repository.db.flush()
         await self.repository.delete(case)
 

@@ -604,10 +604,12 @@ async def delete_case_endpoint(
     if not case:
         raise ResourceNotFoundError("Case not found")
 
-    user_role = (current_user.get("role") or "").upper()
     user_id = current_user["user_id"]
+    # roles is a list in JWT payload (e.g. ["admin"] or ["ADMIN"])
+    user_roles = [r.upper() for r in (current_user.get("roles") or [current_user.get("role", "")])]
+    user_role = user_roles[0] if user_roles else ""
 
-    is_admin = user_role == "ADMIN"
+    is_admin = "ADMIN" in user_roles
     is_owner = (
         str(getattr(case, "borrower_id", None)) == str(user_id)
         or str(getattr(case, "assigned_lender_id", None)) == str(user_id)
