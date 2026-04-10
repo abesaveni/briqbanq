@@ -95,9 +95,18 @@ export default function MyBidsPage({ role = 'investor' }) {
 
     return (
         <div className="space-y-5 pb-6">
-            <div>
-                <h1 className="text-2xl font-bold text-slate-900">My Bids</h1>
-                <p className="text-[13px] font-medium text-gray-500">All auctions you have bid on</p>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-900">My Bids</h1>
+                    <p className="text-[13px] font-medium text-gray-500">All auctions you have bid on</p>
+                </div>
+                <button
+                    onClick={load}
+                    disabled={loading}
+                    className="text-xs font-semibold px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-50"
+                >
+                    {loading ? 'Loading…' : 'Refresh'}
+                </button>
             </div>
 
             {/* Stats row */}

@@ -1048,15 +1048,6 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
         )}
       </div>
 
-      {/* Demo banner */}
-      <div className="bg-blue-50 border border-blue-100 rounded-xl px-5 py-4 mb-8 flex items-start gap-3">
-        <Shield className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-        <div>
-          <p className="text-xs font-semibold text-blue-800 uppercase tracking-widest">Development / Demo Mode Active</p>
-          <p className="text-xs text-blue-600 mt-0.5 leading-relaxed">Professional liability declarations are pre-accepted in this demo environment.</p>
-        </div>
-      </div>
-
       {/* Stepper */}
       <div className="flex items-center gap-0 overflow-x-auto pb-2 mb-8">
         {STEPS.map((s, idx) => {

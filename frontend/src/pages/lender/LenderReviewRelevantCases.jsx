@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Home, ChevronRight, AlertTriangle, Search, Filter, Eye, ArrowRight, X } from "lucide-react";
 import { Link, useNavigate } from 'react-router-dom';
-import { casesService } from '../../api/dataService';
+import { loansService } from '../../api/dataService';
 import { LoadingState, ErrorState } from '../../components/common/States';
 
 export default function LenderReviewRelevantCases() {
@@ -19,7 +19,7 @@ export default function LenderReviewRelevantCases() {
     const fetchCases = useCallback(async (pageNum = 1) => {
         try {
             setLoading(true);
-            const res = await casesService.getLiveListings();
+            const res = await loansService.getMyCases();
             if (res.success) {
                 const data = Array.isArray(res.data) ? res.data : (res.data?.items || []);
                 if (pageNum === 1) {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { Plus, Download, X, Eye } from "lucide-react";
 import { contractService, activityService } from "../../api/dataService";
@@ -425,8 +426,8 @@ export default function LenderContracts() {
                 </div>
             )}
 
-            {showCreateModal && (
-                <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-black/50 overflow-y-auto animate-fade-in" onClick={closeCreateModal}>
+            {showCreateModal && createPortal(
+                <div className="fixed inset-0 z-[9999] flex items-start justify-center p-4 bg-black/40 overflow-y-auto" onClick={closeCreateModal}>
                     <div className="bg-white rounded-xl border border-slate-200 shadow-xl max-w-lg w-full p-5 my-8" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-lg font-semibold text-slate-900">Create New Contract</h3>
@@ -580,7 +581,8 @@ export default function LenderContracts() {
                             </div>
                         </form>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     )

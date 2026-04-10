@@ -213,12 +213,18 @@ export default function LenderCaseDetails() {
                     sinceDate: fetchedCase.created_at ? new Date(fetchedCase.created_at).toLocaleDateString('en-AU') : "-",
                     updatedDaysAgo: 0,
                     lastUpdated: fetchedCase.updated_at ? new Date(fetchedCase.updated_at).toLocaleDateString('en-AU') : "-",
-                    riskScore: 0,
+                    riskScore: (() => {
+                        // Derive risk score 0-100 from LVR and missed payments
+                        const lvrRisk = Math.min(lvrCalc, 100); // 0-100
+                        const missedPay = Number(fetchedCase.missed_payments) || Number(meta.missed_payments) || 0;
+                        const missedRisk = Math.min(missedPay * 10, 40); // each missed payment adds 10 pts, cap at 40
+                        return Math.min(Math.round(lvrRisk * 0.6 + missedRisk), 100);
+                    })(),
                     bedrooms: Number(meta.bedrooms || fetchedCase.bedrooms) || 0,
                     bathrooms: Number(meta.bathrooms || fetchedCase.bathrooms) || 0,
                     parking: Number(meta.parking || fetchedCase.parking) || 0,
                     propertyType: fetchedCase.property_type || meta.property_type || "N/A",
-                    landSize: meta.land_size || fetchedCase.land_size || "N/A",
+                    landSize: meta.land_size || meta.land_size_sqm || fetchedCase.land_size || fetchedCase.land_size_sqm || meta.lot_size || fetchedCase.lot_size || "N/A",
                     documentCollection: { current: (fetchedCase.documents || []).length, total: (fetchedCase.documents || []).length },
                     verificationStatus: { current: 0, total: 0 },
                     totalParties: 0,
@@ -1152,8 +1158,8 @@ export default function LenderCaseDetails() {
                                     { label: "State",             value: caseData.state || "—" },
                                     { label: "Property Address",  value: caseData.address || "—" },
                                     { label: "Interest Rate",     value: caseData.interestRate ? `${caseData.interestRate}%` : "—" },
-                                    { label: "Default Rate",      value: caseData.defaultRate ? `${caseData.defaultRate}%` : "—" },
-                                    { label: "Days in Default",   value: caseData.daysInDefault || "—" },
+                                    { label: "Default Rate",      value: caseData.defaultRate != null ? `${caseData.defaultRate}%` : "—" },
+                                    { label: "Days in Default",   value: caseData.daysInDefault != null ? caseData.daysInDefault : "—" },
                                 ].map((f, i) => (
                                     <div key={i}>
                                         <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-0.5">{f.label}</p>

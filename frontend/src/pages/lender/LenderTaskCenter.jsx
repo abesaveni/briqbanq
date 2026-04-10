@@ -21,7 +21,7 @@ export default function LenderTaskCenter() {
         title: '',
         description: '',
         priority: 'Medium',
-        dueDate: '',
+        dueDate: new Date().toISOString().split('T')[0],
         module: 'Brickbanq'
     });
 
