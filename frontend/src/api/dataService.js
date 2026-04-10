@@ -191,6 +191,7 @@ export const caseService = casesService;
 
 export const lawyerService = {
   getMyAssignedCases: () => wrap(api.get("/api/v1/cases/assigned-to-me")),
+  getMyCases: () => wrap(api.get("/api/v1/cases/my-cases")),
   getDashboard: () => wrap(api.get("/api/v1/lawyer/dashboard")),
 };
 

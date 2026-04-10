@@ -148,8 +148,8 @@ export default function InvestorAuctions() {
     <div className="space-y-8">
 
       <div className="mb-2">
-        <h2 className="text-2xl font-black text-slate-900 mb-1 tracking-tight">Active Auctions</h2>
-        <p className="text-slate-500 text-[13px] font-medium leading-relaxed">Participate in live bidding for premium mortgage assets</p>
+        <h2 className="text-2xl font-bold text-slate-900 mb-1 tracking-tight">Active Auctions</h2>
+        <p className="text-slate-500 text-sm font-medium leading-relaxed">Participate in live bidding for premium mortgage assets</p>
       </div>
 
       <AuctionStats auctions={auctions} />

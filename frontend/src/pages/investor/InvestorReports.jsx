@@ -136,7 +136,7 @@ export default function InvestorReports() {
             {/* Header */}
             <div className="mb-2">
                 <h1 className="text-3xl font-bold text-slate-900 tracking-tight mb-1">Reports & Analytics</h1>
-                <p className="text-slate-500 text-[13px] font-medium leading-relaxed">Comprehensive platform insights, financial trends, and performance metrics</p>
+                <p className="text-slate-500 text-sm font-medium leading-relaxed">Comprehensive platform insights, financial trends, and performance metrics</p>
             </div>
 
             {/* Breadcrumbs */}
@@ -153,7 +153,7 @@ export default function InvestorReports() {
                     <select
                         value={dateRange}
                         onChange={(e) => setDateRange(e.target.value)}
-                        className="pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 text-xs font-bold uppercase tracking-wider text-indigo-600 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234F46E5%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:10px_10px] bg-no-repeat bg-[right_14px_center] shadow-sm active:scale-95 transition-transform"
+                        className="pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 text-xs font-bold uppercase tracking-wider text-indigo-600 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234F46E5%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:10px_10px] bg-no-repeat bg-[right_14px_center] shadow-sm active:scale-95 transition-transform"
                     >
                         <option>Last 7 Days</option>
                         <option>Last 30 Days</option>
@@ -163,7 +163,7 @@ export default function InvestorReports() {
                     </select>
                     <button
                         onClick={handleRefresh}
-                        className="px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2 hover:bg-slate-50 transition-all shadow-sm disabled:opacity-50 active:scale-95"
+                        className="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2 hover:bg-slate-50 transition-all shadow-sm disabled:opacity-50 active:scale-95"
                         disabled={isRefreshing}
                     >
                         <RefreshCw size={14} className={isRefreshing ? "animate-spin" : "text-indigo-600"} />
@@ -250,9 +250,9 @@ export default function InvestorReports() {
 
             {/* Charts Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <div className="bg-white rounded-[24px] border border-gray-100 p-6 shadow-sm">
+                <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="font-bold text-[15px] text-gray-900">Case Volume Trend</h3>
+                        <h3 className="font-bold text-base text-gray-900">Case Volume Trend</h3>
                     </div>
                     <div className="h-[200px] mt-2 relative">
                         {isRefreshing ? (
@@ -268,11 +268,11 @@ export default function InvestorReports() {
                                                 className="w-full bg-indigo-500/80 rounded-t-sm transition-all duration-500 hover:bg-indigo-600 cursor-pointer"
                                                 style={{ height: `${height}%` }}
                                             >
-                                                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
+                                                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
                                                     {item.name}: {item.value} cases
                                                 </div>
                                             </div>
-                                            <span className="text-[10px] text-gray-400 mt-2 font-bold">{item.name}</span>
+                                            <span className="text-xs text-gray-400 mt-2 font-bold">{item.name}</span>
                                         </div>
                                     );
                                 })}
@@ -283,9 +283,9 @@ export default function InvestorReports() {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-[24px] border border-gray-100 p-6 shadow-sm">
+                <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="font-bold text-[15px] text-gray-900">Revenue Distribution</h3>
+                        <h3 className="font-bold text-base text-gray-900">Revenue Distribution</h3>
                     </div>
                     <div className="h-[200px] mt-2 relative flex items-center">
                         {isRefreshing ? (
@@ -323,9 +323,9 @@ export default function InvestorReports() {
                                         <div key={i} className="flex items-center justify-between group">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></div>
-                                                <span className="text-[12px] font-bold text-gray-600 group-hover:text-gray-900 transition-colors">{item.name}</span>
+                                                <span className="text-xs font-bold text-gray-600 group-hover:text-gray-900 transition-colors">{item.name}</span>
                                             </div>
-                                            <span className="text-[12px] font-bold text-gray-900">{item.value}%</span>
+                                            <span className="text-xs font-bold text-gray-900">{item.value}%</span>
                                         </div>
                                     ))}
                                 </div>
@@ -338,9 +338,9 @@ export default function InvestorReports() {
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-white rounded-[24px] border border-gray-100 p-6 shadow-sm">
+            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                 <div className="flex justify-between items-center mb-6">
-                    <h3 className="font-bold text-[15px] text-gray-900">Recent Platform Activity</h3>
+                    <h3 className="font-bold text-base text-gray-900">Recent Platform Activity</h3>
                     <button 
                         onClick={() => setShowAllActivity(!showAllActivity)}
                         className="px-3 py-1.5 border border-gray-200 rounded-md text-[11px] font-bold text-gray-700 flex items-center gap-1.5 hover:bg-gray-50 transition-colors shadow-sm bg-white"
@@ -374,9 +374,9 @@ export default function InvestorReports() {
 
 function StatCard({ title, value, subtext, isLoading }) {
     return (
-        <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between h-[130px] relative overflow-hidden group hover:border-indigo-100 hover:shadow-md transition-all duration-300">
+        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col justify-between h-[130px] relative overflow-hidden group hover:border-indigo-100 hover:shadow-md transition-all duration-300">
             <div>
-                <h3 className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">{title}</h3>
+                <h3 className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">{title}</h3>
                 {isLoading ? (
                     <div className="h-8 w-24 bg-slate-50 animate-pulse rounded-lg mb-2"></div>
                 ) : (
@@ -397,14 +397,14 @@ function StatCard({ title, value, subtext, isLoading }) {
 
 function ReportCard({ icon, iconBg, title, description, onPdf, onExcel }) {
     return (
-        <div className="bg-white p-8 rounded-[24px] border border-slate-100 shadow-sm flex flex-col h-full group hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-500 border-b-4 hover:border-b-indigo-500">
+        <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm flex flex-col h-full group hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-500 border-b-4 hover:border-b-indigo-500">
             <div className="flex items-start gap-5 mb-8">
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 ${iconBg}`}>
                     {icon}
                 </div>
                 <div>
-                    <h3 className="font-bold text-[16px] text-slate-900 mb-1.5">{title}</h3>
-                    <p className="text-[13px] text-slate-500 font-medium leading-relaxed">{description}</p>
+                    <h3 className="font-bold text-base text-slate-900 mb-1.5">{title}</h3>
+                    <p className="text-sm text-slate-500 font-medium leading-relaxed">{description}</p>
                 </div>
             </div>
             <div className="flex items-center gap-4 mt-auto">
@@ -417,7 +417,7 @@ function ReportCard({ icon, iconBg, title, description, onPdf, onExcel }) {
                 </button>
                 <button
                     onClick={onExcel}
-                    className="flex-1 py-3 bg-white border border-slate-200 text-slate-700 rounded-[14px] text-xs font-bold uppercase tracking-wider hover:bg-slate-50 transition-all flex items-center justify-center gap-2 shadow-sm active:scale-95 border-b-2"
+                    className="flex-1 py-3 bg-white border border-gray-200 text-slate-700 rounded-[14px] text-xs font-bold uppercase tracking-wider hover:bg-slate-50 transition-all flex items-center justify-center gap-2 shadow-sm active:scale-95 border-b-2"
                 >
                     <Download size={14} />
                     <span>Export Excel</span>
@@ -430,11 +430,11 @@ function ReportCard({ icon, iconBg, title, description, onPdf, onExcel }) {
 function ActivityRow({ title, description, time, isLast = false }) {
     return (
         <div 
-            className={`p-5 bg-white border border-slate-100 rounded-[24px] flex justify-between items-center transition-all hover:border-indigo-100 group ${!isLast ? 'mb-2' : ''}`}
+            className={`p-5 bg-white border border-gray-200 rounded-2xl flex justify-between items-center transition-all hover:border-indigo-100 group ${!isLast ? 'mb-2' : ''}`}
         >
             <div>
-                <h4 className="font-bold text-[14px] text-slate-900 mb-0.5 tracking-tight transition-colors uppercase">{title}</h4>
-                <p className="text-[13px] text-slate-500 font-medium italic">"{description}"</p>
+                <h4 className="font-bold text-sm text-slate-900 mb-0.5 tracking-tight transition-colors uppercase">{title}</h4>
+                <p className="text-sm text-slate-500 font-medium italic">"{description}"</p>
             </div>
             <div className="flex flex-col items-end">
                 <span className="text-[11px] text-slate-400 font-bold uppercase tracking-tight whitespace-nowrap">{time}</span>
@@ -456,9 +456,9 @@ function ChartSkeleton() {
 
 function EmptyChart({ message, Icon }) {
     return (
-        <div className="w-full h-full border border-dashed border-gray-200 rounded-[12px] flex flex-col items-center justify-center text-center p-6 mt-2 relative">
+        <div className="w-full h-full border border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center text-center p-6 mt-2 relative">
             <Icon size={32} className="text-gray-200 mb-3" strokeWidth={1.5} />
-            <h4 className="font-semibold text-[13px] text-gray-400 mb-1">{message}</h4>
+            <h4 className="font-semibold text-sm text-gray-400 mb-1">{message}</h4>
         </div>
     );
 }

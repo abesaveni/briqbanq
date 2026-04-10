@@ -161,7 +161,7 @@ export default function InvestorDashboard() {
         <div className="space-y-3 pb-6 animate-fade-in pt-1">
             <div className="pt-1">
                 <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-0">Welcome back, {firstName}</h1>
-                <p className="text-slate-500 text-[13px] font-medium leading-tight">Real-time performance metrics and active investment opportunities</p>
+                <p className="text-slate-500 text-sm font-medium leading-tight">Real-time performance metrics and active investment opportunities</p>
             </div>
 
             {/* Hero Section */}
@@ -184,10 +184,10 @@ export default function InvestorDashboard() {
             </div>
 
             {/* Help Bar */}
-            <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-4 py-3">
+            <div className="flex items-center justify-between bg-slate-50 border border-gray-200 rounded-lg px-4 py-3">
                 <p className="text-sm text-slate-500">Need assistance? Our support team is here to help.</p>
                 <div className="flex gap-2">
-                    <button type="button" onClick={() => setShowSupportModal(true)} className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 transition-colors">Support Resources</button>
+                    <button type="button" onClick={() => setShowSupportModal(true)} className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-slate-600 hover:bg-slate-100 transition-colors">Support Resources</button>
                     <button type="button" onClick={() => setShowContactModal(true)} className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">Contact Support</button>
                 </div>
             </div>

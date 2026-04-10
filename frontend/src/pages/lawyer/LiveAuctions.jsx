@@ -108,7 +108,7 @@ export default function LiveAuctions() {
             return (
               <div
                 key={c.id}
-                onClick={() => navigate(`/lawyer/assigned-cases/${c.id}`)}
+                onClick={() => navigate(`/lawyer/auctions/${c.id}`)}
                 className="bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:shadow-md transition-all duration-200 cursor-pointer overflow-hidden flex flex-col"
               >
                 <div className="relative h-36 flex-shrink-0">
@@ -146,12 +146,20 @@ export default function LiveAuctions() {
                       <p className="font-bold text-slate-500 text-[10px]">{c.case_number || String(c.id).slice(0, 8)}</p>
                     </div>
                   </div>
-                  <button
-                    onClick={e => { e.stopPropagation(); navigate(`/lawyer/assigned-cases/${c.id}`) }}
-                    className="w-full border border-slate-200 hover:bg-slate-50 text-slate-700 py-1.5 rounded-lg text-xs font-bold transition-all mt-auto"
-                  >
-                    View Case
-                  </button>
+                  <div className="flex gap-2 mt-auto">
+                    <button
+                      onClick={e => { e.stopPropagation(); navigate(`/lawyer/auctions/${c.id}`) }}
+                      className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-1.5 rounded-lg text-xs font-bold transition-all"
+                    >
+                      Place Bid
+                    </button>
+                    <button
+                      onClick={e => { e.stopPropagation(); navigate(`/lawyer/assigned-cases/${c.id}`) }}
+                      className="flex-1 border border-slate-200 hover:bg-slate-50 text-slate-700 py-1.5 rounded-lg text-xs font-bold transition-all"
+                    >
+                      View Case
+                    </button>
+                  </div>
                 </div>
               </div>
             )

@@ -296,30 +296,30 @@ export default function InvestorContracts() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Legal Contracts</h2>
-          <p className="text-slate-500 text-[13px] font-medium mt-1 leading-relaxed">Securely manage mortgage resolution agreements and digital signatures</p>
+          <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Legal Contracts</h2>
+          <p className="text-slate-500 text-sm font-medium mt-1 leading-relaxed">Securely manage mortgage resolution agreements and digital signatures</p>
           {error && <p className="text-sm text-amber-600 mt-2 font-bold flex items-center gap-1"><AlertCircle size={14} /> {error}</p>}
         </div>
         <button
           type="button"
           disabled
           title="Contracts are generated automatically when an auction is won"
-          className="bg-gray-200 text-gray-400 text-xs font-black uppercase tracking-widest px-6 py-3.5 rounded-xl inline-flex items-center gap-2 cursor-not-allowed opacity-60"
+          className="bg-gray-200 text-gray-400 text-xs font-bold uppercase tracking-widest px-6 py-3.5 rounded-xl inline-flex items-center gap-2 cursor-not-allowed opacity-60"
         >
           <Plus size={18} />
           <span>New Contract</span>
         </button>
       </div>
 
-      <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
-        <div className="border-b border-slate-200 p-6">
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+        <div className="border-b border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-slate-900">Contracts</h3>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50">
+              <tr className="border-b border-gray-200 bg-slate-50">
                 <th className="text-left text-sm font-medium text-slate-600 px-6 py-3">Property</th>
                 <th className="text-left text-sm font-medium text-slate-600 px-6 py-3">Contract ID</th>
                 <th className="text-left text-sm font-medium text-slate-600 px-6 py-3">Parties</th>
@@ -338,7 +338,7 @@ export default function InvestorContracts() {
                 </tr>
               ) : (
                 (contracts || []).map((contract) => (
-                  <tr key={contract.id} className="border-b border-slate-200 hover:bg-slate-50 transition-colors">
+                  <tr key={contract.id} className="border-b border-gray-200 hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-3">
                         {contract.propertyImage ? (
@@ -393,7 +393,7 @@ export default function InvestorContracts() {
 
       {viewingContract && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-fade-in" onClick={closeViewModal}>
-          <div className="bg-white rounded-lg border border-slate-200 shadow-xl max-w-lg w-full p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded-lg border border-gray-200 shadow-xl max-w-lg w-full p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-slate-900">Contract Details</h3>
               <button type="button" onClick={closeViewModal} className="text-slate-400 hover:text-slate-600 transition-colors">
@@ -401,12 +401,12 @@ export default function InvestorContracts() {
               </button>
             </div>
             <div className="space-y-3 text-sm">
-              <div className="flex justify-between border-b border-slate-100 pb-2"><span className="text-slate-500">Contract ID</span><span className="font-medium text-slate-900">{viewingContract.id}</span></div>
-              <div className="flex justify-between border-b border-slate-100 pb-2"><span className="text-slate-500">Property</span><span className="font-medium text-slate-900 text-right">{viewingContract.propertyName}, {viewingContract.location}</span></div>
-              <div className="flex justify-between border-b border-slate-100 pb-2"><span className="text-slate-500">Party</span><span className="font-medium text-slate-900">{viewingContract.party}</span></div>
-              <div className="flex justify-between border-b border-slate-100 pb-2"><span className="text-slate-500">Lender</span><span className="font-medium text-slate-900">{viewingContract.lender}</span></div>
-              <div className="flex justify-between border-b border-slate-100 pb-2"><span className="text-slate-500">Contract Value</span><span className="font-medium text-slate-900">{formatCurrency(viewingContract.contractValue)}</span></div>
-              <div className="flex justify-between border-b border-slate-100 pb-2"><span className="text-slate-500">Created</span><span className="font-medium text-slate-900">{viewingContract.createdDate}</span></div>
+              <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-slate-500">Contract ID</span><span className="font-medium text-slate-900">{viewingContract.id}</span></div>
+              <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-slate-500">Property</span><span className="font-medium text-slate-900 text-right">{viewingContract.propertyName}, {viewingContract.location}</span></div>
+              <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-slate-500">Party</span><span className="font-medium text-slate-900">{viewingContract.party}</span></div>
+              <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-slate-500">Lender</span><span className="font-medium text-slate-900">{viewingContract.lender}</span></div>
+              <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-slate-500">Contract Value</span><span className="font-medium text-slate-900">{formatCurrency(viewingContract.contractValue)}</span></div>
+              <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-slate-500">Created</span><span className="font-medium text-slate-900">{viewingContract.createdDate}</span></div>
               <div className="flex justify-between"><span className="text-slate-500">Status</span><span className="font-medium text-slate-900">{viewingContract.status}</span></div>
             </div>
             <div className="mt-6 flex justify-end gap-2 pt-2">
@@ -421,7 +421,7 @@ export default function InvestorContracts() {
 
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto animate-fade-in" onClick={closeCreateModal}>
-          <div className="bg-white rounded-lg border border-slate-200 shadow-xl max-w-2xl w-full p-6 my-8" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded-lg border border-gray-200 shadow-xl max-w-2xl w-full p-6 my-8" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-slate-900">Create New Contract</h3>
               <button type="button" onClick={closeCreateModal} className="text-slate-400 hover:text-slate-600 transition-colors">
@@ -468,11 +468,11 @@ export default function InvestorContracts() {
                     {photoPreviews.length > 0 && (
                       <div className="flex gap-2 flex-wrap pb-4">
                         {(photoPreviews || []).map((preview, index) => (
-                          <div key={index} className="relative w-20 h-20 rounded shadow-sm border border-slate-200 overflow-hidden group">
+                          <div key={index} className="relative w-20 h-20 rounded shadow-sm border border-gray-200 overflow-hidden group">
                             <img
                               src={preview}
                               alt={`Property ${index + 1}`}
-                              className="w-full h-24 object-cover rounded border border-slate-200"
+                              className="w-full h-24 object-cover rounded border border-gray-200"
                             />
                             <button
                               type="button"
@@ -545,7 +545,7 @@ export default function InvestorContracts() {
                 </div>
               )}
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
                 <button
                   type="button"
                   onClick={closeCreateModal}

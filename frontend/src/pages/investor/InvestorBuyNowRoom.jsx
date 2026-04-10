@@ -165,7 +165,7 @@ export default function InvestorBuyNowRoom() {
 
                 {/* Top Badge */}
                 <div className="absolute top-5 left-5 md:top-8 md:left-8">
-                    <div className="bg-green-600 text-white font-black text-[10px] md:text-xs uppercase tracking-widest px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg flex items-center gap-2 shadow-lg border border-white/20">
+                    <div className="bg-green-600 text-white font-bold text-xs md:text-xs uppercase tracking-widest px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg flex items-center gap-2 shadow-lg border border-white/20">
                         <ShoppingCart size={14} fill="currentColor" />
                         Fixed Price Opportunity
                     </div>
@@ -211,9 +211,9 @@ export default function InvestorBuyNowRoom() {
 
                     {/* Floating Price Card */}
                     <div className="bg-gradient-to-br from-green-600 to-green-600 p-4 md:p-6 rounded-2xl shadow-2xl text-white w-[180px] md:w-[260px] hidden lg:block transform translate-y-2 group-hover:translate-y-0 transition-transform pointer-events-auto border border-white/10">
-                        <p className="text-white/80 font-bold text-[10px] uppercase tracking-widest mb-1 text-center">Fixed Purchase Price</p>
-                        <p className="text-2xl md:text-4xl font-black text-center tracking-tighter mb-2">{formatCurrency(deal.buyNowPrice / 1000, 0)}k</p>
-                        <p className="text-[10px] md:text-sm font-bold text-white/90 text-center uppercase tracking-wider">{metrics.timeToSettlement || "45 Day Settlement"}</p>
+                        <p className="text-white/80 font-bold text-xs uppercase tracking-widest mb-1 text-center">Fixed Purchase Price</p>
+                        <p className="text-2xl md:text-4xl font-bold text-center tracking-tighter mb-2">{formatCurrency(deal.buyNowPrice / 1000, 0)}k</p>
+                        <p className="text-xs md:text-sm font-bold text-white/90 text-center uppercase tracking-wider">{metrics.timeToSettlement || "45 Day Settlement"}</p>
                     </div>
                 </div>
             </div>
@@ -379,7 +379,7 @@ export default function InvestorBuyNowRoom() {
                             {/* Price Summary Card */}
                             <div className="bg-white p-8 rounded-2xl shadow-lg border border-green-100">
                                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest text-center mb-2">Fixed Purchase Price</p>
-                                <p className="text-4xl font-black text-center text-green-600 tracking-tighter mb-8">{formatCurrency((deal?.buyNowPrice || 0) / 1000, 0)}k</p>
+                                <p className="text-4xl font-bold text-center text-green-600 tracking-tighter mb-8">{formatCurrency((deal?.buyNowPrice || 0) / 1000, 0)}k</p>
 
                                 <div className="space-y-4">
                                     <SummaryRow label="Outstanding Debt" value={formatCurrency(Math.floor((financials?.outstandingDebt || 0) / 1000)) + "k"} />
@@ -432,7 +432,7 @@ export default function InvestorBuyNowRoom() {
                                         <CostRow label="Stamp Duty (est.)" value={formatCurrency(42000)} />
                                         <div className="pt-3 border-t border-gray-50 flex justify-between items-center">
                                             <span className="text-xs font-bold text-gray-900 uppercase">Total Est. Cost</span>
-                                            <span className="text-lg font-black text-gray-900">{formatCurrency((deal?.buyNowPrice || 0) + 2500 + 42000)}</span>
+                                            <span className="text-lg font-bold text-gray-900">{formatCurrency((deal?.buyNowPrice || 0) + 2500 + 42000)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -449,7 +449,7 @@ export default function InvestorBuyNowRoom() {
                                     <SummaryRow label="Time to Settlement" value={deal?.timeToSettlement || "45 Days"} />
                                     <div className="flex justify-between items-center pt-2">
                                         <span className="text-xs text-gray-500 font-medium">Risk Level:</span>
-                                        <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide">
+                                        <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wide">
                                             {deal?.riskLevel || "Low"}
                                         </span>
                                     </div>
@@ -513,10 +513,10 @@ function MetricCard({
                 <div className={`p-1.5 rounded-lg ${bgColor} ${iconColor} shrink-0`}>
                     {icon}
                 </div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none" title={label}>{label}</p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest leading-none" title={label}>{label}</p>
             </div>
             <p className={`text-2xl font-bold ${valueColor} tracking-tight mb-1 whitespace-nowrap`} title={String(value)}>{value || "0"}</p>
-            {subLabel && <p className="text-[10px] text-gray-400 font-medium whitespace-nowrap" title={subLabel}>{subLabel}</p>}
+            {subLabel && <p className="text-xs text-gray-400 font-medium whitespace-nowrap" title={subLabel}>{subLabel}</p>}
         </div>
     );
 }

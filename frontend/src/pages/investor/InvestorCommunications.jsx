@@ -101,7 +101,7 @@ export default function InvestorCommunications() {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => navigate('/investor/settings')}
-                        className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm"
+                        className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm"
                     >
                         <Settings size={16} />
                         Settings
@@ -117,7 +117,7 @@ export default function InvestorCommunications() {
             </div>
 
             {/* Sticky Navigation Bar */}
-            <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 mb-8 -mx-6 px-6">
+            <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 mb-8 -mx-6 px-6">
                 <div className="flex items-center gap-8">
                     {tabs.map((tab) => (
                         <button
@@ -218,7 +218,7 @@ function OverviewTab({
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {stats.map((stat, i) => (
-                    <div key={i} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between min-h-[140px]">
+                    <div key={i} className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col justify-between min-h-[140px]">
                         <div className="flex justify-between items-start">
                             <div className={`p-2.5 rounded-xl ${stat.bg}`}>
                                 {React.cloneElement(stat.icon, { size: 20 })}
@@ -236,7 +236,7 @@ function OverviewTab({
             </div>
 
             {/* Recent Activity Section */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="px-6 py-4 flex items-center justify-between border-b border-slate-50">
                     <div>
                         <h3 className="text-base font-bold text-slate-900">Recent Campaigns</h3>
@@ -255,7 +255,7 @@ function OverviewTab({
                         <div key={campaign.id} className="p-2 rounded-lg border border-transparent hover:bg-gray-50/50 transition-all flex items-center justify-between group">
                             <div className="space-y-0.5">
                                 <div className="flex items-center gap-3">
-                                    <h4 className="text-[13px] font-semibold text-slate-900">{campaign.name || campaign.title}</h4>
+                                    <h4 className="text-sm font-semibold text-slate-900">{campaign.name || campaign.title}</h4>
                                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${campaign.status === 'sent' ? 'bg-blue-100 text-blue-700' :
                                             campaign.status === 'scheduled' ? 'bg-orange-100 text-orange-700' :
                                                 'bg-gray-100 text-gray-600'
@@ -266,8 +266,8 @@ function OverviewTab({
                                 <p className="text-[11px] font-medium text-gray-400">{campaign.recipients} recipients • {campaign.category || campaign.type}</p>
                                 {campaign.status === 'sent' && (
                                     <div className="flex items-center gap-4 mt-1.5">
-                                        <span className="text-[10px] font-semibold text-gray-400">Open Rate: <span className="text-emerald-500">{campaign.openRate}%</span></span>
-                                        <span className="text-[10px] font-semibold text-gray-400">Click Rate: <span className="text-blue-500">{campaign.clickRate}%</span></span>
+                                        <span className="text-xs font-semibold text-gray-400">Open Rate: <span className="text-emerald-500">{campaign.openRate}%</span></span>
+                                        <span className="text-xs font-semibold text-gray-400">Click Rate: <span className="text-blue-500">{campaign.clickRate}%</span></span>
                                     </div>
                                 )}
                             </div>
@@ -299,14 +299,14 @@ function OverviewTab({
                     </button>
                     <button
                         onClick={onNewTemplate}
-                        className="bg-white border border-slate-100 h-[80px] rounded-2xl flex flex-col items-center justify-center gap-2 group hover:bg-slate-50 transition-all shadow-sm"
+                        className="bg-white border border-gray-200 h-[80px] rounded-2xl flex flex-col items-center justify-center gap-2 group hover:bg-slate-50 transition-all shadow-sm"
                     >
                         <FileText size={20} className="text-indigo-600" />
                         <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">New Template</span>
                     </button>
                     <button
                         onClick={onNewSegment}
-                        className="bg-white border border-slate-100 h-[80px] rounded-2xl flex flex-col items-center justify-center gap-2 group hover:bg-slate-50 transition-all shadow-sm"
+                        className="bg-white border border-gray-200 h-[80px] rounded-2xl flex flex-col items-center justify-center gap-2 group hover:bg-slate-50 transition-all shadow-sm"
                     >
                         <Users size={20} className="text-indigo-600" />
                         <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">New Segment</span>
@@ -331,7 +331,7 @@ function CampaignsTab({ campaigns = [], onDelete, onAddNew }) {
     });
 
     return (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden p-6 space-y-4">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden p-6 space-y-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div>
                     <h3 className="text-lg font-bold text-slate-900">Email Campaigns</h3>
@@ -355,10 +355,10 @@ function CampaignsTab({ campaigns = [], onDelete, onAddNew }) {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search campaigns..."
-                        className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-[13px] font-medium focus:bg-white outline-none transition-all"
+                        className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:bg-white outline-none transition-all"
                     />
                 </div>
-                <div className="flex items-center gap-1.5 p-1 bg-slate-50 rounded-xl border border-slate-100">
+                <div className="flex items-center gap-1.5 p-1 bg-slate-50 rounded-xl border border-gray-200">
                     {statuses.map((status) => (
                         <button
                             key={status}
@@ -380,7 +380,7 @@ function CampaignsTab({ campaigns = [], onDelete, onAddNew }) {
                         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                             <div className="flex-1 space-y-1">
                                 <div className="flex items-center gap-3">
-                                    <h4 className="text-[14px] font-semibold text-slate-900">{camp.name || camp.title}</h4>
+                                    <h4 className="text-sm font-semibold text-slate-900">{camp.name || camp.title}</h4>
                                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest ${camp.status === 'sent' ? 'bg-emerald-50 text-emerald-600' :
                                             camp.status === 'scheduled' ? 'bg-amber-50 text-amber-600' :
                                                 camp.status === 'sending' ? 'bg-indigo-50 text-indigo-600' :
@@ -436,7 +436,7 @@ function SegmentsTab({ segments = [], onDelete, onAddNew }) {
 
     return (
         <div className="space-y-4 animate-fade-in">
-            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
                 <div>
                     <h3 className="text-lg font-bold text-slate-900">Audience Segments</h3>
                     <p className="text-slate-400 text-xs font-medium mt-0.5">Targeted groups based on live behavior and roles</p>
@@ -460,7 +460,7 @@ function SegmentsTab({ segments = [], onDelete, onAddNew }) {
                                 <Users size={18} />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <h4 className="text-[13px] font-semibold text-slate-900 truncate">{seg.title}</h4>
+                                <h4 className="text-sm font-semibold text-slate-900 truncate">{seg.title}</h4>
                                 <p className="text-[11px] font-semibold text-blue-600">{(seg.count || 0).toLocaleString()} Members</p>
                             </div>
                             <div className="flex items-center gap-1">
@@ -473,9 +473,9 @@ function SegmentsTab({ segments = [], onDelete, onAddNew }) {
                                 </button>
                             </div>
                         </div>
-                        <p className="text-[13px] font-medium text-gray-500 line-clamp-2">{seg.desc}</p>
+                        <p className="text-sm font-medium text-gray-500 line-clamp-2">{seg.desc}</p>
                         <div className="bg-gray-50/50 rounded-xl p-4 border border-gray-100">
-                            <p className="text-[10px] font-bold text-slate-900 uppercase tracking-wider mb-1">Criteria</p>
+                            <p className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-1">Criteria</p>
                             <p className="text-[11px] font-medium text-gray-600 italic">{seg.criteria}</p>
                         </div>
                         <div className="flex gap-2">
@@ -518,13 +518,13 @@ function AnalyticsTab({ analytics }) {
     ];
 
     return (
-        <div className="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 p-8 md:p-10 animate-fade-in relative overflow-hidden">
+        <div className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-slate-200/50 p-8 md:p-10 animate-fade-in relative overflow-hidden">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
                 <div>
-                    <h3 className="text-2xl font-black text-slate-900 tracking-tight">Communication Analytics</h3>
+                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Communication Analytics</h3>
                     <p className="text-slate-500 text-sm font-medium mt-1">Deep insights into your investor outreach performance</p>
                 </div>
-                <div className="flex bg-slate-50 p-1 rounded-xl border border-slate-100">
+                <div className="flex bg-slate-50 p-1 rounded-xl border border-gray-200">
                     {['Daily', 'Weekly', 'Monthly'].map(period => (
                         <button key={period} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${period === 'Weekly' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>{period}</button>
                     ))}
@@ -533,20 +533,20 @@ function AnalyticsTab({ analytics }) {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
                 {metrics.map((metric, i) => (
-                    <div key={i} className="bg-gradient-to-br from-white to-slate-50/50 p-8 rounded-[28px] border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+                    <div key={i} className="bg-gradient-to-br from-white to-slate-50/50 p-8 rounded-[28px] border border-gray-200 shadow-sm hover:shadow-md transition-all group">
                         <div className="flex justify-between items-start mb-4">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{metric.label}</p>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">{metric.label}</p>
                             <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg group-hover:scale-110 transition-transform">
                                 <Activity size={16} />
                             </div>
                         </div>
-                        <h3 className="text-3xl font-black text-slate-900 tracking-tighter mb-2">{metric.value}</h3>
+                        <h3 className="text-3xl font-bold text-slate-900 tracking-tighter mb-2">{metric.value}</h3>
                         <div className="flex items-center gap-2">
                             <span className="flex items-center gap-0.5 text-emerald-500 font-bold text-xs">
                                 <ArrowUpRight size={14} />
                                 12.4%
                             </span>
-                            <span className="text-[10px] text-slate-400 font-medium">vs last month</span>
+                            <span className="text-xs text-slate-400 font-medium">vs last month</span>
                         </div>
                     </div>
                 ))}
@@ -554,17 +554,17 @@ function AnalyticsTab({ analytics }) {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Engagement Trends Chart */}
-                <div className="bg-slate-50/50 rounded-[32px] border border-slate-100 p-8">
+                <div className="bg-slate-50/50 rounded-[32px] border border-gray-200 p-8">
                     <div className="flex justify-between items-center mb-8">
-                        <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">Engagement Trends</h4>
+                        <h4 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Engagement Trends</h4>
                         <div className="flex items-center gap-3">
                             <div className="flex items-center gap-1.5">
                                 <div className="w-2.5 h-2.5 rounded-full bg-indigo-500"></div>
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Opens</span>
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Opens</span>
                             </div>
                             <div className="flex items-center gap-1.5">
                                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Clicks</span>
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Clicks</span>
                             </div>
                         </div>
                     </div>
@@ -581,15 +581,15 @@ function AnalyticsTab({ analytics }) {
                                         style={{ height: `${val * 0.6}%` }}
                                     ></div>
                                 </div>
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Day {i + 1}</span>
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter">Day {i + 1}</span>
                             </div>
                         ))}
                     </div>
                 </div>
 
                 {/* Device Distribution Chart */}
-                <div className="bg-slate-50/50 rounded-[32px] border border-slate-100 p-8">
-                    <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-8">Device Distribution</h4>
+                <div className="bg-slate-50/50 rounded-[32px] border border-gray-200 p-8">
+                    <h4 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-8">Device Distribution</h4>
                     <div className="flex items-center justify-around h-[200px]">
                         <div className="relative w-40 h-40 flex items-center justify-center">
                             <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90">
@@ -608,8 +608,8 @@ function AnalyticsTab({ analytics }) {
                                 />
                             </svg>
                             <div className="absolute flex flex-col items-center">
-                                <span className="text-2xl font-black text-slate-900 leading-none">100%</span>
-                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Verified</span>
+                                <span className="text-2xl font-bold text-slate-900 leading-none">100%</span>
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Verified</span>
                             </div>
                         </div>
                         <div className="flex flex-col gap-4">
@@ -623,7 +623,7 @@ function AnalyticsTab({ analytics }) {
                                         <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
                                         <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">{item.label}</span>
                                     </div>
-                                    <span className="text-[11px] font-black text-slate-900">{item.val}</span>
+                                    <span className="text-[11px] font-bold text-slate-900">{item.val}</span>
                                 </div>
                             ))}
                         </div>
@@ -677,10 +677,10 @@ function TemplatesTab({ templates = [], setShowNewTemplateModal, onDelete }) {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search templates..."
-                        className="w-full pl-11 pr-4 py-2 bg-gray-50 border border-gray-100 rounded-lg text-[12px] font-bold focus:bg-white outline-none transition-all placeholder:text-gray-300"
+                        className="w-full pl-11 pr-4 py-2 bg-gray-50 border border-gray-100 rounded-lg text-xs font-bold focus:bg-white outline-none transition-all placeholder:text-gray-300"
                     />
                 </div>
-                <div className="flex items-center gap-1.5 p-1 bg-slate-50 rounded-xl border border-slate-100 overflow-x-auto no-scrollbar">
+                <div className="flex items-center gap-1.5 p-1 bg-slate-50 rounded-xl border border-gray-200 overflow-x-auto no-scrollbar">
                     {tags.map((tag) => (
                         <button
                             key={tag}
@@ -712,7 +712,7 @@ function TemplatesTab({ templates = [], setShowNewTemplateModal, onDelete }) {
                         <div className="space-y-3">
                             <div>
                                 <h4 className="text-base font-bold text-slate-900 tracking-tight truncate">{temp.name || temp.title}</h4>
-                                <span className="inline-block px-2 py-0.5 bg-slate-50 text-slate-400 rounded-full text-[10px] font-bold uppercase tracking-wider border border-slate-100">{temp.category || temp.tag}</span>
+                                <span className="inline-block px-2 py-0.5 bg-slate-50 text-slate-400 rounded-full text-xs font-bold uppercase tracking-wider border border-gray-200">{temp.category || temp.tag}</span>
                             </div>
                             <p className="text-sm font-medium text-slate-500 line-clamp-2 leading-relaxed">{temp.desc}</p>
                             <div className="flex items-center justify-between pt-3 border-t border-slate-50">
@@ -741,7 +741,7 @@ function NewTemplateModal({ onClose, onSave }) {
             <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl relative animate-in fade-in zoom-in duration-200 overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-50 flex items-center justify-between">
                     <div>
-                        <h3 className="text-[14px] font-semibold text-slate-900">Create New Template</h3>
+                        <h3 className="text-sm font-semibold text-slate-900">Create New Template</h3>
                         <p className="text-[11px] font-medium text-gray-400 italic">Standardize your outreach design</p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400">
@@ -750,21 +750,21 @@ function NewTemplateModal({ onClose, onSave }) {
                 </div>
                 <div className="p-6 space-y-4">
                     <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-900 uppercase tracking-wider">Template Title</label>
+                        <label className="text-xs font-bold text-slate-900 uppercase tracking-wider">Template Title</label>
                         <input
                             type="text"
                             value={form.title}
                             onChange={e => setForm({ ...form, title: e.target.value })}
                             placeholder="e.g., Q1 Investor Recap"
-                            className="w-full h-11 bg-gray-50 border border-gray-100 rounded-xl px-4 text-[13px] font-medium outline-none focus:bg-white focus:border-blue-200 transition-all"
+                            className="w-full h-11 bg-gray-50 border border-gray-100 rounded-xl px-4 text-sm font-medium outline-none focus:bg-white focus:border-blue-200 transition-all"
                         />
                     </div>
                     <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-900 uppercase tracking-wider">Category Tag</label>
+                        <label className="text-xs font-bold text-slate-900 uppercase tracking-wider">Category Tag</label>
                         <select
                             value={form.tag}
                             onChange={e => setForm({ ...form, tag: e.target.value })}
-                            className="w-full h-11 bg-gray-50 border border-gray-100 rounded-xl px-4 text-[13px] font-medium outline-none focus:bg-white"
+                            className="w-full h-11 bg-gray-50 border border-gray-100 rounded-xl px-4 text-sm font-medium outline-none focus:bg-white"
                         >
                             <option>Marketing</option>
                             <option>Onboarding</option>
@@ -773,16 +773,16 @@ function NewTemplateModal({ onClose, onSave }) {
                         </select>
                     </div>
                     <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-900 uppercase tracking-wider">Baseline Description</label>
+                        <label className="text-xs font-bold text-slate-900 uppercase tracking-wider">Baseline Description</label>
                         <textarea
                             value={form.desc}
                             onChange={e => setForm({ ...form, desc: e.target.value })}
                             placeholder="Briefly describe the purpose..."
-                            className="w-full h-24 bg-gray-50 border border-gray-100 rounded-xl p-4 text-[13px] font-medium outline-none focus:bg-white resize-none"
+                            className="w-full h-24 bg-gray-50 border border-gray-100 rounded-xl p-4 text-sm font-medium outline-none focus:bg-white resize-none"
                         ></textarea>
                     </div>
                 </div>
-                <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex justify-end gap-3">
+                <div className="px-6 py-4 bg-slate-50/50 border-t border-gray-200 flex justify-end gap-3">
                     <button onClick={onClose} className="px-5 py-2 text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors uppercase tracking-widest">Cancel</button>
                     <button
                         onClick={handleSubmit}
@@ -815,7 +815,7 @@ function NewCampaignModal({ onClose, onSave, templates = [], segments = [] }) {
             <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl relative animate-in fade-in zoom-in duration-200 overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-50 flex items-center justify-between">
                     <div>
-                        <h3 className="text-[14px] font-semibold text-slate-900">Launch New Campaign</h3>
+                        <h3 className="text-sm font-semibold text-slate-900">Launch New Campaign</h3>
                         <p className="text-[11px] font-medium text-gray-400 italic">Engage your audience with targeted messaging</p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400">
@@ -824,31 +824,31 @@ function NewCampaignModal({ onClose, onSave, templates = [], segments = [] }) {
                 </div>
                 <div className="p-6 space-y-4">
                     <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-900 uppercase tracking-wider">Campaign Name</label>
+                        <label className="text-xs font-bold text-slate-900 uppercase tracking-wider">Campaign Name</label>
                         <input
                             type="text"
                             value={form.title}
                             onChange={e => setForm({ ...form, title: e.target.value })}
                             placeholder="e.g., Spring Deals Alert"
-                            className="w-full h-11 bg-gray-50 border border-gray-100 rounded-xl px-4 text-[13px] font-medium outline-none focus:bg-white"
+                            className="w-full h-11 bg-gray-50 border border-gray-100 rounded-xl px-4 text-sm font-medium outline-none focus:bg-white"
                         />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-900 uppercase tracking-wider">Select Template</label>
+                            <label className="text-xs font-bold text-slate-900 uppercase tracking-wider">Select Template</label>
                             <select
                                 onChange={e => setForm({ ...form, template: e.target.value })}
-                                className="w-full h-11 bg-gray-50 border border-gray-100 rounded-xl px-4 text-[13px] font-medium outline-none"
+                                className="w-full h-11 bg-gray-50 border border-gray-100 rounded-xl px-4 text-sm font-medium outline-none"
                             >
                                 <option value="">Choose Template...</option>
                                 {templates.map(t => <option key={t.id} value={t.title}>{t.title}</option>)}
                             </select>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-900 uppercase tracking-wider">Target Segment</label>
+                            <label className="text-xs font-bold text-slate-900 uppercase tracking-wider">Target Segment</label>
                             <select
                                 onChange={e => setForm({ ...form, segment: e.target.value })}
-                                className="w-full h-11 bg-gray-50 border border-gray-100 rounded-xl px-4 text-[13px] font-medium outline-none"
+                                className="w-full h-11 bg-gray-50 border border-gray-100 rounded-xl px-4 text-sm font-medium outline-none"
                             >
                                 <option value="">Choose Audience...</option>
                                 {segments.map(s => <option key={s.id} value={s.title}>{s.title}</option>)}
@@ -856,7 +856,7 @@ function NewCampaignModal({ onClose, onSave, templates = [], segments = [] }) {
                         </div>
                     </div>
                     <div className="space-y-2 pt-2">
-                        <label className="text-[10px] font-bold text-slate-900 uppercase tracking-wider">Schedule</label>
+                        <label className="text-xs font-bold text-slate-900 uppercase tracking-wider">Schedule</label>
                         <div className="flex items-center gap-6">
                             <label className="flex items-center gap-2 cursor-pointer group">
                                 <input
@@ -866,7 +866,7 @@ function NewCampaignModal({ onClose, onSave, templates = [], segments = [] }) {
                                     onChange={() => setForm({ ...form, schedule: 'now' })}
                                     className="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 transition-all focus:ring-offset-2"
                                 />
-                                <span className="text-[13px] font-semibold text-gray-600 group-hover:text-slate-900">Send Now</span>
+                                <span className="text-sm font-semibold text-gray-600 group-hover:text-slate-900">Send Now</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer group opacity-60 hover:opacity-100 transition-all">
                                 <input
@@ -876,12 +876,12 @@ function NewCampaignModal({ onClose, onSave, templates = [], segments = [] }) {
                                     onChange={() => setForm({ ...form, schedule: 'later' })}
                                     className="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 focus:ring-offset-2"
                                 />
-                                <span className="text-[13px] font-semibold text-gray-500 group-hover:text-slate-900">Schedule for later</span>
+                                <span className="text-sm font-semibold text-gray-500 group-hover:text-slate-900">Schedule for later</span>
                             </label>
                         </div>
                     </div>
                 </div>
-                <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
+                <div className="px-6 py-4 bg-slate-50/50 border-t border-gray-200 flex items-center justify-between">
                     <button onClick={onClose} className="text-sm font-bold text-indigo-600 hover:underline">Save as Draft</button>
                     <div className="flex gap-3">
                         <button onClick={onClose} className="px-5 py-2 text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors uppercase tracking-widest">Cancel</button>
@@ -927,7 +927,7 @@ function NewSegmentModal({ onClose, onSave }) {
                             value={form.title}
                             onChange={e => setForm({ ...form, title: e.target.value })}
                             placeholder="e.g., Active Investors"
-                            className="w-full h-11 bg-slate-50 border border-slate-100 rounded-xl px-4 text-sm font-medium outline-none focus:bg-white focus:border-indigo-200 transition-all"
+                            className="w-full h-11 bg-slate-50 border border-gray-200 rounded-xl px-4 text-sm font-medium outline-none focus:bg-white focus:border-indigo-200 transition-all"
                         />
                     </div>
                     <div className="space-y-1">
@@ -936,25 +936,25 @@ function NewSegmentModal({ onClose, onSave }) {
                             value={form.desc}
                             onChange={e => setForm({ ...form, desc: e.target.value })}
                             placeholder="Briefly describe this audience..."
-                            className="w-full h-20 bg-slate-50 border border-slate-100 rounded-xl p-4 text-sm font-medium outline-none focus:bg-white resize-none"
+                            className="w-full h-20 bg-slate-50 border border-gray-200 rounded-xl p-4 text-sm font-medium outline-none focus:bg-white resize-none"
                         ></textarea>
                     </div>
                     <div className="p-4 bg-indigo-50/30 rounded-2xl border border-indigo-100/50">
                         <p className="text-xs font-bold text-indigo-900 uppercase tracking-wider mb-2">Rules & Refinement</p>
                         <div className="flex items-center gap-3">
-                            <select className="flex-1 h-10 bg-white border border-slate-200 rounded-lg px-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500/10">
+                            <select className="flex-1 h-10 bg-white border border-gray-200 rounded-lg px-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500/10">
                                 <option>User Role</option>
                                 <option>Account Status</option>
                                 <option>Last Activity</option>
                             </select>
-                            <input type="text" placeholder="value" className="w-24 h-10 bg-white border border-slate-200 rounded-lg px-3 text-sm outline-none" />
+                            <input type="text" placeholder="value" className="w-24 h-10 bg-white border border-gray-200 rounded-lg px-3 text-sm outline-none" />
                         </div>
                     </div>
                     <div className="p-3 bg-emerald-50/50 rounded-xl border border-emerald-100/50 text-center">
                         <p className="text-xs font-bold text-emerald-700 uppercase tracking-widest">Est. Reach: ~247 users</p>
                     </div>
                 </div>
-                <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/30">
+                <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3 bg-slate-50/30">
                     <button onClick={onClose} className="px-4 py-2 text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors uppercase tracking-widest">Cancel</button>
                     <button
                         onClick={handleSubmit}

@@ -277,8 +277,8 @@ export default function InvestorAllDeals() {
 
       <div className="mb-2 flex justify-between items-end">
         <div>
-          <h2 className="text-2xl font-black text-slate-900 mb-1 tracking-tight">Investment Opportunities</h2>
-          <p className="text-slate-500 text-[13px] font-medium leading-relaxed">
+          <h2 className="text-2xl font-bold text-slate-900 mb-1 tracking-tight">Investment Opportunities</h2>
+          <p className="text-slate-500 text-sm font-medium leading-relaxed">
             Browse available deals and manage your bids with real-time market data
           </p>
         </div>

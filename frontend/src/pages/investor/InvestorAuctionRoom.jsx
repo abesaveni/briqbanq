@@ -152,6 +152,7 @@ export default function InvestorAuctionRoom() {
           },
           bidHistory: bids,
           documents: [],
+          borrower_id: caseData?.borrower_id || null,
         };
 
         setDeal(deal);
@@ -399,7 +400,7 @@ export default function InvestorAuctionRoom() {
             {/* Right Column: Bidding Infrastructure */}
             <div className="space-y-6">
               {deal.status === "Sold" ? (
-                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 text-center space-y-4">
+                <div className="bg-slate-50 border border-gray-200 rounded-2xl p-6 text-center space-y-4">
                   <div className="w-16 h-16 bg-slate-900 text-white rounded-full flex items-center justify-center mx-auto shadow-lg">
                     <ShieldCheck size={32} />
                   </div>
@@ -407,9 +408,9 @@ export default function InvestorAuctionRoom() {
                     <h3 className="text-xl font-bold text-slate-900">Auction Closed</h3>
                     <p className="text-sm text-slate-500 font-medium mt-1">This property has been successfully settled.</p>
                   </div>
-                  <div className="pt-4 border-t border-slate-200">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Final Sale Price</p>
-                    <p className="text-2xl font-black text-slate-900">{formatCurrency(deal.currentBid || deal.loanAmount)}</p>
+                  <div className="pt-4 border-t border-gray-200">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Final Sale Price</p>
+                    <p className="text-2xl font-bold text-slate-900">{formatCurrency(deal.currentBid || deal.loanAmount)}</p>
                   </div>
                 </div>
               ) : (deal.status === "Coming Soon" || deal.status === "upcoming" || deal.status === "Coming soon") ? (
@@ -454,12 +455,23 @@ export default function InvestorAuctionRoom() {
                       )}
                   </button >
                 </div >
-              ) : (
-                <>
-                  <BidPanel currentBid={currentBid} startingPrice={deal?.startingPrice || 0} minimumIncrement={deal?.minimumIncrement || 100} placeBid={handlePlaceBid} />
-                  <BidHistory history={bidHistory} />
-                </>
-              )}
+              ) : (() => {
+                // Lawyers cannot bid on cases they created (their user_id is stored as borrower_id)
+                const currentUserId = String(currentUser?.id || currentUser?.user_id || '')
+                const userRoles = currentUser?.roles || (currentUser?.role ? [currentUser.role] : [])
+                const isLawyer = userRoles.some(r => String(r).toLowerCase() === 'lawyer')
+                const isOwnCase = isLawyer && deal?.borrower_id && String(deal.borrower_id) === currentUserId
+                return isOwnCase ? (
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
+                    <p className="text-sm font-medium text-amber-800">You cannot bid on a case you created.</p>
+                  </div>
+                ) : (
+                  <>
+                    <BidPanel currentBid={currentBid} startingPrice={deal?.startingPrice || 0} minimumIncrement={deal?.minimumIncrement || 100} placeBid={handlePlaceBid} />
+                    <BidHistory history={bidHistory} />
+                  </>
+                )
+              })()}
               <InvestmentSummary deal={deal} />
             </div >
 
@@ -499,10 +511,10 @@ function MetricCard({
         <div className={`p-1.5 rounded-lg ${bgColor} ${iconColor} shrink-0`}>
           {icon}
         </div>
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none" title={label}>{label}</p>
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest leading-none" title={label}>{label}</p>
       </div>
       <p className={`text-2xl font-bold ${valueColor} tracking-tight mb-1 whitespace-nowrap`} title={String(value)}>{value || "0"}</p>
-      {subLabel && <p className="text-[10px] text-gray-400 font-medium whitespace-nowrap" title={subLabel}>{subLabel}</p>}
+      {subLabel && <p className="text-xs text-gray-400 font-medium whitespace-nowrap" title={subLabel}>{subLabel}</p>}
     </div>
   );
 }
@@ -541,7 +553,7 @@ function DetailRow({ label, value, bold = false, color = "text-gray-900" }) {
   return (
     <div className="flex justify-between items-center">
       <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{label}</span>
-      <span className={`text-sm tracking-tight ${bold ? 'font-black' : 'font-bold'} ${color}`}>{value || "TBD"}</span>
+      <span className={`text-sm tracking-tight ${bold ? 'font-bold' : 'font-bold'} ${color}`}>{value || "TBD"}</span>
     </div>
   );
 }

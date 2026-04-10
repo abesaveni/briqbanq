@@ -835,7 +835,7 @@ export default function InvestorCaseDetails() {
             time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
             message: settlementMessage,
             initials: "Y",
-            color: "bg-blue-900"
+            color: "bg-indigo-600"
         };
         setSettlementOverviewData(prev => ({
             ...prev,
@@ -1062,10 +1062,10 @@ export default function InvestorCaseDetails() {
                         <div className="flex items-center gap-3">
                             <h2 className="text-2xl font-bold text-gray-900">{caseData.case_number || `#${caseData.id.slice(0,8).toUpperCase()}`}</h2>
                             <div className="flex gap-2">
-                                <span className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-md text-[10px] font-semibold uppercase tracking-wide">
+                                <span className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-md text-xs font-semibold uppercase tracking-wide">
                                     {caseData.status}
                                 </span>
-                                <span className="px-2.5 py-1 bg-green-50 text-green-600 rounded-md text-[10px] font-semibold uppercase tracking-wide">
+                                <span className="px-2.5 py-1 bg-green-50 text-green-600 rounded-md text-xs font-semibold uppercase tracking-wide">
                                     {caseData.riskLevel}
                                 </span>
                             </div>
@@ -1079,7 +1079,7 @@ export default function InvestorCaseDetails() {
                         <button
                             id="btn-export-report"
                             onClick={handleExportReport}
-                            className="px-4 py-2 border border-gray-200 rounded-lg text-[13px] font-semibold text-gray-700 hover:bg-gray-50 transition-all"
+                            className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-all"
                         >
                             Export Report
                         </button>
@@ -1090,7 +1090,7 @@ export default function InvestorCaseDetails() {
                                 setManageModalTab("Case Details");
                                 setIsManageModalOpen(true);
                             }}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-[13px] font-semibold hover:bg-blue-700 transition-all"
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-all"
                         >
                             Manage Case
                         </button>
@@ -1099,19 +1099,19 @@ export default function InvestorCaseDetails() {
 
                 <div className="grid grid-cols-2 lg:grid-cols-4 border-t border-gray-100">
                     <div className="p-5">
-                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Borrower</p>
+                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Borrower</p>
                         <p className="font-bold text-gray-900">{caseData.borrower}</p>
                     </div>
                     <div className="p-5 border-l border-gray-100">
-                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Lender</p>
+                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Lender</p>
                         <p className="font-bold text-gray-900">{caseData.lender}</p>
                     </div>
                     <div className="p-5 border-t lg:border-t-0 border-l lg:border-l border-gray-100">
-                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Outstanding Debt</p>
+                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Outstanding Debt</p>
                         <p className="font-bold text-gray-900">${caseData.outstandingDebt.toLocaleString()}</p>
                     </div>
                     <div className="p-5 border-t lg:border-t-0 border-l border-gray-100">
-                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Property Valuation</p>
+                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Property Valuation</p>
                         <p className="font-bold text-gray-900">${caseData.propertyValuation.toLocaleString()}</p>
                     </div>
                 </div>
@@ -1124,7 +1124,7 @@ export default function InvestorCaseDetails() {
                         key={tab.label}
                         id={`tab-${tab.label.toLowerCase().replace(/\s+/g, '-')}`}
                         onClick={() => setActiveTab(tab.label)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-bold whitespace-nowrap transition-all ${activeTab === tab.label
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${activeTab === tab.label
                             ? "bg-white text-black shadow-sm border border-gray-100"
                             : "text-black hover:bg-white/40"
                             }`}
@@ -1145,12 +1145,12 @@ export default function InvestorCaseDetails() {
                         {/* 4 Stats Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                             {/* Case Status */}
-                            <div className="bg-white p-6 rounded-[24px] border border-gray-100 shadow-sm flex flex-col group hover:shadow-xl transition-all duration-500">
+                            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col group hover:shadow-xl transition-all duration-500">
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-inner">
                                         <Activity size={20} />
                                     </div>
-                                    <span className="text-[10px] font-bold text-emerald-500 bg-emerald-50 px-2 py-1 rounded-md uppercase tracking-wider">Active</span>
+                                    <span className="text-xs font-bold text-emerald-500 bg-emerald-50 px-2 py-1 rounded-md uppercase tracking-wider">Active</span>
                                 </div>
                                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">Status</p>
                                 <h4 className="text-xl font-bold text-slate-900 leading-tight">{caseData.status}</h4>
@@ -1158,7 +1158,7 @@ export default function InvestorCaseDetails() {
                             </div>
 
                             {/* Property Value */}
-                            <div className="bg-white p-6 rounded-[24px] border border-gray-100 shadow-sm flex flex-col group hover:shadow-xl transition-all duration-500">
+                            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col group hover:shadow-xl transition-all duration-500">
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-500 shadow-inner">
                                         <Home size={20} />
@@ -1171,7 +1171,7 @@ export default function InvestorCaseDetails() {
                             </div>
 
                             {/* Total Bids */}
-                            <div className="bg-white p-6 rounded-[24px] border border-gray-100 shadow-sm flex flex-col group hover:shadow-xl transition-all duration-500">
+                            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col group hover:shadow-xl transition-all duration-500">
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 shadow-inner">
                                         <DollarSign size={20} />
@@ -1183,7 +1183,7 @@ export default function InvestorCaseDetails() {
                             </div>
 
                             {/* Days Active */}
-                            <div className="bg-white p-6 rounded-[24px] border border-gray-100 shadow-sm flex flex-col group hover:shadow-xl transition-all duration-500">
+                            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col group hover:shadow-xl transition-all duration-500">
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 shadow-inner">
                                         <Clock size={20} />
@@ -1198,7 +1198,7 @@ export default function InvestorCaseDetails() {
                         {/* Gauges Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {/* Risk Assessment */}
-                            <div className="bg-white p-8 rounded-[24px] border border-gray-100 shadow-sm flex flex-col items-center relative min-h-[280px] group hover:shadow-xl transition-all duration-500">
+                            <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center relative min-h-[280px] group hover:shadow-xl transition-all duration-500">
                                 <div className="w-full flex items-center gap-2 mb-8">
                                     <ShieldCheck size={18} className="text-slate-900" />
                                     <p className="text-sm font-bold text-slate-900 uppercase tracking-widest">Risk Assessment</p>
@@ -1230,18 +1230,18 @@ export default function InvestorCaseDetails() {
                                 </div>
                                 <div className="mt-auto w-full flex justify-between items-end">
                                     <div>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Risk Score</p>
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Risk Score</p>
                                         <p className="text-sm font-bold text-slate-900">{caseData.riskScore}/100</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rating</p>
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Rating</p>
                                         <p className="text-sm font-bold text-emerald-600">A+</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Loan to Value Ratio */}
-                            <div className="bg-white p-8 rounded-[24px] border border-gray-100 shadow-sm flex flex-col items-center relative min-h-[280px] group hover:shadow-xl transition-all duration-500">
+                            <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center relative min-h-[280px] group hover:shadow-xl transition-all duration-500">
                                 <div className="absolute top-0 right-0 p-6">
                                     <div className="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-500 shadow-inner">
                                         <TrendingUp size={20} />
@@ -1287,18 +1287,18 @@ export default function InvestorCaseDetails() {
                                 </div>
                                 <div className="mt-auto w-full flex justify-between items-end">
                                     <div>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Equity</p>
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Equity</p>
                                         <p className="text-sm font-bold text-emerald-600">${(caseData.equity / 1000).toLocaleString()}k</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Debt</p>
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Debt</p>
                                         <p className="text-sm font-bold text-slate-900">${(caseData.outstandingDebt / 1000).toLocaleString()}k</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Financial Breakdown */}
-                            <div className="bg-white p-8 rounded-[24px] border border-gray-100 shadow-sm flex flex-col items-center relative min-h-[280px] group hover:shadow-xl transition-all duration-500">
+                            <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center relative min-h-[280px] group hover:shadow-xl transition-all duration-500">
                                 <div className="absolute top-0 right-0 p-6">
                                     <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 shadow-inner">
                                         <PieChart size={20} />
@@ -1331,20 +1331,20 @@ export default function InvestorCaseDetails() {
                                         />
                                     </svg>
                                     <div className="absolute inset-0 flex items-center justify-center">
-                                        <span className="text-[10px] font-bold text-slate-900">72%</span>
+                                        <span className="text-xs font-bold text-slate-900">72%</span>
                                     </div>
                                 </div>
 
                                 <div className="w-full mt-auto space-y-1">
                                     <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                            <div className="w-2 h-2 rounded-full bg-blue-900"></div>
+                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                            <div className="w-2 h-2 rounded-full bg-indigo-600"></div>
                                             Debt
                                         </div>
                                         <span className="text-xs font-bold text-slate-900">{caseData.lvr}%</span>
                                     </div>
                                     <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
                                             <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
                                             Equity
                                         </div>
@@ -1415,9 +1415,9 @@ export default function InvestorCaseDetails() {
                                             <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
                                         </div>
                                         <div className="flex-1">
-                                            <h4 className="text-[13px] font-bold text-gray-900 leading-none">{activity.title}</h4>
+                                            <h4 className="text-sm font-bold text-gray-900 leading-none">{activity.title}</h4>
                                             <p className="text-slate-500 text-xs mt-0.5">{activity.desc}</p>
-                                            <p className="text-[10px] text-gray-400 mt-0.5 uppercase font-semibold">{activity.time}</p>
+                                            <p className="text-xs text-gray-400 mt-0.5 uppercase font-semibold">{activity.time}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -1507,15 +1507,15 @@ export default function InvestorCaseDetails() {
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm text-gray-500">Identity Verification</span>
-                                    <span className="px-2 py-0.5 bg-green-50 text-green-600 text-[10px] font-bold uppercase rounded">Complete</span>
+                                    <span className="px-2 py-0.5 bg-green-50 text-green-600 text-xs font-bold uppercase rounded">Complete</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm text-gray-500">Financial Documents</span>
-                                    <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase rounded">In Review</span>
+                                    <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs font-bold uppercase rounded">In Review</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm text-gray-500">Property Titles</span>
-                                    <span className="px-2 py-0.5 bg-green-50 text-green-600 text-[10px] font-bold uppercase rounded">Verified</span>
+                                    <span className="px-2 py-0.5 bg-green-50 text-green-600 text-xs font-bold uppercase rounded">Verified</span>
                                 </div>
                             </div>
                             <div className="flex flex-col justify-center items-center p-4 bg-gray-50/50 rounded-xl border border-dashed border-gray-200">
@@ -1531,7 +1531,7 @@ export default function InvestorCaseDetails() {
             {activeTab === "Lawyer Review" && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
                     {/* Header Section - Premium Indigo Card */}
-                    <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-[24px] p-8 text-white relative overflow-hidden shadow-xl">
+                    <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-2xl p-8 text-white relative overflow-hidden shadow-xl">
                         <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-10">
                             <div className="flex-1">
                                 <div className="flex items-center gap-3 mb-6">
@@ -1540,28 +1540,28 @@ export default function InvestorCaseDetails() {
                                     </div>
                                     <div>
                                         <h3 className="text-xl font-bold tracking-tight">Legal Readiness Assessment</h3>
-                                        <p className="text-blue-100 font-semibold text-[13px] opacity-70 italic">Case Integrity & Risk Protocol: {caseData.case_number || `#${caseData.id.slice(0,8).toUpperCase()}`}</p>
+                                        <p className="text-blue-100 font-semibold text-sm opacity-70 italic">Case Integrity & Risk Protocol: {caseData.case_number || `#${caseData.id.slice(0,8).toUpperCase()}`}</p>
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6 border-y border-white/10 py-4">
                                     <div>
-                                        <p className="text-[10px] font-bold text-blue-200/50 uppercase tracking-widest mb-1.5">Primary Asset</p>
-                                        <p className="font-bold text-[14px]">{caseData.title || "Property Details"}</p>
+                                        <p className="text-xs font-bold text-blue-200/50 uppercase tracking-widest mb-1.5">Primary Asset</p>
+                                        <p className="font-bold text-sm">{caseData.title || "Property Details"}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-bold text-blue-200/50 uppercase tracking-widest mb-1.5">Risk Strategy</p>
-                                        <p className="font-bold text-[14px]">{caseData.riskLevel || 'Standard'}</p>
+                                        <p className="text-xs font-bold text-blue-200/50 uppercase tracking-widest mb-1.5">Risk Strategy</p>
+                                        <p className="font-bold text-sm">{caseData.riskLevel || 'Standard'}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-bold text-blue-200/50 uppercase tracking-widest mb-1.5">Capital Pool</p>
-                                        <p className="font-bold text-[14px] text-emerald-400">${(caseData.propertyValuation || 0).toLocaleString()}</p>
+                                        <p className="text-xs font-bold text-blue-200/50 uppercase tracking-widest mb-1.5">Capital Pool</p>
+                                        <p className="font-bold text-sm text-emerald-400">${(caseData.propertyValuation || 0).toLocaleString()}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-bold text-blue-200/50 uppercase tracking-widest mb-1.5">Audit Status</p>
+                                        <p className="text-xs font-bold text-blue-200/50 uppercase tracking-widest mb-1.5">Audit Status</p>
                                         <div className="flex items-center gap-2">
                                             <span className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
-                                            <p className="font-bold text-[10px] uppercase tracking-widest text-amber-400">In Review</p>
+                                            <p className="font-bold text-xs uppercase tracking-widest text-amber-400">In Review</p>
                                         </div>
                                     </div>
                                 </div>
@@ -1602,7 +1602,7 @@ export default function InvestorCaseDetails() {
                                         }
                                         setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000);
                                     }}
-                                    className="h-14 px-8 bg-white text-blue-900 rounded-2xl font-bold text-[13px] uppercase tracking-widest hover:bg-blue-50 transition-all shadow-xl active:scale-95 flex items-center gap-3"
+                                    className="h-14 px-8 bg-white text-blue-900 rounded-2xl font-bold text-sm uppercase tracking-widest hover:bg-blue-50 transition-all shadow-xl active:scale-95 flex items-center gap-3"
                                 >
                                     <Download size={18} className="text-indigo-600" /> Export Protocol
                                 </button>
@@ -1612,7 +1612,7 @@ export default function InvestorCaseDetails() {
                     </div>
 
                     {/* Critical Alerts Block - Premium Rose Style */}
-                    <div className="bg-rose-50/50 border border-rose-100 rounded-[24px] p-8 flex items-start gap-6 relative overflow-hidden group">
+                    <div className="bg-rose-50/50 border border-rose-100 rounded-2xl p-8 flex items-start gap-6 relative overflow-hidden group">
                         <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-rose-600 shrink-0 border border-rose-100 transition-transform duration-500 group-hover:scale-110">
                             <AlertTriangle size={24} />
                         </div>
@@ -1621,13 +1621,13 @@ export default function InvestorCaseDetails() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="flex items-center gap-3">
                                     <div className="w-2 h-2 bg-rose-500 rounded-full" />
-                                    <p className="text-[13px] font-bold text-rose-700 uppercase tracking-tight">
+                                    <p className="text-sm font-bold text-rose-700 uppercase tracking-tight">
                                         {enforcementSteps.filter(s => s.required && !s.checked).length} Incomplete Statutory Steps
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <div className="w-2 h-2 bg-rose-500 rounded-full" />
-                                    <p className="text-[13px] font-bold text-rose-700 uppercase tracking-tight">
+                                    <p className="text-sm font-bold text-rose-700 uppercase tracking-tight">
                                         {loanCompliance.filter(c => c.critical && !c.checked).length} High-Risk Compliance Gaps
                                     </p>
                                 </div>
@@ -1650,7 +1650,7 @@ export default function InvestorCaseDetails() {
                                 <div className="mt-0.5"><Info size={16} className="text-gray-500" /></div>
                                 <div>
                                     <p className="text-sm font-bold text-gray-700 mb-1">National Consumer Credit Protection (NCCP)</p>
-                                    <p className="text-[13px] text-gray-500">applies to loans for personal, domestic, or household purposes. Determine if this loan is subject to NCCP requirements.</p>
+                                    <p className="text-sm text-gray-500">applies to loans for personal, domestic, or household purposes. Determine if this loan is subject to NCCP requirements.</p>
                                 </div>
                             </div>
                         </div>
@@ -1692,7 +1692,7 @@ export default function InvestorCaseDetails() {
                                                     className="w-5 h-5 rounded border-gray-300 text-blue-700 mt-0.5 cursor-pointer focus:ring-blue-700"
                                                 />
                                                 <div>
-                                                    <p className="font-semibold text-[15px] text-gray-900 bg-transparent py-0 !m-0 mb-1 leading-snug">{item.title}</p>
+                                                    <p className="font-semibold text-base text-gray-900 bg-transparent py-0 !m-0 mb-1 leading-snug">{item.title}</p>
                                                     <span className="inline-block px-2.5 py-0.5 bg-red-500 text-white text-[11px] font-bold rounded-full">Required</span>
                                                 </div>
                                             </div>
@@ -1730,14 +1730,14 @@ export default function InvestorCaseDetails() {
                                                         onChange={() => handleUpdateCompliance('documentReviews', index, { reviewed: !doc.reviewed })}
                                                         className="w-4 h-4 rounded border-gray-300 text-blue-700 focus:ring-blue-700 cursor-pointer"
                                                     />
-                                                    <span className="text-[13px] text-gray-600 font-medium group-hover:text-gray-900 transition-colors">Reviewed</span>
+                                                    <span className="text-sm text-gray-600 font-medium group-hover:text-gray-900 transition-colors">Reviewed</span>
                                                 </label>
                                             </div>
                                         </div>
                                          <div className="flex items-center gap-2">
                                              <button 
                                                  onClick={() => handleViewDocumentLocal(doc)}
-                                                 className="flex items-center gap-1.5 px-4 py-2 border border-gray-200 rounded-lg text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-all shadow-sm"
+                                                 className="flex items-center gap-1.5 px-4 py-2 border border-gray-200 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 transition-all shadow-sm"
                                              >
                                                  <Eye size={14} /> View
                                              </button>
@@ -1755,19 +1755,19 @@ export default function InvestorCaseDetails() {
                                             <div className="flex gap-2 mb-3">
                                                 <button
                                                     onClick={() => handleUpdateCompliance('documentReviews', index, { status: 'compliant' })}
-                                                    className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[13px] font-bold transition-all border ${doc.status === 'compliant' ? 'bg-blue-700 text-white border-blue-700 shadow-md shadow-blue-500/20' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'}`}
+                                                    className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-bold transition-all border ${doc.status === 'compliant' ? 'bg-blue-700 text-white border-blue-700 shadow-md shadow-blue-500/20' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'}`}
                                                 >
                                                     <CheckCircle2 size={14} /> Compliant
                                                 </button>
                                                 <button
                                                     onClick={() => handleUpdateCompliance('documentReviews', index, { status: 'non-compliant' })}
-                                                    className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[13px] font-bold transition-all border ${doc.status === 'non-compliant' ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'}`}
+                                                    className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-bold transition-all border ${doc.status === 'non-compliant' ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'}`}
                                                 >
                                                     <XCircle size={14} /> Non-Compliant
                                                 </button>
                                             </div>
                                             <textarea
-                                                className="w-full text-[13px] p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-700/20 focus:border-blue-700 transition-all resize-none"
+                                                className="w-full text-sm p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-700/20 focus:border-blue-700 transition-all resize-none"
                                                 rows="2"
                                                 placeholder="Add review notes..."
                                                 value={doc.notes}
@@ -1794,7 +1794,7 @@ export default function InvestorCaseDetails() {
 
                         <div className="p-4 bg-gray-50/50 border border-gray-100 rounded-xl mb-6 flex items-center gap-3">
                             <Info size={16} className="text-gray-500 shrink-0" />
-                            <p className="text-[13px] text-gray-600">Verify that all required enforcement steps have been completed correctly and in accordance with legislation.</p>
+                            <p className="text-sm text-gray-600">Verify that all required enforcement steps have been completed correctly and in accordance with legislation.</p>
                         </div>
 
                         <div className="space-y-3">
@@ -1809,7 +1809,7 @@ export default function InvestorCaseDetails() {
                                                 className="w-5 h-5 rounded border-gray-300 text-blue-700 mt-0.5 cursor-pointer focus:ring-blue-700"
                                             />
                                             <div>
-                                                <p className="font-semibold text-[15px] text-gray-900 bg-transparent py-0 !m-0 mb-1 leading-snug">{step.title}</p>
+                                                <p className="font-semibold text-base text-gray-900 bg-transparent py-0 !m-0 mb-1 leading-snug">{step.title}</p>
                                                 {step.required && (
                                                     <span className="inline-block px-2.5 py-0.5 bg-red-500 text-white text-[11px] font-bold rounded-full">Required</span>
                                                 )}
@@ -1830,7 +1830,7 @@ export default function InvestorCaseDetails() {
                                                         <input
                                                             type="text"
                                                             placeholder="mm/dd/yyyy"
-                                                            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-[13px] font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-700/20 focus:border-blue-700 transition-all"
+                                                            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-700/20 focus:border-blue-700 transition-all"
                                                             value={step.date}
                                                             onChange={(e) => {
                                                                 const updatedList = [...enforcementSteps];
@@ -1846,13 +1846,13 @@ export default function InvestorCaseDetails() {
                                                     <div className="flex gap-2">
                                                         <button
                                                             onClick={() => handleUpdateCompliance('enforcementSteps', index, { status: 'compliant' })}
-                                                            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all border ${step.status === 'compliant' ? 'bg-white text-gray-900 border-gray-200 shadow-sm' : 'bg-transparent text-gray-600 border-transparent hover:bg-gray-50'}`}
+                                                            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-bold transition-all border ${step.status === 'compliant' ? 'bg-white text-gray-900 border-gray-200 shadow-sm' : 'bg-transparent text-gray-600 border-transparent hover:bg-gray-50'}`}
                                                         >
                                                             <CheckCircle2 size={14} className={step.status === 'compliant' ? 'text-gray-900' : 'text-gray-400'} /> Compliant
                                                         </button>
                                                         <button
                                                             onClick={() => handleUpdateCompliance('enforcementSteps', index, { status: 'issues' })}
-                                                            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-[13px] font-bold transition-all border ${step.status === 'issues' ? 'bg-orange-50 text-orange-600 border-orange-200 shadow-sm' : 'bg-transparent text-gray-600 border-transparent hover:bg-gray-50'}`}
+                                                            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-bold transition-all border ${step.status === 'issues' ? 'bg-orange-50 text-orange-600 border-orange-200 shadow-sm' : 'bg-transparent text-gray-600 border-transparent hover:bg-gray-50'}`}
                                                         >
                                                             <XCircle size={14} className={step.status === 'issues' ? 'text-orange-600' : 'text-gray-400'} /> Issues
                                                         </button>
@@ -1860,7 +1860,7 @@ export default function InvestorCaseDetails() {
                                                 </div>
                                             </div>
                                             <textarea
-                                                className="w-full text-[13px] p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-700/20 focus:border-blue-700 transition-all resize-none"
+                                                className="w-full text-sm p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-700/20 focus:border-blue-700 transition-all resize-none"
                                                 rows="2"
                                                 placeholder="Add verification notes..."
                                                 value={step.notes}
@@ -1887,7 +1887,7 @@ export default function InvestorCaseDetails() {
 
                         <div className="p-4 bg-gray-50/50 border border-gray-100 rounded-xl mb-6 flex items-center gap-3">
                             <Shield size={16} className="text-gray-500 shrink-0" />
-                            <p className="text-[13px] text-gray-600">Ensure the loan is fully compliant and will present no legal issues for the buyer/investor.</p>
+                            <p className="text-sm text-gray-600">Ensure the loan is fully compliant and will present no legal issues for the buyer/investor.</p>
                         </div>
 
                         <div className="space-y-3">
@@ -1901,9 +1901,9 @@ export default function InvestorCaseDetails() {
                                             className="w-5 h-5 rounded border-gray-300 text-blue-700 mt-0.5 cursor-pointer focus:ring-blue-700"
                                         />
                                         <div>
-                                            <p className="font-semibold text-[14px] text-gray-900 bg-transparent py-0 !m-0 mb-1 leading-snug">{item.title}</p>
+                                            <p className="font-semibold text-sm text-gray-900 bg-transparent py-0 !m-0 mb-1 leading-snug">{item.title}</p>
                                             {item.critical && (
-                                                <span className="inline-block px-2 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full">Critical</span>
+                                                <span className="inline-block px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full">Critical</span>
                                             )}
                                         </div>
                                     </div>
@@ -1927,8 +1927,8 @@ export default function InvestorCaseDetails() {
                         <div className="p-4 bg-gray-50/50 border border-gray-100 rounded-xl mb-6 flex items-start gap-3">
                             <AlertCircle size={16} className="text-gray-500 shrink-0 mt-0.5" />
                             <div>
-                                <h4 className="text-[13px] font-bold text-gray-900 mb-0.5">Required:</h4>
-                                <p className="text-[13px] text-gray-600">Upload your comprehensive statement of advice documenting all findings, compliance status, and recommendations.</p>
+                                <h4 className="text-sm font-bold text-gray-900 mb-0.5">Required:</h4>
+                                <p className="text-sm text-gray-600">Upload your comprehensive statement of advice documenting all findings, compliance status, and recommendations.</p>
                             </div>
                         </div>
 
@@ -1948,8 +1948,8 @@ export default function InvestorCaseDetails() {
                                     <div className="flex items-center gap-3 mb-4">
                                         <CheckCircle2 className="text-emerald-500 shrink-0" size={32} strokeWidth={2.5} />
                                         <div>
-                                            <p className="text-[14px] font-bold text-emerald-500 mb-0.5">{soaFile.name}</p>
-                                            <p className="text-[13px] text-gray-500 font-medium">{(soaFile.size / 1024).toFixed(2)} KB</p>
+                                            <p className="text-sm font-bold text-emerald-500 mb-0.5">{soaFile.name}</p>
+                                            <p className="text-sm text-gray-500 font-medium">{(soaFile.size / 1024).toFixed(2)} KB</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3">
@@ -1960,13 +1960,13 @@ export default function InvestorCaseDetails() {
                                                     window.open(url, '_blank');
                                                 }
                                             }}
-                                            className="flex items-center gap-2 px-4 py-2.5 bg-white text-[13px] font-bold text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all shadow-sm"
+                                            className="flex items-center gap-2 px-4 py-2.5 bg-white text-sm font-bold text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all shadow-sm"
                                         >
                                             <Eye size={14} className="text-gray-500" /> Preview
                                         </button>
                                         <button
                                             onClick={() => setSoaFile(null)}
-                                            className="flex items-center gap-2 px-4 py-2.5 bg-white text-[13px] font-bold text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all shadow-sm"
+                                            className="flex items-center gap-2 px-4 py-2.5 bg-white text-sm font-bold text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all shadow-sm"
                                         >
                                             <XCircle size={14} className="text-gray-500" /> Remove
                                         </button>
@@ -1978,7 +1978,7 @@ export default function InvestorCaseDetails() {
                                     className="border-2 border-dashed border-gray-200 bg-white hover:border-blue-400 hover:bg-gray-50/30 rounded-xl p-8 flex flex-col items-center justify-center transition-all cursor-pointer"
                                 >
                                     <Upload className="text-gray-400 mb-3" size={32} />
-                                    <p className="text-[13px] font-medium text-gray-900 mb-0.5"><span className="text-blue-600 font-bold">Click to upload Statement of Advice</span> PDF, DOC, or DOCX (Max 10MB)</p>
+                                    <p className="text-sm font-medium text-gray-900 mb-0.5"><span className="text-blue-600 font-bold">Click to upload Statement of Advice</span> PDF, DOC, or DOCX (Max 10MB)</p>
                                 </label>
                             )}
                         </div>
@@ -1988,7 +1988,7 @@ export default function InvestorCaseDetails() {
                     <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                         <h3 className="text-sm font-bold text-gray-900 mb-4">Review Notes & Recommendations</h3>
                         <textarea
-                            className="w-full text-[13px] p-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-700/20 focus:border-blue-700 transition-all resize-none"
+                            className="w-full text-sm p-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-700/20 focus:border-blue-700 transition-all resize-none"
                             rows="4"
                             placeholder="Provide detailed review notes, findings, and recommendations..."
                             value={lawyerReviewNotes}
@@ -2008,7 +2008,7 @@ export default function InvestorCaseDetails() {
                                     setToast({ show: true, message: "Case rejection initiated...", type: "error" });
                                     setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000);
                                 }}
-                                className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-[13px] font-bold text-red-500 border border-red-500 hover:bg-red-50 transition-all bg-white shadow-sm"
+                                className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-red-500 border border-red-500 hover:bg-red-50 transition-all bg-white shadow-sm"
                             >
                                 <XCircle size={16} /> Reject Case
                             </button>
@@ -2017,7 +2017,7 @@ export default function InvestorCaseDetails() {
                                     setToast({ show: true, message: "Case approved successfully!", type: "success" });
                                     setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000);
                                 }}
-                                className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-[13px] font-bold text-white bg-green-400 hover:bg-emerald-500 transition-all shadow-sm"
+                                className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-green-400 hover:bg-emerald-500 transition-all shadow-sm"
                             >
                                 <CheckCircle2 size={16} /> Approve Case
                             </button>
@@ -2044,24 +2044,24 @@ export default function InvestorCaseDetails() {
                             <h4 className="text-sm font-bold text-gray-900 mb-2">Property Features</h4>
                             <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                                 <div>
-                                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Type</p>
-                                    <p className="text-[13px] font-medium text-gray-900">{caseData.propertyType}</p>
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Type</p>
+                                    <p className="text-sm font-medium text-gray-900">{caseData.propertyType}</p>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Bedrooms</p>
-                                    <p className="text-[13px] font-medium text-gray-900">{caseData.bedrooms}</p>
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Bedrooms</p>
+                                    <p className="text-sm font-medium text-gray-900">{caseData.bedrooms}</p>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Bathrooms</p>
-                                    <p className="text-[13px] font-medium text-gray-900">{caseData.bathrooms}</p>
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Bathrooms</p>
+                                    <p className="text-sm font-medium text-gray-900">{caseData.bathrooms}</p>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Parking</p>
-                                    <p className="text-[13px] font-medium text-gray-900">{caseData.parking}</p>
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Parking</p>
+                                    <p className="text-sm font-medium text-gray-900">{caseData.parking}</p>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Land Size</p>
-                                    <p className="text-[13px] font-medium text-gray-900">{caseData.landSize}</p>
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Land Size</p>
+                                    <p className="text-sm font-medium text-gray-900">{caseData.landSize}</p>
                                 </div>
                             </div>
                         </div>
@@ -2072,16 +2072,16 @@ export default function InvestorCaseDetails() {
                         <h4 className="text-sm font-bold text-gray-900 mb-4">Valuation</h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
-                                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Valuation Amount</p>
+                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Valuation Amount</p>
                                 <p className="text-base font-bold text-gray-900">${caseData.propertyValuation.toLocaleString()}</p>
                             </div>
                             <div>
-                                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Valuation Date</p>
-                                <p className="text-[13px] font-medium text-gray-900">{caseData.valuationDate}</p>
+                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Valuation Date</p>
+                                <p className="text-sm font-medium text-gray-900">{caseData.valuationDate}</p>
                             </div>
                             <div>
-                                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Valuer</p>
-                                <p className="text-[13px] font-medium text-gray-900">{caseData.valuerName}</p>
+                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Valuer</p>
+                                <p className="text-sm font-medium text-gray-900">{caseData.valuerName}</p>
                             </div>
                         </div>
                     </div>
@@ -2106,8 +2106,8 @@ export default function InvestorCaseDetails() {
                             className="border-2 border-dashed border-gray-100 rounded-xl p-8 flex flex-col items-center justify-center bg-gray-50/30 group hover:border-blue-400 transition-all cursor-pointer"
                         >
                             <Download className="text-gray-300 group-hover:text-blue-500 mb-3 transition-colors rotate-180" size={32} />
-                            <p className="text-[13px] font-medium text-gray-900 mb-0.5">Drag and drop files here, or <span className="text-blue-600">browse</span></p>
-                            <p className="text-[10px] text-gray-400">PDF, DOC, DOCX, JPG, PNG up to 10MB</p>
+                            <p className="text-sm font-medium text-gray-900 mb-0.5">Drag and drop files here, or <span className="text-blue-600">browse</span></p>
+                            <p className="text-xs text-gray-400">PDF, DOC, DOCX, JPG, PNG up to 10MB</p>
                         </div>
                     </div>
 
@@ -2121,8 +2121,8 @@ export default function InvestorCaseDetails() {
                                             <FileText size={18} />
                                         </div>
                                         <div>
-                                            <p className="text-[13px] font-bold text-gray-900 line-clamp-1">{file.name}</p>
-                                            <p className="text-[10px] text-gray-400 font-medium">{file.size}</p>
+                                            <p className="text-sm font-bold text-gray-900 line-clamp-1">{file.name}</p>
+                                            <p className="text-xs text-gray-400 font-medium">{file.size}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -2144,7 +2144,7 @@ export default function InvestorCaseDetails() {
                     )}
 
                     <div>
-                        <h4 className="text-[13px] font-bold text-gray-900 mb-4">Uploaded Documents</h4>
+                        <h4 className="text-sm font-bold text-gray-900 mb-4">Uploaded Documents</h4>
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead>
@@ -2202,7 +2202,7 @@ export default function InvestorCaseDetails() {
                         <div className="flex justify-between items-center">
                             <div>
                                 <h3 className="text-lg font-bold text-gray-900 leading-tight">Investment Memorandum</h3>
-                                <p className="text-[13px] text-gray-500 font-medium">Professional marketing document for investors</p>
+                                <p className="text-sm text-gray-500 font-medium">Professional marketing document for investors</p>
                             </div>
                             <div className="flex gap-2">
                                 <button
@@ -2210,7 +2210,7 @@ export default function InvestorCaseDetails() {
                                         setToast({ show: true, message: "Edit mode coming soon...", type: "info" });
                                         setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000);
                                     }}
-                                    className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-all"
+                                    className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 transition-all"
                                 >
                                     <Edit3 size={16} /> Edit
                                 </button>
@@ -2220,14 +2220,14 @@ export default function InvestorCaseDetails() {
                                         setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000);
                                         window.print();
                                     }}
-                                    className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-all"
+                                    className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 transition-all"
                                 >
                                     <Printer size={16} /> Print
                                 </button>
                                 <button
                                     onClick={() => handleGenerateDoc('IM')}
                                     disabled={isGeneratingDoc.active}
-                                    className="flex items-center gap-2 px-5 py-2 bg-blue-700 text-white rounded-lg text-[13px] font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 disabled:bg-gray-400"
+                                    className="flex items-center gap-2 px-5 py-2 bg-blue-700 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 disabled:bg-gray-400"
                                 >
                                     {isGeneratingDoc.active && isGeneratingDoc.type === 'IM' ? (
                                         <RefreshCw size={16} className="animate-spin" />
@@ -2253,7 +2253,7 @@ export default function InvestorCaseDetails() {
                             )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
                             <div className="absolute top-10 left-10">
-                                <span className="px-3.5 py-1.5 bg-red-500 text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-md shadow-lg">Investment Opportunity</span>
+                                <span className="px-3.5 py-1.5 bg-red-500 text-white text-xs font-bold uppercase tracking-[0.2em] rounded-md shadow-lg">Investment Opportunity</span>
                             </div>
                             <div className="absolute bottom-12 left-12 right-12">
                                 <h2 className="text-5xl font-bold text-white mb-2 tracking-tight">{caseData.address.split(',')[0]}</h2>
@@ -2308,10 +2308,10 @@ export default function InvestorCaseDetails() {
                             <h3 className="text-2xl font-bold text-gray-900 mb-5 tracking-tight">Executive Summary</h3>
                             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
                                 <div className="lg:col-span-3 space-y-4">
-                                    <p className="text-gray-600 font-medium leading-[1.8] text-[15px]">
+                                    <p className="text-gray-600 font-medium leading-[1.8] text-base">
                                         This Investment Memorandum presents a secured lending opportunity backed by a premium residential property in {caseData.address.split(',').slice(1, 2).join('').trim()}. The property is currently in mortgage default, presenting an attractive acquisition opportunity for institutional and high net worth investors.
                                     </p>
-                                    <p className="text-gray-600 font-medium leading-[1.8] text-[15px]">
+                                    <p className="text-gray-600 font-medium leading-[1.8] text-base">
                                         The loan is secured by first mortgage over a well-maintained apartment valued at ${(caseData.propertyValuation / 1000)}k, providing a conservative LVR of {caseData.lvr}% and significant equity buffer.
                                     </p>
                                 </div>
@@ -2327,7 +2327,7 @@ export default function InvestorCaseDetails() {
                                             }`}>
                                             <CheckCircle2 size={20} />
                                             <div>
-                                                <p className="text-[13px] font-bold text-gray-900">{item.title}</p>
+                                                <p className="text-sm font-bold text-gray-900">{item.title}</p>
                                                 <p className="text-[11px] font-medium text-gray-500">{item.desc}</p>
                                             </div>
                                         </div>
@@ -2346,8 +2346,8 @@ export default function InvestorCaseDetails() {
                                     </div>
                                     <div>
                                         <h4 className="text-base font-bold text-gray-900 mb-2">Strong Returns</h4>
-                                        <p className="text-[13px] text-gray-600 font-medium leading-relaxed mb-3">Target IRR of 12.4% per annum with monthly interest payments at 8.25% default rate.</p>
-                                        <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Historical recovery rate: 87.5%</p>
+                                        <p className="text-sm text-gray-600 font-medium leading-relaxed mb-3">Target IRR of 12.4% per annum with monthly interest payments at 8.25% default rate.</p>
+                                        <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Historical recovery rate: 87.5%</p>
                                     </div>
                                 </div>
                                 <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex gap-5">
@@ -2356,8 +2356,8 @@ export default function InvestorCaseDetails() {
                                     </div>
                                     <div>
                                         <h4 className="text-base font-bold text-gray-900 mb-2">Conservative LVR</h4>
-                                        <p className="text-[13px] text-gray-600 font-medium leading-relaxed mb-3">Loan to Value Ratio of {caseData.lvr}% provides substantial equity cushion and downside protection.</p>
-                                        <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Equity buffer: ${caseData.equity.toLocaleString()}</p>
+                                        <p className="text-sm text-gray-600 font-medium leading-relaxed mb-3">Loan to Value Ratio of {caseData.lvr}% provides substantial equity cushion and downside protection.</p>
+                                        <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Equity buffer: ${caseData.equity.toLocaleString()}</p>
                                     </div>
                                 </div>
                                 <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex gap-5">
@@ -2366,8 +2366,8 @@ export default function InvestorCaseDetails() {
                                     </div>
                                     <div>
                                         <h4 className="text-base font-bold text-gray-900 mb-2">Prime Location</h4>
-                                        <p className="text-[13px] text-gray-600 font-medium leading-relaxed mb-3">Located in {(caseData.address.split(',')[1] || caseData.address || '').trim()}, a highly desirable suburb with strong capital growth history.</p>
-                                        <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">5-year growth: 42% • Median: $1.15M</p>
+                                        <p className="text-sm text-gray-600 font-medium leading-relaxed mb-3">Located in {(caseData.address.split(',')[1] || caseData.address || '').trim()}, a highly desirable suburb with strong capital growth history.</p>
+                                        <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">5-year growth: 42% • Median: $1.15M</p>
                                     </div>
                                 </div>
                                 <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex gap-5">
@@ -2376,8 +2376,8 @@ export default function InvestorCaseDetails() {
                                     </div>
                                     <div>
                                         <h4 className="text-base font-bold text-gray-900 mb-2">Interest Rate</h4>
-                                        <p className="text-[13px] text-gray-600 font-medium leading-relaxed mb-3">Current interest rate: {caseData.interest_rate != null ? `${caseData.interest_rate}% p.a.` : '—'}. Outstanding debt: A${caseData.outstandingDebt?.toLocaleString() || '—'}.</p>
-                                        <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Case active for {caseData.daysActive ?? '—'} days • Status: {caseData.status || '—'}</p>
+                                        <p className="text-sm text-gray-600 font-medium leading-relaxed mb-3">Current interest rate: {caseData.interest_rate != null ? `${caseData.interest_rate}% p.a.` : '—'}. Outstanding debt: A${caseData.outstandingDebt?.toLocaleString() || '—'}.</p>
+                                        <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Case active for {caseData.daysActive ?? '—'} days • Status: {caseData.status || '—'}</p>
                                     </div>
                                 </div>
                             </div>
@@ -2412,7 +2412,7 @@ export default function InvestorCaseDetails() {
                             <h3 className="text-2xl font-bold text-gray-900 mb-6 tracking-tight">Loan Details</h3>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                                 <div>
-                                    <h4 className="text-[13px] font-bold text-gray-400 mb-4 uppercase tracking-[0.1em]">Financial Summary</h4>
+                                    <h4 className="text-sm font-bold text-gray-400 mb-4 uppercase tracking-[0.1em]">Financial Summary</h4>
                                     <div className="space-y-1">
                                         {[
                                             { label: "Outstanding Principal", value: `A$${caseData.outstandingDebt.toLocaleString()}`, bold: true },
@@ -2421,8 +2421,8 @@ export default function InvestorCaseDetails() {
                                             { label: "Estimated Property Value", value: `A$${caseData.propertyValuation.toLocaleString()}`, bold: true },
                                         ].map((row, i) => (
                                             <div key={i} className={`flex justify-between items-center px-4 py-3.5 rounded-xl ${row.highlight ? 'bg-amber-50 border border-amber-100' : 'bg-gray-50/50'}`}>
-                                                <p className="text-[12px] font-medium text-gray-500">{row.label}</p>
-                                                <p className={`text-[13px] font-bold ${row.highlight ? 'text-amber-600' :
+                                                <p className="text-xs font-medium text-gray-500">{row.label}</p>
+                                                <p className={`text-sm font-bold ${row.highlight ? 'text-amber-600' :
                                                     row.green ? 'text-emerald-500' :
                                                         'text-gray-900'
                                                     }`}>
@@ -2433,25 +2433,25 @@ export default function InvestorCaseDetails() {
                                     </div>
                                 </div>
                                 <div>
-                                    <h4 className="text-[13px] font-bold text-gray-400 mb-4 uppercase tracking-[0.1em]">Default Status</h4>
+                                    <h4 className="text-sm font-bold text-gray-400 mb-4 uppercase tracking-[0.1em]">Default Status</h4>
                                     <div className="space-y-3">
                                         <div className="grid grid-cols-2 gap-3">
                                             <div className="p-4 bg-red-50/70 border border-red-100 rounded-xl">
-                                                <p className="text-[10px] font-bold text-gray-400 mb-1 uppercase">Days Active</p>
+                                                <p className="text-xs font-bold text-gray-400 mb-1 uppercase">Days Active</p>
                                                 <p className="text-lg font-bold text-red-600">{caseData.daysActive ?? '—'} days</p>
                                             </div>
                                             <div className="p-4 bg-amber-50/70 border border-amber-100 rounded-xl">
-                                                <p className="text-[10px] font-bold text-gray-400 mb-1 uppercase">Case Status</p>
+                                                <p className="text-xs font-bold text-gray-400 mb-1 uppercase">Case Status</p>
                                                 <p className="text-lg font-bold text-amber-600">{caseData.status || '—'}</p>
                                             </div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
                                             <div className="p-4 bg-gray-50/70 border border-gray-100 rounded-xl">
-                                                <p className="text-[10px] font-bold text-gray-400 mb-1 uppercase">Outstanding Debt</p>
+                                                <p className="text-xs font-bold text-gray-400 mb-1 uppercase">Outstanding Debt</p>
                                                 <p className="text-lg font-bold text-gray-900">A${caseData.outstandingDebt?.toLocaleString() || '—'}</p>
                                             </div>
                                             <div className="p-4 bg-gray-50/70 border border-gray-100 rounded-xl">
-                                                <p className="text-[10px] font-bold text-gray-400 mb-1 uppercase">Equity</p>
+                                                <p className="text-xs font-bold text-gray-400 mb-1 uppercase">Equity</p>
                                                 <p className="text-lg font-bold text-gray-900">A${caseData.equity?.toLocaleString() || '—'}</p>
                                             </div>
                                         </div>
@@ -2465,7 +2465,7 @@ export default function InvestorCaseDetails() {
                             <h3 className="text-2xl font-bold text-gray-900 mb-6 tracking-tight">Property Details</h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                                 <div>
-                                    <h4 className="text-[13px] font-bold text-gray-400 mb-4 uppercase tracking-[0.1em]">Property Features</h4>
+                                    <h4 className="text-sm font-bold text-gray-400 mb-4 uppercase tracking-[0.1em]">Property Features</h4>
                                     <div className="space-y-2">
                                         {[
                                             { label: "Type", value: "Apartment" },
@@ -2482,7 +2482,7 @@ export default function InvestorCaseDetails() {
                                     </div>
                                 </div>
                                 <div>
-                                    <h4 className="text-[13px] font-bold text-gray-400 mb-4 uppercase tracking-[0.1em]">Valuation</h4>
+                                    <h4 className="text-sm font-bold text-gray-400 mb-4 uppercase tracking-[0.1em]">Valuation</h4>
                                     <div className="space-y-2">
                                         {[
                                             { label: "Current Value", value: "$1,250,000", bold: true },
@@ -2498,7 +2498,7 @@ export default function InvestorCaseDetails() {
                                     </div>
                                 </div>
                                 <div>
-                                    <h4 className="text-[13px] font-bold text-gray-400 mb-4 uppercase tracking-[0.1em]">Location</h4>
+                                    <h4 className="text-sm font-bold text-gray-400 mb-4 uppercase tracking-[0.1em]">Location</h4>
                                     <div className="space-y-2">
                                         {[
                                             { label: "Suburb", value: "Potts Point" },
@@ -2531,7 +2531,7 @@ export default function InvestorCaseDetails() {
                                             <div className="mt-0.5">{risk.icon}</div>
                                             <div>
                                                 <h4 className="text-base font-bold text-gray-900 mb-1">{risk.title}</h4>
-                                                <p className="text-[13px] text-gray-500 font-medium leading-relaxed">{risk.desc}</p>
+                                                <p className="text-sm text-gray-500 font-medium leading-relaxed">{risk.desc}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -2560,11 +2560,11 @@ export default function InvestorCaseDetails() {
                                             <div className="flex items-center gap-3">
                                                 <CheckCircle2 size={16} className="text-emerald-500" />
                                                 <div>
-                                                    <p className="text-[13px] font-bold text-gray-900">{check.title}</p>
+                                                    <p className="text-sm font-bold text-gray-900">{check.title}</p>
                                                     <p className="text-[11px] text-gray-500 font-medium">{check.desc}</p>
                                                 </div>
                                             </div>
-                                            <span className="px-2 py-0.5 bg-emerald-500 text-white text-[10px] font-bold uppercase rounded">Completed</span>
+                                            <span className="px-2 py-0.5 bg-emerald-500 text-white text-xs font-bold uppercase rounded">Completed</span>
                                         </div>
                                     ))}
                                 </div>
@@ -2587,11 +2587,11 @@ export default function InvestorCaseDetails() {
                                             <div className="flex items-center gap-3">
                                                 <CheckCircle2 size={16} className="text-emerald-500" />
                                                 <div>
-                                                    <p className="text-[13px] font-bold text-gray-900">{check.title}</p>
+                                                    <p className="text-sm font-bold text-gray-900">{check.title}</p>
                                                     <p className="text-[11px] text-gray-500 font-medium">{check.desc}</p>
                                                 </div>
                                             </div>
-                                            <span className="px-2 py-0.5 bg-emerald-500 text-white text-[10px] font-bold uppercase rounded">{check.status}</span>
+                                            <span className="px-2 py-0.5 bg-emerald-500 text-white text-xs font-bold uppercase rounded">{check.status}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -2606,7 +2606,7 @@ export default function InvestorCaseDetails() {
                                     <div className="lg:col-span-2 space-y-3">
                                         <div className="flex items-center gap-2 mb-4">
                                             <FileText size={16} className="text-gray-400" />
-                                            <h5 className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Lender Documents</h5>
+                                            <h5 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Lender Documents</h5>
                                         </div>
                                         {["Loan Agreement", "Loan Variations", "Bank Statements", "Payout Letter", "Formal Approval"].map((doc, i) => (
                                             <div key={i} className="flex items-center justify-between">
@@ -2618,7 +2618,7 @@ export default function InvestorCaseDetails() {
                                     <div className="lg:col-span-2 space-y-3">
                                         <div className="flex items-center gap-2 mb-4">
                                             <Users size={16} className="text-gray-400" />
-                                            <h5 className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Borrower Documents</h5>
+                                            <h5 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Borrower Documents</h5>
                                         </div>
                                         {["Borrower ID", "Proof of Income", "Financial Statements"].map((doc, i) => (
                                             <div key={i} className="flex items-center justify-between">
@@ -2630,11 +2630,11 @@ export default function InvestorCaseDetails() {
                                     <div className="lg:col-span-1">
                                         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center">
                                             <p className="text-[11px] font-bold text-gray-500 mb-3 text-center">Completion Summary</p>
-                                            <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">Overall Progress</p>
+                                            <p className="text-xs font-bold text-gray-400 uppercase mb-2">Overall Progress</p>
                                             <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-2">
                                                 <div className="h-full bg-blue-600" style={{ width: '100%' }}></div>
                                             </div>
-                                            <p className="text-[18px] font-bold text-blue-600">100%</p>
+                                            <p className="text-lg font-bold text-blue-600">100%</p>
                                             <p className="text-[11px] text-gray-400 mt-2 text-center">13 of 13 documents collected</p>
                                         </div>
                                     </div>
@@ -2648,27 +2648,27 @@ export default function InvestorCaseDetails() {
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-5">
                                     <div>
-                                        <p className="text-[12px] font-bold text-gray-500 mb-1">Subject to NCCP</p>
+                                        <p className="text-xs font-bold text-gray-500 mb-1">Subject to NCCP</p>
                                         <p className="text-lg font-bold text-gray-900">Yes</p>
                                     </div>
                                     <div>
-                                        <p className="text-[12px] font-bold text-gray-500 mb-1">Loan Purpose</p>
+                                        <p className="text-xs font-bold text-gray-500 mb-1">Loan Purpose</p>
                                         <p className="text-lg font-bold text-gray-900">Owner-occupied residential property purchase</p>
                                     </div>
                                     <div>
-                                        <p className="text-[12px] font-bold text-gray-500 mb-1">Purpose Classification</p>
+                                        <p className="text-xs font-bold text-gray-500 mb-1">Purpose Classification</p>
                                         <p className="text-lg font-bold text-gray-900">Consumer - personal use</p>
                                     </div>
                                     <div>
-                                        <p className="text-[12px] font-bold text-gray-500 mb-1">Pre-Contractual Disclosure</p>
+                                        <p className="text-xs font-bold text-gray-500 mb-1">Pre-Contractual Disclosure</p>
                                         <p className="text-lg font-bold text-gray-900 flex items-center gap-2"><Check size={20} className="text-emerald-500" /> Provided</p>
                                     </div>
                                     <div>
-                                        <p className="text-[12px] font-bold text-gray-500 mb-1">Borrower Cooperation</p>
+                                        <p className="text-xs font-bold text-gray-500 mb-1">Borrower Cooperation</p>
                                         <p className="text-lg font-bold text-gray-900">cooperative</p>
                                     </div>
                                     <div>
-                                        <p className="text-[12px] font-bold text-gray-500 mb-1">Possession Status</p>
+                                        <p className="text-xs font-bold text-gray-500 mb-1">Possession Status</p>
                                         <p className="text-lg font-bold text-gray-900">owner_occupied</p>
                                     </div>
                                 </div>
@@ -2709,7 +2709,7 @@ export default function InvestorCaseDetails() {
                                                 <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold shrink-0">{item.step}</div>
                                                 <div>
                                                     <h5 className="text-sm font-bold text-gray-900 mb-1">{item.title}</h5>
-                                                    <p className="text-[12px] text-gray-500 font-medium">{item.desc}</p>
+                                                    <p className="text-xs text-gray-500 font-medium">{item.desc}</p>
                                                 </div>
                                             </div>
                                         ))}
@@ -2723,24 +2723,24 @@ export default function InvestorCaseDetails() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-16 mb-12">
                                 <div>
                                     <h3 className="text-2xl font-bold text-indigo-400 mb-6 tracking-tight">Contact Information</h3>
-                                    <p className="text-gray-400 text-[15px] mb-6 font-medium leading-relaxed">For further information or to arrange property inspection:</p>
+                                    <p className="text-gray-400 text-base mb-6 font-medium leading-relaxed">For further information or to arrange property inspection:</p>
                                     <h4 className="text-[17px] font-bold text-white mb-4">Brickbanq Virtual MIP Platform</h4>
                                     <div className="space-y-3">
-                                        <p className="text-gray-400 text-[15px] font-medium">Email: <span className="text-white">investments@brickbanq.com.au</span></p>
-                                        <p className="text-gray-400 text-[15px] font-medium">Phone: <span className="text-white">1300 BRICK (1300 274 252)</span></p>
-                                        <p className="text-gray-400 text-[15px] font-medium">Case Number: <span className="text-white">MIP-2026-001</span></p>
+                                        <p className="text-gray-400 text-base font-medium">Email: <span className="text-white">investments@brickbanq.com.au</span></p>
+                                        <p className="text-gray-400 text-base font-medium">Phone: <span className="text-white">1300 BRICK (1300 274 252)</span></p>
+                                        <p className="text-gray-400 text-base font-medium">Case Number: <span className="text-white">MIP-2026-001</span></p>
                                     </div>
                                 </div>
                                 <div>
                                     <h3 className="text-2xl font-bold text-white mb-6 tracking-tight">Important Disclaimer</h3>
-                                    <p className="text-gray-300 text-[14px] leading-[1.8] font-medium">
+                                    <p className="text-gray-300 text-sm leading-[1.8] font-medium">
                                         This Investment Memorandum is provided for information purposes only and does not constitute an offer, invitation, or recommendation to invest. All information is provided in good faith but no warranty is given as to its accuracy or completeness. Investors should conduct their own due diligence and seek independent legal, tax, and financial advice before making any investment decision. Past performance is not indicative of future results. Investment in distressed debt involves significant risk including potential loss of capital.
                                     </p>
                                 </div>
                             </div>
 
                             <div className="pt-8 border-t border-white/10 text-center">
-                                <p className="text-gray-500 text-[13px] font-medium mb-2">
+                                <p className="text-gray-500 text-sm font-medium mb-2">
                                     © 2026 Brickbanq Pty Ltd. All rights reserved. Australian Credit Licence: XXXXXX
                                 </p>
                                 <p className="text-gray-600 text-[11px] font-bold uppercase tracking-widest">
@@ -2767,7 +2767,7 @@ export default function InvestorCaseDetails() {
                                         <button
                                             key={tab.id}
                                             onClick={() => setSettlementSubTab(tab.id)}
-                                            className={`flex-1 flex items-center justify-center gap-2.5 py-2 rounded-lg text-[13px] font-bold transition-all ${settlementSubTab === tab.id
+                                            className={`flex-1 flex items-center justify-center gap-2.5 py-2 rounded-lg text-sm font-bold transition-all ${settlementSubTab === tab.id
                                                 ? "bg-white text-black shadow-sm"
                                                 : "text-black hover:bg-white/40"
                                                 }`}
@@ -2813,9 +2813,9 @@ export default function InvestorCaseDetails() {
                                                 </div>
                                             </div>
                                             <div className="bg-white p-6 rounded-[28px] border border-gray-100 shadow-sm text-center flex flex-col items-center justify-center">
-                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Est. Completion</p>
-                                                <div className="text-[18px] font-bold text-gray-900 leading-tight mb-0.5">{caseSettlementData.summary.estCompletion}</div>
-                                                <div className="text-[12px] font-bold text-gray-400">{caseSettlementData.summary.daysLeft} days</div>
+                                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Est. Completion</p>
+                                                <div className="text-lg font-bold text-gray-900 leading-tight mb-0.5">{caseSettlementData.summary.estCompletion}</div>
+                                                <div className="text-xs font-bold text-gray-400">{caseSettlementData.summary.daysLeft} days</div>
                                             </div>
                                         </div>
 
@@ -2826,24 +2826,24 @@ export default function InvestorCaseDetails() {
                                                     <Sparkles size={20} />
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-[15px] font-bold text-gray-900 leading-tight">AI Settlement Assistant</h4>
-                                                    <p className="text-[12px] text-gray-500 font-medium">Automate task creation, assignments, and communications</p>
+                                                    <h4 className="text-base font-bold text-gray-900 leading-tight">AI Settlement Assistant</h4>
+                                                    <p className="text-xs text-gray-500 font-medium">Automate task creation, assignments, and communications</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2.5">
-                                                <button onClick={() => setIsAddTaskModalOpen(true)} className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-[12px] font-bold text-gray-900 hover:bg-gray-50 flex items-center gap-2 transition-all shadow-sm">
+                                                <button onClick={() => setIsAddTaskModalOpen(true)} className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-900 hover:bg-gray-50 flex items-center gap-2 transition-all shadow-sm">
                                                     <Plus size={14} /> Add Task
                                                 </button>
-                                                <button onClick={handleGenerateTasks} className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-[12px] font-bold text-gray-900 hover:bg-gray-50 flex items-center gap-2 transition-all shadow-sm">
+                                                <button onClick={handleGenerateTasks} className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-900 hover:bg-gray-50 flex items-center gap-2 transition-all shadow-sm">
                                                     <Sparkles size={14} /> Generate Tasks
                                                 </button>
-                                                <button onClick={handleAutoAssign} className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-[12px] font-bold text-gray-900 hover:bg-gray-50 flex items-center gap-2 transition-all shadow-sm">
+                                                <button onClick={handleAutoAssign} className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-900 hover:bg-gray-50 flex items-center gap-2 transition-all shadow-sm">
                                                     <Users size={14} /> Auto-Assign
                                                 </button>
-                                                <button onClick={handleOptimizeTimeline} className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-[12px] font-bold text-gray-900 hover:bg-gray-50 flex items-center gap-2 transition-all shadow-sm">
+                                                <button onClick={handleOptimizeTimeline} className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-900 hover:bg-gray-50 flex items-center gap-2 transition-all shadow-sm">
                                                     <TrendingUp size={14} /> Optimize Timeline
                                                 </button>
-                                                <button onClick={() => setIsAIAssistantModalOpen(true)} className="px-5 py-2.5 bg-blue-900 text-white rounded-xl text-[12px] font-bold hover:bg-black transition-all flex items-center gap-2 shadow-lg shadow-blue-900/20">
+                                                <button onClick={() => setIsAIAssistantModalOpen(true)} className="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-black transition-all flex items-center gap-2 shadow-lg shadow-blue-900/20">
                                                     <Briefcase size={14} /> AI Assistant
                                                 </button>
                                             </div>
@@ -2854,30 +2854,30 @@ export default function InvestorCaseDetails() {
                                             <div className="bg-rose-50 border border-rose-100 rounded-[28px] p-6 shadow-sm">
                                                 <div className="flex items-center gap-3 text-rose-600 mb-2">
                                                     <AlertTriangle size={18} />
-                                                    <span className="text-[14px] font-bold uppercase tracking-tight">Overdue Tasks</span>
+                                                    <span className="text-sm font-bold uppercase tracking-tight">Overdue Tasks</span>
                                                 </div>
-                                                <p className="text-[13px] text-rose-900/60 font-bold mb-4 italic leading-tight">
+                                                <p className="text-sm text-rose-900/60 font-bold mb-4 italic leading-tight">
                                                     {caseSettlementData.summary.overdue} {caseSettlementData.summary.overdue === 1 ? 'task' : 'tasks'} require immediate attention
                                                 </p>
-                                                <button onClick={() => handleSendReminder({ title: 'Overdue items' })} className="px-5 py-2.5 bg-white text-rose-600 rounded-xl text-[12px] font-bold border border-rose-100 hover:bg-rose-50 transition-all shadow-sm">
+                                                <button onClick={() => handleSendReminder({ title: 'Overdue items' })} className="px-5 py-2.5 bg-white text-rose-600 rounded-xl text-xs font-bold border border-rose-100 hover:bg-rose-50 transition-all shadow-sm">
                                                     Send Reminders
                                                 </button>
                                             </div>
                                             <div className="bg-orange-50 border border-orange-100 rounded-[28px] p-6 shadow-sm">
                                                 <div className="flex items-center gap-3 text-orange-600 mb-2">
                                                     <AlertCircle size={18} />
-                                                    <span className="text-[14px] font-bold uppercase tracking-tight">Critical Tasks</span>
+                                                    <span className="text-sm font-bold uppercase tracking-tight">Critical Tasks</span>
                                                 </div>
-                                                <p className="text-[13px] text-orange-900/60 font-bold mb-4 italic leading-tight">
+                                                <p className="text-sm text-orange-900/60 font-bold mb-4 italic leading-tight">
                                                     {caseSettlementData.summary.critical || 0} critical tasks pending
                                                 </p>
                                             </div>
                                             <div className="bg-yellow-50 border border-yellow-100 rounded-[28px] p-6 shadow-sm">
                                                 <div className="flex items-center gap-3 text-yellow-600 mb-2">
                                                     <Clock size={18} />
-                                                    <span className="text-[14px] font-bold uppercase tracking-tight">Due Soon</span>
+                                                    <span className="text-sm font-bold uppercase tracking-tight">Due Soon</span>
                                                 </div>
-                                                <p className="text-[13px] text-yellow-900/60 font-bold mb-4 italic leading-tight">
+                                                <p className="text-sm text-yellow-900/60 font-bold mb-4 italic leading-tight">
                                                     {caseSettlementData.summary.dueSoon || 0} tasks due in 3 days
                                                 </p>
                                             </div>
@@ -2897,8 +2897,8 @@ export default function InvestorCaseDetails() {
                                                                 {category.icon}
                                                             </div>
                                                             <div>
-                                                                <h4 className="text-[15px] font-bold text-gray-900 leading-tight">{category.title}</h4>
-                                                                <p className="text-[12px] text-gray-500 font-semibold mt-0.5">{category.completed}/{category.total} completed</p>
+                                                                <h4 className="text-base font-bold text-gray-900 leading-tight">{category.title}</h4>
+                                                                <p className="text-xs text-gray-500 font-semibold mt-0.5">{category.completed}/{category.total} completed</p>
                                                             </div>
                                                         </div>
                                                         <div className="flex items-center gap-4">
@@ -2906,7 +2906,7 @@ export default function InvestorCaseDetails() {
                                                                 <div className="w-40 h-2 bg-gray-100 rounded-full overflow-hidden">
                                                                     <div className="h-full bg-blue-700 rounded-full transition-all duration-700" style={{ width: `${category.progress}%` }}></div>
                                                                 </div>
-                                                                <span className="text-[12px] font-bold text-gray-500">{category.progress}%</span>
+                                                                <span className="text-xs font-bold text-gray-500">{category.progress}%</span>
                                                             </div>
                                                         </div>
                                                     </button>
@@ -2926,16 +2926,16 @@ export default function InvestorCaseDetails() {
                                                                                 />
                                                                             </div>
                                                                             <div className="space-y-1">
-                                                                                <h5 className={`text-[15px] font-bold ${task.completed ? "text-gray-400 line-through" : "text-gray-900"}`}>{task.title}</h5>
-                                                                                <p className="text-[13px] text-gray-400 font-semibold">{task.desc}</p>
+                                                                                <h5 className={`text-base font-bold ${task.completed ? "text-gray-400 line-through" : "text-gray-900"}`}>{task.title}</h5>
+                                                                                <p className="text-sm text-gray-400 font-semibold">{task.desc}</p>
                                                                                 <div className="flex items-center gap-4 mt-2">
-                                                                                    <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${task.status === "COMPLETED" ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"}`}>{task.status}</span>
-                                                                                    <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${task.priority === "CRITICAL" ? "bg-rose-100 text-rose-700" : "bg-gray-100 text-gray-600"}`}>{task.priority}</span>
-                                                                                    <div className="flex items-center gap-1.5 text-[12px] text-gray-500 font-bold">
+                                                                                    <span className={`px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${task.status === "COMPLETED" ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"}`}>{task.status}</span>
+                                                                                    <span className={`px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${task.priority === "CRITICAL" ? "bg-rose-100 text-rose-700" : "bg-gray-100 text-gray-600"}`}>{task.priority}</span>
+                                                                                    <div className="flex items-center gap-1.5 text-xs text-gray-500 font-bold">
                                                                                         <Users size={14} className="text-gray-400" />
                                                                                         {task.assignee}
                                                                                     </div>
-                                                                                    <div className="flex items-center gap-1.5 text-[12px] text-gray-500 font-bold">
+                                                                                    <div className="flex items-center gap-1.5 text-xs text-gray-500 font-bold">
                                                                                         <Calendar size={14} className="text-gray-400" />
                                                                                         {task.date} ({task.days})
                                                                                     </div>
@@ -2946,7 +2946,7 @@ export default function InvestorCaseDetails() {
                                                                             <button onClick={() => handleSetReminder(task)} className="p-2 border border-gray-100 hover:bg-gray-50 rounded-xl text-gray-400 transition-all">
                                                                                 <Bell size={18} />
                                                                             </button>
-                                                                            <button onClick={() => handleToggleTaskDetails(task.id)} className="px-4 py-1.5 border border-gray-200 rounded-xl text-[12px] font-bold text-gray-900 hover:bg-gray-50 transition-all min-w-[80px]">
+                                                                            <button onClick={() => handleToggleTaskDetails(task.id)} className="px-4 py-1.5 border border-gray-200 rounded-xl text-xs font-bold text-gray-900 hover:bg-gray-50 transition-all min-w-[80px]">
                                                                                 {task.isExpanded ? "Hide" : "Details"}
                                                                             </button>
                                                                         </div>
@@ -2955,18 +2955,18 @@ export default function InvestorCaseDetails() {
                                                                     {task.isExpanded && (
                                                                         <div className="mt-4 pt-4 border-t border-gray-100 space-y-4 animate-in fade-in duration-300">
                                                                             <div className="space-y-1.5">
-                                                                                <p className="text-[12px] font-bold text-gray-900">Assigned To:</p>
-                                                                                <div className="flex items-center gap-2 text-[13px] text-gray-600 font-medium">
+                                                                                <p className="text-xs font-bold text-gray-900">Assigned To:</p>
+                                                                                <div className="flex items-center gap-2 text-sm text-gray-600 font-medium">
                                                                                     <Mail size={14} className="text-gray-400" />
                                                                                     {task.email}
                                                                                 </div>
                                                                             </div>
 
                                                                             <div className="space-y-2">
-                                                                                <p className="text-[12px] font-bold text-gray-900">Notes:</p>
+                                                                                <p className="text-xs font-bold text-gray-900">Notes:</p>
                                                                                 <div className="space-y-2">
                                                                                     {task.notes && task.notes.map((note, idx) => (
-                                                                                        <div key={idx} className="bg-gray-50/70 py-2.5 px-4 rounded-lg text-[13px] text-gray-600 font-medium">
+                                                                                        <div key={idx} className="bg-gray-50/70 py-2.5 px-4 rounded-lg text-sm text-gray-600 font-medium">
                                                                                             {note}
                                                                                         </div>
                                                                                     ))}
@@ -2976,7 +2976,7 @@ export default function InvestorCaseDetails() {
                                                                             {task.showNoteInput ? (
                                                                                 <div className="space-y-3 pt-1">
                                                                                     <textarea
-                                                                                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[13px] font-medium outline-none focus:border-blue-500 transition-all min-h-[100px]"
+                                                                                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:border-blue-500 transition-all min-h-[100px]"
                                                                                         placeholder="Add a note..."
                                                                                         value={task.currentNoteText}
                                                                                         onChange={(e) => handleUpdateNoteText(task.id, e.target.value)}
@@ -2984,13 +2984,13 @@ export default function InvestorCaseDetails() {
                                                                                     <div className="flex gap-2">
                                                                                         <button
                                                                                             onClick={() => handleSaveNote(task.id)}
-                                                                                            className="px-6 py-2 bg-blue-900 text-white rounded-xl text-[12px] font-bold hover:bg-blue-800 transition-all shadow-sm"
+                                                                                            className="px-6 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all shadow-sm"
                                                                                         >
                                                                                             Save Note
                                                                                         </button>
                                                                                         <button
                                                                                             onClick={() => handleCancelNote(task.id)}
-                                                                                            className="px-6 py-2 border border-gray-200 text-gray-900 rounded-xl text-[12px] font-bold hover:bg-gray-50 transition-all"
+                                                                                            className="px-6 py-2 border border-gray-200 text-gray-900 rounded-xl text-xs font-bold hover:bg-gray-50 transition-all"
                                                                                         >
                                                                                             Cancel
                                                                                         </button>
@@ -3000,7 +3000,7 @@ export default function InvestorCaseDetails() {
                                                                                 <div className="pt-2">
                                                                                     <button
                                                                                         onClick={() => handleAddNote(task.id)}
-                                                                                        className="px-4 py-2 border border-gray-200 rounded-xl text-[12px] font-bold text-gray-900 hover:bg-gray-50 transition-all"
+                                                                                        className="px-4 py-2 border border-gray-200 rounded-xl text-xs font-bold text-gray-900 hover:bg-gray-50 transition-all"
                                                                                     >
                                                                                         Add Note
                                                                                     </button>
@@ -3021,7 +3021,7 @@ export default function InvestorCaseDetails() {
                                 {settlementSubTab === "Settlement Overview" && (
                                     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
                                         {/* Settlement Property Card - Premium Indigo Style */}
-                                        <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-[24px] p-8 text-white relative overflow-hidden shadow-2xl">
+                                        <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-2xl p-8 text-white relative overflow-hidden shadow-2xl">
                                             <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
                                                 <div className="flex items-center gap-8">
                                                     <div className="w-40 h-28 rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl shrink-0 group">
@@ -3033,7 +3033,7 @@ export default function InvestorCaseDetails() {
                                                     </div>
                                                     <div>
                                                         <div className="flex items-center gap-2 mb-2">
-                                                            <span className="px-2 py-0.5 bg-blue-500/30 text-[10px] font-bold uppercase tracking-widest rounded text-blue-100 border border-blue-400/30">
+                                                            <span className="px-2 py-0.5 bg-blue-500/30 text-xs font-bold uppercase tracking-widest rounded text-blue-100 border border-blue-400/30">
                                                                 DEAL {settlementOverviewData.property.id}
                                                             </span>
                                                         </div>
@@ -3046,7 +3046,7 @@ export default function InvestorCaseDetails() {
 
                                                 <div className="flex flex-col md:flex-row items-center gap-12">
                                                     <div className="text-center md:text-left">
-                                                        <p className="text-[10px] font-bold text-blue-200/50 uppercase tracking-[0.2em] mb-3">Settlement Readiness</p>
+                                                        <p className="text-xs font-bold text-blue-200/50 uppercase tracking-[0.2em] mb-3">Settlement Readiness</p>
                                                         <div className="flex items-center gap-5">
                                                             <div className="relative w-16 h-16">
                                                                 <svg className="w-16 h-16 -rotate-90">
@@ -3064,7 +3064,7 @@ export default function InvestorCaseDetails() {
                                                                     />
                                                                 </svg>
                                                                 <div className="absolute inset-0 flex items-center justify-center">
-                                                                    <span className="text-[12px] font-bold">{settlementOverviewData.property.readiness}%</span>
+                                                                    <span className="text-xs font-bold">{settlementOverviewData.property.readiness}%</span>
                                                                 </div>
                                                             </div>
                                                             <div>
@@ -3076,7 +3076,7 @@ export default function InvestorCaseDetails() {
 
                                                     <button
                                                         onClick={handleMarkReady}
-                                                        className="h-14 px-8 bg-white text-blue-900 rounded-2xl font-bold text-[13px] uppercase tracking-widest hover:bg-blue-50 transition-all shadow-xl active:scale-95 flex items-center gap-3"
+                                                        className="h-14 px-8 bg-white text-blue-900 rounded-2xl font-bold text-sm uppercase tracking-widest hover:bg-blue-50 transition-all shadow-xl active:scale-95 flex items-center gap-3"
                                                     >
                                                         <Sparkles size={18} /> Push to Settlement
                                                     </button>
@@ -3086,7 +3086,7 @@ export default function InvestorCaseDetails() {
                                         </div>
 
                                         {/* Settlement Checklist Table - Premium White Card */}
-                                        <div className="bg-white rounded-[24px] border border-gray-100 overflow-hidden shadow-sm flex flex-col group hover:shadow-xl transition-all duration-500">
+                                        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col group hover:shadow-xl transition-all duration-500">
                                             <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between bg-slate-50/30">
                                                 <div>
                                                     <h4 className="text-lg font-bold text-slate-900 tracking-tight">Requirement Pipeline</h4>
@@ -3103,11 +3103,11 @@ export default function InvestorCaseDetails() {
                                                 <table className="w-full text-left">
                                                     <thead>
                                                         <tr className="bg-slate-50/50">
-                                                            <th className="pl-8 pr-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Requirement</th>
-                                                            <th className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Stakeholder</th>
-                                                            <th className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Timeline</th>
-                                                            <th className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Resolution Status</th>
-                                                            <th className="pl-4 pr-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Verification</th>
+                                                            <th className="pl-8 pr-4 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Requirement</th>
+                                                            <th className="px-4 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Stakeholder</th>
+                                                            <th className="px-4 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Timeline</th>
+                                                            <th className="px-4 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Resolution Status</th>
+                                                            <th className="pl-4 pr-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Verification</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody className="divide-y divide-gray-50">
@@ -3115,23 +3115,23 @@ export default function InvestorCaseDetails() {
                                                             <tr key={item.id} className="hover:bg-slate-50/50 transition-colors group/row">
                                                                 <td className="pl-8 pr-4 py-5">
                                                                     <div>
-                                                                        <p className="text-[14px] font-bold text-slate-900">{item.item}</p>
+                                                                        <p className="text-sm font-bold text-slate-900">{item.item}</p>
                                                                         <div className="flex items-center gap-1.5 mt-0.5">
                                                                             <Shield size={10} className="text-indigo-400" />
-                                                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Compliance Validated</span>
+                                                                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Compliance Validated</span>
                                                                         </div>
                                                                     </div>
                                                                 </td>
                                                                 <td className="px-4 py-5">
                                                                     <div className="flex items-center gap-2">
-                                                                        <div className="w-7 h-7 bg-indigo-50 rounded-lg flex items-center justify-center text-[10px] font-bold text-indigo-600 border border-indigo-100 uppercase">
+                                                                        <div className="w-7 h-7 bg-indigo-50 rounded-lg flex items-center justify-center text-xs font-bold text-indigo-600 border border-indigo-100 uppercase">
                                                                             {item.responsible.charAt(0)}
                                                                         </div>
-                                                                        <span className="text-[12px] font-bold text-slate-900">{item.responsible}</span>
+                                                                        <span className="text-xs font-bold text-slate-900">{item.responsible}</span>
                                                                     </div>
                                                                 </td>
                                                                 <td className="px-4 py-5">
-                                                                    <div className={`text-[12px] font-bold flex items-center gap-2 ${item.uploadStatus === "overdue" ? "text-rose-600" : "text-slate-600"}`}>
+                                                                    <div className={`text-xs font-bold flex items-center gap-2 ${item.uploadStatus === "overdue" ? "text-rose-600" : "text-slate-600"}`}>
                                                                         <Clock size={14} className="opacity-40" />
                                                                         {item.dueDate}
                                                                     </div>
@@ -3139,7 +3139,7 @@ export default function InvestorCaseDetails() {
                                                                 <td className="px-4 py-5">
                                                                     <select
                                                                         defaultValue={item.status}
-                                                                        className="bg-slate-50 border-none rounded-xl px-4 py-2 text-[12px] font-bold text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer appearance-none"
+                                                                        className="bg-slate-50 border-none rounded-xl px-4 py-2 text-xs font-bold text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer appearance-none"
                                                                     >
                                                                         <option>Open</option>
                                                                         <option>Submitted</option>
@@ -3149,7 +3149,7 @@ export default function InvestorCaseDetails() {
                                                                 <td className="pl-4 pr-8 py-5 text-right">
                                                                     <button
                                                                         onClick={() => handleViewDocumentLocal(item)}
-                                                                        className="px-6 py-2 bg-slate-50 text-slate-900 rounded-xl text-[11px] font-bold uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-100 shadow-sm"
+                                                                        className="px-6 py-2 bg-slate-50 text-slate-900 rounded-xl text-[11px] font-bold uppercase tracking-widest hover:bg-slate-100 transition-all border border-gray-200 shadow-sm"
                                                                     >
                                                                         View File
                                                                     </button>
@@ -3164,7 +3164,7 @@ export default function InvestorCaseDetails() {
                                         {/* Dynamic Grid: Outstanding Items & Thread */}
                                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12">
                                             {/* Outstanding Items */}
-                                            <div className="lg:col-span-12 bg-white border border-gray-100 rounded-[24px] p-8 shadow-sm">
+                                            <div className="lg:col-span-12 bg-white border border-gray-100 rounded-2xl p-8 shadow-sm">
                                                 <div className="flex items-center justify-between mb-8">
                                                     <div>
                                                         <h4 className="text-xl font-bold text-slate-900 tracking-tight">Strategic Bottlenecks</h4>
@@ -3183,15 +3183,15 @@ export default function InvestorCaseDetails() {
                                                             <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center">
                                                                 <AlertTriangle size={18} />
                                                             </div>
-                                                            <span className="text-[12px] font-bold uppercase tracking-[0.2em]">Critical / Overdue</span>
+                                                            <span className="text-xs font-bold uppercase tracking-[0.2em]">Critical / Overdue</span>
                                                         </div>
                                                         <div className="space-y-4">
                                                             {settlementOverviewData.outstanding.filter(i => i.status === 'overdue').map(item => (
                                                                 <div key={item.id} className="bg-white rounded-2xl p-4 shadow-sm group hover:shadow-md transition-all">
-                                                                    <h5 className="text-[13px] font-bold text-slate-900 mb-2">{item.title}</h5>
+                                                                    <h5 className="text-sm font-bold text-slate-900 mb-2">{item.title}</h5>
                                                                     <div className="flex items-center justify-between">
-                                                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{item.responsible}</span>
-                                                                        <span className="px-2 py-0.5 bg-rose-50 text-rose-600 text-[10px] font-bold rounded uppercase tracking-tighter border border-rose-100">
+                                                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{item.responsible}</span>
+                                                                        <span className="px-2 py-0.5 bg-rose-50 text-rose-600 text-xs font-bold rounded uppercase tracking-tighter border border-rose-100">
                                                                             {item.days}
                                                                         </span>
                                                                     </div>
@@ -3206,15 +3206,15 @@ export default function InvestorCaseDetails() {
                                                             <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center">
                                                                 <Clock size={18} />
                                                             </div>
-                                                            <span className="text-[12px] font-bold uppercase tracking-[0.2em]">Upcoming</span>
+                                                            <span className="text-xs font-bold uppercase tracking-[0.2em]">Upcoming</span>
                                                         </div>
                                                         <div className="space-y-4">
                                                             {settlementOverviewData.outstanding.filter(i => i.status === 'due_soon').map(item => (
                                                                 <div key={item.id} className="bg-white rounded-2xl p-4 shadow-sm group hover:shadow-md transition-all">
-                                                                    <h5 className="text-[13px] font-bold text-slate-900 mb-2">{item.title}</h5>
+                                                                    <h5 className="text-sm font-bold text-slate-900 mb-2">{item.title}</h5>
                                                                     <div className="flex items-center justify-between">
-                                                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{item.responsible}</span>
-                                                                        <span className="px-2 py-0.5 bg-orange-50 text-orange-600 text-[10px] font-bold rounded uppercase tracking-tighter border border-orange-100">
+                                                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{item.responsible}</span>
+                                                                        <span className="px-2 py-0.5 bg-orange-50 text-orange-600 text-xs font-bold rounded uppercase tracking-tighter border border-orange-100">
                                                                             {item.days}
                                                                         </span>
                                                                     </div>
@@ -3229,17 +3229,17 @@ export default function InvestorCaseDetails() {
                                                             <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center">
                                                                 <FileCheck size={18} />
                                                             </div>
-                                                            <span className="text-[12px] font-bold uppercase tracking-[0.2em]">Pending Review</span>
+                                                            <span className="text-xs font-bold uppercase tracking-[0.2em]">Pending Review</span>
                                                         </div>
                                                         <div className="space-y-4">
                                                             {settlementOverviewData.outstanding.filter(i => i.status === 'awaiting_approval').map(item => (
                                                                 <div key={item.id} className="bg-white rounded-2xl p-4 shadow-sm group hover:shadow-md transition-all">
-                                                                    <h5 className="text-[13px] font-bold text-slate-900 mb-4">{item.title}</h5>
+                                                                    <h5 className="text-sm font-bold text-slate-900 mb-4">{item.title}</h5>
                                                                     <div className="flex items-center justify-between">
-                                                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{item.responsible}</span>
+                                                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{item.responsible}</span>
                                                                         <button
                                                                             onClick={() => handleApproveOutstanding(item.id)}
-                                                                            className="px-4 py-1.5 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-black transition-all shadow-sm active:scale-95"
+                                                                            className="px-4 py-1.5 bg-slate-900 text-white text-xs font-bold uppercase tracking-widest rounded-lg hover:bg-black transition-all shadow-sm active:scale-95"
                                                                         >
                                                                             Validate
                                                                         </button>
@@ -3252,7 +3252,7 @@ export default function InvestorCaseDetails() {
                                             </div>
 
                                             {/* Settlement Thread */}
-                                            <div className="lg:col-span-12 bg-white border border-gray-100 rounded-[24px] overflow-hidden flex flex-col shadow-sm">
+                                            <div className="lg:col-span-12 bg-white border border-gray-100 rounded-2xl overflow-hidden flex flex-col shadow-sm">
                                                 <div className="px-8 py-6 border-b border-gray-50 bg-slate-50/30">
                                                     <h4 className="text-xl font-bold text-slate-900 tracking-tight">Decision Pipeline Log</h4>
                                                     <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Real-time audit of communications and approvals</p>
@@ -3262,23 +3262,23 @@ export default function InvestorCaseDetails() {
                                                     <div className="bg-amber-50/50 border border-amber-100/50 rounded-2xl p-4 relative overflow-hidden">
                                                         <div className="flex items-center gap-2 text-rose-500 mb-2">
                                                             <Target size={14} className="rotate-45" />
-                                                            <span className="text-[10px] font-bold uppercase tracking-widest">Pinned</span>
+                                                            <span className="text-xs font-bold uppercase tracking-widest">Pinned</span>
                                                         </div>
-                                                        <p className="text-[13px] font-bold text-gray-800">All parties confirmed for settlement on March 15th</p>
+                                                        <p className="text-sm font-bold text-gray-800">All parties confirmed for settlement on March 15th</p>
                                                     </div>
 
                                                     {settlementOverviewData.thread.map((msg) => (
                                                         <div key={msg.id} className="flex gap-4 group">
-                                                            <div className={`w-9 h-9 rounded-full ${msg.color} text-white flex items-center justify-center font-bold text-[13px] shadow-sm shrink-0 uppercase`}>
+                                                            <div className={`w-9 h-9 rounded-full ${msg.color} text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0 uppercase`}>
                                                                 {msg.initials}
                                                             </div>
                                                             <div className="flex-1">
                                                                 <div className="flex items-center gap-2 mb-1">
-                                                                    <span className="text-[13px] font-bold text-gray-900">{msg.user}</span>
-                                                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{msg.role}</span>
-                                                                    <span className="text-[10px] font-medium text-gray-400 ml-auto">{msg.time}</span>
+                                                                    <span className="text-sm font-bold text-gray-900">{msg.user}</span>
+                                                                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{msg.role}</span>
+                                                                    <span className="text-xs font-medium text-gray-400 ml-auto">{msg.time}</span>
                                                                 </div>
-                                                                <div className="text-[13px] text-gray-600 font-medium leading-relaxed">
+                                                                <div className="text-sm text-gray-600 font-medium leading-relaxed">
                                                                     {msg.message}
                                                                 </div>
                                                             </div>
@@ -3293,14 +3293,14 @@ export default function InvestorCaseDetails() {
                                                             onChange={(e) => setSettlementMessage(e.target.value)}
                                                             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                                                             placeholder="Type message..."
-                                                            className="flex-1 bg-white border border-gray-200 rounded-xl px-5 py-2 text-[13px] outline-none focus:border-blue-500 transition-all"
+                                                            className="flex-1 bg-white border border-gray-200 rounded-xl px-5 py-2 text-sm outline-none focus:border-blue-500 transition-all"
                                                         />
                                                         <button className="p-2 text-gray-400 hover:text-gray-600 transition-all">
                                                             <Paperclip size={18} />
                                                         </button>
                                                         <button
                                                             onClick={handleSendMessage}
-                                                            className="bg-blue-900 text-white p-2.5 rounded-xl hover:bg-black transition-all shadow-md shadow-blue-900/20"
+                                                            className="bg-indigo-600 text-white p-2.5 rounded-xl hover:bg-black transition-all shadow-md shadow-blue-900/20"
                                                         >
                                                             <Send size={16} />
                                                         </button>
@@ -3310,8 +3310,8 @@ export default function InvestorCaseDetails() {
                                         </div>
 
                                         {/* Required Settlement Documents */}
-                                        <div className="bg-white border border-gray-100 rounded-[24px] p-5 shadow-sm">
-                                            <h4 className="text-[14px] font-bold text-gray-900 mb-6">Required Documents</h4>
+                                        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                                            <h4 className="text-sm font-bold text-gray-900 mb-6">Required Documents</h4>
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                                 {settlementOverviewData.documents.map((doc) => (
                                                     <div key={doc.id} className="p-4 rounded-xl border border-gray-100 bg-white transition-all hover:shadow-md group">
@@ -3319,21 +3319,21 @@ export default function InvestorCaseDetails() {
                                                             <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
                                                                 <FileText size={16} />
                                                             </div>
-                                                            <span className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-md border ${doc.status === "Uploaded" ? "bg-blue-50 text-blue-600 border-blue-100" :
+                                                            <span className={`px-2 py-0.5 text-xs font-bold uppercase tracking-widest rounded-md border ${doc.status === "Uploaded" ? "bg-blue-50 text-blue-600 border-blue-100" :
                                                                 doc.status === "Approved" ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
                                                                     "bg-gray-50 text-gray-400 border-gray-100"
                                                                 }`}>
                                                                 {doc.status}
                                                             </span>
                                                         </div>
-                                                        <h5 className="text-[13px] font-bold text-gray-900 mb-1 truncate">{doc.title}</h5>
-                                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight mb-3">By {doc.responsible}</p>
+                                                        <h5 className="text-sm font-bold text-gray-900 mb-1 truncate">{doc.title}</h5>
+                                                        <p className="text-xs text-gray-400 font-bold uppercase tracking-tight mb-3">By {doc.responsible}</p>
 
                                                         <div className="flex items-center gap-2 pt-3 border-t border-gray-50">
                                                             {doc.status === "Pending" ? (
                                                                 <button
                                                                     onClick={() => handleUploadDocumentLocal(doc)}
-                                                                    className="w-full py-1.5 bg-gray-50 text-gray-600 font-bold text-[10px] rounded-lg hover:bg-blue-900 hover:text-white transition-all flex items-center justify-center gap-1.5 uppercase tracking-widest"
+                                                                    className="w-full py-1.5 bg-gray-50 text-gray-600 font-bold text-xs rounded-lg hover:bg-indigo-600 hover:text-white transition-all flex items-center justify-center gap-1.5 uppercase tracking-widest"
                                                                 >
                                                                     <Upload size={12} /> Upload
                                                                 </button>
@@ -3341,13 +3341,13 @@ export default function InvestorCaseDetails() {
                                                                 <>
                                                                     <button
                                                                         onClick={() => handleViewDocumentLocal(doc)}
-                                                                        className="py-1.5 px-3 bg-gray-50 text-gray-600 font-bold text-[10px] rounded-lg hover:bg-gray-100 transition-all flex items-center justify-center gap-1.5 uppercase tracking-widest"
+                                                                        className="py-1.5 px-3 bg-gray-50 text-gray-600 font-bold text-xs rounded-lg hover:bg-gray-100 transition-all flex items-center justify-center gap-1.5 uppercase tracking-widest"
                                                                     >
                                                                         <Eye size={12} /> View
                                                                     </button>
                                                                     <button
                                                                         onClick={() => handleDownloadDocumentLocal(doc)}
-                                                                        className="py-1.5 px-3 bg-gray-50 text-gray-600 font-bold text-[10px] rounded-lg hover:bg-gray-100 transition-all flex items-center justify-center gap-1.5 uppercase tracking-widest"
+                                                                        className="py-1.5 px-3 bg-gray-50 text-gray-600 font-bold text-xs rounded-lg hover:bg-gray-100 transition-all flex items-center justify-center gap-1.5 uppercase tracking-widest"
                                                                     >
                                                                         <Download size={12} /> Download
                                                                     </button>
@@ -3360,9 +3360,9 @@ export default function InvestorCaseDetails() {
                                         </div>
 
                                         {/* Settlement Timeline */}
-                                        <div className="bg-white border border-gray-100 rounded-[24px] p-5 shadow-sm">
+                                        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
                                             <div className="flex items-center justify-between mb-8">
-                                                <h4 className="text-[14px] font-bold text-gray-900">Settlement Timeline</h4>
+                                                <h4 className="text-sm font-bold text-gray-900">Settlement Timeline</h4>
                                             </div>
                                             <div className="relative flex items-center justify-between px-10">
                                                 <div className="absolute left-20 right-20 h-[1.5px] bg-gray-100 top-5 -z-10"></div>
@@ -3372,7 +3372,7 @@ export default function InvestorCaseDetails() {
                                                             {step.status === 'completed' ? <Check size={18} strokeWidth={3} /> : <Clock size={16} strokeWidth={3} />}
                                                         </div>
                                                         <div className="mt-4 text-center">
-                                                            <p className="text-[12px] font-semibold text-gray-900 leading-tight">{step.label}</p>
+                                                            <p className="text-xs font-semibold text-gray-900 leading-tight">{step.label}</p>
                                                             <p className="text-[11px] text-gray-400 font-semibold mt-1 uppercase tracking-tight">{step.date}</p>
                                                         </div>
                                                     </div>
@@ -3381,10 +3381,10 @@ export default function InvestorCaseDetails() {
                                         </div>
 
                                         {/* Settlement Controls (Admin Only) */}
-                                        <div className="bg-indigo-50 border border-blue-100 rounded-[12px] p-6">
+                                        <div className="bg-indigo-50 border border-blue-100 rounded-xl p-6">
                                             <div className="flex items-center gap-2.5 text-indigo-700 mb-6">
                                                 <Lock size={16} />
-                                                <span className="text-[14px] font-bold">Settlement Controls (Admin Only)</span>
+                                                <span className="text-sm font-bold">Settlement Controls (Admin Only)</span>
                                             </div>
                                             <div className="flex flex-wrap lg:flex-nowrap gap-4 items-center">
                                                 <button
@@ -3401,7 +3401,7 @@ export default function InvestorCaseDetails() {
                                                 </button>
                                                 <button
                                                     onClick={handleReleaseFundsLocal}
-                                                    className="flex-2 py-2.5 bg-emerald-700 text-white font-bold text-[12px] rounded-lg hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 shadow-sm min-w-[200px]"
+                                                    className="flex-2 py-2.5 bg-emerald-700 text-white font-bold text-xs rounded-lg hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 shadow-sm min-w-[200px]"
                                                 >
                                                     <DollarSign size={16} /> Release Funds
                                                 </button>
@@ -3426,7 +3426,7 @@ export default function InvestorCaseDetails() {
                                                     <Info size={16} />
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-[13px] font-bold text-blue-900 leading-tight">Construction: PEXA Live Integration</h4>
+                                                    <h4 className="text-sm font-bold text-blue-900 leading-tight">Construction: PEXA Live Integration</h4>
                                                     <p className="text-[11px] text-blue-700 font-semibold">Automatic workspace creation and live document sync.</p>
                                                 </div>
                                             </div>
@@ -3435,23 +3435,23 @@ export default function InvestorCaseDetails() {
                                                     <Info size={16} />
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-[13px] font-bold text-purple-900 leading-tight">Construction: Lodgement Automation</h4>
+                                                    <h4 className="text-sm font-bold text-purple-900 leading-tight">Construction: Lodgement Automation</h4>
                                                     <p className="text-[11px] text-purple-700 font-semibold">Automated verification with state Land Registry.</p>
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Main PEXA Integration Card - Most Compact */}
-                                        <div className="bg-white border border-gray-100 rounded-[16px] p-4 shadow-sm">
+                                        <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
                                             <div className="flex items-center gap-2 mb-4">
                                                 <Building size={16} className="text-blue-600" />
-                                                <h3 className="text-[13px] font-bold text-gray-900">PEXA Integration</h3>
+                                                <h3 className="text-sm font-bold text-gray-900">PEXA Integration</h3>
                                             </div>
                                             <div className="flex flex-col items-center justify-center py-4 text-center">
                                                 <div className="w-10 h-10 rounded-[14px] bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
                                                     <Building size={20} />
                                                 </div>
-                                                <h4 className="text-[16px] font-bold text-gray-900 mb-0.5">Connect to PEXA</h4>
+                                                <h4 className="text-base font-bold text-gray-900 mb-0.5">Connect to PEXA</h4>
                                                 <p className="text-[11px] text-gray-500 font-medium mb-4">Manage digital property settlement via PEXA workspace</p>
                                                 <button
                                                     onClick={() => {
@@ -3460,7 +3460,7 @@ export default function InvestorCaseDetails() {
                                                              setToast({ show: true, message: "PEXA Workspace Created Successfully!", type: "success" });
                                                          }, 2000);
                                                      }}
-                                                    className="px-6 py-2 bg-blue-900 text-white rounded-[8px] text-[11px] font-bold hover:bg-black transition-all shadow-md active:scale-95"
+                                                    className="px-6 py-2 bg-indigo-600 text-white rounded-lg text-[11px] font-bold hover:bg-black transition-all shadow-md active:scale-95"
                                                 >
                                                     Create PEXA Workspace
                                                 </button>
@@ -3477,7 +3477,7 @@ export default function InvestorCaseDetails() {
 
                                         {/* Roadmap: What's Being Built - Exact Match to Design Image */}
                                         <div className="pt-3">
-                                            <h3 className="text-[18px] font-bold text-gray-900 ml-1 mb-6">What's Being Built</h3>
+                                            <h3 className="text-lg font-bold text-gray-900 ml-1 mb-6">What's Being Built</h3>
                                             <div className="grid grid-cols-1 gap-2">
                                                 {[
                                                     { icon: <CheckCircle2 size={18} className="text-emerald-500" />, title: "Automatic Workspace Creation", desc: "One-click workspace creation from case data with auto-populated property details, parties, and financial information." },
@@ -3490,8 +3490,8 @@ export default function InvestorCaseDetails() {
                                                     <div key={i} className="bg-white border border-gray-50 rounded-[14px] p-4 flex items-center gap-6 transition-all hover:bg-gray-50/10">
                                                         <div className="shrink-0">{item.icon}</div>
                                                         <div>
-                                                            <h4 className="text-[16px] font-bold text-slate-800 m-0 leading-tight">{item.title}</h4>
-                                                            <p className="text-[13px] text-slate-500 font-medium leading-normal mt-1">{item.desc}</p>
+                                                            <h4 className="text-base font-bold text-slate-800 m-0 leading-tight">{item.title}</h4>
+                                                            <p className="text-sm text-slate-500 font-medium leading-normal mt-1">{item.desc}</p>
                                                         </div>
                                                     </div>
                                                 ))}
@@ -3522,12 +3522,12 @@ export default function InvestorCaseDetails() {
             {
                 isManageModalOpen && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
-                        <div id="manage-case-modal" className="bg-white w-full max-w-[850px] rounded-[24px] shadow-2xl overflow-hidden flex flex-col h-fit max-h-[95vh] animate-in slide-in-from-bottom-8 duration-500 border border-gray-100">
+                        <div id="manage-case-modal" className="bg-white w-full max-w-[850px] rounded-2xl shadow-2xl overflow-hidden flex flex-col h-fit max-h-[95vh] animate-in slide-in-from-bottom-8 duration-500 border border-gray-100">
                             {/* Modal Header */}
                             <div className="p-6 pb-4 flex justify-between items-start">
                                 <div>
-                                    <h2 className="text-[20px] font-bold text-gray-900">Manage Case: {caseData.case_number || `#${caseData.id.slice(0,8).toUpperCase()}`}</h2>
-                                    <p className="text-[13px] text-gray-500 font-medium mt-1">Update details, upload images, and generate AI content</p>
+                                    <h2 className="text-xl font-bold text-gray-900">Manage Case: {caseData.case_number || `#${caseData.id.slice(0,8).toUpperCase()}`}</h2>
+                                    <p className="text-sm text-gray-500 font-medium mt-1">Update details, upload images, and generate AI content</p>
                                 </div>
                                 <button id="modal-close" onClick={() => setIsManageModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-900">
                                     <X size={20} strokeWidth={2.5} />
@@ -3545,7 +3545,7 @@ export default function InvestorCaseDetails() {
                                     <button
                                         key={tab.id}
                                         onClick={() => setManageModalTab(tab.id)}
-                                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-bold transition-all border ${manageModalTab === tab.id
+                                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all border ${manageModalTab === tab.id
                                             ? "bg-blue-800 text-white border-blue-800"
                                             : "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
                                             }`}
@@ -3562,7 +3562,7 @@ export default function InvestorCaseDetails() {
                                      <div className="space-y-6 animate-in fade-in duration-300">
                                         {/* Basic Information */}
                                         <div className="space-y-4">
-                                            <h3 className="text-[16px] font-bold text-gray-900">Basic Information</h3>
+                                            <h3 className="text-base font-bold text-gray-900">Basic Information</h3>
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                 <div className="space-y-2">
                                                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight">Case Number</label>
@@ -3570,7 +3570,7 @@ export default function InvestorCaseDetails() {
                                                         type="text"
                                                         value={formData.id}
                                                         onChange={(e) => setFormData({ ...formData, id: e.target.value })}
-                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] font-medium text-gray-900 outline-none focus:border-blue-500 transition-all"
+                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-900 outline-none focus:border-blue-500 transition-all"
                                                         placeholder="Enter case number"
                                                     />
                                                 </div>
@@ -3580,7 +3580,7 @@ export default function InvestorCaseDetails() {
                                                         type="text"
                                                         value={formData.borrower}
                                                         onChange={(e) => setFormData({ ...formData, borrower: e.target.value })}
-                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] font-medium text-gray-900 outline-none"
+                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-900 outline-none"
                                                     />
                                                 </div>
                                                 <div className="space-y-2">
@@ -3589,7 +3589,7 @@ export default function InvestorCaseDetails() {
                                                         type="text"
                                                         value={formData.lender}
                                                         onChange={(e) => setFormData({ ...formData, lender: e.target.value })}
-                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] font-medium text-gray-900 outline-none"
+                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-900 outline-none"
                                                     />
                                                 </div>
                                             </div>
@@ -3597,7 +3597,7 @@ export default function InvestorCaseDetails() {
 
                                         {/* Loan Details */}
                                         <div className="space-y-4">
-                                            <h3 className="text-[16px] font-bold text-gray-900">Loan Details</h3>
+                                            <h3 className="text-base font-bold text-gray-900">Loan Details</h3>
                                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                                 <div className="space-y-2">
                                                     <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight">Outstanding Debt</label>
@@ -3605,7 +3605,7 @@ export default function InvestorCaseDetails() {
                                                         type="number"
                                                         value={formData.outstandingDebt}
                                                         onChange={(e) => setFormData({ ...formData, outstandingDebt: Number(e.target.value) })}
-                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] font-medium text-gray-900 outline-none"
+                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-900 outline-none"
                                                     />
                                                 </div>
                                                 <div className="space-y-2">
@@ -3615,7 +3615,7 @@ export default function InvestorCaseDetails() {
                                                         step="0.01"
                                                         value={formData.interestRate}
                                                         onChange={(e) => setFormData({ ...formData, interestRate: Number(e.target.value) })}
-                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] font-medium text-gray-900 outline-none"
+                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-900 outline-none"
                                                     />
                                                 </div>
                                                 <div className="space-y-2">
@@ -3625,7 +3625,7 @@ export default function InvestorCaseDetails() {
                                                         step="0.01"
                                                         value={formData.defaultRate}
                                                         onChange={(e) => setFormData({ ...formData, defaultRate: Number(e.target.value) })}
-                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] font-medium text-gray-900 outline-none"
+                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-900 outline-none"
                                                     />
                                                 </div>
                                                 <div className="space-y-2">
@@ -3634,7 +3634,7 @@ export default function InvestorCaseDetails() {
                                                         type="number"
                                                         value={formData.daysInDefault}
                                                         onChange={(e) => setFormData({ ...formData, daysInDefault: Number(e.target.value) })}
-                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] font-medium text-gray-900 outline-none"
+                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-900 outline-none"
                                                     />
                                                 </div>
                                             </div>
@@ -3642,7 +3642,7 @@ export default function InvestorCaseDetails() {
 
                                         {/* Property Details */}
                                         <div className="space-y-4">
-                                            <h3 className="text-[16px] font-bold text-gray-900">Property Details</h3>
+                                            <h3 className="text-base font-bold text-gray-900">Property Details</h3>
                                             <div className="space-y-6">
                                                 <div className="space-y-2">
                                                     <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight">Address</label>
@@ -3650,7 +3650,7 @@ export default function InvestorCaseDetails() {
                                                         type="text"
                                                         value={formData.address}
                                                         onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] font-medium text-gray-900 outline-none"
+                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-900 outline-none"
                                                     />
                                                 </div>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -3660,7 +3660,7 @@ export default function InvestorCaseDetails() {
                                                             type="text"
                                                             value={formData.suburb}
                                                             onChange={(e) => setFormData({ ...formData, suburb: e.target.value })}
-                                                            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] font-medium text-gray-900 outline-none"
+                                                            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-900 outline-none"
                                                         />
                                                     </div>
                                                     <div className="space-y-2">
@@ -3669,7 +3669,7 @@ export default function InvestorCaseDetails() {
                                                             type="text"
                                                             value={formData.postcode}
                                                             onChange={(e) => setFormData({ ...formData, postcode: e.target.value })}
-                                                            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] font-medium text-gray-900 outline-none"
+                                                            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-900 outline-none"
                                                         />
                                                     </div>
                                                 </div>
@@ -3680,7 +3680,7 @@ export default function InvestorCaseDetails() {
                                                             type="number"
                                                             value={formData.bedrooms}
                                                             onChange={(e) => setFormData({ ...formData, bedrooms: Number(e.target.value) })}
-                                                            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] font-medium text-gray-900 outline-none"
+                                                            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-900 outline-none"
                                                         />
                                                     </div>
                                                     <div className="space-y-2">
@@ -3689,7 +3689,7 @@ export default function InvestorCaseDetails() {
                                                             type="number"
                                                             value={formData.bathrooms}
                                                             onChange={(e) => setFormData({ ...formData, bathrooms: Number(e.target.value) })}
-                                                            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] font-medium text-gray-900 outline-none"
+                                                            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-900 outline-none"
                                                         />
                                                     </div>
                                                 </div>
@@ -3698,7 +3698,7 @@ export default function InvestorCaseDetails() {
 
                                         {/* Valuation */}
                                         <div className="space-y-4">
-                                            <h3 className="text-[16px] font-bold text-gray-900">Valuation</h3>
+                                            <h3 className="text-base font-bold text-gray-900">Valuation</h3>
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                                 <div className="space-y-2">
                                                     <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight">Valuation Amount</label>
@@ -3706,7 +3706,7 @@ export default function InvestorCaseDetails() {
                                                         type="number"
                                                         value={formData.propertyValuation}
                                                         onChange={(e) => setFormData({ ...formData, propertyValuation: Number(e.target.value) })}
-                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] font-medium text-gray-900 outline-none"
+                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-900 outline-none"
                                                     />
                                                 </div>
                                                 <div className="space-y-2">
@@ -3722,7 +3722,7 @@ export default function InvestorCaseDetails() {
                                                         type="text"
                                                         value={formData.valuerName}
                                                         onChange={(e) => setFormData({ ...formData, valuerName: e.target.value })}
-                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] font-medium text-gray-900 outline-none"
+                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-900 outline-none"
                                                     />
                                                 </div>
                                             </div>
@@ -3733,17 +3733,17 @@ export default function InvestorCaseDetails() {
                                 {manageModalTab === "Property Images" && (
                                     <div className="space-y-8 animate-in fade-in duration-300">
                                         <div className="flex justify-between items-center">
-                                            <h3 className="text-[18px] font-bold text-gray-900">Property Images</h3>
+                                            <h3 className="text-lg font-bold text-gray-900">Property Images</h3>
                                             <div className="flex gap-3">                                                 <button 
                                                      onClick={() => {
                                                          setToast({ show: true, message: "Please upload property images directly using the Upload button below.", type: "info" });
                                                      }}
-                                                     className="flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-xl text-[13px] font-bold hover:bg-indigo-100 transition-all"
+                                                     className="flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-xl text-sm font-bold hover:bg-indigo-100 transition-all"
                                                  >
                                                      <Sparkles size={16} />
                                                      AI Suggest Images
                                                  </button>
-                                                <label className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-900 rounded-xl text-[13px] font-bold hover:bg-gray-50 transition-all cursor-pointer">
+                                                <label className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-900 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all cursor-pointer">
                                                     <Plus size={16} />
                                                     Upload Images
                                                     <input type="file" multiple className="hidden" onChange={handleImageUpload} accept="image/*" />
@@ -3756,8 +3756,8 @@ export default function InvestorCaseDetails() {
                                                 <div className="w-16 h-16 flex items-center justify-center text-gray-400 mb-4 opacity-70">
                                                     <ImageIcon size={50} strokeWidth={1.5} />
                                                 </div>
-                                                <p className="text-gray-900 font-bold text-[15px] mb-1">No images uploaded yet</p>
-                                                <p className="text-gray-400 text-[13px] font-medium">Upload property images or use AI to suggest relevant images</p>
+                                                <p className="text-gray-900 font-bold text-base mb-1">No images uploaded yet</p>
+                                                <p className="text-gray-400 text-sm font-medium">Upload property images or use AI to suggest relevant images</p>
                                             </div>
                                         ) : (
                                             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
@@ -3782,8 +3782,8 @@ export default function InvestorCaseDetails() {
                                         <div className="w-16 h-16 rounded-[20px] bg-indigo-50 flex items-center justify-center text-indigo-600 mb-4">
                                             <Sparkles size={24} />
                                         </div>
-                                        <h3 className="text-[18px] font-bold text-gray-900 mb-1">AI Content Studio</h3>
-                                        <p className="text-gray-500 font-medium text-[13px] text-center max-w-sm leading-relaxed">
+                                        <h3 className="text-lg font-bold text-gray-900 mb-1">AI Content Studio</h3>
+                                        <p className="text-gray-500 font-medium text-sm text-center max-w-sm leading-relaxed">
                                             Coming soon: Generate professional case descriptions, social media, and marketing copy.
                                         </p>
                                     </div>
@@ -3791,13 +3791,13 @@ export default function InvestorCaseDetails() {
 
                                 {manageModalTab === "Documents" && (
                                     <div className="space-y-6 animate-in fade-in duration-300">
-                                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-[16px] flex items-center gap-4">
+                                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-center gap-4">
                                             <div className="w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center text-blue-800 shrink-0">
                                                 <FileText size={18} />
                                             </div>
                                             <div>
-                                                <h3 className="text-[14px] font-bold text-gray-900">Document Generator</h3>
-                                                <p className="text-[12px] text-gray-500 font-medium">Generate professional documents using case data</p>
+                                                <h3 className="text-sm font-bold text-gray-900">Document Generator</h3>
+                                                <p className="text-xs text-gray-500 font-medium">Generate professional documents using case data</p>
                                             </div>
                                         </div>
 
@@ -3806,12 +3806,12 @@ export default function InvestorCaseDetails() {
                                                 <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600 mb-3">
                                                     <FileText size={20} />
                                                 </div>
-                                                <h4 className="text-[14px] font-bold text-gray-900 mb-1">Investment Memorandum</h4>
-                                                <p className="text-[12px] text-gray-400 font-medium mb-4">Full professional IM</p>
+                                                <h4 className="text-sm font-bold text-gray-900 mb-1">Investment Memorandum</h4>
+                                                <p className="text-xs text-gray-400 font-medium mb-4">Full professional IM</p>
                                                 <button
                                                     onClick={() => handleGenerateDoc('IM')}
                                                     disabled={isGeneratingDoc.active}
-                                                    className="w-full py-2.5 bg-blue-800 text-white rounded-xl text-[13px] font-bold hover:bg-black transition-all flex items-center justify-center gap-2 disabled:bg-gray-400"
+                                                    className="w-full py-2.5 bg-blue-800 text-white rounded-xl text-sm font-bold hover:bg-black transition-all flex items-center justify-center gap-2 disabled:bg-gray-400"
                                                 >
                                                     {isGeneratingDoc.active && isGeneratingDoc.type === 'IM' ? (
                                                         <RefreshCw size={16} className="animate-spin" />
@@ -3824,12 +3824,12 @@ export default function InvestorCaseDetails() {
                                                 <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 mb-3">
                                                     <ImageIcon size={20} />
                                                 </div>
-                                                <h4 className="text-[14px] font-bold text-gray-900 mb-1">Marketing Flyer</h4>
-                                                <p className="text-[12px] text-gray-400 font-medium mb-4">Single-page summary</p>
+                                                <h4 className="text-sm font-bold text-gray-900 mb-1">Marketing Flyer</h4>
+                                                <p className="text-xs text-gray-400 font-medium mb-4">Single-page summary</p>
                                                 <button
                                                      onClick={() => handleGenerateDoc('Flyer')}
                                                      disabled={isGeneratingDoc.active}
-                                                     className="w-full py-2.5 bg-emerald-600 border border-emerald-500 text-white rounded-xl text-[13px] font-bold hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                                                     className="w-full py-2.5 bg-emerald-600 border border-emerald-500 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                                                  >
                                                     {isGeneratingDoc.active && isGeneratingDoc.type === 'Flyer' ? (
                                                         <RefreshCw size={16} className="animate-spin" />
@@ -3847,7 +3847,7 @@ export default function InvestorCaseDetails() {
                                 <button
                                     id="btn-modal-discard"
                                     onClick={() => setIsManageModalOpen(false)}
-                                    className="px-5 py-2 bg-white border border-gray-200 text-gray-900 rounded-lg text-[13px] font-bold hover:bg-gray-50 transition-all"
+                                    className="px-5 py-2 bg-white border border-gray-200 text-gray-900 rounded-lg text-sm font-bold hover:bg-gray-50 transition-all"
                                 >
                                     Cancel
                                 </button>
@@ -3855,7 +3855,7 @@ export default function InvestorCaseDetails() {
                                     id="btn-modal-save"
                                     onClick={handleSave}
                                     disabled={isSaving}
-                                    className="px-8 py-2 bg-blue-800 text-white rounded-lg text-[13px] font-bold hover:bg-black active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 disabled:bg-gray-400"
+                                    className="px-8 py-2 bg-blue-800 text-white rounded-lg text-sm font-bold hover:bg-black active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 disabled:bg-gray-400"
                                 >
                                     {isSaving ? <RefreshCw size={14} className="animate-spin" /> : null}
                                     {isSaving ? 'Saving...' : 'Save Changes'}
@@ -3869,11 +3869,11 @@ export default function InvestorCaseDetails() {
             {/* Add Task Modal */}
             {isAddTaskModalOpen && (
                 <div className="fixed inset-0 z-[150] flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-                    <div className="bg-white w-full max-w-2xl rounded-[24px] shadow-2xl overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200">
+                    <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200">
                         <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
                             <div>
                                 <h3 className="text-xl font-bold text-gray-900">Add New Task</h3>
-                                <p className="text-[12px] text-gray-400 font-semibold uppercase tracking-widest mt-1">Checklist Specification</p>
+                                <p className="text-xs text-gray-400 font-semibold uppercase tracking-widest mt-1">Checklist Specification</p>
                             </div>
                             <button onClick={() => setIsAddTaskModalOpen(false)} className="p-2.5 hover:bg-gray-50 rounded-xl transition-all text-gray-400 hover:text-gray-900">
                                 <X size={20} />
@@ -3885,7 +3885,7 @@ export default function InvestorCaseDetails() {
                                 <input
                                     type="text"
                                     placeholder="Enter professional task title..."
-                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-[20px] text-[14px] font-bold text-gray-900 focus:bg-white focus:border-blue-500 outline-none transition-all shadow-sm"
+                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-[20px] text-sm font-bold text-gray-900 focus:bg-white focus:border-blue-500 outline-none transition-all shadow-sm"
                                     value={newTask.title}
                                     onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
                                 />
@@ -3894,7 +3894,7 @@ export default function InvestorCaseDetails() {
                                 <div className="space-y-2">
                                     <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Process Category</label>
                                     <select
-                                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-[20px] text-[14px] font-bold text-gray-900 focus:bg-white focus:border-blue-500 outline-none transition-all shadow-sm cursor-pointer"
+                                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-[20px] text-sm font-bold text-gray-900 focus:bg-white focus:border-blue-500 outline-none transition-all shadow-sm cursor-pointer"
                                         value={newTask.category}
                                         onChange={(e) => setNewTask({ ...newTask, category: e.target.value })}
                                     >
@@ -3904,7 +3904,7 @@ export default function InvestorCaseDetails() {
                                 <div className="space-y-2">
                                     <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Execution Priority</label>
                                     <select
-                                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-[20px] text-[14px] font-bold text-gray-900 focus:bg-white focus:border-blue-500 outline-none transition-all shadow-sm cursor-pointer"
+                                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-[20px] text-sm font-bold text-gray-900 focus:bg-white focus:border-blue-500 outline-none transition-all shadow-sm cursor-pointer"
                                         value={newTask.priority}
                                         onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
                                     >
@@ -3919,7 +3919,7 @@ export default function InvestorCaseDetails() {
                                 <div className="space-y-2">
                                     <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Primary Assignee</label>
                                     <select
-                                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-[20px] text-[14px] font-bold text-gray-900 focus:bg-white focus:border-blue-500 outline-none transition-all shadow-sm cursor-pointer"
+                                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-[20px] text-sm font-bold text-gray-900 focus:bg-white focus:border-blue-500 outline-none transition-all shadow-sm cursor-pointer"
                                         value={newTask.assignee}
                                         onChange={(e) => setNewTask({ ...newTask, assignee: e.target.value })}
                                     >
@@ -3942,7 +3942,7 @@ export default function InvestorCaseDetails() {
                                 <textarea
                                     rows={4}
                                     placeholder="Enter contextual details for this task..."
-                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-[20px] text-[14px] font-bold text-gray-900 focus:bg-white focus:border-blue-500 outline-none transition-all shadow-sm resize-none"
+                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-[20px] text-sm font-bold text-gray-900 focus:bg-white focus:border-blue-500 outline-none transition-all shadow-sm resize-none"
                                     value={newTask.desc}
                                     onChange={(e) => setNewTask({ ...newTask, desc: e.target.value })}
                                 ></textarea>
@@ -3950,13 +3950,13 @@ export default function InvestorCaseDetails() {
                             <div className="flex items-center gap-4 pt-4">
                                 <button
                                     onClick={() => setIsAddTaskModalOpen(false)}
-                                    className="flex-1 py-4 bg-gray-50 text-gray-500 rounded-[20px] text-[15px] font-bold hover:bg-gray-100 transition-all border border-gray-100"
+                                    className="flex-1 py-4 bg-gray-50 text-gray-500 rounded-[20px] text-base font-bold hover:bg-gray-100 transition-all border border-gray-100"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleSaveNewTask}
-                                    className="flex-[2] py-4 bg-blue-900 text-white rounded-[20px] text-[15px] font-bold hover:bg-black transition-all shadow-xl shadow-blue-900/20 flex items-center justify-center gap-2"
+                                    className="flex-[2] py-4 bg-indigo-600 text-white rounded-[20px] text-base font-bold hover:bg-black transition-all shadow-xl shadow-blue-900/20 flex items-center justify-center gap-2"
                                 >
                                     <Plus size={18} /> Create New Task
                                 </button>
@@ -3969,7 +3969,7 @@ export default function InvestorCaseDetails() {
             {
                 isBulkCommModalOpen && (
                     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 px-4">
-                        <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-300">
+                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-300">
                             {/* Modal Header */}
                             <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
                                 <div>
@@ -3989,7 +3989,7 @@ export default function InvestorCaseDetails() {
                                 <div className="bg-indigo-50/30 border border-indigo-100/50 rounded-2xl p-5">
                                     <div className="flex items-center gap-2 text-indigo-700 mb-4">
                                         <Sparkles size={18} />
-                                        <span className="text-[15px] font-bold">AI Message Templates</span>
+                                        <span className="text-base font-bold">AI Message Templates</span>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         {[
@@ -4003,7 +4003,7 @@ export default function InvestorCaseDetails() {
                                                     subject: `Action Required: ${template.replace("Generate ", "")}`,
                                                     body: `Hi team, this is an automated ${template.toLowerCase().replace("generate ", "")} regarding the pending settlement tasks...`
                                                 })}
-                                                className="px-4 py-2 bg-white border border-indigo-100 rounded-xl text-[13px] font-bold text-indigo-700 hover:border-indigo-300 hover:bg-indigo-50 transition-all shadow-sm"
+                                                className="px-4 py-2 bg-white border border-indigo-100 rounded-xl text-sm font-bold text-indigo-700 hover:border-indigo-300 hover:bg-indigo-50 transition-all shadow-sm"
                                             >
                                                 {template}
                                             </button>
@@ -4013,7 +4013,7 @@ export default function InvestorCaseDetails() {
 
                                 {/* Recipients Grid */}
                                 <div>
-                                    <label className="text-[13px] font-bold text-gray-500 uppercase tracking-widest mb-4 block">Select Recipients</label>
+                                    <label className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 block">Select Recipients</label>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         {[
                                             { name: "Lender's Lawyer", email: "lawyer@example.com" },
@@ -4047,8 +4047,8 @@ export default function InvestorCaseDetails() {
                                                     className="w-5 h-5 rounded-md border-gray-300 text-blue-600 focus:ring-blue-500 transition-all"
                                                 />
                                                 <div className="flex-1">
-                                                    <p className="text-[14px] font-bold text-gray-900">{contact.name}</p>
-                                                    <p className="text-[12px] text-gray-500 font-medium">{contact.email}</p>
+                                                    <p className="text-sm font-bold text-gray-900">{contact.name}</p>
+                                                    <p className="text-xs text-gray-500 font-medium">{contact.email}</p>
                                                 </div>
                                             </label>
                                         ))}
@@ -4058,23 +4058,23 @@ export default function InvestorCaseDetails() {
                                 {/* Message Inputs */}
                                 <div className="space-y-4 pt-4">
                                     <div className="space-y-2">
-                                        <label className="text-[14px] font-bold text-gray-900">Subject</label>
+                                        <label className="text-sm font-bold text-gray-900">Subject</label>
                                         <input
                                             type="text"
                                             placeholder="Email subject..."
                                             value={bulkMessage.subject}
                                             onChange={(e) => setBulkMessage({ ...bulkMessage, subject: e.target.value })}
-                                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-[14px] focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all"
+                                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[14px] font-bold text-gray-900">Message</label>
+                                        <label className="text-sm font-bold text-gray-900">Message</label>
                                         <textarea
                                             rows={4}
                                             placeholder="Type your message or use AI to generate one..."
                                             value={bulkMessage.body}
                                             onChange={(e) => setBulkMessage({ ...bulkMessage, body: e.target.value })}
-                                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-[14px] focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all resize-none"
+                                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all resize-none"
                                         ></textarea>
                                     </div>
                                 </div>
@@ -4084,15 +4084,15 @@ export default function InvestorCaseDetails() {
                             <div className="px-8 py-6 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between sticky bottom-0">
                                 <button
                                     onClick={() => setIsBulkCommModalOpen(false)}
-                                    className="px-6 py-2.5 bg-white border border-gray-200 rounded-xl text-[14px] font-bold text-gray-600 hover:bg-gray-100 transition-all"
+                                    className="px-6 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-100 transition-all"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleSendBulkComm}
                                     disabled={selectedRecipients.length === 0}
-                                    className={`flex items-center gap-2 px-8 py-2.5 rounded-xl text-[14px] font-bold transition-all shadow-lg ${selectedRecipients.length > 0
-                                        ? "bg-blue-900 text-white hover:bg-black shadow-blue-900/10"
+                                    className={`flex items-center gap-2 px-8 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg ${selectedRecipients.length > 0
+                                        ? "bg-indigo-600 text-white hover:bg-black shadow-blue-900/10"
                                         : "bg-gray-200 text-gray-400 cursor-not-allowed shadow-none"
                                         }`}
                                 >
@@ -4108,7 +4108,7 @@ export default function InvestorCaseDetails() {
             {
                 isAIAssistantModalOpen && (
                     <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 px-4">
-                        <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-300">
+                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-300">
                             <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
@@ -4125,7 +4125,7 @@ export default function InvestorCaseDetails() {
                             </div>
                             <div className="p-8">
                                 <div className="bg-indigo-50/50 rounded-2xl p-6 mb-8 border border-indigo-100/50">
-                                    <p className="text-[14px] text-gray-600 font-medium leading-relaxed">
+                                    <p className="text-sm text-gray-600 font-medium leading-relaxed">
                                         AI-powered analysis of your settlement progress, identifying bottlenecks, suggesting optimizations, and automating communications.
                                     </p>
                                 </div>
@@ -4135,7 +4135,7 @@ export default function InvestorCaseDetails() {
                                         setToast({ show: true, message: "Analyzing Settlement Progress...", type: "info" });
                                         setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000);
                                     }}
-                                    className="w-full py-4 bg-blue-900 text-white rounded-[20px] text-[15px] font-bold hover:bg-black transition-all shadow-xl shadow-blue-900/20 flex items-center justify-center gap-3"
+                                    className="w-full py-4 bg-indigo-600 text-white rounded-[20px] text-base font-bold hover:bg-black transition-all shadow-xl shadow-blue-900/20 flex items-center justify-center gap-3"
                                 >
                                     <Sparkles size={18} /> Analyze Settlement Progress
                                 </button>
@@ -4148,11 +4148,11 @@ export default function InvestorCaseDetails() {
             {/* Create Checklist Item Modal (Settlement Overview) */}
             {isAddChecklistItemModalOpen && (
                 <div className="fixed inset-0 z-[150] flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-                    <div className="bg-white w-full max-w-md rounded-[24px] shadow-2xl overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200">
+                    <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200">
                         <div className="px-6 py-5 border-b border-gray-50 flex items-center justify-between">
                             <div>
                                 <h3 className="text-lg font-bold text-gray-900">Create Item</h3>
-                                <p className="text-[12px] text-gray-400 font-medium">Add new settlement checklist item</p>
+                                <p className="text-xs text-gray-400 font-medium">Add new settlement checklist item</p>
                             </div>
                             <button onClick={() => setIsAddChecklistItemModalOpen(false)} className="p-2 hover:bg-gray-50 rounded-lg transition-all text-gray-400 hover:text-gray-900">
                                 <X size={18} />
@@ -4164,7 +4164,7 @@ export default function InvestorCaseDetails() {
                                 <input
                                     type="text"
                                     placeholder="e.g., Insurance Policy"
-                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-[13px] font-bold text-gray-900 focus:bg-white focus:border-blue-500 outline-none transition-all"
+                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-bold text-gray-900 focus:bg-white focus:border-blue-500 outline-none transition-all"
                                     value={newChecklistItem.item}
                                     onChange={(e) => setNewChecklistItem({ ...newChecklistItem, item: e.target.value })}
                                 />
@@ -4173,7 +4173,7 @@ export default function InvestorCaseDetails() {
                                 <div className="space-y-1.5">
                                     <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Responsible</label>
                                     <select
-                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-[13px] font-bold text-gray-900 focus:bg-white focus:border-blue-500 outline-none transition-all cursor-pointer"
+                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-bold text-gray-900 focus:bg-white focus:border-blue-500 outline-none transition-all cursor-pointer"
                                         value={newChecklistItem.responsible}
                                         onChange={(e) => setNewChecklistItem({ ...newChecklistItem, responsible: e.target.value })}
                                     >
@@ -4193,7 +4193,7 @@ export default function InvestorCaseDetails() {
                             </div>
                             <button
                                 onClick={handleAddChecklistItem}
-                                className="w-full py-3.5 bg-blue-900 text-white rounded-xl text-[14px] font-bold hover:bg-black transition-all shadow-lg active:scale-[0.98]"
+                                className="w-full py-3.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-black transition-all shadow-lg active:scale-[0.98]"
                             >
                                 Add Checklist Item
                             </button>

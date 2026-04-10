@@ -11,7 +11,16 @@ export default function KYCReview() {
   useEffect(() => {
     kycService.getKYCQueue()
       .then((res) => {
-        const data = res.data || res || []
+        const raw = Array.isArray(res.data) ? res.data : []
+        // Normalise field names from backend (user_name/user_email/user_role → name/email/role)
+        const data = raw.map(r => ({
+          ...r,
+          name: r.name || r.user_name || r.full_name || '—',
+          email: r.email || r.user_email || '—',
+          role: r.role || r.user_role || '—',
+          documents: r.documents ?? r.document_count ?? (r.document_type ? 1 : 0),
+          submitted: r.submitted || (r.created_at ? new Date(r.created_at).toLocaleDateString('en-AU') : '—'),
+        }))
         setSubmissions(data)
         setApprovedToday(data.filter((s) => s.status === 'approved').length)
         setRejectedToday(data.filter((s) => s.status === 'rejected').length)

@@ -75,7 +75,7 @@ export default function InvestorEscrow() {
           <h2 className="text-2xl font-bold text-gray-900 mb-1">Escrow Funds</h2>
           <p className="text-gray-500 font-medium">Manage your secure investment releases and balances</p>
         </div>
-        <div className="bg-indigo-50 border border-indigo-100 px-4 py-2 rounded-xl flex items-center gap-2 text-indigo-700 text-[10px] font-medium uppercase tracking-wider">
+        <div className="bg-indigo-50 border border-indigo-100 px-4 py-2 rounded-xl flex items-center gap-2 text-indigo-700 text-xs font-medium uppercase tracking-wider">
           <Shield size={14} />
           Secured by Brickbanq
         </div>
@@ -116,11 +116,11 @@ export default function InvestorEscrow() {
       {/* ESCROW DETAILS TABLE */}
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-gray-50 bg-gray-50/50">
-          <h3 className="font-semibold text-gray-900 uppercase text-[10px] tracking-wider">Escrow Record</h3>
+          <h3 className="font-semibold text-gray-900 uppercase text-xs tracking-wider">Escrow Record</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="text-[10px] font-medium text-gray-400 uppercase tracking-wider bg-white">
+            <thead className="text-xs font-medium text-gray-400 uppercase tracking-wider bg-white">
               <tr>
                 <th className="p-6">Deal ID</th>
                 <th className="py-6">Amount</th>
@@ -185,7 +185,7 @@ function StatusBadge({ status }) {
     REFUNDED: "bg-gray-100 text-gray-700",
   };
   return (
-    <span className={`px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-widest ${styles[status] || "bg-gray-100 text-gray-600"}`}>
+    <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-widest ${styles[status] || "bg-gray-100 text-gray-600"}`}>
       {status}
     </span>
   );
@@ -200,7 +200,7 @@ function SecurityPanel() {
         </div>
         <div>
           <h3 className="text-lg font-semibold text-gray-900 uppercase tracking-tight">Security Protocols</h3>
-          <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Compliance & Protection Level 4</p>
+          <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Compliance & Protection Level 4</p>
         </div>
       </div>
       <div className="space-y-4">
@@ -231,7 +231,7 @@ function StatCard({ title, value, color, icon }) {
       <div>
         <p className="text-xs font-medium text-gray-400 mb-1">{title}</p>
         <h2 className="text-3xl font-bold text-gray-900 mb-1">{formatCurrency(value)}</h2>
-        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Escrow Active</p>
+        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Escrow Active</p>
       </div>
       <div className={`p-3 rounded-xl ${iconColors[color]}`}>{icon}</div>
     </div>

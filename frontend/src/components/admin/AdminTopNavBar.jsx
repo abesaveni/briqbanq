@@ -24,6 +24,7 @@ const navItems = [
     { label: 'Case Management', path: '/admin/case-management', icon: Briefcase, color: 'text-blue-500' },
     { label: 'All Deals', path: '/admin/all-deals', icon: Tag, color: 'text-emerald-600' },
     { label: 'Auction Control', path: '/admin/auction-control', icon: Gavel, color: 'text-violet-600' },
+    { label: 'User Management', path: '/admin/user-management', icon: Users, color: 'text-sky-600' },
     { label: 'KYC Review Queue', path: '/admin/kyc-review', icon: Users, color: 'text-amber-600' },
     { label: 'Document Library', path: '/admin/document-library', icon: FolderOpen, color: 'text-orange-500' },
     { label: 'Reports & Analytics', path: '/admin/reports-analytics', icon: BarChart2, color: 'text-cyan-600' },

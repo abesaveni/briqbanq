@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CaseCard from './components/CaseCard'
 import RiskBadge from './components/RiskBadge'
-import NewCase from '../borrower/NewCase'
+import SubmitCaseForm from '../../components/case/SubmitCaseForm'
 import { lawyerService } from '../../api/dataService'
 import { generateCasesTablePDF } from '../../utils/pdfGenerator'
 
@@ -258,7 +258,7 @@ export default function AssignedCases() {
             </button>
           </div>
           <div className="flex-1 overflow-y-auto min-h-0 bg-slate-50 p-4 md:p-6 lg:p-8">
-            <NewCase onClose={() => setShowNewCase(false)} onSuccess={handleNewCaseSuccess} />
+            <SubmitCaseForm role="lawyer" onClose={() => setShowNewCase(false)} onSuccess={handleNewCaseSuccess} />
           </div>
         </div>
       )}

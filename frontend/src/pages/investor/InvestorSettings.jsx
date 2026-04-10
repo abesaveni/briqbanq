@@ -44,7 +44,7 @@ export default function InvestorSettings() {
                 </div>
                 <div>
                     <h2 className="text-[22px] font-bold text-gray-900">Settings</h2>
-                    <p className="text-[13px] font-medium text-gray-500">Manage your account, integrations, and platform configuration</p>
+                    <p className="text-sm font-medium text-gray-500">Manage your account, integrations, and platform configuration</p>
                 </div>
             </div>
 
@@ -55,7 +55,7 @@ export default function InvestorSettings() {
                         <button
                             key={tab.id}
                             onClick={() => setCurrentView(tab.id)}
-                            className={`flex items-center gap-2 px-6 py-4 text-[14px] font-bold border-b-2 transition-colors duration-200 ${currentView === tab.id ? 'border-indigo-800 text-indigo-800' : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-200'}`}
+                            className={`flex items-center gap-2 px-6 py-4 text-sm font-bold border-b-2 transition-colors duration-200 ${currentView === tab.id ? 'border-indigo-800 text-indigo-800' : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-200'}`}
                         >
                             {tab.icon} {tab.label}
                         </button>
@@ -64,7 +64,7 @@ export default function InvestorSettings() {
             </div>
 
             {/* Breadcrumb Navigation based on tab */}
-            <div className="flex items-center text-[13px] text-gray-500 gap-2 mb-2 font-medium">
+            <div className="flex items-center text-sm text-gray-500 gap-2 mb-2 font-medium">
                 <Home size={13} className="cursor-pointer hover:text-gray-900" />
                 <ChevronRight size={13} />
                 <span className="cursor-pointer hover:text-gray-900">Dashboard</span>
@@ -197,8 +197,8 @@ function ProfileSettingsView() {
             <div className="space-y-6">
 
                 {/* Profile Photo Card */}
-                <div className="bg-white p-6 rounded-[16px] border border-gray-100 shadow-sm text-center h-fit">
-                    <h3 className="text-left font-bold text-[15px] text-gray-900 mb-6">Profile Photo</h3>
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm text-center h-fit">
+                    <h3 className="text-left font-bold text-base text-gray-900 mb-6">Profile Photo</h3>
 
                     <div className="relative w-[130px] h-[130px] mx-auto mb-6">
                         <div className={`w-full h-full rounded-full flex items-center justify-center overflow-hidden border-2 border-white shadow-sm ${!photo ? 'bg-indigo-600' : 'bg-gray-100'}`}>
@@ -222,13 +222,13 @@ function ProfileSettingsView() {
                         />
                         <button
                             onClick={() => fileInputRef.current?.click()}
-                            className="w-full py-[11px] border border-gray-200 rounded-xl text-[13px] font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2 transition-colors shadow-sm"
+                            className="w-full py-[11px] border border-gray-200 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2 transition-colors shadow-sm"
                         >
                             <Upload size={14} /> Upload Photo
                         </button>
                         <button
                             onClick={handleRemovePhoto}
-                            className="w-full py-[11px] rounded-xl text-[13px] font-bold text-red-500 hover:bg-red-50 flex items-center justify-center gap-2 transition-colors border border-transparent hover:border-red-100"
+                            className="w-full py-[11px] rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 flex items-center justify-center gap-2 transition-colors border border-transparent hover:border-red-100"
                         >
                             <X size={14} /> Remove Photo
                         </button>
@@ -241,10 +241,10 @@ function ProfileSettingsView() {
                 </div>
 
                 {/* Account Info Card */}
-                <div className="bg-white p-6 rounded-[16px] border border-gray-100 shadow-sm">
-                    <h3 className="font-bold text-[15px] text-gray-900 mb-6">Account Info</h3>
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                    <h3 className="font-bold text-base text-gray-900 mb-6">Account Info</h3>
                     <div className="space-y-4">
-                        <div className="flex justify-between items-center text-[13px]">
+                        <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-500 font-medium">Member Since:</span>
                             <span className="font-bold text-gray-900">
                                 {user?.created_at
@@ -254,11 +254,11 @@ function ProfileSettingsView() {
                                         : 'N/A'}
                             </span>
                         </div>
-                        <div className="flex justify-between items-center text-[13px]">
+                        <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-500 font-medium">Account Type:</span>
                             <span className="font-bold text-gray-900 capitalize">{user?.role || 'Investor'}</span>
                         </div>
-                        <div className="flex justify-between items-center text-[13px]">
+                        <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-500 font-medium">Verification:</span>
                             <span className="bg-green-100/80 text-green-700 px-2.5 py-1 rounded-[6px] text-[11px] font-bold tracking-wide">Verified</span>
                         </div>
@@ -271,8 +271,8 @@ function ProfileSettingsView() {
             <div className="lg:col-span-2 space-y-6 flex flex-col h-full">
 
                 {/* Personal Information */}
-                <div className="bg-white p-6 rounded-[16px] border border-gray-100 shadow-sm">
-                    <h3 className="font-bold text-[15px] text-gray-900 mb-5">Personal Information</h3>
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                    <h3 className="font-bold text-base text-gray-900 mb-5">Personal Information</h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-4 mb-4">
                         <InputGroup label="First Name" name="firstName" value={formData.firstName} onChange={handleInputChange} required icon={<User size={14} />} error={fieldErrors.firstName} />
@@ -300,15 +300,15 @@ function ProfileSettingsView() {
                             onChange={handleInputChange}
                             rows={3}
                             maxLength={500}
-                            className="w-full px-4 py-[11px] rounded-lg border border-gray-200 text-[13px] focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium text-gray-900 placeholder:text-gray-400 resize-none"
+                            className="w-full px-4 py-[11px] rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium text-gray-900 placeholder:text-gray-400 resize-none"
                         />
                         <div className="text-left text-[11px] text-gray-400 mt-1 font-medium">{formData.bio.length} / 500 characters</div>
                     </div>
                 </div>
 
                 {/* Address */}
-                <div className="bg-white p-6 rounded-[16px] border border-gray-100 shadow-sm">
-                    <h3 className="font-bold text-[15px] text-gray-900 mb-5">Address</h3>
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                    <h3 className="font-bold text-base text-gray-900 mb-5">Address</h3>
 
                     <div className="mb-4">
                         <InputGroup label="Street Address" name="street" value={formData.street} onChange={handleInputChange} icon={<MapPin size={14} />} />
@@ -322,7 +322,7 @@ function ProfileSettingsView() {
                                 name="state"
                                 value={formData.state}
                                 onChange={handleInputChange}
-                                className="w-full px-4 py-[11px] rounded-lg border border-gray-200 text-[13px] focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium text-gray-900 bg-white"
+                                className="w-full px-4 py-[11px] rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium text-gray-900 bg-white"
                             >
                                 <option value="NSW">NSW</option>
                                 <option value="VIC">VIC</option>
@@ -345,14 +345,14 @@ function ProfileSettingsView() {
                 {/* Actions */}
                 <div className="flex justify-end items-center gap-3 pt-2 mt-auto pb-4">
                     <button
-                        className="px-6 py-[11px] rounded-lg border border-gray-200 text-[13px] font-bold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm"
+                        className="px-6 py-[11px] rounded-lg border border-gray-200 text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleSave}
                         disabled={loading}
-                        className="px-6 py-[11px] rounded-lg bg-blue-800 hover:bg-black text-white text-[13px] font-bold shadow-sm transition-all flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                        className="px-6 py-[11px] rounded-lg bg-blue-800 hover:bg-black text-white text-sm font-bold shadow-sm transition-all flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                     >
                         {loading ? 'Saving...' : 'Save Changes'}
                     </button>
@@ -478,14 +478,14 @@ function OrganizationSettingsView() {
     return (
         <div className="space-y-6 relative">
             {/* Organization Details Card */}
-            <div className="bg-white p-6 rounded-[16px] border border-gray-100 shadow-sm max-w-[800px]">
+            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm max-w-[800px]">
                 <div className="flex items-center gap-3 mb-6">
                     <div className="p-2.5 bg-indigo-50 border border-indigo-100 text-indigo-600 rounded-[10px]">
                         <Building2 size={18} strokeWidth={2} />
                     </div>
                     <div>
-                        <h3 className="font-bold text-[15px] text-gray-900">Organization Details</h3>
-                        <p className="text-[13px] text-gray-500 font-medium">Manage your organization information</p>
+                        <h3 className="font-bold text-base text-gray-900">Organization Details</h3>
+                        <p className="text-sm text-gray-500 font-medium">Manage your organization information</p>
                     </div>
                 </div>
 
@@ -501,7 +501,7 @@ function OrganizationSettingsView() {
                             name="industry"
                             value={orgData.industry}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-[11px] rounded-lg border border-gray-200 text-[13px] focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium text-gray-900 bg-white"
+                            className="w-full px-4 py-[11px] rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium text-gray-900 bg-white"
                         >
                             <option>Financial Services</option>
                             <option>Real Estate</option>
@@ -515,7 +515,7 @@ function OrganizationSettingsView() {
                             name="companySize"
                             value={orgData.companySize}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-[11px] rounded-lg border border-gray-200 text-[13px] focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium text-gray-900 bg-white"
+                            className="w-full px-4 py-[11px] rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium text-gray-900 bg-white"
                         >
                             <option>1-10 employees</option>
                             <option>11-50 employees</option>
@@ -542,7 +542,7 @@ function OrganizationSettingsView() {
                             name="state"
                             value={orgData.state}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-[11px] rounded-lg border border-gray-200 text-[13px] focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium text-gray-900 bg-white"
+                            className="w-full px-4 py-[11px] rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium text-gray-900 bg-white"
                         >
                             <option>NSW</option>
                             <option>VIC</option>
@@ -559,20 +559,20 @@ function OrganizationSettingsView() {
             </div>
 
             {/* Team Members Card */}
-            <div className="bg-white p-6 rounded-[16px] border border-gray-100 shadow-sm max-w-[800px]">
+            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm max-w-[800px]">
                 <div className="flex justify-between items-center mb-6">
                     <div className="flex items-center gap-3">
                         <div className="p-2.5 bg-fuchsia-50/80 border border-fuchsia-100 text-fuchsia-500 rounded-[10px]">
                             <Users size={18} strokeWidth={2} />
                         </div>
                         <div>
-                            <h3 className="font-bold text-[15px] text-gray-900">Team Members ({teamMembers.length})</h3>
-                            <p className="text-[13px] text-gray-500 font-medium">Manage who has access to your organization</p>
+                            <h3 className="font-bold text-base text-gray-900">Team Members ({teamMembers.length})</h3>
+                            <p className="text-sm text-gray-500 font-medium">Manage who has access to your organization</p>
                         </div>
                     </div>
                     <button
                         onClick={() => setShowInviteModal(true)}
-                        className="px-5 py-2.5 bg-indigo-800 text-white rounded-lg text-[13px] font-bold hover:bg-indigo-900 transition-colors flex items-center gap-2 shadow-sm"
+                        className="px-5 py-2.5 bg-indigo-800 text-white rounded-lg text-sm font-bold hover:bg-indigo-900 transition-colors flex items-center gap-2 shadow-sm"
                     >
                         <Plus size={14} /> Invite Member
                     </button>
@@ -580,21 +580,21 @@ function OrganizationSettingsView() {
 
                 <div className="space-y-3">
                     {teamMembers.map((member) => (
-                        <div key={member.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-[12px] hover:border-gray-200 transition-colors shadow-sm bg-white">
+                        <div key={member.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:border-gray-200 transition-colors shadow-sm bg-white">
                             <div className="flex items-center gap-4">
-                                <div className={`w-[42px] h-[42px] rounded-full ${member.color} text-white flex items-center justify-center font-bold text-[15px] tracking-wide`}>
+                                <div className={`w-[42px] h-[42px] rounded-full ${member.color} text-white flex items-center justify-center font-bold text-base tracking-wide`}>
                                     {member.initials}
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-gray-900 text-[15px] mb-0.5">{member.name}</h4>
-                                    <p className="text-[13px] text-gray-400 font-medium flex items-center gap-1.5"><svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>{member.email}</p>
+                                    <h4 className="font-bold text-gray-900 text-base mb-0.5">{member.name}</h4>
+                                    <p className="text-sm text-gray-400 font-medium flex items-center gap-1.5"><svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>{member.email}</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-4">
                                 <select
                                     value={member.role}
                                     onChange={(e) => handleRoleChange(member.id, e.target.value)}
-                                    className="pl-3 pr-8 py-2 rounded-lg border border-gray-200 text-[13px] font-bold text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23131313%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:10px_10px] bg-no-repeat bg-[right_12px_center]"
+                                    className="pl-3 pr-8 py-2 rounded-lg border border-gray-200 text-sm font-bold text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23131313%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:10px_10px] bg-no-repeat bg-[right_12px_center]"
                                 >
                                     <option>Administrator</option>
                                     <option>Member</option>
@@ -613,9 +613,9 @@ function OrganizationSettingsView() {
                     ))}
                 </div>
 
-                <div className="mt-5 bg-blue-50/50 rounded-[12px] p-4 border border-blue-100 shadow-sm">
-                    <h4 className="text-[13px] font-bold text-blue-700 mb-2 leading-none">Team Member Roles:</h4>
-                    <ul className="text-[12px] text-blue-700 space-y-1.5 font-medium">
+                <div className="mt-5 bg-blue-50/50 rounded-xl p-4 border border-blue-100 shadow-sm">
+                    <h4 className="text-sm font-bold text-blue-700 mb-2 leading-none">Team Member Roles:</h4>
+                    <ul className="text-xs text-blue-700 space-y-1.5 font-medium">
                         <li className="flex gap-2"><span>&bull;</span> <span><span className="font-bold">Administrator:</span> Full access to all settings and data</span></li>
                         <li className="flex gap-2"><span>&bull;</span> <span><span className="font-bold">Member:</span> Can view and manage deals, but cannot change organization settings</span></li>
                         <li className="flex gap-2"><span>&bull;</span> <span><span className="font-bold">Viewer:</span> Read-only access to organization data</span></li>
@@ -624,14 +624,14 @@ function OrganizationSettingsView() {
             </div>
 
             {/* Billing Information Card */}
-            <div className="bg-white p-6 rounded-[16px] border border-gray-100 shadow-sm max-w-[800px]">
+            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm max-w-[800px]">
                 <div className="flex items-center gap-3 mb-6">
                     <div className="p-2.5 bg-green-50 border border-green-100 text-green-500 rounded-[10px]">
                         <CreditCard size={18} strokeWidth={2} />
                     </div>
                     <div>
-                        <h3 className="font-bold text-[15px] text-gray-900">Billing Information</h3>
-                        <p className="text-[13px] text-gray-500 font-medium">Subscription and payment details</p>
+                        <h3 className="font-bold text-base text-gray-900">Billing Information</h3>
+                        <p className="text-sm text-gray-500 font-medium">Subscription and payment details</p>
                     </div>
                 </div>
 
@@ -639,13 +639,13 @@ function OrganizationSettingsView() {
                     {/* Professional Plan Box */}
                     <div className="flex justify-between items-center p-5 border border-indigo-100 bg-indigo-50/30 rounded-xl shadow-sm">
                         <div>
-                            <h4 className="font-bold text-[14px] text-gray-900 mb-0.5">{currentPlan.name}</h4>
-                            <p className="text-[13px] text-gray-500 font-medium mb-1">A${currentPlan.price}/month &bull; Billed {currentPlan.frequency}</p>
-                            <p className="text-[12px] text-gray-400 font-medium">Next billing date: {currentPlan.billingDate}</p>
+                            <h4 className="font-bold text-sm text-gray-900 mb-0.5">{currentPlan.name}</h4>
+                            <p className="text-sm text-gray-500 font-medium mb-1">A${currentPlan.price}/month &bull; Billed {currentPlan.frequency}</p>
+                            <p className="text-xs text-gray-400 font-medium">Next billing date: {currentPlan.billingDate}</p>
                         </div>
                         <button
                             onClick={() => setShowPlanModal(true)}
-                            className="px-4 py-2 border border-gray-200 bg-white rounded-lg text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
+                            className="px-4 py-2 border border-gray-200 bg-white rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
                         >
                             Manage Plan
                         </button>
@@ -654,13 +654,13 @@ function OrganizationSettingsView() {
                     {/* Payment Method Box */}
                     <div className="flex justify-between items-center p-5 border border-gray-100 rounded-xl shadow-sm">
                         <div>
-                            <h4 className="font-bold text-[14px] text-gray-900 mb-0.5">Payment Method</h4>
-                            <p className="text-[14px] font-medium text-gray-600 tracking-widest mb-1">&bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; {paymentDetails.last4}</p>
-                            <p className="text-[12px] text-gray-400 font-medium tracking-wide">Expires {paymentDetails.expiry}</p>
+                            <h4 className="font-bold text-sm text-gray-900 mb-0.5">Payment Method</h4>
+                            <p className="text-sm font-medium text-gray-600 tracking-widest mb-1">&bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; {paymentDetails.last4}</p>
+                            <p className="text-xs text-gray-400 font-medium tracking-wide">Expires {paymentDetails.expiry}</p>
                         </div>
                         <button
                             onClick={() => setShowPaymentModal(true)}
-                            className="px-4 py-2 border border-gray-200 bg-white rounded-lg text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2"
+                            className="px-4 py-2 border border-gray-200 bg-white rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2"
                         >
                             <CreditCard size={14} /> Update
                         </button>
@@ -670,8 +670,8 @@ function OrganizationSettingsView() {
                     <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-200 flex items-start gap-3 mt-4">
                         <AlertTriangle size={18} className="text-amber-500 mt-0.5 shrink-0" strokeWidth={2} />
                         <div>
-                            <h4 className="font-bold text-[13px] text-amber-700 mb-1">Billing Contact</h4>
-                            <p className="text-[13px] text-amber-700 font-medium">
+                            <h4 className="font-bold text-sm text-amber-700 mb-1">Billing Contact</h4>
+                            <p className="text-sm text-amber-700 font-medium">
                                 All invoices will be sent to the organization administrator email.
                             </p>
                         </div>
@@ -682,14 +682,14 @@ function OrganizationSettingsView() {
             {/* Actions */}
             <div className="flex justify-end items-center gap-3 pt-4 max-w-[800px]">
                 <button
-                    className="px-6 py-[11px] rounded-lg border border-gray-200 text-[13px] font-bold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm"
+                    className="px-6 py-[11px] rounded-lg border border-gray-200 text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm"
                 >
                     Cancel
                 </button>
                 <button
                     onClick={handleSave}
                     disabled={loading}
-                    className="px-6 py-[11px] rounded-lg bg-blue-800 hover:bg-black text-white text-[13px] font-bold shadow-sm transition-all flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="px-6 py-[11px] rounded-lg bg-blue-800 hover:bg-black text-white text-sm font-bold shadow-sm transition-all flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     {loading ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -880,7 +880,7 @@ function InputGroup({ label, name, value, onChange, type = "text", required, ico
                     value={value}
                     onChange={onChange}
                     disabled={disabled}
-                    className={`w-full ${icon ? 'pl-[34px]' : 'pl-4'} pr-4 py-[11px] rounded-lg border text-[13px] focus:outline-none focus:ring-1 transition-all font-medium text-gray-900 placeholder:text-gray-400 ${error ? 'border-red-400 focus:ring-red-400 focus:border-red-400 bg-red-50/30' : 'border-gray-200 focus:ring-indigo-500 focus:border-indigo-500'} ${disabled ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : ''}`}
+                    className={`w-full ${icon ? 'pl-[34px]' : 'pl-4'} pr-4 py-[11px] rounded-lg border text-sm focus:outline-none focus:ring-1 transition-all font-medium text-gray-900 placeholder:text-gray-400 ${error ? 'border-red-400 focus:ring-red-400 focus:border-red-400 bg-red-50/30' : 'border-gray-200 focus:ring-indigo-500 focus:border-indigo-500'} ${disabled ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : ''}`}
                 />
             </div>
             {error && <p className="mt-1 text-[11px] font-medium text-red-500">{error}</p>}
@@ -976,7 +976,7 @@ function ApiSettingsView() {
             )}
             <div>
                 <h3 className="text-xl font-bold text-gray-900 mb-1">API Integrations</h3>
-                <p className="text-[13px] text-gray-500 font-medium mb-6">Manage third-party API connections for KYC, property data, payments, and compliance</p>
+                <p className="text-sm text-gray-500 font-medium mb-6">Manage third-party API connections for KYC, property data, payments, and compliance</p>
             </div>
 
             <div className="space-y-6 max-w-[900px]">
@@ -995,15 +995,15 @@ function ApiSettingsView() {
                     />
                 ))}
 
-                <div className="bg-white rounded-[16px] border border-dashed border-gray-200 p-8 shadow-sm text-center">
+                <div className="bg-white rounded-xl border border-dashed border-gray-200 p-8 shadow-sm text-center">
                     <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-500">
                         <Plus size={18} strokeWidth={2.5} />
                     </div>
-                    <h4 className="font-bold text-[15px] text-gray-900 mb-1">Need Another Integration?</h4>
-                    <p className="text-[13px] text-gray-500 font-medium mb-5">Contact support to add custom API integrations</p>
+                    <h4 className="font-bold text-base text-gray-900 mb-1">Need Another Integration?</h4>
+                    <p className="text-sm text-gray-500 font-medium mb-5">Contact support to add custom API integrations</p>
                     <button 
                         onClick={() => showToast("Registration request sent to support team. We'll be in touch soon!")}
-                        className="px-5 py-2.5 border border-gray-200 bg-white hover:bg-gray-50 text-[13px] font-bold text-gray-700 rounded-lg shadow-sm transition-colors"
+                        className="px-5 py-2.5 border border-gray-200 bg-white hover:bg-gray-50 text-sm font-bold text-gray-700 rounded-lg shadow-sm transition-colors"
                     >
                         Request Integration
                     </button>
@@ -1028,7 +1028,7 @@ function IntegrationCard({ id, icon, title, description, status, fields = [], la
     const handleFieldChange = (idx, val) => setFieldValues(prev => ({ ...prev, [idx]: val }));
 
     return (
-        <div className="bg-white rounded-[16px] border border-gray-100 shadow-sm">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
             {/* Header */}
             <div className="p-6 border-b border-gray-50 flex justify-between items-start">
                 <div className="flex gap-4">
@@ -1036,24 +1036,24 @@ function IntegrationCard({ id, icon, title, description, status, fields = [], la
                         {icon}
                     </div>
                     <div>
-                        <h3 className="font-bold text-[16px] text-gray-900 mb-0.5">{title}</h3>
-                        <p className="text-[13px] text-gray-500 font-medium">{description}</p>
+                        <h3 className="font-bold text-base text-gray-900 mb-0.5">{title}</h3>
+                        <p className="text-sm text-gray-500 font-medium">{description}</p>
                     </div>
                 </div>
                 {status === "Connected" && (
-                    <div className="flex items-center gap-1.5 px-3 py-1 bg-green-50/80 border border-green-100/50 text-green-600 rounded-full text-[12px] font-bold shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+                    <div className="flex items-center gap-1.5 px-3 py-1 bg-green-50/80 border border-green-100/50 text-green-600 rounded-full text-xs font-bold shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                         <CheckCircle size={13} strokeWidth={2.5} className="text-green-500" />
                         Connected
                     </div>
                 )}
                 {status === "Error" && (
-                    <div className="flex items-center gap-1.5 px-3 py-1 bg-red-50 border border-red-100/50 text-red-600 rounded-full text-[12px] font-bold shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+                    <div className="flex items-center gap-1.5 px-3 py-1 bg-red-50 border border-red-100/50 text-red-600 rounded-full text-xs font-bold shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                         <AlertCircle size={13} strokeWidth={2.5} className="text-red-500" />
                         Error
                     </div>
                 )}
                 {status === "Disconnected" && (
-                    <div className="flex items-center gap-1.5 px-3 py-1 bg-gray-50 border border-gray-200/50 text-gray-600 rounded-full text-[12px] font-bold shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+                    <div className="flex items-center gap-1.5 px-3 py-1 bg-gray-50 border border-gray-200/50 text-gray-600 rounded-full text-xs font-bold shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                         <XCircle size={13} strokeWidth={2.5} className="text-gray-500" />
                         Disconnected
                     </div>
@@ -1071,7 +1071,7 @@ function IntegrationCard({ id, icon, title, description, status, fields = [], la
                                 value={fieldValues[idx] ?? ""}
                                 placeholder={field.placeholder || ""}
                                 onChange={(e) => handleFieldChange(idx, e.target.value)}
-                                className="w-full px-4 py-[11px] rounded-lg border border-gray-100 text-[13px] font-medium text-gray-700 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                                className="w-full px-4 py-[11px] rounded-lg border border-gray-100 text-sm font-medium text-gray-700 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                             />
                             {field.isSecret && (
                                 <button
@@ -1088,7 +1088,7 @@ function IntegrationCard({ id, icon, title, description, status, fields = [], la
 
             {/* Footer */}
             <div className="px-6 py-4 border-t border-gray-50 flex justify-between items-center rounded-b-[16px]">
-                <div className="flex items-center gap-1.5 text-[12px]">
+                <div className="flex items-center gap-1.5 text-xs">
                     {lastTested && (
                         <>
                             <span className="text-gray-500 font-medium">Last tested:</span>
@@ -1104,7 +1104,7 @@ function IntegrationCard({ id, icon, title, description, status, fields = [], la
                 <button
                     onClick={onTest}
                     disabled={testing}
-                    className="flex items-center gap-2 px-4 py-2 border border-gray-200 bg-white hover:bg-gray-50 text-[12px] font-bold text-gray-700 rounded-lg shadow-sm transition-colors ml-auto disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="flex items-center gap-2 px-4 py-2 border border-gray-200 bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 rounded-lg shadow-sm transition-colors ml-auto disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     <RefreshCw size={13} strokeWidth={2} className={testing ? "animate-spin" : ""} />
                     {testing ? "Testing..." : "Test Connection"}
@@ -1271,23 +1271,23 @@ function FormCustomizationView() {
         <div className="animate-in fade-in duration-300 pb-10">
             {/* View Header */}
             <div className="mb-6">
-                <h2 className="text-[20px] font-bold text-gray-900 mb-1">Form Customization</h2>
-                <p className="text-[13px] text-gray-500 font-medium tracking-wide">Add custom fields to forms across the Brickbanq platform</p>
+                <h2 className="text-xl font-bold text-gray-900 mb-1">Form Customization</h2>
+                <p className="text-sm text-gray-500 font-medium tracking-wide">Add custom fields to forms across the Brickbanq platform</p>
             </div>
 
             {/* Status Feedback */}
             {status.message && (
                 <div className={`mb-6 p-4 rounded-xl border flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300 ${status.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
                     {status.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
-                    <p className="text-[13px] font-bold">{status.message}</p>
+                    <p className="text-sm font-bold">{status.message}</p>
                 </div>
             )}
 
             <div className="flex items-start gap-6">
                 {/* Left Panel: Form List */}
-                <div className="w-[300px] bg-white rounded-[16px] border border-gray-100 shadow-sm shrink-0 overflow-hidden">
+                <div className="w-[300px] bg-white rounded-xl border border-gray-100 shadow-sm shrink-0 overflow-hidden">
                     <div className="p-5 border-b border-gray-50">
-                        <h3 className="font-bold text-[15px] text-gray-900">Forms</h3>
+                        <h3 className="font-bold text-base text-gray-900">Forms</h3>
                     </div>
                     <div>
                         {forms.map(form => (
@@ -1300,7 +1300,7 @@ function FormCustomizationView() {
                                     <FileText size={18} strokeWidth={2} />
                                 </div>
                                 <div className="space-y-0.5 mt-0.5">
-                                    <div className={`font-bold text-[13px] leading-snug ${activeFormId === form.id ? 'text-gray-900' : 'text-gray-800'}`}>{form.name}</div>
+                                    <div className={`font-bold text-sm leading-snug ${activeFormId === form.id ? 'text-gray-900' : 'text-gray-800'}`}>{form.name}</div>
                                     <div className="text-[11.5px] font-medium text-gray-500">{activeFormId === form.id && fetchingFields ? '...' : (activeFormId === form.id ? fields.length : 'Manage')} fields</div>
                                 </div>
                             </button>
@@ -1312,27 +1312,27 @@ function FormCustomizationView() {
                 <div className="flex-1 space-y-6">
                     {/* Form Description Header */}
                     {activeForm && (
-                        <div className="bg-white p-6 rounded-[16px] border border-gray-100 shadow-sm">
-                            <h3 className="font-bold text-[18px] text-gray-900 mb-1">{activeForm.name}</h3>
-                            <p className="text-[13px] text-gray-500 font-medium">{activeForm.description}</p>
+                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                            <h3 className="font-bold text-lg text-gray-900 mb-1">{activeForm.name}</h3>
+                            <p className="text-sm text-gray-500 font-medium">{activeForm.description}</p>
                         </div>
                     )}
 
                     {/* Custom Fields List */}
-                    <div className="bg-white p-6 rounded-[16px] border border-gray-100 shadow-sm min-h-[300px] relative">
+                    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm min-h-[300px] relative">
                         {fetchingFields && (
-                            <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center rounded-[16px]">
+                            <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center rounded-xl">
                                 <RefreshCw className="animate-spin text-indigo-500" size={24} />
                             </div>
                         )}
                         <div className="flex items-center gap-2.5 mb-6">
                             <Settings2 size={18} className="text-gray-700" strokeWidth={2.5} />
-                            <h3 className="font-bold text-[15px] text-gray-900">Custom Fields</h3>
+                            <h3 className="font-bold text-base text-gray-900">Custom Fields</h3>
                         </div>
 
                         <div className="space-y-4">
                             {fields.map((field) => (
-                                <div key={field.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-[12px] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+                                <div key={field.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-xl bg-white shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                                     <div className="flex items-center gap-4">
                                         <div className="text-gray-300 cursor-grab px-1">
                                             <GripVertical size={16} strokeWidth={2.5} />
@@ -1342,18 +1342,18 @@ function FormCustomizationView() {
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2.5 mb-0.5">
-                                                <h4 className="font-bold text-[14px] text-gray-900 leading-none">{field.name}</h4>
+                                                <h4 className="font-bold text-sm text-gray-900 leading-none">{field.name}</h4>
                                                 {field.required && (
-                                                    <span className="px-2 py-0.5 bg-red-50 text-red-500 font-bold text-[10px] rounded uppercase tracking-wider border border-red-100/50 block">Required</span>
+                                                    <span className="px-2 py-0.5 bg-red-50 text-red-500 font-bold text-xs rounded uppercase tracking-wider border border-red-100/50 block">Required</span>
                                                 )}
                                             </div>
-                                            <p className="text-[12px] text-gray-500 font-medium">Type: {field.type}</p>
+                                            <p className="text-xs text-gray-500 font-medium">Type: {field.type}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <button
                                             onClick={() => toggleRequired(field.id)}
-                                            className="px-4 py-2 border border-gray-200 rounded-lg text-[12px] font-bold text-gray-600 hover:bg-gray-50 transition-colors bg-white shadow-sm"
+                                            className="px-4 py-2 border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors bg-white shadow-sm"
                                         >
                                             {field.required ? 'Make Optional' : 'Make Required'}
                                         </button>
@@ -1369,38 +1369,38 @@ function FormCustomizationView() {
                             {fields.length === 0 && !fetchingFields && (
                                 <div className="text-center py-10 opacity-60">
                                     <FileText size={40} className="mx-auto text-gray-300 mb-3" />
-                                    <p className="text-[13px] text-gray-500 font-medium">No custom fields added yet.</p>
+                                    <p className="text-sm text-gray-500 font-medium">No custom fields added yet.</p>
                                 </div>
                             )}
                         </div>
                     </div>
 
                     {/* Add Field Form */}
-                    <div className="bg-white rounded-[16px] border border-gray-100 shadow-sm overflow-hidden">
+                    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
                         <div className="bg-slate-50 px-6 py-5 border-b border-gray-100">
                             <div className="flex items-center gap-2">
                                 <Plus size={18} className="text-gray-900" strokeWidth={2.5} />
-                                <h3 className="font-bold text-[15px] text-gray-900">Add New Custom Field</h3>
+                                <h3 className="font-bold text-base text-gray-900">Add New Custom Field</h3>
                             </div>
                         </div>
                         <div className="p-6">
                             <div className="space-y-4 max-w-[600px] mb-6">
                                 <div>
-                                    <label className="block text-[12px] font-bold text-slate-800 mb-2 leading-none">Field Label <span className="text-red-500">*</span></label>
+                                    <label className="block text-xs font-bold text-slate-800 mb-2 leading-none">Field Label <span className="text-red-500">*</span></label>
                                     <input
                                         type="text"
                                         value={newFieldLabel}
                                         onChange={(e) => setNewFieldLabel(e.target.value)}
                                         placeholder="e.g., Property Manager Contact"
-                                        className="w-full px-4 py-[11px] rounded-lg border border-gray-200 text-[13px] text-gray-900 font-medium focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-white placeholder:text-gray-400 shadow-sm"
+                                        className="w-full px-4 py-[11px] rounded-lg border border-gray-200 text-sm text-gray-900 font-medium focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-white placeholder:text-gray-400 shadow-sm"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-[12px] font-bold text-slate-800 mb-2 leading-none">Field Type <span className="text-red-500">*</span></label>
+                                    <label className="block text-xs font-bold text-slate-800 mb-2 leading-none">Field Type <span className="text-red-500">*</span></label>
                                     <select
                                         value={newFieldType}
                                         onChange={(e) => setNewFieldType(e.target.value)}
-                                        className="w-full px-4 py-[11px] rounded-lg border border-gray-200 text-[13px] text-gray-900 font-medium focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition-colors bg-white appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2212%22%20height%3D%228%22%20viewBox%3D%220%200%2012%208%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1.5%201.75L6%206.25L10.5%201.75%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_8px] bg-[right_16px_center] bg-no-repeat">
+                                        className="w-full px-4 py-[11px] rounded-lg border border-gray-200 text-sm text-gray-900 font-medium focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition-colors bg-white appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2212%22%20height%3D%228%22%20viewBox%3D%220%200%2012%208%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1.5%201.75L6%206.25L10.5%201.75%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_8px] bg-[right_16px_center] bg-no-repeat">
                                         <option>Text</option>
                                         <option>Number</option>
                                         <option>Currency</option>
@@ -1413,14 +1413,14 @@ function FormCustomizationView() {
                                 <button
                                     onClick={handleAddField}
                                     disabled={addingField}
-                                    className="px-5 py-2.5 bg-blue-800 text-white rounded-lg text-[13px] font-bold hover:bg-black transition-colors shadow-sm flex items-center gap-2 disabled:opacity-70"
+                                    className="px-5 py-2.5 bg-blue-800 text-white rounded-lg text-sm font-bold hover:bg-black transition-colors shadow-sm flex items-center gap-2 disabled:opacity-70"
                                 >
                                     {addingField ? <RefreshCw className="animate-spin" size={14} /> : <Plus size={14} strokeWidth={2.5} />}
                                     {addingField ? 'Adding...' : 'Add Field to Form'}
                                 </button>
                                 <button
                                     onClick={() => { setNewFieldLabel(""); setNewFieldType("Text"); }}
-                                    className="px-5 py-2.5 border border-gray-200 text-gray-700 bg-white rounded-lg text-[13px] font-bold hover:bg-gray-50 transition-colors shadow-sm"
+                                    className="px-5 py-2.5 border border-gray-200 text-gray-700 bg-white rounded-lg text-sm font-bold hover:bg-gray-50 transition-colors shadow-sm"
                                 >
                                     Clear
                                 </button>
@@ -1561,19 +1561,19 @@ function SecuritySettingsView() {
             {status.message && (
                 <div className={`p-4 rounded-xl border flex items-center gap-3 ${status.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
                     {status.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
-                    <p className="text-[13px] font-bold">{status.message}</p>
+                    <p className="text-sm font-bold">{status.message}</p>
                 </div>
             )}
 
             {/* Change Password Card */}
-            <div className="bg-white p-6 rounded-[16px] border border-gray-100 shadow-sm">
+            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
                     <div className="p-2.5 bg-indigo-50 border border-indigo-100 text-indigo-600 rounded-[10px]">
                         <Lock size={18} strokeWidth={2} />
                     </div>
                     <div>
-                        <h3 className="font-bold text-[15px] text-gray-900">Change Password</h3>
-                        <p className="text-[13px] text-gray-500 font-medium">Update your password regularly to keep your account secure</p>
+                        <h3 className="font-bold text-base text-gray-900">Change Password</h3>
+                        <p className="text-sm text-gray-500 font-medium">Update your password regularly to keep your account secure</p>
                     </div>
                 </div>
                 <div className="space-y-4">
@@ -1608,7 +1608,7 @@ function SecuritySettingsView() {
                         <button
                             onClick={handlePasswordChange}
                             disabled={loading}
-                            className="px-5 py-2.5 bg-indigo-800 text-white rounded-lg text-[13px] font-bold hover:bg-indigo-900 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-70"
+                            className="px-5 py-2.5 bg-indigo-800 text-white rounded-lg text-sm font-bold hover:bg-indigo-900 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-70"
                         >
                             <Key size={14} /> {loading ? 'Processing...' : 'Change Password'}
                         </button>
@@ -1617,33 +1617,33 @@ function SecuritySettingsView() {
             </div>
 
             {/* Two-Factor Authentication Card */}
-            <div className="bg-white p-6 rounded-[16px] border border-gray-100 shadow-sm">
+            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
                     <div className="p-2.5 bg-green-50 border border-green-100 text-green-500 rounded-[10px]">
                         <Shield size={18} strokeWidth={2} />
                     </div>
                     <div>
-                        <h3 className="font-bold text-[15px] text-gray-900">Two-Factor Authentication</h3>
-                        <p className="text-[13px] text-gray-500 font-medium">Add an extra layer of security to your account</p>
+                        <h3 className="font-bold text-base text-gray-900">Two-Factor Authentication</h3>
+                        <p className="text-sm text-gray-500 font-medium">Add an extra layer of security to your account</p>
                     </div>
                 </div>
                 <div className="flex justify-between items-center">
                     <div>
                         <div className="flex items-center gap-2 mb-1">
-                            <span className="font-bold text-slate-800 text-[15px]">Status:</span>
-                            <span className={`flex items-center gap-1 text-[14px] font-bold ${isTwoFactorEnabled ? 'text-green-600' : 'text-orange-600'}`}>
+                            <span className="font-bold text-slate-800 text-base">Status:</span>
+                            <span className={`flex items-center gap-1 text-sm font-bold ${isTwoFactorEnabled ? 'text-green-600' : 'text-orange-600'}`}>
                                 {isTwoFactorEnabled ? <CheckCircle size={15} /> : <AlertCircle size={15} />}
                                 {isTwoFactorEnabled ? 'Enabled' : 'Disabled'}
                             </span>
                         </div>
-                        <p className="text-[13px] text-gray-600 font-medium">
+                        <p className="text-sm text-gray-600 font-medium">
                             {isTwoFactorEnabled ? 'Your account is protected with 2FA.' : 'Enable 2FA to significantly improve your account security.'}
                         </p>
                     </div>
                     <button
                         onClick={toggle2FA}
                         disabled={loading}
-                        className={`px-5 py-2.5 rounded-lg text-[13px] font-bold transition-colors shadow-sm disabled:opacity-70 ${isTwoFactorEnabled ? 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50' : 'bg-indigo-800 text-white hover:bg-indigo-900'}`}
+                        className={`px-5 py-2.5 rounded-lg text-sm font-bold transition-colors shadow-sm disabled:opacity-70 ${isTwoFactorEnabled ? 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50' : 'bg-indigo-800 text-white hover:bg-indigo-900'}`}
                     >
                         {isTwoFactorEnabled ? 'Disable 2FA' : 'Enable 2FA'}
                     </button>
@@ -1651,13 +1651,13 @@ function SecuritySettingsView() {
             </div>
 
             {/* Active Sessions Card */}
-            <div className="bg-white p-6 rounded-[16px] border border-gray-100 shadow-sm">
+            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
                 <div className="flex justify-between items-start mb-6">
                     <div>
-                        <h3 className="font-bold text-[15px] text-gray-900">Active Sessions</h3>
-                        <p className="text-[13px] text-gray-500 font-medium">Manage devices where you're currently signed in</p>
+                        <h3 className="font-bold text-base text-gray-900">Active Sessions</h3>
+                        <p className="text-sm text-gray-500 font-medium">Manage devices where you're currently signed in</p>
                     </div>
-                    <span className="text-[13px] text-gray-500 font-bold">{sessions.length} active</span>
+                    <span className="text-sm text-gray-500 font-bold">{sessions.length} active</span>
                 </div>
 
                 <div className="space-y-4">
@@ -1670,9 +1670,9 @@ function SecuritySettingsView() {
                                     {session.icon === 'monitor' ? <Monitor size={20} strokeWidth={2} /> : <Smartphone size={20} strokeWidth={2} />}
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-gray-900 text-[14px] mb-0.5">{session.current ? 'Current Session' : session.device}</h4>
-                                    <p className="text-[13px] text-gray-600 font-medium leading-snug">{session.location}</p>
-                                    <p className="text-[12px] text-gray-400 font-medium mt-1">Last active: {session.lastActive}</p>
+                                    <h4 className="font-bold text-gray-900 text-sm mb-0.5">{session.current ? 'Current Session' : session.device}</h4>
+                                    <p className="text-sm text-gray-600 font-medium leading-snug">{session.location}</p>
+                                    <p className="text-xs text-gray-400 font-medium mt-1">Last active: {session.lastActive}</p>
                                 </div>
                             </div>
                             {session.current ? (
@@ -1682,7 +1682,7 @@ function SecuritySettingsView() {
                             ) : (
                                 <button
                                     onClick={() => handleLogoutSession(session.id)}
-                                    className="flex items-center gap-1.5 text-red-500 hover:text-red-700 font-bold text-[13px] transition-colors"
+                                    className="flex items-center gap-1.5 text-red-500 hover:text-red-700 font-bold text-sm transition-colors"
                                 >
                                     <X size={14} strokeWidth={2.5} /> Sign Out
                                 </button>
@@ -1694,7 +1694,7 @@ function SecuritySettingsView() {
                     <button
                         onClick={handleLogoutAllOthers}
                         disabled={sessions.filter(s => !s.current).length === 0}
-                        className="w-full py-3 text-red-500 border border-gray-200 rounded-xl font-bold text-[13px] hover:bg-red-50 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full py-3 text-red-500 border border-gray-200 rounded-xl font-bold text-sm hover:bg-red-50 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         Sign Out All Other Sessions
                     </button>
@@ -1702,22 +1702,22 @@ function SecuritySettingsView() {
             </div>
 
             {/* Security Best Practices */}
-            <div className="bg-indigo-50 p-6 rounded-[16px] border border-blue-100">
-                <h3 className="font-bold text-[15px] text-gray-900 mb-5">Security Best Practices</h3>
+            <div className="bg-indigo-50 p-6 rounded-xl border border-blue-100">
+                <h3 className="font-bold text-base text-gray-900 mb-5">Security Best Practices</h3>
                 <ul className="space-y-3">
-                    <li className="flex items-start gap-2 text-[13px] text-blue-700 font-medium">
+                    <li className="flex items-start gap-2 text-sm text-blue-700 font-medium">
                         <CheckCircle2 size={16} className="shrink-0 mt-0.5" strokeWidth={2.5} />
                         <span>Use a unique password not used on other sites</span>
                     </li>
-                    <li className="flex items-start gap-2 text-[13px] text-blue-700 font-medium">
+                    <li className="flex items-start gap-2 text-sm text-blue-700 font-medium">
                         <CheckCircle2 size={16} className="shrink-0 mt-0.5" strokeWidth={2.5} />
                         <span>Enable two-factor authentication for extra protection</span>
                     </li>
-                    <li className="flex items-start gap-2 text-[13px] text-blue-700 font-medium">
+                    <li className="flex items-start gap-2 text-sm text-blue-700 font-medium">
                         <CheckCircle2 size={16} className="shrink-0 mt-0.5" strokeWidth={2.5} />
                         <span>Review active sessions regularly</span>
                     </li>
-                    <li className="flex items-start gap-2 text-[13px] text-blue-700 font-medium">
+                    <li className="flex items-start gap-2 text-sm text-blue-700 font-medium">
                         <CheckCircle2 size={16} className="shrink-0 mt-0.5" strokeWidth={2.5} />
                         <span>Never share your password or 2FA codes</span>
                     </li>
@@ -1812,19 +1812,19 @@ function NotificationsSettingsView() {
             {status.message && (
                 <div className={`p-4 rounded-xl border flex items-center gap-3 ${status.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
                     {status.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
-                    <p className="text-[13px] font-bold">{status.message}</p>
+                    <p className="text-sm font-bold">{status.message}</p>
                 </div>
             )}
 
             {/* Email Notifications */}
-            <div className="bg-white p-6 rounded-[16px] border border-gray-100 shadow-sm">
+            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
                     <div className="p-2.5 bg-blue-50 border border-blue-100 text-blue-500 rounded-[10px]">
                         <Mail size={18} strokeWidth={2} />
                     </div>
                     <div>
-                        <h3 className="font-bold text-[15px] text-gray-900">Email Notifications</h3>
-                        <p className="text-[13px] text-gray-500 font-medium">Manage which emails you receive from us</p>
+                        <h3 className="font-bold text-base text-gray-900">Email Notifications</h3>
+                        <p className="text-sm text-gray-500 font-medium">Manage which emails you receive from us</p>
                     </div>
                 </div>
 
@@ -1869,14 +1869,14 @@ function NotificationsSettingsView() {
             </div>
 
             {/* Push Notifications */}
-            <div className="bg-white p-6 rounded-[16px] border border-gray-100 shadow-sm">
+            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
                     <div className="p-2.5 bg-purple-50 border border-purple-100 text-violet-500 rounded-[10px]">
                         <Bell size={18} strokeWidth={2} />
                     </div>
                     <div>
-                        <h3 className="font-bold text-[15px] text-gray-900">Push Notifications</h3>
-                        <p className="text-[13px] text-gray-500 font-medium">In-app and browser notifications</p>
+                        <h3 className="font-bold text-base text-gray-900">Push Notifications</h3>
+                        <p className="text-sm text-gray-500 font-medium">In-app and browser notifications</p>
                     </div>
                 </div>
 
@@ -1915,14 +1915,14 @@ function NotificationsSettingsView() {
             </div>
 
             {/* SMS Notifications */}
-            <div className="bg-white p-6 rounded-[16px] border border-gray-100 shadow-sm">
+            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
                     <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-500 rounded-[10px]">
                         <MessageSquare size={18} strokeWidth={2} />
                     </div>
                     <div>
-                        <h3 className="font-bold text-[15px] text-gray-900">SMS Notifications</h3>
-                        <p className="text-[13px] text-gray-500 font-medium">Text message alerts to your phone</p>
+                        <h3 className="font-bold text-base text-gray-900">SMS Notifications</h3>
+                        <p className="text-sm text-gray-500 font-medium">Text message alerts to your phone</p>
                     </div>
                 </div>
 
@@ -1948,7 +1948,7 @@ function NotificationsSettingsView() {
                 </div>
 
                 <div className="p-4 bg-amber-50/50 rounded-xl border border-amber-200/50">
-                    <p className="text-[13px] text-amber-800"><span className="font-bold">Note:</span> Standard SMS rates may apply. We recommend enabling SMS only for critical alerts.</p>
+                    <p className="text-sm text-amber-800"><span className="font-bold">Note:</span> Standard SMS rates may apply. We recommend enabling SMS only for critical alerts.</p>
                 </div>
             </div>
 
@@ -1956,14 +1956,14 @@ function NotificationsSettingsView() {
             <div className="flex justify-end gap-3 pt-4">
                 <button
                     onClick={loadPreferences}
-                    className="px-5 py-2.5 bg-white text-gray-700 font-bold text-[13px] rounded-lg border border-gray-200 hover:bg-gray-50 flex items-center justify-center transition-colors shadow-sm"
+                    className="px-5 py-2.5 bg-white text-gray-700 font-bold text-sm rounded-lg border border-gray-200 hover:bg-gray-50 flex items-center justify-center transition-colors shadow-sm"
                 >
                     Reset
                 </button>
                 <button
                     onClick={handleSave}
                     disabled={loading}
-                    className="py-2.5 px-6 bg-indigo-800 text-white font-bold text-[13px] rounded-lg hover:bg-indigo-900 transition-colors flex justify-center items-center gap-2 shadow-sm disabled:opacity-70"
+                    className="py-2.5 px-6 bg-indigo-800 text-white font-bold text-sm rounded-lg hover:bg-indigo-900 transition-colors flex justify-center items-center gap-2 shadow-sm disabled:opacity-70"
                 >
                     {loading ? <RefreshCw className="animate-spin" size={14} /> : <Save size={14} />}
                     {loading ? 'Saving...' : 'Save Preferences'}
@@ -1977,8 +1977,8 @@ function NotificationItem({ title, desc, checked, onChange }) {
     return (
         <div className="flex justify-between items-start">
             <div>
-                <h4 className="font-bold text-gray-900 text-[14px]">{title}</h4>
-                <p className="text-[13px] text-gray-500 font-medium">{desc}</p>
+                <h4 className="font-bold text-gray-900 text-sm">{title}</h4>
+                <p className="text-sm text-gray-500 font-medium">{desc}</p>
             </div>
             <CustomToggle checked={!!checked} onChange={onChange} />
         </div>

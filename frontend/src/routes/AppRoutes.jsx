@@ -49,8 +49,9 @@ import LawyerNotifications from "../pages/lawyer/Notifications";
 import LawyerSettings from "../pages/lawyer/Settings";
 import LawyerKYCReview from "../pages/lawyer/KYCReview";
 import LawyerReports from "../pages/lawyer/Reports";
-import LawyerAdminConsole from "../pages/lawyer/AdminConsole";
+import UserManagement from "../pages/admin/UserManagement";
 import LawyerLiveAuctions from "../pages/lawyer/LiveAuctions";
+import LawyerMyCases from "../pages/lawyer/MyCases";
 import LawyerSubmitNewCase from "../pages/lawyer/SubmitNewCase";
 import MyBidsPage from "../pages/common/MyBidsPage";
 
@@ -136,6 +137,7 @@ export default function AppRoutes() {
         <Route path="document-library" element={<RouteErrorBoundary key="admin-document-library" routeLabel="Document Library"><AdminDocumentLibrary /></RouteErrorBoundary>} />
         <Route path="reports-analytics" element={<RouteErrorBoundary key="admin-reports-analytics" routeLabel="Reports & Analytics"><AdminReportsAnalytics /></RouteErrorBoundary>} />
         <Route path="admin-center" element={<RouteErrorBoundary key="admin-center" routeLabel="Admin Centre"><AdminConsole /></RouteErrorBoundary>} />
+        <Route path="user-management" element={<RouteErrorBoundary key="admin-user-management" routeLabel="User Management"><UserManagement /></RouteErrorBoundary>} />
         <Route path="task-center" element={<RouteErrorBoundary key="admin-task-center" routeLabel="Task Centre"><AdminTaskCenter /></RouteErrorBoundary>} />
         <Route path="notifications" element={<RouteErrorBoundary key="admin-notifications" routeLabel="Notifications"><AdminNotifications /></RouteErrorBoundary>} />
         <Route path="settings" element={<RouteErrorBoundary key="admin-settings" routeLabel="Settings"><AdminSettings /></RouteErrorBoundary>} />
@@ -210,7 +212,7 @@ export default function AppRoutes() {
         <Route path="dashboard" element={<LawyerDashboard />} />
         <Route path="kyc-review" element={<LawyerKYCReview />} />
         <Route path="reports" element={<LawyerReports />} />
-        <Route path="admin-console" element={<LawyerAdminConsole />} />
+        <Route path="my-cases" element={<LawyerMyCases />} />
         <Route path="assigned-cases" element={<LawyerAssignedCases />} />
         <Route path="assigned-cases/:caseId" element={<LawyerCaseDetail />} />
         <Route path="contract-review" element={<LawyerContractReview />} />

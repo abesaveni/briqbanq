@@ -199,9 +199,9 @@ function StatCard({ label, value, sub, icon, iconBg }) {
     return (
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex justify-between items-start">
             <div>
-                <p className="text-[10px] font-black text-gray-400 mb-1.5 uppercase tracking-widest">{label}</p>
-                <h2 className="text-2xl font-black text-indigo-950 mb-0.5">{value}</h2>
-                <p className="text-[10px] text-gray-400 font-medium">{sub}</p>
+                <p className="text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-widest">{label}</p>
+                <h2 className="text-2xl font-bold text-indigo-950 mb-0.5">{value}</h2>
+                <p className="text-xs text-gray-400 font-medium">{sub}</p>
             </div>
             <div className={`p-2.5 rounded-xl ${iconBg}`}>
                 {icon}
@@ -279,7 +279,7 @@ function NotificationDetailModal({ notification, onClose, onDelete }) {
                 <div className="p-6 space-y-4">
                     <section>
                         <h4 className="text-xs font-semibold text-gray-500 mb-1.5">Type</h4>
-                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold capitalize ${notification.type === 'kyc' ? 'text-indigo-600' :
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold capitalize ${notification.type === 'kyc' ? 'text-indigo-600' :
                             notification.type === 'bid' ? 'text-blue-600' :
                                 'text-gray-600'
                             }`}>
@@ -299,7 +299,7 @@ function NotificationDetailModal({ notification, onClose, onDelete }) {
                     <div className="grid grid-cols-2 gap-4">
                         <section>
                             <h4 className="text-xs font-semibold text-gray-500 mb-1.5">Status</h4>
-                            <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-[10px] font-bold">
+                            <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold">
                                 {notification.unread ? 'Unread' : 'Read'}
                             </span>
                         </section>
@@ -369,10 +369,10 @@ function NotificationItem({ item, onDelete, onRead, onView }) {
                         <div className="flex items-center gap-2">
                             <h4 className="font-bold text-gray-900 text-sm">{item.title}</h4>
                             {item.unread && (
-                                <span className="bg-blue-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase">New</span>
+                                <span className="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase">New</span>
                             )}
                         </div>
-                        <span className="text-[10px] text-gray-400 font-bold whitespace-nowrap">{item.time}</span>
+                        <span className="text-xs text-gray-400 font-bold whitespace-nowrap">{item.time}</span>
                     </div>
 
                     <p className="text-xs text-gray-500 font-medium mb-3 pr-8 leading-relaxed max-w-3xl line-clamp-1 group-hover:line-clamp-none transition-all">
@@ -382,21 +382,21 @@ function NotificationItem({ item, onDelete, onRead, onView }) {
                     <div className="flex gap-2">
                         <button
                             onClick={onView}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 text-[10px] font-black text-gray-600 hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors"
                         >
                             <Eye size={12} /> View Details
                         </button>
                         {item.unread && (
                             <button
                                 onClick={onRead}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-600 hover:bg-gray-50 transition-colors"
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors"
                             >
                                 <Check size={12} /> Mark as read
                             </button>
                         )}
                         <button
                             onClick={onDelete}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black text-red-500 hover:bg-red-50 transition-colors ml-auto md:ml-0"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-red-500 hover:bg-red-50 transition-colors ml-auto md:ml-0"
                         >
                             <Trash2 size={12} /> Delete
                         </button>

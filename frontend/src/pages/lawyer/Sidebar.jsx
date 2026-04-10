@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 /** Relative to /lawyer so NavLink resolves under parent route */
 const navigation = [
   { name: 'Dashboard', path: 'dashboard', icon: '📊' },
+  { name: 'My Cases', path: 'my-cases', icon: '📋' },
   { name: 'Assigned Cases', path: 'assigned-cases', icon: '📁' },
   { name: 'Live Auctions', path: 'live-auctions', icon: '🏠' },
   { name: 'My Bids', path: 'my-bids', icon: '🏷️' },

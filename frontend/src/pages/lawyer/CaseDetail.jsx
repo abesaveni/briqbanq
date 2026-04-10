@@ -18,7 +18,7 @@ export default function CaseDetail() {
   const { caseId } = useParams()
   const navigate = useNavigate()
   const { user: authUser } = useAuth()
-  const [activeSection, setActiveSection] = useState('documents')
+  const [activeSection, setActiveSection] = useState('messages')
   const { addNotification } = useNotifications()
   
   const [caseItem, setCaseItem] = useState(null)
@@ -238,7 +238,8 @@ export default function CaseDetail() {
             </div>
           </div>
 
-          {/* Document Management */}
+          {/* Document Management — available via Documents tab below */}
+          {false && (
           <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
             <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
@@ -296,6 +297,8 @@ export default function CaseDetail() {
               )}
             </div>
           </div>
+          )}
+
         </div>
 
         {/* Sidebar Info */}

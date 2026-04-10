@@ -269,7 +269,7 @@ export default function InvestorTaskCenter() {
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-[24px] sm:text-[28px] font-extrabold text-slate-900 mb-1">Task Center</h1>
+                    <h1 className="text-2xl sm:text-[28px] font-extrabold text-slate-900 mb-1">Task Center</h1>
                     <p className="text-slate-500 text-xs sm:text-sm">Manage all your tasks across Grow platform</p>
                 </div>
                 <button
@@ -287,8 +287,8 @@ export default function InvestorTaskCenter() {
                     className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${statusFilter === 'All Status' ? 'border-indigo-800 ring-1 ring-indigo-800' : 'border-gray-100 shadow-sm'}`}
                 >
                     <div>
-                        <h3 className="text-xl sm:text-2xl font-black text-gray-900 mb-0.5 sm:mb-1">{activeTasksCount}</h3>
-                        <p className="text-[10px] sm:text-xs font-semibold text-gray-500">Active Tasks</p>
+                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-0.5 sm:mb-1">{activeTasksCount}</h3>
+                        <p className="text-xs sm:text-xs font-semibold text-gray-500">Active Tasks</p>
                     </div>
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-50/50 flex items-center justify-center border border-blue-100/50">
                         <CheckSquare size={18} className="text-blue-700" />
@@ -299,8 +299,8 @@ export default function InvestorTaskCenter() {
                     className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${statusFilter === 'Overdue' ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-100 shadow-sm'}`}
                 >
                     <div>
-                        <h3 className="text-xl sm:text-2xl font-black text-red-500 mb-0.5 sm:mb-1">{overdueCount}</h3>
-                        <p className="text-[10px] sm:text-xs font-semibold text-gray-500">Overdue</p>
+                        <h3 className="text-xl sm:text-2xl font-bold text-red-500 mb-0.5 sm:mb-1">{overdueCount}</h3>
+                        <p className="text-xs sm:text-xs font-semibold text-gray-500">Overdue</p>
                     </div>
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-red-50/50 flex items-center justify-center border border-red-100/50">
                         <AlertCircle size={18} className="text-red-500" />
@@ -311,8 +311,8 @@ export default function InvestorTaskCenter() {
                     className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${statusFilter === 'Due Today' ? 'border-orange-500 ring-1 ring-orange-500' : 'border-gray-100 shadow-sm'}`}
                 >
                     <div>
-                        <h3 className="text-xl sm:text-2xl font-black text-orange-500 mb-0.5 sm:mb-1">{dueTodayCount}</h3>
-                        <p className="text-[10px] sm:text-xs font-semibold text-gray-500">Due Today</p>
+                        <h3 className="text-xl sm:text-2xl font-bold text-orange-500 mb-0.5 sm:mb-1">{dueTodayCount}</h3>
+                        <p className="text-xs sm:text-xs font-semibold text-gray-500">Due Today</p>
                     </div>
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-orange-50/50 flex items-center justify-center border border-orange-100/50">
                         <Clock size={18} className="text-orange-500" />
@@ -323,8 +323,8 @@ export default function InvestorTaskCenter() {
                     className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${priorityFilter === 'Urgent' ? 'border-violet-500 ring-1 ring-violet-500' : 'border-gray-100 shadow-sm'}`}
                 >
                     <div>
-                        <h3 className="text-xl sm:text-2xl font-black text-violet-500 mb-0.5 sm:mb-1">{urgentCount}</h3>
-                        <p className="text-[10px] sm:text-xs font-semibold text-gray-500">Urgent</p>
+                        <h3 className="text-xl sm:text-2xl font-bold text-violet-500 mb-0.5 sm:mb-1">{urgentCount}</h3>
+                        <p className="text-xs sm:text-xs font-semibold text-gray-500">Urgent</p>
                     </div>
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-purple-50/50 flex items-center justify-center border border-purple-100/50">
                         <Flag size={18} className="text-violet-500" />
@@ -335,8 +335,8 @@ export default function InvestorTaskCenter() {
                     className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${statusFilter === 'In progress' ? 'border-blue-500 ring-1 ring-blue-500' : 'border-gray-100 shadow-sm'}`}
                 >
                     <div>
-                        <h3 className="text-xl sm:text-2xl font-black text-blue-500 mb-0.5 sm:mb-1">{inProgressCount}</h3>
-                        <p className="text-[10px] sm:text-xs font-semibold text-gray-500">In Progress</p>
+                        <h3 className="text-xl sm:text-2xl font-bold text-blue-500 mb-0.5 sm:mb-1">{inProgressCount}</h3>
+                        <p className="text-xs sm:text-xs font-semibold text-gray-500">In Progress</p>
                     </div>
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-50/50 flex items-center justify-center border border-blue-100/50">
                         <BarChart2 size={18} className="text-blue-500" />
@@ -347,8 +347,8 @@ export default function InvestorTaskCenter() {
                     className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${statusFilter === 'Completed' ? 'border-emerald-500 ring-1 ring-emerald-500' : 'border-gray-100 shadow-sm'}`}
                 >
                     <div>
-                        <h3 className="text-xl sm:text-2xl font-black text-emerald-500 mb-0.5 sm:mb-1">{completedCount}</h3>
-                        <p className="text-[10px] sm:text-xs font-semibold text-gray-500">Completed</p>
+                        <h3 className="text-xl sm:text-2xl font-bold text-emerald-500 mb-0.5 sm:mb-1">{completedCount}</h3>
+                        <p className="text-xs sm:text-xs font-semibold text-gray-500">Completed</p>
                     </div>
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-50/50 flex items-center justify-center border border-emerald-100/50">
                         <CheckCircle2 size={18} className="text-emerald-500" />
@@ -366,7 +366,7 @@ export default function InvestorTaskCenter() {
                             <input
                                 type="text"
                                 placeholder="Search by title, case number, or tags..."
-                                className="w-full pl-9 pr-4 py-2 text-[13px] border border-gray-200 rounded-lg focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors"
+                                className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -375,7 +375,7 @@ export default function InvestorTaskCenter() {
                     <div>
                         <label className="block text-[11px] font-bold text-gray-900 mb-1.5 pl-1">Status</label>
                         <select
-                            className="w-full px-3 py-2 text-[13px] border border-gray-200 rounded-lg focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors bg-white font-medium"
+                            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors bg-white font-medium"
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
                         >
@@ -390,7 +390,7 @@ export default function InvestorTaskCenter() {
                     <div>
                         <label className="block text-[11px] font-bold text-gray-900 mb-1.5 pl-1">Priority</label>
                         <select
-                            className="w-full px-3 py-2 text-[13px] border border-gray-200 rounded-lg focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors bg-white font-medium"
+                            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors bg-white font-medium"
                             value={priorityFilter}
                             onChange={(e) => setPriorityFilter(e.target.value)}
                         >
@@ -404,7 +404,7 @@ export default function InvestorTaskCenter() {
                     <div>
                         <label className="block text-[11px] font-bold text-gray-900 mb-1.5 pl-1">Module</label>
                         <select
-                            className="w-full px-3 py-2 text-[13px] border border-gray-200 rounded-lg focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors bg-white font-medium"
+                            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors bg-white font-medium"
                             value={moduleFilter}
                             onChange={(e) => setModuleFilter(e.target.value)}
                         >
@@ -419,35 +419,35 @@ export default function InvestorTaskCenter() {
 
                 <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 pt-4 border-t border-gray-50">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                        <span className="text-[12px] font-bold text-gray-700">Sort by:</span>
+                        <span className="text-xs font-bold text-gray-700">Sort by:</span>
                         <div className="flex flex-wrap gap-1.5">
                             <button
                                 onClick={() => setSortBy('Due Date')}
-                                className={`px-3 py-1.5 text-[12px] font-bold rounded-md flex items-center gap-1.5 transition-colors ${sortBy === 'Due Date' ? 'bg-indigo-800 text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
+                                className={`px-3 py-1.5 text-xs font-bold rounded-md flex items-center gap-1.5 transition-colors ${sortBy === 'Due Date' ? 'bg-indigo-800 text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
                             >
                                 <Calendar size={13} /> Due Date
                             </button>
                             <button
                                 onClick={() => setSortBy('Priority')}
-                                className={`px-3 py-1.5 text-[12px] font-bold rounded-md flex items-center gap-1.5 transition-colors ${sortBy === 'Priority' ? 'bg-indigo-800 text-white' : 'bg-transparent text-gray-600 hover:bg-gray-50'}`}
+                                className={`px-3 py-1.5 text-xs font-bold rounded-md flex items-center gap-1.5 transition-colors ${sortBy === 'Priority' ? 'bg-indigo-800 text-white' : 'bg-transparent text-gray-600 hover:bg-gray-50'}`}
                             >
                                 <Flag size={13} /> Priority
                             </button>
                             <button
                                 onClick={() => setSortBy('Status')}
-                                className={`px-3 py-1.5 text-[12px] font-bold rounded-md flex items-center gap-1.5 transition-colors ${sortBy === 'Status' ? 'bg-indigo-800 text-white' : 'bg-transparent text-gray-600 hover:bg-gray-50'}`}
+                                className={`px-3 py-1.5 text-xs font-bold rounded-md flex items-center gap-1.5 transition-colors ${sortBy === 'Status' ? 'bg-indigo-800 text-white' : 'bg-transparent text-gray-600 hover:bg-gray-50'}`}
                             >
                                 <CheckSquare size={13} /> Status
                             </button>
                             <button
                                 onClick={() => setSortBy('Created')}
-                                className={`px-3 py-1.5 text-[12px] font-bold rounded-md flex items-center gap-1.5 transition-colors ${sortBy === 'Created' ? 'bg-indigo-800 text-white' : 'bg-transparent text-gray-600 hover:bg-gray-50'}`}
+                                className={`px-3 py-1.5 text-xs font-bold rounded-md flex items-center gap-1.5 transition-colors ${sortBy === 'Created' ? 'bg-indigo-800 text-white' : 'bg-transparent text-gray-600 hover:bg-gray-50'}`}
                             >
                                 <Clock size={13} /> Created
                             </button>
                         </div>
                     </div>
-                    <span className="text-[12px] text-gray-500 font-medium pb-1 xl:pb-0">Showing {filteredTasks?.length || 0} of {tasks?.length || 0} tasks</span>
+                    <span className="text-xs text-gray-500 font-medium pb-1 xl:pb-0">Showing {filteredTasks?.length || 0} of {tasks?.length || 0} tasks</span>
                 </div>
             </div>
 
@@ -482,16 +482,16 @@ export default function InvestorTaskCenter() {
                                     </button>
 
                                     <div className="flex-1">
-                                        <h3 className={`text-[15px] sm:text-[16px] font-bold mb-1 tracking-tight ${task.checked ? 'text-gray-400 line-through' : 'text-slate-800'}`}>
+                                        <h3 className={`text-base sm:text-base font-bold mb-1 tracking-tight ${task.checked ? 'text-gray-400 line-through' : 'text-slate-800'}`}>
                                             {task.title}
                                         </h3>
-                                        <p className={`text-[12px] sm:text-[13px] mb-3 ${task.checked ? 'text-gray-400' : 'text-gray-500'}`}>
+                                        <p className={`text-xs sm:text-sm mb-3 ${task.checked ? 'text-gray-400' : 'text-gray-500'}`}>
                                             {task.description}
                                         </p>
 
                                         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                                             {/* Priority Badge */}
-                                            <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-extrabold border ${task.priority === 'Urgent' ? 'bg-red-50 text-red-600 border-red-100' :
+                                            <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs sm:text-[11px] font-extrabold border ${task.priority === 'Urgent' ? 'bg-red-50 text-red-600 border-red-100' :
                                                 task.priority === 'High' ? 'bg-orange-50 text-orange-600 border-orange-100' :
                                                     task.priority === 'Medium' ? 'bg-yellow-50 text-yellow-600 border-yellow-100' :
                                                         'bg-emerald-50 text-emerald-600 border-emerald-100'
@@ -501,7 +501,7 @@ export default function InvestorTaskCenter() {
                                             </span>
 
                                             {/* Status Badge */}
-                                            <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-extrabold border ${task.status === 'Completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                            <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs sm:text-[11px] font-extrabold border ${task.status === 'Completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
                                                 task.status === 'Overdue' ? 'bg-red-50 text-red-600 border-red-100' :
                                                     task.status === 'In progress' ? 'bg-blue-50 text-blue-700 border-blue-100' :
                                                         'bg-gray-50 text-gray-700 border-gray-200'
@@ -520,13 +520,13 @@ export default function InvestorTaskCenter() {
                                                         if (res.success) fetchTasks();
                                                     }}
                                                     className="!w-auto"
-                                                    inputClassName="!h-auto !p-0 !bg-transparent !border-none !shadow-none !text-[11px] !sm:text-[12px] !font-bold !cursor-pointer hover:!text-blue-600 !w-24 px-1"
+                                                    inputClassName="!h-auto !p-0 !bg-transparent !border-none !shadow-none !text-[11px] !sm:text-xs !font-bold !cursor-pointer hover:!text-blue-600 !w-24 px-1"
                                                 />
                                                 {task.dueDate && task.dueDate.includes('Overdue') && <span className="absolute -top-1 -right-1 flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span></span>}
                                             </div>
 
                                             {/* Module Badge */}
-                                            <div className="flex items-center gap-1.5 text-[11px] sm:text-[12px] font-bold text-slate-500 bg-gray-50 px-2 py-1 rounded">
+                                            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-slate-500 bg-gray-50 px-2 py-1 rounded">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
                                                 {task.module}
                                             </div>
@@ -545,7 +545,7 @@ export default function InvestorTaskCenter() {
                                                             await taskService.updateTask(task.id, { status: 'IN_PROGRESS' });
                                                             fetchTasks(true);
                                                         }}
-                                                        className="px-4 py-1.5 rounded-lg border border-gray-200 text-[12px] font-bold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm"
+                                                        className="px-4 py-1.5 rounded-lg border border-gray-200 text-xs font-bold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm"
                                                     >
                                                         Start Task
                                                     </button>
@@ -561,13 +561,13 @@ export default function InvestorTaskCenter() {
                                                                 await taskService.updateTask(task.id, { status: 'PENDING' });
                                                                 fetchTasks(true);
                                                             }}
-                                                            className="px-4 py-1.5 rounded-lg border border-gray-200 text-[12px] font-bold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm"
+                                                            className="px-4 py-1.5 rounded-lg border border-gray-200 text-xs font-bold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm"
                                                         >
                                                             Move to Pending
                                                         </button>
                                                         <button
                                                             onClick={() => toggleTaskCheck(task.id)}
-                                                            className="px-4 py-1.5 rounded-lg text-[12px] font-bold text-white bg-indigo-800 hover:bg-indigo-900 transition-colors shadow-sm flex items-center gap-1.5"
+                                                            className="px-4 py-1.5 rounded-lg text-xs font-bold text-white bg-indigo-800 hover:bg-indigo-900 transition-colors shadow-sm flex items-center gap-1.5"
                                                         >
                                                             <CheckCircle2 size={13} /> Mark Complete
                                                         </button>
@@ -584,7 +584,7 @@ export default function InvestorTaskCenter() {
                                         {task.caseNumber && (
                                             <Link
                                                 to={`/investor/case-details/${task.caseNumber}`}
-                                                className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-gray-200 text-[11px] sm:text-[12px] font-bold text-gray-700 hover:bg-gray-50 transition-colors mr-1"
+                                                className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-gray-200 text-[11px] sm:text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors mr-1"
                                             >
                                                 <ExternalLink size={13} /> View Case
                                             </Link>
@@ -604,7 +604,7 @@ export default function InvestorTaskCenter() {
                                     </div>
                                     <div className="flex items-center gap-1.5 sm:mt-auto">
                                         {(task?.tags || []).map(tag => (
-                                            <span key={tag} className={`px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold border ${task.checked ? 'bg-gray-50 text-gray-400 border-gray-100' : 'bg-gray-50 text-gray-500 border-gray-200'}`}>
+                                            <span key={tag} className={`px-2 py-0.5 rounded-full text-[9px] sm:text-xs font-bold border ${task.checked ? 'bg-gray-50 text-gray-400 border-gray-100' : 'bg-gray-50 text-gray-500 border-gray-200'}`}>
                                                 {tag}
                                             </span>
                                         ))}
@@ -622,7 +622,7 @@ export default function InvestorTaskCenter() {
                     <div className="bg-white rounded-2xl w-full max-w-[460px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
                         {/* Modal Header */}
                         <div className="px-5 py-3 flex items-center justify-between border-b border-gray-100">
-                            <h2 className="text-[15px] font-bold text-slate-900">Create New Task</h2>
+                            <h2 className="text-base font-bold text-slate-900">Create New Task</h2>
                             <button
                                 onClick={() => setIsNewTaskModalOpen(false)}
                                 className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
@@ -642,7 +642,7 @@ export default function InvestorTaskCenter() {
                                         value={newTask.title}
                                         onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
                                         placeholder="Enter task title..."
-                                        className="w-full px-4 py-2 text-[13px] border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors"
+                                        className="w-full px-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors"
                                     />
                                 </div>
 
@@ -653,7 +653,7 @@ export default function InvestorTaskCenter() {
                                         value={newTask.description}
                                         onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
                                         placeholder="Enter task description..."
-                                        className="w-full px-4 py-2 text-[13px] border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors resize-none"
+                                        className="w-full px-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors resize-none"
                                     ></textarea>
                                 </div>
 
@@ -663,7 +663,7 @@ export default function InvestorTaskCenter() {
                                         <select
                                             value={newTask.priority}
                                             onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
-                                            className="w-full px-4 py-2 text-[13px] border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors bg-white font-medium shadow-sm"
+                                            className="w-full px-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors bg-white font-medium shadow-sm"
                                         >
                                             <option>Low</option>
                                             <option>Medium</option>
@@ -685,7 +685,7 @@ export default function InvestorTaskCenter() {
                                     <select
                                         value={newTask.module}
                                         onChange={(e) => setNewTask({ ...newTask, module: e.target.value })}
-                                        className="w-full px-4 py-2 text-[13px] border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors bg-white font-medium text-gray-700 shadow-sm"
+                                        className="w-full px-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors bg-white font-medium text-gray-700 shadow-sm"
                                     >
                                         <option>Brickbanq</option>
                                         <option>Accounting</option>
@@ -700,13 +700,13 @@ export default function InvestorTaskCenter() {
                                 <button
                                     type="button"
                                     onClick={() => setIsNewTaskModalOpen(false)}
-                                    className="px-4 py-1.5 text-[12px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
+                                    className="px-4 py-1.5 text-xs font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-5 py-1.5 text-[12px] font-bold text-white bg-indigo-800 rounded-lg hover:bg-indigo-900 transition-colors shadow-sm shadow-indigo-500/20 flex items-center gap-2"
+                                    className="px-5 py-1.5 text-xs font-bold text-white bg-indigo-800 rounded-lg hover:bg-indigo-900 transition-colors shadow-sm shadow-indigo-500/20 flex items-center gap-2"
                                 >
                                     <Plus size={15} /> Create Task
                                 </button>
@@ -722,7 +722,7 @@ export default function InvestorTaskCenter() {
                     <div className="bg-white rounded-2xl w-full max-w-[460px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
                         {/* Modal Header */}
                         <div className="px-5 py-3 flex items-center justify-between border-b border-gray-100">
-                            <h2 className="text-[15px] font-bold text-slate-900">Edit Task</h2>
+                            <h2 className="text-base font-bold text-slate-900">Edit Task</h2>
                             <button
                                 onClick={() => setIsEditModalOpen(false)}
                                 className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
@@ -740,7 +740,7 @@ export default function InvestorTaskCenter() {
                                         type="text"
                                         value={editingTask.title}
                                         onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
-                                        className="w-full px-4 py-2 text-[13px] border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors"
+                                        className="w-full px-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors"
                                     />
                                 </div>
 
@@ -750,7 +750,7 @@ export default function InvestorTaskCenter() {
                                         rows="2"
                                         value={editingTask.description}
                                         onChange={(e) => setEditingTask({ ...editingTask, description: e.target.value })}
-                                        className="w-full px-4 py-2 text-[13px] border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors resize-none"
+                                        className="w-full px-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors resize-none"
                                     ></textarea>
                                 </div>
 
@@ -760,7 +760,7 @@ export default function InvestorTaskCenter() {
                                         <select
                                             value={editingTask.priority}
                                             onChange={(e) => setEditingTask({ ...editingTask, priority: e.target.value })}
-                                            className="w-full px-4 py-2 text-[13px] border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors bg-white font-medium"
+                                            className="w-full px-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors bg-white font-medium"
                                         >
                                             <option>Low</option>
                                             <option>Medium</option>
@@ -783,7 +783,7 @@ export default function InvestorTaskCenter() {
                                         <select
                                             value={editingTask.status}
                                             onChange={(e) => setEditingTask({ ...editingTask, status: e.target.value })}
-                                            className="w-full px-4 py-2 text-[13px] border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors bg-white font-medium"
+                                            className="w-full px-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors bg-white font-medium"
                                         >
                                             <option>Pending</option>
                                             <option>In progress</option>
@@ -796,7 +796,7 @@ export default function InvestorTaskCenter() {
                                         <select
                                             value={editingTask.module}
                                             onChange={(e) => setEditingTask({ ...editingTask, module: e.target.value })}
-                                            className="w-full px-4 py-2 text-[13px] border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors bg-white font-medium text-gray-700"
+                                            className="w-full px-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors bg-white font-medium text-gray-700"
                                         >
                                             <option>Accounting</option>
                                             <option>Brickbanq</option>
@@ -812,13 +812,13 @@ export default function InvestorTaskCenter() {
                                 <button
                                     type="button"
                                     onClick={() => setIsEditModalOpen(false)}
-                                    className="px-4 py-1.5 text-[12px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
+                                    className="px-4 py-1.5 text-xs font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-5 py-1.5 text-[12px] font-bold text-white bg-indigo-800 rounded-lg hover:bg-indigo-900 transition-colors shadow-sm shadow-indigo-500/20 flex items-center gap-2"
+                                    className="px-5 py-1.5 text-xs font-bold text-white bg-indigo-800 rounded-lg hover:bg-indigo-900 transition-colors shadow-sm shadow-indigo-500/20 flex items-center gap-2"
                                 >
                                     <Edit2 size={15} /> Save Changes
                                 </button>

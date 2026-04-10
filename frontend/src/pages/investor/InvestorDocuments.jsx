@@ -95,7 +95,7 @@ export default function InvestorDocuments() {
             {/* Header */}
             <div className="mb-2">
                 <h1 className="text-2xl font-bold text-gray-900 mb-1">Documents</h1>
-                <p className="text-gray-500 text-[13px] font-medium leading-relaxed">Secure storage for your verification documents, contracts, and financial reports</p>
+                <p className="text-gray-500 text-sm font-medium leading-relaxed">Secure storage for your verification documents, contracts, and financial reports</p>
             </div>
 
             {/* Breadcrumbs */}
@@ -153,7 +153,7 @@ export default function InvestorDocuments() {
                     <select
                         value={categoryFilter}
                         onChange={(e) => setCategoryFilter(e.target.value)}
-                        className="appearance-none bg-white border border-gray-200 text-gray-700 py-2.5 pl-4 pr-10 rounded-xl text-[13px] font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer min-w-[180px]"
+                        className="appearance-none bg-white border border-gray-200 text-gray-700 py-2.5 pl-4 pr-10 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer min-w-[180px]"
                     >
                         {categories.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
@@ -184,28 +184,28 @@ export default function InvestorDocuments() {
                                                     <FileText size={18} />
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-[14px] font-bold text-gray-900 leading-tight mb-0.5">{doc.name}</h4>
+                                                    <h4 className="text-sm font-bold text-gray-900 leading-tight mb-0.5">{doc.name}</h4>
                                                     <p className="text-[11px] text-gray-400 font-medium">{doc.size}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-5 text-center">
-                                            <span className="text-[12px] font-bold text-gray-500">{doc.category}</span>
+                                            <span className="text-xs font-bold text-gray-500">{doc.category}</span>
                                         </td>
                                         <td className="px-6 py-5 text-center px-1">
-                                            <span className="px-2 py-1 bg-gray-100 text-gray-500 rounded text-[10px] font-black uppercase tracking-widest">{doc.type}</span>
+                                            <span className="px-2 py-1 bg-gray-100 text-gray-500 rounded text-xs font-bold uppercase tracking-widest">{doc.type}</span>
                                         </td>
                                         <td className="px-6 py-5 text-center">
-                                            <span className="text-[12px] font-bold text-gray-500">{doc.date}</span>
+                                            <span className="text-xs font-bold text-gray-500">{doc.date}</span>
                                         </td>
                                         <td className="px-6 py-5 text-center">
                                             <div className="flex items-center justify-center gap-1.5">
                                                 {doc.status === 'Verified' ? (
-                                                    <div className="bg-green-100/60 text-green-700 px-2.5 py-1 rounded-full text-[10px] font-black uppercase flex items-center gap-1">
+                                                    <div className="bg-green-100/60 text-green-700 px-2.5 py-1 rounded-full text-xs font-bold uppercase flex items-center gap-1">
                                                         <CheckCircle size={10} /> Verified
                                                     </div>
                                                 ) : (
-                                                    <div className="bg-orange-100/60 text-orange-700 px-2.5 py-1 rounded-full text-[10px] font-black uppercase flex items-center gap-1">
+                                                    <div className="bg-orange-100/60 text-orange-700 px-2.5 py-1 rounded-full text-xs font-bold uppercase flex items-center gap-1">
                                                         <Clock size={10} /> Pending
                                                     </div>
                                                 )}
@@ -228,10 +228,10 @@ export default function InvestorDocuments() {
                                     <td colSpan="6" className="px-6 py-12 text-center">
                                         <div className="flex flex-col items-center justify-center text-gray-400">
                                             <Search size={32} className="mb-3 opacity-20" />
-                                            <p className="text-[15px] font-bold">No documents found matching your search</p>
+                                            <p className="text-base font-bold">No documents found matching your search</p>
                                             <button
                                                 onClick={() => { setSearchQuery(""); setCategoryFilter("All Categories") }}
-                                                className="mt-2 text-indigo-600 font-bold text-[13px] hover:underline"
+                                                className="mt-2 text-indigo-600 font-bold text-sm hover:underline"
                                             >
                                                 Clear all filters
                                             </button>
@@ -251,8 +251,8 @@ export default function InvestorDocuments() {
                         <Shield size={24} />
                     </div>
                     <div>
-                        <h4 className="text-gray-900 font-black text-[15px] mb-1">Secure Document Storage</h4>
-                        <p className="text-[13px] text-gray-500 font-medium leading-relaxed">
+                        <h4 className="text-gray-900 font-bold text-base mb-1">Secure Document Storage</h4>
+                        <p className="text-sm text-gray-500 font-medium leading-relaxed">
                             All documents are encrypted and stored in high-security data centers compliant with Australian financial regulations. Your data is protected by 256-bit AES encryption.
                         </p>
                     </div>
@@ -263,8 +263,8 @@ export default function InvestorDocuments() {
                         <AlertCircle size={24} />
                     </div>
                     <div>
-                        <h4 className="text-gray-900 font-black text-[15px] mb-1">Verification Required?</h4>
-                        <p className="text-[13px] text-gray-500 font-medium leading-relaxed">
+                        <h4 className="text-gray-900 font-bold text-base mb-1">Verification Required?</h4>
+                        <p className="text-sm text-gray-500 font-medium leading-relaxed">
                             If any of your documents are marked as 'Expired' or 'Action Needed', please update them immediately to ensure uninterrupted access to the platform and bidding participation.
                         </p>
                     </div>
@@ -283,10 +283,10 @@ function StatCard({ label, value, subtext, icon, color }) {
     };
 
     return (
-        <div className="bg-white p-6 rounded-[22px] border border-slate-100 shadow-sm flex items-start justify-between group hover:border-indigo-600/30 hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-500 relative overflow-hidden h-32">
+        <div className="bg-white p-6 rounded-[22px] border border-gray-200 shadow-sm flex items-start justify-between group hover:border-indigo-600/30 hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-500 relative overflow-hidden h-32">
             <div className="relative z-10 flex flex-col justify-between h-full">
                 <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">{label}</p>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">{label}</p>
                     <h3 className="text-3xl font-bold text-slate-900 mb-1">{value}</h3>
                 </div>
                 {subtext && <p className="text-[11px] text-slate-400 font-bold uppercase tracking-tight">{subtext}</p>}

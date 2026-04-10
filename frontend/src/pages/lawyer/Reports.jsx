@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { generateReportPDF, generateCasesTablePDF } from '../../utils/pdfGenerator'
-import { casesService, adminService } from '../../api/dataService'
+import { lawyerService } from '../../api/dataService'
 
 const DISTRIBUTION_COLORS = ['bg-blue-600', 'bg-emerald-500', 'bg-amber-500', 'bg-purple-500', 'bg-rose-500']
 
@@ -24,21 +24,26 @@ export default function Reports() {
   const [refreshing, setRefreshing] = useState(false)
   const [statusFilter, setStatusFilter] = useState('All')
   const [allCases, setAllCases] = useState([])
-  const [dashStats, setDashStats] = useState(null)
   const [loading, setLoading] = useState(true)
 
   const loadData = async () => {
     setRefreshing(true)
     try {
-      const [casesRes, dashRes] = await Promise.all([
-        casesService.getCases(),
-        adminService.getDashboardStats(),
+      // Combine my created cases + assigned cases for complete lawyer view
+      const [myRes, assignedRes] = await Promise.all([
+        lawyerService.getMyCases(),
+        lawyerService.getMyAssignedCases(),
       ])
-      if (casesRes?.success) {
-        const data = casesRes.data
-        setAllCases(Array.isArray(data) ? data : (data?.items || []))
-      }
-      if (dashRes?.success) setDashStats(dashRes.data)
+      const myCases = myRes?.success ? (Array.isArray(myRes.data) ? myRes.data : (myRes.data?.items || [])) : []
+      const assignedCases = assignedRes?.success ? (Array.isArray(assignedRes.data) ? assignedRes.data : (assignedRes.data?.items || [])) : []
+      // Merge deduplicating by id
+      const seen = new Set()
+      const merged = [...myCases, ...assignedCases].filter(c => {
+        if (seen.has(c.id)) return false
+        seen.add(c.id)
+        return true
+      })
+      setAllCases(merged)
     } catch { /* stay silent on network error */ } finally {
       setRefreshing(false)
       setLoading(false)
@@ -64,10 +69,10 @@ export default function Reports() {
       ])
     }
     return [
-      ['Total Cases', String(allCases.length)],
-      ['Active Cases', String(allCases.filter(c => ['active', 'listed'].includes(c.status)).length)],
-      ['Completed', String(allCases.filter(c => c.status === 'completed').length)],
-      ['Platform Users', String(dashStats?.total_users ?? '—')],
+      ['Total Cases (excl. Draft)', String(allCases.filter(c => c.status !== 'DRAFT').length)],
+      ['Active Cases', String(allCases.filter(c => ['SUBMITTED','UNDER_REVIEW','APPROVED','LISTED','AUCTION'].includes(c.status)).length)],
+      ['Completed', String(allCases.filter(c => ['CLOSED','FUNDED'].includes(c.status)).length)],
+      ['Draft Cases', String(allCases.filter(c => c.status === 'DRAFT').length)],
     ]
   }
 
@@ -165,12 +170,12 @@ export default function Reports() {
       {/* Key metric cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {[
-          { label: 'Total Cases',    value: loading ? '—' : allCases.length },
-          { label: 'Active Cases',   value: loading ? '—' : allCases.filter(c => ['active','listed'].includes(c.status)).length },
-          { label: 'Platform Users', value: loading ? '—' : (dashStats?.total_users ?? '—') },
-          { label: 'Pending KYC',   value: loading ? '—' : (dashStats?.pending_kyc_reviews ?? '—') },
-          { label: 'Completed',      value: loading ? '—' : allCases.filter(c => c.status === 'completed').length },
-          { label: 'Active Users',   value: loading ? '—' : (dashStats?.active_users ?? '—') },
+          { label: 'Total Cases',    value: loading ? '—' : allCases.filter(c => c.status !== 'DRAFT').length },
+          { label: 'Active Cases',   value: loading ? '—' : allCases.filter(c => ['SUBMITTED','UNDER_REVIEW','APPROVED','LISTED','AUCTION'].includes(c.status)).length },
+          { label: 'Draft Cases',    value: loading ? '—' : allCases.filter(c => c.status === 'DRAFT').length },
+          { label: 'Under Review',   value: loading ? '—' : allCases.filter(c => c.status === 'UNDER_REVIEW').length },
+          { label: 'Completed',      value: loading ? '—' : allCases.filter(c => ['CLOSED','FUNDED'].includes(c.status)).length },
+          { label: 'Rejected',       value: loading ? '—' : allCases.filter(c => c.status === 'REJECTED').length },
         ].map((s) => (
           <div key={s.label} className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
             <p className="text-xs text-gray-500">{s.label}</p>
