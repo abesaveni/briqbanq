@@ -33,18 +33,17 @@ test.describe('Admin — Notifications', () => {
     await typeSelect.selectOption({ label: 'All Types' });
   });
 
-  // Bug 17 fix: View button navigates directly, not opens modal
+  // Bug 17 fix: View button in notification row navigates directly
   test('Bug 17 — View button navigates to related page', async ({ page }) => {
-    const viewBtn = page.locator('button:has-text("View"), a:has-text("View")').first();
+    // The View button is inside notification list rows, not the sidebar
+    // It renders as: <Eye /> View — inside a flex row within the notification list
+    const viewBtn = page.locator('[class*="divide"] button:has-text("View"), [class*="space-y"] button:has-text("View"), [class*="border"] button:has-text("View")').first();
     if (await viewBtn.isVisible().catch(() => false)) {
       const currentUrl = page.url();
       await viewBtn.click();
-      await page.waitForTimeout(1000);
-      // URL should have changed (navigated away)
+      await page.waitForTimeout(1500);
       const newUrl = page.url();
       expect(newUrl).not.toBe(currentUrl);
-      // Should NOT still be on notifications page with a modal open
-      // (If URL changed, navigation worked correctly)
     } else {
       test.skip();
     }

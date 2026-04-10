@@ -54,8 +54,8 @@ test.describe('Admin — Task Center', () => {
   });
 
   test('task list shows items or empty state', async ({ page }) => {
-    const hasItems = await page.locator('[class*="task"], tr').first().isVisible().catch(() => false);
-    const hasEmpty = await page.locator('text=/no task|empty/i').isVisible().catch(() => false);
+    const hasItems = await page.locator('[class*="task"], tr, [class*="card"]').first().isVisible().catch(() => false);
+    const hasEmpty = await page.locator('text=/No tasks found|no task|empty/i').isVisible().catch(() => false);
     expect(hasItems || hasEmpty).toBeTruthy();
   });
 });

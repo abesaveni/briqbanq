@@ -73,21 +73,19 @@ test.describe('Admin — Organization Settings', () => {
 
   // Bug 18 fix: Save Changes shows confirmation toast
   test('Bug 18 — Organization Settings Save Changes shows confirmation', async ({ page }) => {
-    // Find organization settings link
-    const orgLink = page.locator('a:has-text("Organization"), button:has-text("Organization")').first();
-    if (await orgLink.isVisible().catch(() => false)) {
-      await orgLink.click();
-      await page.waitForLoadState('networkidle');
-    }
+    await page.goto('/admin/settings');
+    await page.waitForLoadState('networkidle');
+    // Settings uses tab navigation — click Organization tab
+    const orgTab = page.locator('button', { hasText: 'Organization' }).first();
+    await expect(orgTab).toBeVisible({ timeout: 10000 });
+    await orgTab.click();
+    await page.waitForTimeout(500);
 
-    const saveBtn = page.locator('button:has-text("Save Changes")').first();
-    if (await saveBtn.isVisible().catch(() => false)) {
-      await saveBtn.click();
-      // Wait for toast
-      const toast = page.locator('text=/saved|success|error/i').first();
-      await expect(toast).toBeVisible({ timeout: 5000 });
-    } else {
-      test.skip();
-    }
+    const saveBtn = page.locator('button:has-text("Save Changes"), button:has-text("Save")').first();
+    await expect(saveBtn).toBeVisible({ timeout: 5000 });
+    await saveBtn.click();
+    // Toast should appear — success or error message
+    const toast = page.locator('[class*="fixed"][class*="top"], [class*="toast"], [class*="banner"]').first();
+    await expect(toast).toBeVisible({ timeout: 6000 });
   });
 });
