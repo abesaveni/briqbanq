@@ -29,10 +29,11 @@ test.describe('Admin — All Deals & Investment Memo', () => {
     // Wait for loading to clear
     await page.waitForSelector('[class*="animate-spin"], [class*="loading"]', { state: 'hidden', timeout: 25000 }).catch(() => {});
     await page.waitForTimeout(500);
-    // Click into a deal
+    // Click into a deal — scroll into view first
     const dealLink = page.locator('a[href*="deal"]').first();
     if (await dealLink.isVisible().catch(() => false)) {
-      await dealLink.click();
+      await dealLink.scrollIntoViewIfNeeded();
+      await dealLink.click({ force: true });
       await page.waitForLoadState('networkidle');
 
       // Look for Investment Memo tab
