@@ -208,10 +208,18 @@ export default function CaseManagement() {
 
     const handleDelete = async (caseId) => {
         if (window.confirm('Are you sure you want to delete this case?')) {
-            await casesService.deleteCase(caseId)
-            const updatedCases = allCases.filter(c => c.id !== caseId)
-            setAllCases(updatedCases)
-            applyFilters(updatedCases, statusFilter, searchTerm)
+            try {
+                const res = await casesService.deleteCase(caseId)
+                if (res && res.success === false) {
+                    alert(res.error || 'Failed to delete case')
+                    return
+                }
+                const updatedCases = allCases.filter(c => c.id !== caseId)
+                setAllCases(updatedCases)
+                applyFilters(updatedCases, statusFilter, searchTerm)
+            } catch (err) {
+                alert(err?.message || 'Failed to delete case')
+            }
         }
     }
 

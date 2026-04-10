@@ -554,9 +554,13 @@ class CaseService:
         return case
 
     async def delete_case(self, case_id: uuid.UUID, admin_id: uuid.UUID, trace_id: str) -> None:
-        """Delete a case (admin only)."""
+        """Delete a case and all related records."""
         case = await self._get_case_or_404(case_id)
-        # Any specific deletion logic (e.g. check status, related records) goes here
+        # Delete related deals first (FK constraint workaround until migration is applied)
+        from sqlalchemy import delete as sa_delete
+        from app.modules.deals.models import Deal
+        await self.repository.db.execute(sa_delete(Deal).where(Deal.case_id == case_id))
+        await self.repository.db.flush()
         await self.repository.delete(case)
 
 

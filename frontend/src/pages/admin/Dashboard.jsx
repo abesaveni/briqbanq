@@ -63,6 +63,7 @@ export default function Dashboard() {
     const [dashStats, setDashStats] = useState(null)
     const [platformStats, setPlatformStats] = useState(null)
     const [recentCases, setRecentCases] = useState([])
+    const [allCases, setAllCases] = useState([])
     const [auctions, setAuctions] = useState([])
     const [liveCases, setLiveCases] = useState([])
     const [showSupportModal, setShowSupportModal] = useState(false)
@@ -81,7 +82,10 @@ export default function Dashboard() {
             if (dashRes.success) setDashStats(dashRes.data)
             if (platformRes.success) setPlatformStats(platformRes.data)
             const casesArr = Array.isArray(casesRes.data) ? casesRes.data : (casesRes.data?.items || casesRes.data?.cases || [])
-            if (casesRes.success) setRecentCases(casesArr.slice(0, 5))
+            if (casesRes.success) {
+                setAllCases(casesArr)
+                setRecentCases(casesArr.slice(0, 5))
+            }
             const auctionsArr = Array.isArray(auctionsRes.data) ? auctionsRes.data : (auctionsRes.data?.items || auctionsRes.data?.auctions || [])
             if (auctionsRes.success) setAuctions(auctionsArr)
             const liveArr = Array.isArray(liveRes.data) ? liveRes.data : (liveRes.data?.items || [])
@@ -147,11 +151,17 @@ export default function Dashboard() {
     const d = dashStats || {}
     const p = platformStats || {}
 
+    // Compute counts from actual fetched data for accuracy
+    const totalCases = allCases.length || d.total_cases || 0
+    const activeCases = allCases.filter(c => ['ACTIVE', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED'].includes(c.status)).length
+    const listedCases = allCases.filter(c => ['LISTED', 'AUCTION'].includes(c.status)).length
+    const activeAuctions = liveCases.filter(c => ['AUCTION', 'IN_AUCTION'].includes(c.status)).length || auctions.length
+
     const statCards = [
         {
             label: 'Total Cases',
-            value: d.total_cases ?? 0,
-            sub: `${d.active_cases ?? 0} active • ${d.listed_cases ?? 0} listed`,
+            value: totalCases,
+            sub: `${activeCases} active • ${listedCases} listed`,
             growth: d.cases_growth ?? '',
             icon: 'cases',
             color: 'indigo',
@@ -166,7 +176,7 @@ export default function Dashboard() {
         },
         {
             label: 'Active Auctions',
-            value: liveCases.filter(c => c.status === 'AUCTION').length,
+            value: activeAuctions,
             sub: `${d.pending_role_requests ?? 0} pending role requests`,
             growth: '',
             icon: 'auctions',

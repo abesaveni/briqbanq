@@ -132,6 +132,10 @@ class KYCService:
         """Get all KYC records for a user."""
         return await self.repository.get_by_user_id(user_id)
 
+    async def get_kyc_by_id(self, kyc_id: uuid.UUID) -> Optional[KYCRecord]:
+        """Get a single KYC record by ID."""
+        return await self.repository.get_by_id(kyc_id)
+
     async def get_pending_reviews(
         self, offset: int = 0, limit: int = 20
     ) -> List[KYCRecord]:

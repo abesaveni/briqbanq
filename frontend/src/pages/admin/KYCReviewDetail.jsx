@@ -130,7 +130,7 @@ export default function KYCReviewDetail() {
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 tracking-tight">KYC Review</h1>
-                    <p className="text-sm text-gray-500 mt-1">Submitted 13/03/2026, 12:23:11 pm</p>
+                    <p className="text-sm text-gray-500 mt-1">{kycRecord?.created_at ? `Submitted ${new Date(kycRecord.created_at).toLocaleString('en-AU', { dateStyle: 'short', timeStyle: 'short' })}` : 'KYC Submission'}</p>
                 </div>
                 <div className={`px-3 py-1.5 font-medium rounded-full text-sm self-start ${
                     status === 'approved' ? 'bg-green-100 text-green-700' :
@@ -462,7 +462,7 @@ export default function KYCReviewDetail() {
                     {/* Timeline */}
                     <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
                         <h3 className="text-base font-bold text-gray-900 mb-6">Timeline</h3>
-                        <div className="space-y-6 relative before:absolute before:inset-0 before:ml-2.5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-emerald-300 before:to-gray-200">
+                        <div className="space-y-6 relative before:absolute before:left-2.5 before:top-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-emerald-300 before:to-gray-200">
                             {(() => {
                                 const applicantName = kycRecord?.full_name || 'Applicant';
                                 const submittedAt = kycRecord?.created_at ? new Date(kycRecord.created_at) : null;

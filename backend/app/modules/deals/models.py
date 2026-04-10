@@ -26,7 +26,7 @@ class Deal(BaseEntityMixin, Base):
 
     case_id: Mapped[uuid.UUID] = mapped_column(
         Uuid(),
-        ForeignKey("cases.id"),
+        ForeignKey("cases.id", ondelete="CASCADE"),
         nullable=False,
         unique=True,
         index=True,

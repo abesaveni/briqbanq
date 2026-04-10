@@ -154,6 +154,52 @@ async def get_my_kyc(
     return await service.get_user_kyc(uuid.UUID(current_user["user_id"]))
 
 
+@router.get("/{kyc_id}")
+async def get_kyc_by_id(
+    kyc_id: uuid.UUID,
+    current_user: dict = Depends(get_current_user),
+    db=Depends(get_db),
+):
+    """Get a single KYC record by ID with user info."""
+    KYCPolicy.can_review_kyc(current_user)
+    service = KYCService(db)
+    record = await service.get_kyc_by_id(kyc_id)
+    if not record:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="KYC record not found")
+    from app.modules.identity.models import User
+    from sqlalchemy import select as sa_select
+    user_row = await db.execute(sa_select(User).where(User.id == record.user_id))
+    user = user_row.scalar_one_or_none()
+    meta = record.metadata_json or {}
+    return {
+        "id": str(record.id),
+        "user_id": str(record.user_id),
+        "user_name": f"{meta.get('first_name', '')} {meta.get('last_name', '')}".strip() or (f"{getattr(user, 'first_name', '')} {getattr(user, 'last_name', '')}".strip() if user else "—"),
+        "full_name": f"{meta.get('first_name', '')} {meta.get('last_name', '')}".strip() or (f"{getattr(user, 'first_name', '')} {getattr(user, 'last_name', '')}".strip() if user else None),
+        "user_email": user.email if user else None,
+        "email": user.email if user else None,
+        "phone": meta.get("phone") or meta.get("phone_number") or (getattr(user, "phone", None)),
+        "date_of_birth": meta.get("date_of_birth") or meta.get("dob"),
+        "address": meta.get("address") or meta.get("residential_address"),
+        "nationality": meta.get("nationality", "Australian"),
+        "user_role": ",".join(user.roles) if user and hasattr(user, "roles") else "borrower",
+        "company_name": meta.get("company_name") or meta.get("business_name"),
+        "abn": meta.get("abn"),
+        "acn": meta.get("acn"),
+        "entity_type": meta.get("entity_type") or meta.get("business_type"),
+        "website": meta.get("website") or meta.get("business_website"),
+        "business_address": meta.get("business_address"),
+        "status": record.status.value,
+        "risk_level": meta.get("risk_level"),
+        "document_type": meta.get("original_file_name") or record.document_type,
+        "metadata_json": meta,
+        "rejection_reason": record.rejection_reason,
+        "created_at": record.created_at.isoformat() if record.created_at else None,
+        "updated_at": record.updated_at.isoformat() if record.updated_at else None,
+    }
+
+
 @router.get("/queue")
 async def get_kyc_queue(
     current_user: dict = Depends(get_current_user),
