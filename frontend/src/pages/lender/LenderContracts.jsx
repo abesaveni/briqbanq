@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { generateBrandedPDF } from "../../utils/pdfGenerator";
 import { useNavigate } from "react-router-dom";
 import { Plus, Download, X, Eye } from "lucide-react";
 import { contractService, activityService } from "../../api/dataService";
@@ -139,26 +140,38 @@ export default function LenderContracts() {
     const handleDownload = async (contract) => {
         setDownloadingId(contract.id)
         try {
-            // Using existing logic or fallback since downloadContract endpoint might not exist on contractService yet
-            // Assuming contract has a pdf url or generating a dummy one
-            if (contract.pdf) {
-                const link = document.createElement("a");
-                link.href = contract.pdf;
-                link.download = `${contract.id}.pdf`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } else {
-                // Fallback text generation
-                const content = `Contract: ${contract.id}\nProperty: ${contract.propertyName}\nLocation: ${contract.location}\nParties: ${contract.party}, ${contract.lender}\nValue: ${formatCurrency(contract.contractValue)}\nStatus: ${contract.status}\nCreated: ${contract.createdDate}`
-                const blob = new Blob([content], { type: 'text/plain' })
-                const url = window.URL.createObjectURL(blob)
-                const a = document.createElement('a')
-                a.href = url
-                a.download = `contract-${contract.id}.txt`
-                a.click()
-                window.URL.revokeObjectURL(url)
-            }
+            await generateBrandedPDF({
+                title: `Contract — ${contract.propertyName}`,
+                subtitle: contract.location || '',
+                imageUrl: contract.propertyImage || null,
+                fileName: `contract-${contract.id}.pdf`,
+                infoItems: [
+                    { label: 'Asset ID', value: contract.id },
+                    { label: 'Property', value: contract.propertyName },
+                    { label: 'Location', value: contract.location || '—' },
+                    { label: 'Borrower', value: contract.party },
+                    { label: 'Lender', value: contract.lender },
+                    { label: 'Contract Value', value: formatCurrency(contract.contractValue) },
+                    { label: 'Date Initiated', value: contract.createdDate },
+                    { label: 'Processing Status', value: contract.status },
+                ],
+                sections: [
+                    {
+                        title: 'Contract Summary',
+                        rows: [
+                            ['Field', 'Value'],
+                            ['Asset ID', contract.id],
+                            ['Property', contract.propertyName],
+                            ['Location', contract.location || '—'],
+                            ['Borrower / Party', contract.party],
+                            ['Lender', contract.lender],
+                            ['Contract Value', formatCurrency(contract.contractValue)],
+                            ['Date Initiated', contract.createdDate],
+                            ['Processing Status', contract.status],
+                        ],
+                    },
+                ],
+            })
         } catch (e) {
             console.error("Download failed", e);
         } finally {

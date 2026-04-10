@@ -224,7 +224,7 @@ export default function LenderCaseDetails() {
                     bathrooms: Number(meta.bathrooms || fetchedCase.bathrooms) || 0,
                     parking: Number(meta.parking || fetchedCase.parking) || 0,
                     propertyType: fetchedCase.property_type || meta.property_type || "N/A",
-                    landSize: meta.land_size || meta.land_size_sqm || fetchedCase.land_size || fetchedCase.land_size_sqm || meta.lot_size || fetchedCase.lot_size || "N/A",
+                    landSize: meta.land_size || meta.land_size_sqm || meta.floor_area || fetchedCase.land_size || fetchedCase.land_size_sqm || fetchedCase.floor_area || meta.lot_size || fetchedCase.lot_size || "N/A",
                     documentCollection: { current: (fetchedCase.documents || []).length, total: (fetchedCase.documents || []).length },
                     verificationStatus: { current: 0, total: 0 },
                     totalParties: 0,
