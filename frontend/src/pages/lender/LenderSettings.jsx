@@ -1086,7 +1086,14 @@ function FormCustomizationView() {
             try {
                 const res = await formService.getForms();
                 if (res.success) {
-                    setForms(res.data);
+                    const data = Array.isArray(res.data) ? res.data : (res.data?.items || []);
+                    setForms(data);
+                    // Reset activeFormId to first form if stale localStorage value doesn't match
+                    if (data.length > 0) {
+                        const storedId = localStorage.getItem('activeFormId');
+                        const validId = data.find(f => f.id === storedId)?.id || data[0].id;
+                        setActiveFormId(validId);
+                    }
                 }
             } catch (err) {
                 console.error("Failed to load forms", err);
@@ -1214,6 +1221,16 @@ function FormCustomizationView() {
             <div className="flex flex-col items-center justify-center p-20 space-y-4">
                 <RefreshCw className="animate-spin text-indigo-500" size={32} />
                 <p className="text-gray-500 font-bold text-sm">Initializing forms...</p>
+            </div>
+        );
+    }
+
+    if (!fetchingForms && forms.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center p-20 space-y-4 bg-white rounded-[16px] border border-gray-100 shadow-sm">
+                <Database size={40} className="text-gray-300" />
+                <p className="text-gray-700 font-bold text-base">No Forms Available</p>
+                <p className="text-gray-400 text-sm text-center max-w-xs">Form templates are managed by the admin team. Contact support to configure custom fields for this account.</p>
             </div>
         );
     }

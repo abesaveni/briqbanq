@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, Download, Eye, Trash2, ChevronDown, RotateCcw, X, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Download, Eye, Trash2, Pencil, ChevronDown, RotateCcw, X, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { generateCasesTablePDF } from '../../utils/pdfGenerator';
 
@@ -201,6 +201,13 @@ export default function LenderMyCasesTable({ cases = [], onDelete, onStatusUpdat
                                                 className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                                                 <Eye size={14} />
                                             </button>
+                                            {['DRAFT', 'SUBMITTED', 'UNDER_REVIEW'].includes(status) && (
+                                                <button onClick={() => navigate(`/lender/edit-case/${item.id}`)}
+                                                    className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                                                    title="Edit case">
+                                                    <Pencil size={14} />
+                                                </button>
+                                            )}
                                             <button onClick={() => onDelete?.(item.id)}
                                                 className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
                                                 <Trash2 size={14} />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Home, ChevronRight, AlertTriangle, Search, Filter, Eye, ArrowRight, X } from "lucide-react";
 import { Link, useNavigate } from 'react-router-dom';
 import { casesService } from '../../api/dataService';
@@ -12,26 +12,39 @@ export default function LenderReviewRelevantCases() {
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
     const [showFilters, setShowFilters] = useState(false);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(false);
+    const PAGE_SIZE = 20;
 
-    useEffect(() => {
-        const fetchCases = async () => {
-            try {
-                setLoading(true);
-                const res = await casesService.getLiveListings();
-                if (res.success) {
-                    const data = Array.isArray(res.data) ? res.data : (res.data?.items || []);
+    const fetchCases = useCallback(async (pageNum = 1) => {
+        try {
+            setLoading(true);
+            const res = await casesService.getLiveListings();
+            if (res.success) {
+                const data = Array.isArray(res.data) ? res.data : (res.data?.items || []);
+                if (pageNum === 1) {
                     setCases(data);
                 } else {
-                    setError(res.error || 'Failed to load cases');
+                    setCases(prev => [...prev, ...data]);
                 }
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
+                setHasMore(data.length >= PAGE_SIZE);
+            } else {
+                setError(res.error || 'Failed to load cases');
             }
-        };
-        fetchCases();
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
     }, []);
+
+    useEffect(() => { fetchCases(1); }, [fetchCases]);
+
+    const handleViewMore = () => {
+        const next = page + 1;
+        setPage(next);
+        fetchCases(next);
+    };
 
     const filteredCases = useMemo(() => {
         return cases.filter(c => {
@@ -158,9 +171,13 @@ export default function LenderReviewRelevantCases() {
                 </div>
 
                 <div className="p-6 bg-slate-50/30 border-t border-slate-50 flex justify-center">
-                    <button className="text-[12px] font-bold text-indigo-600 flex items-center gap-2 hover:gap-3 transition-all">
-                        View More Pending Reviews
-                        <ArrowRight size={14} />
+                    <button
+                        onClick={handleViewMore}
+                        disabled={loading || !hasMore}
+                        className="text-[12px] font-bold text-indigo-600 flex items-center gap-2 hover:gap-3 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                        {loading ? 'Loading...' : hasMore ? 'View More Pending Reviews' : 'All cases loaded'}
+                        {hasMore && !loading && <ArrowRight size={14} />}
                     </button>
                 </div>
             </div>

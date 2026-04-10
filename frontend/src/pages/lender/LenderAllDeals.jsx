@@ -249,6 +249,7 @@ export default function LenderAllDeals() {
                         <option>Live Auction</option>
                         <option>Coming Soon</option>
                         <option>Active</option>
+                        <option>Buy Now</option>
                         <option>Sold</option>
                     </select>
 

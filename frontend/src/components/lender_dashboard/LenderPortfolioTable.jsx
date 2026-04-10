@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, Filter, Download, Eye, ChevronLeft, ChevronRight, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { casesService, activityService } from '../../api/dataService';
+import { lenderService, activityService } from '../../api/dataService';
 import { generateCasesTablePDF } from '../../utils/pdfGenerator';
 
 const STATUS_STYLES = {
@@ -40,11 +40,11 @@ export default function LenderPortfolioTable() {
     const itemsPerPage = 7;
 
     useEffect(() => {
-        casesService.getCases()
+        lenderService.getMyCases()
             .then(res => {
                 if (res.success) {
                     const data = res.data;
-                    setPortfolio(Array.isArray(data) ? data : (data?.items || []));
+                    setPortfolio(Array.isArray(data) ? data : (data?.items || data?.cases || []));
                 }
             })
             .catch(err => console.error("Failed to fetch portfolio", err))

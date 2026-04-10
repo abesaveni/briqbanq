@@ -112,6 +112,7 @@ export default function LenderAuctionRoom() {
                 const deal = {
                     id: auctionData?.id || id,
                     case_id: id,
+                    creatorId: caseData?.borrower_id,
                     title: caseData?.title || caseData?.property_address || auctionData?.title || "Recovery Asset",
                     status: auctionData?.status || "SCHEDULED",
                     image,
@@ -444,7 +445,7 @@ export default function LenderAuctionRoom() {
                             ) : (
                                 <>
                                     <div className="rounded-[2.5rem] overflow-hidden shadow-xl border border-gray-100">
-                                        <BidPanel currentBid={currentBid} startingPrice={startingPrice} minimumIncrement={minimumIncrement} placeBid={handlePlaceBid} />
+                                        <BidPanel currentBid={currentBid} startingPrice={startingPrice} minimumIncrement={minimumIncrement} placeBid={handlePlaceBid} isOwnCase={!!(deal?.creatorId && currentUser && (String(currentUser.id) === String(deal.creatorId) || String(currentUser.user_id) === String(deal.creatorId)))} />
                                     </div>
                                     <div className="rounded-[2.5rem] overflow-hidden border border-gray-100">
                                         <BidHistory history={bidHistory} />

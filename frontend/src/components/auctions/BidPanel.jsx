@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
  * BidPanel: The core bidding interface.
  * Features auto-calculation for premiums, total investment, and multi-step validation.
  */
-export default function BidPanel({ currentBid = 0, startingPrice = 0, minimumIncrement = 100, placeBid }) {
+export default function BidPanel({ currentBid = 0, startingPrice = 0, minimumIncrement = 100, placeBid, isOwnCase = false }) {
   const [amount, setAmount] = useState("");
   const minIncrement = minimumIncrement || 100;
   const buyerPremiumRate = 0.02;
@@ -50,6 +50,20 @@ export default function BidPanel({ currentBid = 0, startingPrice = 0, minimumInc
     placeBid(bidAmount);
     setAmount("");
   };
+
+  if (isOwnCase) {
+    return (
+      <div className="bg-white rounded-2xl shadow-sm border border-amber-200 overflow-hidden">
+        <div className="bg-amber-50 p-5 border-b border-amber-100 flex items-center gap-2.5 text-amber-800 font-bold">
+          <Gavel size={20} className="text-amber-600" />
+          Bidding Not Available
+        </div>
+        <div className="p-6">
+          <p className="text-sm text-amber-700 font-medium">You cannot bid on a case you submitted. This restriction ensures fair participation for all bidders.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-indigo-100 overflow-hidden">

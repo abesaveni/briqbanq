@@ -35,6 +35,7 @@ import LenderSubmitNewCase from "../pages/lender/LenderSubmitNewCase";
 
 import LenderNotifications from "../pages/lender/LenderNotifications";
 import LenderSettings from "../pages/lender/LenderSettings";
+import LenderEditCase from "../pages/lender/LenderEditCase";
 
 // Lawyer Panel
 import LawyerLayout from "../pages/lawyer/LawyerLayout.jsx";
@@ -190,6 +191,9 @@ export default function AppRoutes() {
         <Route path="trend-analysis" element={<RouteErrorBoundary key="lender-trend-analysis" routeLabel="Trend Analysis"><LenderTrendAnalysis /></RouteErrorBoundary>} />
         <Route path="case-details/:id" element={<RouteErrorBoundary key="lender-case-details" routeLabel="Case Details"><LenderCaseDetails /></RouteErrorBoundary>} />
         <Route path="submit-case" element={<RouteErrorBoundary key="lender-submit-case" routeLabel="Submit New Case"><LenderSubmitNewCase /></RouteErrorBoundary>} />
+        <Route path="edit-case/:id" element={<RouteErrorBoundary key="lender-edit-case" routeLabel="Edit Case"><LenderEditCase /></RouteErrorBoundary>} />
+        <Route path="contracts/create" element={<RouteErrorBoundary key="lender-contracts-create" routeLabel="Create Contract"><LenderContracts /></RouteErrorBoundary>} />
+        <Route path="documents" element={<RouteErrorBoundary key="lender-documents" routeLabel="Documents"><LenderDocuments /></RouteErrorBoundary>} />
         <Route path="my-bids" element={<RouteErrorBoundary key="lender-my-bids" routeLabel="My Bids"><MyBidsPage role="lender" /></RouteErrorBoundary>} />
         <Route path="notifications" element={<RouteErrorBoundary key="lender-notifications" routeLabel="Notifications"><LenderNotifications /></RouteErrorBoundary>} />
         <Route path="settings" element={<RouteErrorBoundary key="lender-settings" routeLabel="Settings"><LenderSettings /></RouteErrorBoundary>} />

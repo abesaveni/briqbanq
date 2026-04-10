@@ -49,6 +49,24 @@ class BidService:
         if auction.status != AuctionStatus.LIVE:
             raise AuctionNotLiveError()
 
+        # Block case creator from bidding on their own case
+        try:
+            from sqlalchemy import select
+            from app.modules.deals.models import Deal as DealModel
+            from app.modules.cases.models import Case as CaseModel
+            from app.core.exceptions import AuthorizationError
+            deal_row = await self.db.execute(select(DealModel).where(DealModel.id == auction.deal_id))
+            _deal = deal_row.scalar_one_or_none()
+            if _deal:
+                case_row = await self.db.execute(select(CaseModel).where(CaseModel.id == _deal.case_id))
+                _case = case_row.scalar_one_or_none()
+                if _case and _case.borrower_id == bidder_id:
+                    raise AuthorizationError(message="You cannot bid on a case you submitted.")
+        except AuthorizationError:
+            raise
+        except Exception:
+            pass  # If lookup fails, don't block bid placement
+
         # Bid must exceed current highest or starting price
         minimum_bid = auction.current_highest_bid or auction.starting_price
         if auction.current_highest_bid:

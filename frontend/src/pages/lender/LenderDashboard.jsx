@@ -17,7 +17,7 @@ export default function LenderDashboard() {
 
     const fetchCases = useCallback(() => {
         lenderService.getMyCases()
-            .then(res => { if (res.success) setCases(Array.isArray(res.data) ? res.data : []); })
+            .then(res => { if (res.success) { const d = res.data; setCases(Array.isArray(d) ? d : (d?.items || d?.cases || [])); } })
             .catch(err => console.error("Failed to fetch cases", err));
     }, []);
 

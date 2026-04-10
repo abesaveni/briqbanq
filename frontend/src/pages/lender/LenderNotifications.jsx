@@ -254,10 +254,10 @@ function NotificationDetailModal({ notification, onClose, onDelete }) {
     }
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
             <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
 
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[520px] overflow-hidden animate-scale-in relative border border-gray-100 font-sans">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[520px] overflow-hidden animate-scale-in relative border border-gray-100 font-sans" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
                 {/* Modal Header */}
                 <div className="p-5 flex justify-between items-center border-b border-gray-50">
                     <div className="flex gap-4 items-center">

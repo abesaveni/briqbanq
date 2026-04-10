@@ -1992,7 +1992,23 @@ export default function LenderCaseDetails() {
                                                 <input ref={settlementFileInputRef} type="file" className="hidden" onChange={(e) => {
                                                     const file = e.target.files?.[0];
                                                     if (file) {
-                                                        setToast({ show: true, message: `${file.name} attached to settlement communication.`, type: "success" });
+                                                        const fileMessage = {
+                                                            id: Date.now(),
+                                                            user: "You",
+                                                            role: "Lender",
+                                                            time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+                                                            message: `📎 Attachment: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`,
+                                                            initials: "Y",
+                                                            color: "bg-blue-900",
+                                                            isAttachment: true,
+                                                        };
+                                                        const updatedOverview = {
+                                                            ...settlementOverviewData,
+                                                            thread: [...settlementOverviewData.thread, fileMessage]
+                                                        };
+                                                        setSettlementOverviewData(updatedOverview);
+                                                        persistSettlement(updatedOverview);
+                                                        setToast({ show: true, message: `${file.name} sent to settlement thread.`, type: "success" });
                                                         setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000);
                                                     }
                                                     e.target.value = '';
