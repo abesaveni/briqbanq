@@ -387,11 +387,13 @@ export default function InvestorAuctionRoom() {
               <DocumentsSection deal={deal} />
 
               {/* 6. Investor Documents Section (From Registration) */}
-              <DocumentsSection
-                documents={investorDocs}
-                title="My Verification Documents"
-                icon={ShieldCheck}
-              />
+              {investorDocs.length > 0 && (
+                <DocumentsSection
+                  documents={investorDocs}
+                  title="My Verification Documents"
+                  icon={ShieldCheck}
+                />
+              )}
             </div>
 
             {/* Right Column: Bidding Infrastructure */}

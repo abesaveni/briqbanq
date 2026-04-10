@@ -15,6 +15,7 @@ import InvestorSettings from "../pages/investor/InvestorSettings";
 import InvestorTaskCenter from "../pages/investor/InvestorTaskCenter";
 import InvestorReports from "../pages/investor/InvestorReports";
 import InvestorDocuments from "../pages/investor/InvestorDocuments";
+import InvestorWatchlist from "../pages/investor/InvestorWatchlist";
 
 // Lender Imports
 import LenderDashboard from "../pages/lender/LenderDashboard";
@@ -165,6 +166,7 @@ export default function AppRoutes() {
         <Route path="tasks" element={<InvestorTaskCenter />} />
         <Route path="reports" element={<InvestorReports />} />
         <Route path="documents" element={<InvestorDocuments />} />
+        <Route path="watchlist" element={<InvestorWatchlist />} />
         <Route path="case-details/:id" element={<InvestorCaseDetails />} />
         <Route path="place-bid/:id" element={<InvestorPlaceBid />} />
         <Route path="buy-now/:id" element={<InvestorBuyNowRoom />} />

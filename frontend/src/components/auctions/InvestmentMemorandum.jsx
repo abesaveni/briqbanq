@@ -319,8 +319,8 @@ export default function InvestmentMemorandum({ deal }) {
 
                     {/* Right: Disclaimer */}
                     <div className="space-y-4">
-                        <h3 className="text-xl font-bold tracking-tight">Important Disclaimer</h3>
-                        <p className="text-gray-400 text-xs leading-relaxed italic">
+                        <h3 className="text-xl font-bold tracking-tight text-white">Important Disclaimer</h3>
+                        <p className="text-gray-300 text-xs leading-relaxed italic">
                             This Investment Memorandum is provided for information purposes only and does not constitute an offer, invitation, or recommendation to invest. All information is provided in good faith but no warranty is given as to its accuracy or completeness. Investors should conduct their own due diligence and seek independent legal, tax, and financial advice before making any investment decision. Past performance is not indicative of future results. Investment in distressed debt involves significant risk including potential loss of capital.
                         </p>
                     </div>

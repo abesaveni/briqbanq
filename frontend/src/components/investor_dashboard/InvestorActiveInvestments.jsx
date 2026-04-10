@@ -108,11 +108,36 @@ export default function InvestorActiveInvestments({ investments = [] }) {
         }
     };
 
-    const handleBulkAction = (action) => {
-        setToast({
-            message: `${selectedIds.length} investment(s) ${action === 'watchlist' ? 'added to watchlist' : 'reports generated'}`,
-            type: action
-        });
+    const handleBulkAction = async (action) => {
+        const selected = filteredInvestments.filter(i => selectedIds.includes(i.id));
+        if (action === 'watchlist') {
+            const existing = JSON.parse(localStorage.getItem('investor_watchlist') || '[]');
+            const existingIds = new Set(existing.map(e => e.id));
+            const toAdd = selected.filter(i => !existingIds.has(i.id));
+            localStorage.setItem('investor_watchlist', JSON.stringify([...existing, ...toAdd]));
+            setToast({ message: `${toAdd.length} investment(s) added to watchlist`, type: 'watchlist' });
+            setTimeout(() => navigate('/investor/watchlist'), 1500);
+        } else if (action === 'report') {
+            try {
+                await generateCasesTablePDF({
+                    title: 'Active Investments Report',
+                    role: 'Investor',
+                    cases: selected.map(i => ({
+                        id: i.id,
+                        title: i.title || i.property_address || '',
+                        borrower: i.borrower_name || i.borrower || '—',
+                        status: i.status || '—',
+                        value: i.estimated_value || i.propertyValuation || null,
+                        loanAmount: i.outstanding_debt || null,
+                        lvr: i.lvr ?? null,
+                        image: i.image || null,
+                    })),
+                });
+                setToast({ message: `Report for ${selected.length} investment(s) downloaded.`, type: 'report' });
+            } catch {
+                setToast({ message: 'Failed to generate report. Please try again.', type: 'error' });
+            }
+        }
     };
 
     const handleBid = (deal) => {

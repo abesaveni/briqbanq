@@ -305,7 +305,7 @@ export default function InvestorCaseDetails() {
     };
 
     const [settlementMessage, setSettlementMessage] = useState("");
-    const [caseSettlementData, setCaseSettlementData] = useState(null);
+    const [caseSettlementData, setCaseSettlementData] = useState(DEFAULT_SETTLEMENT_DATA);
     const [bidHistory, setBidHistory] = useState([]);
     const [caseMessages, setCaseMessages] = useState([]);
     const [newMessageText, setNewMessageText] = useState("");
@@ -2366,7 +2366,7 @@ export default function InvestorCaseDetails() {
                                     </div>
                                     <div>
                                         <h4 className="text-base font-bold text-gray-900 mb-2">Prime Location</h4>
-                                        <p className="text-[13px] text-gray-600 font-medium leading-relaxed mb-3">Located in {caseData.address.split(',')[1].trim()}, a highly desirable suburb with strong capital growth history.</p>
+                                        <p className="text-[13px] text-gray-600 font-medium leading-relaxed mb-3">Located in {(caseData.address.split(',')[1] || caseData.address || '').trim()}, a highly desirable suburb with strong capital growth history.</p>
                                         <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">5-year growth: 42% • Median: $1.15M</p>
                                     </div>
                                 </div>
@@ -2733,7 +2733,7 @@ export default function InvestorCaseDetails() {
                                 </div>
                                 <div>
                                     <h3 className="text-2xl font-bold text-white mb-6 tracking-tight">Important Disclaimer</h3>
-                                    <p className="text-gray-400 text-[14px] leading-[1.8] font-medium opacity-80">
+                                    <p className="text-gray-300 text-[14px] leading-[1.8] font-medium">
                                         This Investment Memorandum is provided for information purposes only and does not constitute an offer, invitation, or recommendation to invest. All information is provided in good faith but no warranty is given as to its accuracy or completeness. Investors should conduct their own due diligence and seek independent legal, tax, and financial advice before making any investment decision. Past performance is not indicative of future results. Investment in distressed debt involves significant risk including potential loss of capital.
                                     </p>
                                 </div>

@@ -275,16 +275,16 @@ function ProfileSettingsView() {
                     <h3 className="font-bold text-[15px] text-gray-900 mb-5">Personal Information</h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-4 mb-4">
-                        <InputGroup label="First Name" name="firstName" value={formData.firstName} onChange={handleInputChange} required icon={<User size={14} />} />
-                        <InputGroup label="Last Name" name="lastName" value={formData.lastName} onChange={handleInputChange} required icon={<User size={14} />} />
+                        <InputGroup label="First Name" name="firstName" value={formData.firstName} onChange={handleInputChange} required icon={<User size={14} />} error={fieldErrors.firstName} />
+                        <InputGroup label="Last Name" name="lastName" value={formData.lastName} onChange={handleInputChange} required icon={<User size={14} />} error={fieldErrors.lastName} />
                     </div>
 
                     <div className="mb-4">
-                        <InputGroup label="Email Address" name="email" value={formData.email} onChange={handleInputChange} type="email" required icon={<svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>} />
+                        <InputGroup label="Email Address" name="email" value={formData.email} onChange={handleInputChange} type="email" required icon={<svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>} error={fieldErrors.email} />
                     </div>
 
                     <div className="mb-4">
-                        <InputGroup label="Phone Number" name="phone" value={formData.phone} onChange={handleInputChange} icon={<svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>} />
+                        <InputGroup label="Phone Number" name="phone" value={formData.phone} onChange={handleInputChange} icon={<svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>} error={fieldErrors.phone} />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-4 mb-4">
@@ -315,7 +315,7 @@ function ProfileSettingsView() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] gap-x-5 gap-y-4 mb-4">
-                        <InputGroup label="City" name="city" value={formData.city} onChange={handleInputChange} />
+                        <InputGroup label="City" name="city" value={formData.city} onChange={handleInputChange} error={fieldErrors.city} />
                         <div>
                             <label className="block text-[11px] font-bold text-slate-800 mb-2 leading-none">State</label>
                             <select
@@ -334,7 +334,7 @@ function ProfileSettingsView() {
                                 <option value="NT">NT</option>
                             </select>
                         </div>
-                        <InputGroup label="Postcode" name="postcode" value={formData.postcode} onChange={handleInputChange} />
+                        <InputGroup label="Postcode" name="postcode" value={formData.postcode} onChange={handleInputChange} error={fieldErrors.postcode} />
                     </div>
 
                     <div className="mb-2">
@@ -862,7 +862,7 @@ function OrganizationSettingsView() {
     );
 }
 
-function InputGroup({ label, name, value, onChange, type = "text", required, icon, disabled }) {
+function InputGroup({ label, name, value, onChange, type = "text", required, icon, disabled, error }) {
     return (
         <div>
             <label className="block text-[11px] font-bold text-slate-800 mb-2 leading-none">
@@ -880,9 +880,10 @@ function InputGroup({ label, name, value, onChange, type = "text", required, ico
                     value={value}
                     onChange={onChange}
                     disabled={disabled}
-                    className={`w-full ${icon ? 'pl-[34px]' : 'pl-4'} pr-4 py-[11px] rounded-lg border border-gray-200 text-[13px] focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium text-gray-900 placeholder:text-gray-400 ${disabled ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : 'bg-white'}`}
+                    className={`w-full ${icon ? 'pl-[34px]' : 'pl-4'} pr-4 py-[11px] rounded-lg border text-[13px] focus:outline-none focus:ring-1 transition-all font-medium text-gray-900 placeholder:text-gray-400 ${error ? 'border-red-400 focus:ring-red-400 focus:border-red-400 bg-red-50/30' : 'border-gray-200 focus:ring-indigo-500 focus:border-indigo-500'} ${disabled ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : ''}`}
                 />
             </div>
+            {error && <p className="mt-1 text-[11px] font-medium text-red-500">{error}</p>}
         </div>
     )
 }
@@ -891,6 +892,8 @@ function InputGroup({ label, name, value, onChange, type = "text", required, ico
 function ApiSettingsView() {
     const [integrations, setIntegrations] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [toast, setToast] = useState(null);
+    const showToast = (msg, type = 'success') => { setToast({ msg, type }); setTimeout(() => setToast(null), 3000); };
 
     React.useEffect(() => {
         const fetchIntegrations = async () => {
@@ -966,6 +969,11 @@ function ApiSettingsView() {
 
     return (
         <div className="space-y-6 animate-in fade-in duration-300">
+            {toast && (
+                <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white max-w-sm ${toast.type === 'error' ? 'bg-red-600' : 'bg-green-600'}`}>
+                    {toast.msg}
+                </div>
+            )}
             <div>
                 <h3 className="text-xl font-bold text-gray-900 mb-1">API Integrations</h3>
                 <p className="text-[13px] text-gray-500 font-medium mb-6">Manage third-party API connections for KYC, property data, payments, and compliance</p>
@@ -1062,9 +1070,8 @@ function IntegrationCard({ id, icon, title, description, status, fields = [], la
                                 type={field.isSecret && hiddenFields[idx] ? "password" : "text"}
                                 value={fieldValues[idx] ?? ""}
                                 placeholder={field.placeholder || ""}
-                                readOnly={status === "Connected" || status === "Error"}
                                 onChange={(e) => handleFieldChange(idx, e.target.value)}
-                                className={`w-full px-4 py-[11px] rounded-lg border border-gray-100 text-[13px] font-medium text-gray-700 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none ${status === "Connected" || status === "Error" ? 'pointer-events-none bg-gray-50 text-gray-400' : 'focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500'}`}
+                                className="w-full px-4 py-[11px] rounded-lg border border-gray-100 text-[13px] font-medium text-gray-700 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                             />
                             {field.isSecret && (
                                 <button
