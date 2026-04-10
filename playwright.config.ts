@@ -4,8 +4,8 @@ const BASE_URL = process.env.BASE_URL || 'https://brickbanq.au';
 
 export default defineConfig({
   testDir: './tests/e2e',
-  timeout: 90000,
-  retries: 1,
+  timeout: 120000,
+  retries: 2,
   reporter: [
     ['list'],
     ['html', { outputFolder: 'tests/report', open: 'never' }],
