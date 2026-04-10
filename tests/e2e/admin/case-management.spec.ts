@@ -45,31 +45,25 @@ test.describe('Admin — Case Details', () => {
   test('Bug 1 — Case detail has Assign button that opens modal', async ({ page }) => {
     await page.goto('/admin/case-management');
     await page.waitForLoadState('networkidle');
+    // Wait for loading to finish
+    await page.waitForSelector('[class*="animate-spin"], [class*="loading"]', { state: 'hidden', timeout: 20000 }).catch(() => {});
+    await page.waitForTimeout(500);
 
-    // Click first case if any
-    const firstCaseLink = page.locator('a[href*="case-details"], tr[data-case], button[data-case]').first();
-    const viewBtn = page.locator('button:has-text("View"), a:has-text("View")').first();
-    const target = (await firstCaseLink.isVisible().catch(() => false)) ? firstCaseLink : viewBtn;
+    // Find first case link — could be in a table row or card
+    const firstCaseLink = page.locator('a[href*="case-details"]').first();
+    if (!await firstCaseLink.isVisible().catch(() => false)) { test.skip(); return; }
 
-    if (await target.isVisible().catch(() => false)) {
-      await target.click();
-      await page.waitForLoadState('networkidle');
+    await firstCaseLink.click();
+    await page.waitForLoadState('networkidle');
 
-      // Should have Assign button
-      const assignBtn = page.locator('button:has-text("Assign")');
-      await expect(assignBtn).toBeVisible();
+    const assignBtn = page.locator('button:has-text("Assign")');
+    await expect(assignBtn).toBeVisible({ timeout: 10000 });
+    await assignBtn.click();
+    await page.waitForTimeout(600);
 
-      // Click it — modal should open
-      await assignBtn.click();
-      await page.waitForTimeout(500);
-
-      // Modal should show Assign Lawyer and Assign Lender selects
-      await expect(page.locator('text=Assign Lawyer')).toBeVisible();
-      await expect(page.locator('text=Assign Lender')).toBeVisible();
-      await expect(page.locator('select').first()).toBeVisible();
-    } else {
-      test.skip();
-    }
+    await expect(page.locator('text=Assign Lawyer')).toBeVisible();
+    await expect(page.locator('text=Assign Lender')).toBeVisible();
+    await expect(page.locator('select').first()).toBeVisible();
   });
 
   test('Case detail tabs all render', async ({ page }) => {

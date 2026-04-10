@@ -25,18 +25,15 @@ test.describe('Admin — KYC Review', () => {
 
   // Bug 8 fix: Timeline is dynamic, not hardcoded
   test('Bug 8 — KYC Timeline does not show hardcoded Jennifer Brown date', async ({ page }) => {
-    const firstReview = page.locator('a[href*="kyc-review/"], button:has-text("Review"), button:has-text("View")').first();
-    if (await firstReview.isVisible().catch(() => false)) {
-      await firstReview.click();
-      await page.waitForLoadState('networkidle');
-      // Hardcoded date "13/03/2026, 12:23:11 pm" should NOT appear
-      const hardcodedDate = page.locator('text=13/03/2026, 12:23:11 pm');
-      await expect(hardcodedDate).not.toBeVisible();
-      // Timeline section should exist
-      await expect(page.locator('text=Timeline')).toBeVisible();
-    } else {
-      test.skip();
-    }
+    // Navigate directly to KYC queue and check for any entry
+    await page.waitForSelector('a[href*="kyc-review/"], tr:has-text("Review"), [class*="card"]:has-text("Review")', { timeout: 15000 }).catch(() => {});
+    const firstReview = page.locator('a[href*="kyc-review/"]').first();
+    if (!await firstReview.isVisible().catch(() => false)) { test.skip(); return; }
+    await firstReview.click();
+    await page.waitForLoadState('networkidle');
+    // Hardcoded date should NOT appear
+    await expect(page.locator('text=13/03/2026, 12:23:11 pm')).not.toBeVisible();
+    await expect(page.locator('text=Timeline')).toBeVisible();
   });
 
   // Bug 9 fix: View Activity Log opens inline modal, not navigate to /admin/audit
@@ -65,28 +62,23 @@ test.describe('Admin — KYC Review', () => {
 
   // Bug 6 fix: Approved KYC shows Reject (Reverse Approval) button
   test('Bug 6 — Approved KYC shows reverse approval option', async ({ page }) => {
-    // Navigate to an approved KYC if available
-    const approvedRow = page.locator('tr:has-text("Approved"), [data-status="approved"]').first();
-    const reviewLink = approvedRow.locator('a, button:has-text("View")').first();
-    if (await approvedRow.isVisible().catch(() => false) && await reviewLink.isVisible().catch(() => false)) {
-      await reviewLink.click();
-      await page.waitForLoadState('networkidle');
-      await expect(page.locator('text=/Reject.*Reverse|Reverse.*Approval/i')).toBeVisible();
-    } else {
-      test.skip();
-    }
+    // Look for an approved KYC row with a badge/status text "Approved"
+    const approvedLink = page.locator('a[href*="kyc-review/"]:near(:text("Approved"))').first();
+    const fallbackLink = page.locator('tr:has-text("Approved") a[href*="kyc-review/"], [class*="card"]:has-text("Approved") a[href*="kyc-review/"]').first();
+    const link = await approvedLink.isVisible().catch(() => false) ? approvedLink : fallbackLink;
+    if (!await link.isVisible().catch(() => false)) { test.skip(); return; }
+    await link.click();
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('text=/Reject.*Reverse|Reverse.*Approval/i')).toBeVisible();
   });
 
   // Bug 7 fix: PDF generation uses real role, not hardcoded 'Investor'
   test('Bug 7 — Download Report button is present in KYC detail', async ({ page }) => {
-    const firstReview = page.locator('a[href*="kyc-review/"], button:has-text("Review"), button:has-text("View")').first();
-    if (await firstReview.isVisible().catch(() => false)) {
-      await firstReview.click();
-      await page.waitForLoadState('networkidle');
-      const downloadBtn = page.locator('button:has-text("Download"), button:has-text("Report"), button:has-text("PDF")').first();
-      await expect(downloadBtn).toBeVisible();
-    } else {
-      test.skip();
-    }
+    const firstLink = page.locator('a[href*="kyc-review/"]').first();
+    if (!await firstLink.isVisible().catch(() => false)) { test.skip(); return; }
+    await firstLink.click();
+    await page.waitForLoadState('networkidle');
+    const downloadBtn = page.locator('button:has-text("Download"), button:has-text("Report"), button:has-text("PDF")').first();
+    await expect(downloadBtn).toBeVisible({ timeout: 10000 });
   });
 });

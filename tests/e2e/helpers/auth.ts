@@ -10,7 +10,16 @@ export const CREDENTIALS = {
 
 export async function login(page: Page, role: keyof typeof CREDENTIALS) {
   const { email, password } = CREDENTIALS[role];
-  await page.goto('/signin');
+  // Retry goto in case server is temporarily slow
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      await page.goto('/signin', { timeout: 45000 });
+      break;
+    } catch {
+      if (attempt === 2) throw new Error('Failed to reach /signin after 3 attempts');
+      await page.waitForTimeout(3000);
+    }
+  }
   await page.waitForLoadState('networkidle');
 
   // Click the role selector button (grid of 5 role buttons, all type="button")

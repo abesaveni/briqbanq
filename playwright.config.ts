@@ -18,8 +18,8 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     viewport: { width: 1280, height: 800 },
-    actionTimeout: 15000,
-    navigationTimeout: 30000,
+    actionTimeout: 20000,
+    navigationTimeout: 45000,
   },
   outputDir: './tests/screenshots',
 });

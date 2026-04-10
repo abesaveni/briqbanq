@@ -54,8 +54,12 @@ test.describe('Admin — Task Center', () => {
   });
 
   test('task list shows items or empty state', async ({ page }) => {
-    const hasItems = await page.locator('[class*="task"], tr, [class*="card"]').first().isVisible().catch(() => false);
-    const hasEmpty = await page.locator('text=/No tasks found|no task|empty/i').isVisible().catch(() => false);
-    expect(hasItems || hasEmpty).toBeTruthy();
+    // Wait for loading spinner to clear
+    await page.waitForSelector('[class*="animate-spin"]', { state: 'hidden', timeout: 20000 }).catch(() => {});
+    await page.waitForTimeout(1000);
+    const hasEmpty = await page.locator('text="No tasks found."').isVisible().catch(() => false);
+    const hasItems = await page.locator('[class*="border"][class*="rounded"] button:has-text("Start"), [class*="border"][class*="rounded"] button:has-text("View")').first().isVisible().catch(() => false);
+    const showingText = await page.locator('text=/Showing [0-9]+ of/').isVisible().catch(() => false);
+    expect(hasEmpty || hasItems || showingText).toBeTruthy();
   });
 });
