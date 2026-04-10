@@ -41,7 +41,8 @@ export default function AssignedCases() {
     setLoading(true)
     try {
       const res = await lawyerService.getMyAssignedCases()
-      setCases(res.data || [])
+      const d = res.data
+      setCases(Array.isArray(d) ? d : (d?.items || d?.cases || []))
     } catch (_) {}
     setLoading(false)
   }

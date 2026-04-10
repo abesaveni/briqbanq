@@ -211,10 +211,13 @@ export default function MyCase() {
       setLoading(true)
       try {
         const res = await caseService.getMyCases()
-        if (res.success && res.data && res.data.length > 0) {
-          setAllCases(res.data)
-          if (res.data.length === 1) {
-            handleSelectCase(res.data[0])
+        if (res.success && res.data) {
+          const cases = Array.isArray(res.data) ? res.data : (res.data?.items || res.data?.cases || [])
+          if (cases.length > 0) {
+            setAllCases(cases)
+            if (cases.length === 1) {
+              handleSelectCase(cases[0])
+            }
           }
         }
       } catch (err) {

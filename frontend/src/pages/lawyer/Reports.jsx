@@ -34,7 +34,10 @@ export default function Reports() {
         casesService.getCases(),
         adminService.getDashboardStats(),
       ])
-      if (casesRes?.success) setAllCases(casesRes.data || [])
+      if (casesRes?.success) {
+        const data = casesRes.data
+        setAllCases(Array.isArray(data) ? data : (data?.items || []))
+      }
       if (dashRes?.success) setDashStats(dashRes.data)
     } catch { /* stay silent on network error */ } finally {
       setRefreshing(false)

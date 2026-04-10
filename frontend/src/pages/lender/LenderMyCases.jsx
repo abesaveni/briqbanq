@@ -23,7 +23,8 @@ export default function LenderMyCases() {
         try {
             const res = await lenderService.getMyCases();
             if (res.success) {
-                setCases(res.data || []);
+                const d = res.data
+                setCases(Array.isArray(d) ? d : (d?.items || d?.cases || []));
             } else {
                 setError(res.error || "Failed to load cases");
             }

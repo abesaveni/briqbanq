@@ -402,7 +402,8 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
           navigate('/admin/case-management')
         } else if (role === 'lawyer') {
           onSuccess?.(caseId)
-          onClose?.()
+          if (onClose) onClose()
+          else navigate('/lawyer/assigned-cases')
         } else {
           onSuccess?.(caseId)
         }
