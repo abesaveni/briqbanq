@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import {
   Building2, TrendingUp, Scale, Shield, Briefcase,
-  ArrowRight, CheckCircle, ChevronRight, Gavel,
+  ArrowRight, ChevronRight, Gavel,
   FileCheck, Users, BarChart3, Clock, CircleDot,
   Lock, Zap, Globe
 } from "lucide-react";
@@ -112,23 +112,6 @@ export default function HomePage() {
               >
                 Sign in
               </Link>
-            </div>
-            {/* Trust badges */}
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-1.5">
-                <Shield size={13} className="text-emerald-400" />
-                <span className="text-xs text-white/50">AES-256 Encrypted</span>
-              </div>
-              <div className="w-px h-3.5 bg-white/15" />
-              <div className="flex items-center gap-1.5">
-                <CheckCircle size={13} className="text-emerald-400" />
-                <span className="text-xs text-white/50">AFCA Compliant</span>
-              </div>
-              <div className="w-px h-3.5 bg-white/15" />
-              <div className="flex items-center gap-1.5">
-                <Lock size={13} className="text-emerald-400" />
-                <span className="text-xs text-white/50">Bank-grade Security</span>
-              </div>
             </div>
           </div>
 
@@ -308,20 +291,6 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Bottom trust row */}
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  { icon: Shield, label: "AES-256", sub: "Encrypted", color: "bg-emerald-50 text-emerald-700" },
-                  { icon: CheckCircle, label: "AFCA", sub: "Compliant", color: "bg-blue-50 text-blue-700" },
-                  { icon: Lock, label: "SOC 2", sub: "Certified", color: "bg-violet-50 text-violet-700" },
-                ].map(({ icon: Icon, label, sub, color }) => (
-                  <div key={label} className={`rounded-xl p-3.5 border border-slate-100 flex flex-col items-center gap-1.5 ${color} bg-opacity-50`}>
-                    <Icon size={18} />
-                    <p className="text-xs font-bold">{label}</p>
-                    <p className="text-[10px] opacity-60">{sub}</p>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </div>

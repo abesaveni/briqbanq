@@ -4,6 +4,8 @@ import { NavLink } from 'react-router-dom'
 const NAV_ITEMS = [
   { name: 'Dashboard', path: 'dashboard', icon: 'dashboard', color: 'text-blue-600' },
   { name: 'Assigned Cases', path: 'assigned-cases', icon: 'cases', color: 'text-blue-400' },
+  { name: 'Live Auctions', path: 'live-auctions', icon: 'auction', color: 'text-emerald-400' },
+  { name: 'My Bids', path: 'my-bids', icon: 'mybids', color: 'text-sky-400' },
   { name: 'Contract Review', path: 'contract-review', icon: 'contract', color: 'text-[#6A0DAD]' },
   { name: 'Task Centre', path: 'task-center', icon: 'task', color: 'text-amber-400' },
   { name: 'Notifications', path: 'notifications', icon: 'bell', color: 'text-rose-400' },
@@ -40,6 +42,16 @@ const SidebarIcon = ({ icon, className = 'w-5 h-5' }) => {
   if (icon === 'bell') {
     return (
       <svg className={c} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+    )
+  }
+  if (icon === 'auction') {
+    return (
+      <svg className={c} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10zm3 3h2v5H7v-5zm5 0h2v5h-2v-5zm5 0h2v5h-2v-5z" /></svg>
+    )
+  }
+  if (icon === 'mybids') {
+    return (
+      <svg className={c} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
     )
   }
   if (icon === 'settings') {

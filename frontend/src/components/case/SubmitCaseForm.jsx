@@ -387,6 +387,9 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
           await documentService.uploadDocument(caseId, fd)
         }
 
+        // Advance status from DRAFT → SUBMITTED so admin can see it
+        await casesService.submitCaseActual(caseId)
+
         setSubmitSuccess(true)
         toast.success('Case submitted successfully!')
 

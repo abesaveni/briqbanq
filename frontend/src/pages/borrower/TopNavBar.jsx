@@ -8,8 +8,6 @@ const navItems = [
   { label: 'Dashboard', path: '/borrower/dashboard', icon: 'dashboard', color: 'text-indigo-600' },
   { label: 'My Case', path: '/borrower/my-case', icon: 'briefcase', color: 'text-blue-500' },
   { label: 'Auction Room', path: '/borrower/auction', icon: 'auction', color: 'text-orange-500' },
-  { label: 'Contracts', path: '/borrower/contracts', icon: 'contract', color: 'text-violet-600' },
-  { label: 'Task Center', path: '/borrower/task-center', icon: 'task', color: 'text-slate-600' },
   { label: 'Notifications', path: '/borrower/notifications', icon: 'bell', color: 'text-rose-500' },
 ]
 

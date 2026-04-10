@@ -115,12 +115,12 @@ export default function LenderCommunications() {
     }
 
     return (
-        <div className="animate-fade-in pt-0 pb-10 max-w-[1240px] mx-auto px-4 md:px-6 font-['Inter',sans-serif]">
+        <div className="space-y-4 pb-6">
             {/* Context Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between py-6 gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-900">Client Communications</h2>
-                    <p className="text-gray-500 font-medium mt-1 text-sm">Manage your templates, active campaigns, and audience engagement hub.</p>
+                    <h1 className="text-lg font-semibold text-slate-900">Client Communications</h1>
+                    <p className="text-sm text-slate-500">Manage templates, campaigns, and audience segments.</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <button
@@ -134,36 +134,34 @@ export default function LenderCommunications() {
                         onClick={() => setShowNewCampaignModal(true)}
                         className="flex-1 sm:flex-none px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-100"
                     >
-                        <Send size={16} />
-                        Launch
+                        <Plus size={16} />
+                        Create New Campaign
                     </button>
                 </div>
             </div>
 
-            {/* Sticky Navigation Bar */}
-            <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 mb-8 -mx-4 md:-mx-6 px-4 md:px-6">
-                <div className="flex items-center gap-6 md:gap-8">
-                    {tabs.map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`py-4 text-sm font-semibold transition-all relative flex items-center gap-2 ${activeTab === tab.id
-                                ? 'text-indigo-600'
-                                : 'text-slate-500 hover:text-slate-900'
-                                }`}
-                        >
-                            {tab.icon}
-                            <span>{tab.id}</span>
-                            {activeTab === tab.id && (
-                                <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-indigo-600" />
-                            )}
-                        </button>
-                    ))}
-                </div>
+            {/* Tab Navigation */}
+            <div className="flex items-center gap-1 border-b border-slate-200 pb-0">
+                {tabs.map((tab) => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`px-3 py-2 text-sm font-medium transition-colors relative flex items-center gap-1.5 ${activeTab === tab.id
+                            ? 'text-blue-600'
+                            : 'text-slate-500 hover:text-slate-800'
+                            }`}
+                    >
+                        {tab.icon}
+                        <span>{tab.id}</span>
+                        {activeTab === tab.id && (
+                            <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-blue-600" />
+                        )}
+                    </button>
+                ))}
             </div>
 
             {/* Content Area */}
-            <div className="space-y-6">
+            <div className="space-y-4">
                 {activeTab === 'Overview' && (
                     <OverviewTab
                         templates={templates}
@@ -245,18 +243,16 @@ function OverviewTab({
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {stats.map((stat, i) => (
-                    <div key={i} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between min-h-[140px]">
-                        <div className="flex justify-between items-start">
-                            <div className={`p-2.5 rounded-xl ${stat.bg}`}>
-                                {React.cloneElement(stat.icon, { size: 20 })}
+                    <div key={i} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2">
+                        <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-lg ${stat.bg}`}>
+                                {React.cloneElement(stat.icon, { size: 16 })}
                             </div>
-                            <span className={`text-xs font-bold ${stat.label === 'Avg Open Rate' ? 'text-emerald-500' : 'text-slate-400'}`}>
-                                {stat.sub.split(' ')[0]}
-                            </span>
+                            <p className="text-xs font-medium text-slate-500">{stat.label}</p>
                         </div>
-                        <div className="mt-4">
-                            <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">{stat.label}</p>
-                            <h3 className="text-2xl font-bold text-slate-900 mt-1">{stat.value}</h3>
+                        <div>
+                            <h3 className="text-xl font-bold text-slate-900">{stat.value}</h3>
+                            <p className="text-xs text-slate-400 mt-0.5">{stat.sub}</p>
                         </div>
                     </div>
                 ))}
@@ -314,29 +310,29 @@ function OverviewTab({
             </div>
 
             {/* Quick Actions Bar */}
-            <div className="space-y-4">
-                <h3 className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest">Creation Hub</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+                <h3 className="text-xs font-semibold text-slate-500 mb-2">Quick Actions</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <button
                         onClick={onNewCampaign}
-                        className="bg-indigo-600 h-[80px] rounded-2xl flex flex-col items-center justify-center gap-2 group hover:bg-indigo-700 transition-all shadow-lg"
+                        className="bg-indigo-600 px-4 py-3 rounded-xl flex items-center gap-3 hover:bg-indigo-700 transition-colors"
                     >
-                        <Send size={20} className="text-white" />
-                        <span className="text-xs font-bold text-white uppercase tracking-wider">New Campaign</span>
+                        <Send size={16} className="text-white shrink-0" />
+                        <span className="text-sm font-semibold text-white">New Campaign</span>
                     </button>
                     <button
                         onClick={onNewTemplate}
-                        className="bg-white border border-slate-100 h-[80px] rounded-2xl flex flex-col items-center justify-center gap-2 group hover:bg-slate-50 transition-all shadow-sm"
+                        className="bg-white border border-slate-200 px-4 py-3 rounded-xl flex items-center gap-3 hover:bg-slate-50 transition-colors"
                     >
-                        <FileText size={20} className="text-indigo-600" />
-                        <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">New Template</span>
+                        <FileText size={16} className="text-indigo-600 shrink-0" />
+                        <span className="text-sm font-semibold text-slate-800">New Template</span>
                     </button>
                     <button
                         onClick={onNewSegment}
-                        className="bg-white border border-slate-100 h-[80px] rounded-2xl flex flex-col items-center justify-center gap-2 group hover:bg-slate-50 transition-all shadow-sm"
+                        className="bg-white border border-slate-200 px-4 py-3 rounded-xl flex items-center gap-3 hover:bg-slate-50 transition-colors"
                     >
-                        <Users size={20} className="text-indigo-600" />
-                        <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">New Segment</span>
+                        <Users size={16} className="text-indigo-600 shrink-0" />
+                        <span className="text-sm font-semibold text-slate-800">New Segment</span>
                     </button>
                 </div>
             </div>
@@ -369,7 +365,7 @@ function CampaignsTab({ campaigns = [], onDelete, onAddNew }) {
                     className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-md"
                 >
                     <Plus size={18} />
-                    Launch Campaign
+                    Create New Campaign
                 </button>
             </div>
 
@@ -450,7 +446,7 @@ function CampaignsTab({ campaigns = [], onDelete, onAddNew }) {
                 ))}
                 {filteredCampaigns.length === 0 && (
                     <div className="py-10 text-center text-slate-400 text-sm font-medium">
-                        No campaigns found. Launch your first campaign above.
+                        No campaigns found. Create your first campaign above.
                     </div>
                 )}
             </div>
@@ -941,7 +937,7 @@ function NewCampaignModal({ onClose, onSave, templates = [], segments = [] }) {
                                 <Send size={18} className="text-white" />
                             </div>
                             <div>
-                                <h3 className="text-[15px] font-bold text-white">Launch Campaign</h3>
+                                <h3 className="text-[15px] font-bold text-white">Create New Campaign</h3>
                                 <p className="text-[11px] text-blue-200 font-medium">Reach your audience with targeted messaging</p>
                             </div>
                         </div>

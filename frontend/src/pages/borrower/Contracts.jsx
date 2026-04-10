@@ -89,22 +89,37 @@ export default function Contracts() {
     return Object.keys(next).length === 0
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!validate()) return
     const value = Math.round(Number(formData.contractValue))
-    const newContract = {
-      id: generateContractId(),
-      property: formData.propertyAddress.trim(),
-      suburb: (formData.propertySuburb || '').trim() || '—',
-      party: formData.party.trim(),
-      lender: (formData.lender || '').trim() || '—',
-      value,
-      created: new Date(formData.date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }),
-      status: formData.status,
+    const propertyName = formData.propertyAddress.trim()
+    try {
+      const res = await contractService.createContract({
+        title: `Contract — ${propertyName}`,
+        contract_type: 'Mortgage',
+        property_name: propertyName,
+        party_name: formData.party.trim(),
+        lender_name: (formData.lender || '').trim() || null,
+        value,
+        signer_ids: [],
+      })
+      const saved = (res.success && res.data) ? res.data : null
+      const newContract = {
+        id: saved?.id || generateContractId(),
+        property: saved?.property_name || propertyName,
+        suburb: (formData.propertySuburb || '').trim() || '—',
+        party: saved?.party_name || formData.party.trim(),
+        lender: saved?.lender_name || (formData.lender || '').trim() || '—',
+        value: Number(saved?.value || value),
+        created: new Date(saved?.created_at || formData.date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }),
+        status: saved?.status || formData.status,
+      }
+      setContracts((prev) => [newContract, ...prev])
+      handleCloseForm()
+    } catch {
+      setErrors({ submit: 'Failed to save contract. Please try again.' })
     }
-    setContracts((prev) => [newContract, ...prev])
-    handleCloseForm()
   }
 
   const handleView = (c) => () => setViewingContract(c)
@@ -542,6 +557,9 @@ export default function Contracts() {
             </div>
           </form>
           <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 shrink-0 bg-white shadow-sm">
+            {errors.submit && (
+              <p className="text-sm text-red-600 self-center mr-auto">{errors.submit}</p>
+            )}
             <button
               type="button"
               onClick={handleCloseForm}
@@ -552,7 +570,8 @@ export default function Contracts() {
             <button
               type="submit"
               form="create-contract-form"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-sm font-medium text-white shadow-sm transition-colors"
+              disabled={!!errors.submit}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-lg text-sm font-medium text-white shadow-sm transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

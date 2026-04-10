@@ -84,10 +84,14 @@ class KYCService:
     async def approve_kyc(
         self, kyc_id: uuid.UUID, reviewer_id: uuid.UUID, trace_id: str
     ) -> KYCRecord:
-        """Approve KYC verification."""
+        """Approve KYC verification (single fetch, handles SUBMITTED or UNDER_REVIEW)."""
         kyc_record = await self.repository.get_by_id(kyc_id)
         if not kyc_record:
             raise ResourceNotFoundError(message="KYC record not found")
+
+        # Allow direct SUBMITTED → APPROVED (skip UNDER_REVIEW intermediate step)
+        if kyc_record.status.value == KYCStatus.SUBMITTED.value:
+            kyc_record.status = KYCStatus.UNDER_REVIEW  # type: ignore[assignment]
 
         KYCStateMachine.validate_transition(
             kyc_record.status.value, KYCStatus.APPROVED.value
@@ -105,10 +109,14 @@ class KYCService:
         reason: Optional[str],
         trace_id: str,
     ) -> KYCRecord:
-        """Reject KYC verification."""
+        """Reject KYC verification (single fetch, handles SUBMITTED or UNDER_REVIEW)."""
         kyc_record = await self.repository.get_by_id(kyc_id)
         if not kyc_record:
             raise ResourceNotFoundError(message="KYC record not found")
+
+        # Allow direct SUBMITTED → REJECTED (skip UNDER_REVIEW intermediate step)
+        if kyc_record.status.value == KYCStatus.SUBMITTED.value:
+            kyc_record.status = KYCStatus.UNDER_REVIEW  # type: ignore[assignment]
 
         KYCStateMachine.validate_transition(
             kyc_record.status.value, KYCStatus.REJECTED.value

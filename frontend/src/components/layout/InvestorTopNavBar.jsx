@@ -7,6 +7,7 @@ const navItems = [
   { label: 'Dashboard', path: '/investor/dashboard', icon: 'dashboard', color: 'text-indigo-600' },
   { label: 'All Deals', path: '/investor/deals', icon: 'briefcase', color: 'text-blue-500' },
   { label: 'Auctions', path: '/investor/auctions', icon: 'auction', color: 'text-emerald-600' },
+  { label: 'My Bids', path: '/investor/my-bids', icon: 'mybids', color: 'text-sky-600' },
   { label: 'Contracts', path: '/investor/contracts', icon: 'contract', color: 'text-violet-600' },
   { label: 'Escrow', path: '/investor/escrow', icon: 'escrow', color: 'text-amber-600' },
   { label: 'Tasks', path: '/investor/tasks', icon: 'task', color: 'text-slate-600' },
@@ -28,6 +29,9 @@ const NavIcon = ({ icon, className }) => {
   }
   if (icon === 'auction') {
     return <svg className={c} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10zm3 3h2v5H7v-5zm5 0h2v5h-2v-5zm5 0h2v5h-2v-5z" /></svg>
+  }
+  if (icon === 'mybids') {
+    return <svg className={c} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
   }
   if (icon === 'contract') {
     return <svg className={c} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>

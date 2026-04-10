@@ -4,12 +4,15 @@ import AdminTopNavBar from './AdminTopNavBar'
 import { useAuth } from '../../context/AuthContext'
 
 export default function AdminDashboardLayout() {
-  const { token } = useAuth()
+  const { token, user } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (!token && !localStorage.getItem('token')) navigate('/signin', { replace: true })
-  }, [token, navigate])
+    if (!token && !localStorage.getItem('token')) { navigate('/signin', { replace: true }); return; }
+    if (user && user.role && user.role !== 'admin') {
+      navigate(`/${user.role}/dashboard`, { replace: true })
+    }
+  }, [token, user, navigate])
 
   if (!token && !localStorage.getItem('token')) return null
 

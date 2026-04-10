@@ -5,12 +5,15 @@ import { BorrowerProfileProvider } from './BorrowerProfileContext'
 import { useAuth } from '../../context/AuthContext'
 
 export default function BorrowerLayout() {
-  const { token } = useAuth()
+  const { token, user } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (!token && !localStorage.getItem('token')) navigate('/signin', { replace: true })
-  }, [token, navigate])
+    if (!token && !localStorage.getItem('token')) { navigate('/signin', { replace: true }); return; }
+    if (user && user.role && user.role !== 'borrower') {
+      navigate(`/${user.role}/dashboard`, { replace: true })
+    }
+  }, [token, user, navigate])
 
   if (!token && !localStorage.getItem('token')) return null
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
     Home, ChevronRight, RefreshCw, TrendingUp, DollarSign, FileText,
-    Users, Activity, Download, BarChart2, PieChart, AlertCircle
+    Users, Activity, Download, BarChart2, PieChart
 } from "lucide-react";
 import { Link, useNavigate } from 'react-router-dom';
 import { analyticsService } from '../../api/analyticsService';
@@ -226,100 +226,75 @@ export default function LenderReports() {
 
             {/* Chart Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
-                <div className="bg-white rounded-[20px] border border-slate-100 p-6 shadow-sm group hover:shadow-md transition-all">
-                    <div className="flex justify-between items-center mb-6">
+                <div className="bg-white rounded-[20px] border border-slate-100 p-6 shadow-sm">
+                    <div className="flex justify-between items-center mb-4">
                         <h3 className="font-bold text-[15px] text-slate-900">Case Volume Trend</h3>
-                        <div className="flex items-center gap-2">
-                            <span className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 italic">
-                                ↑ 12% vs last month
-                            </span>
-                            <button onClick={() => navigate('/lender/trend-analysis')} className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-bold text-slate-600 flex items-center gap-1.5 hover:bg-slate-100 transition-all shadow-sm active:scale-95">
-                                <BarChart2 size={14} /> View Details
-                            </button>
-                        </div>
-                    </div>
-                    <div className="h-[220px] w-full relative group/chart">
-                        {/* Premium SVG Bar Chart Mockup */}
-                        <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 400 200">
-                            {/* Grid Lines */}
-                            {[0, 50, 100, 150].map((y) => (
-                                <line key={y} x1="0" y1={y} x2="400" y2={y} stroke="#F1F5F9" strokeWidth="1" />
-                            ))}
-
-                            {/* Bars */}
-                            {[
-                                { h: 60, color: '#E2E8F0' },
-                                { h: 80, color: '#CBD5E1' },
-                                { h: 120, color: '#94A3B8' },
-                                { h: 100, color: '#64748B' },
-                                { h: 140, color: '#475569' },
-                                { h: 180, color: '#334155' },
-                                { h: 160, color: '#1E293B' },
-                                { h: 190, color: '#2D31A6' } // Active highlighting
-                            ].map((bar, i) => (
-                                <rect
-                                    key={i}
-                                    x={i * 50 + 10}
-                                    y={200 - bar.h}
-                                    width="30"
-                                    height={bar.h}
-                                    rx="6"
-                                    fill={bar.color}
-                                    className="transition-all duration-500 hover:opacity-80 cursor-pointer"
-                                />
-                            ))}
-                        </svg>
-                        {/* Legend */}
-                        <div className="flex justify-between mt-4 px-2">
-                            {Array.from({ length: 8 }, (_, i) => {
-                                const d = new Date();
-                                d.setMonth(d.getMonth() - (7 - i));
-                                return d.toLocaleString('en-AU', { month: 'short' });
-                            }).map((m) => (
-                                <span key={m} className="text-[10px] font-bold text-slate-400">{m}</span>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-[20px] border border-slate-100 p-6 shadow-sm group hover:shadow-md transition-all">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="font-bold text-[15px] text-slate-900">Revenue Distribution</h3>
-                        <button onClick={() => handleExportPDF("Revenue Distribution")} className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-bold text-slate-600 flex items-center gap-1.5 hover:bg-slate-100 transition-all shadow-sm active:scale-95">
-                            <PieChart size={14} /> View Details
+                        <button onClick={() => navigate('/lender/trend-analysis')} className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-bold text-slate-600 flex items-center gap-1.5 hover:bg-slate-100 transition-all shadow-sm active:scale-95">
+                            <BarChart2 size={14} /> View Details
                         </button>
                     </div>
-                    <div className="h-[220px] flex items-center justify-between gap-8">
-                        {/* Premium SVG Donut Chart Mockup */}
-                        <div className="relative w-40 h-40">
-                            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                                <circle cx="18" cy="18" r="16" fill="none" stroke="#F1F5F9" strokeWidth="4" />
-                                <circle cx="18" cy="18" r="16" fill="none" stroke="#2D31A6" strokeWidth="4" strokeDasharray="65 100" />
-                                <circle cx="18" cy="18" r="16" fill="none" stroke="#F97316" strokeWidth="4" strokeDasharray="35 100" strokeDashoffset="-65" />
-                                <circle cx="18" cy="18" r="16" fill="none" stroke="#10B981" strokeWidth="4" strokeDasharray="15 100" strokeDashoffset="-85" />
+                    {charts?.caseVolumeTrend && charts.caseVolumeTrend.length > 0 ? (
+                        <div className="h-[220px] w-full">
+                            <svg className="w-full" height="180" preserveAspectRatio="none" viewBox="0 0 400 180">
+                                {[0, 60, 120, 180].map((y) => (
+                                    <line key={y} x1="0" y1={y} x2="400" y2={y} stroke="#F1F5F9" strokeWidth="1" />
+                                ))}
+                                {charts.caseVolumeTrend.slice(-8).map((bar, i, arr) => {
+                                    const maxVal = Math.max(...arr.map(b => b.count || b.value || 0), 1);
+                                    const h = Math.round(((bar.count || bar.value || 0) / maxVal) * 160);
+                                    return (
+                                        <rect key={i} x={i * 50 + 10} y={180 - h} width="30" height={h} rx="5"
+                                            fill={i === arr.length - 1 ? '#2D31A6' : '#94A3B8'} />
+                                    );
+                                })}
                             </svg>
-                            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <span className="text-lg font-bold text-slate-900 leading-none">{summary?.totalRevenue || '—'}</span>
-                                <span className="text-[9px] font-bold text-slate-400 tracking-widest uppercase mt-0.5">Total</span>
+                            <div className="flex justify-between mt-2 px-2">
+                                {charts.caseVolumeTrend.slice(-8).map((bar, i) => (
+                                    <span key={i} className="text-[10px] font-bold text-slate-400">{bar.label || bar.month || ''}</span>
+                                ))}
                             </div>
                         </div>
-                        {/* Chart Legend */}
-                        <div className="flex-1 space-y-3">
-                            {(charts?.revenueDistribution || [
-                                { label: 'Active Cases', value: summary?.activeCases ? `${Math.round((summary.activeCases / (summary.totalCases || 1)) * 100)}%` : '—', color: 'bg-indigo-800' },
-                                { label: 'In Auction', value: '—', color: 'bg-orange-500' },
-                                { label: 'Completed', value: '—', color: 'bg-emerald-500' }
-                            ]).map((item, i) => (
-                                <div key={i} className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <div className={`w-2 h-2 rounded-full ${item.color}`}></div>
-                                        <span className="text-[12px] font-bold text-slate-600">{item.label}</span>
-                                    </div>
-                                    <span className="text-[12px] font-black text-slate-900">{item.value}</span>
-                                </div>
-                            ))}
+                    ) : (
+                        <div className="h-[220px] flex flex-col items-center justify-center gap-2">
+                            <BarChart2 size={32} className="text-slate-200" />
+                            <p className="text-[13px] font-medium text-slate-400">No trend data available yet</p>
+                            <p className="text-[11px] text-slate-300">Data will appear once cases are processed</p>
                         </div>
+                    )}
+                </div>
+
+                <div className="bg-white rounded-[20px] border border-slate-100 p-6 shadow-sm">
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="font-bold text-[15px] text-slate-900">Case Distribution</h3>
                     </div>
+                    {charts?.revenueDistribution && charts.revenueDistribution.length > 0 ? (
+                        <div className="h-[220px] flex flex-col justify-center space-y-3">
+                            {charts.revenueDistribution.map((item, i) => {
+                                const colors = ['bg-indigo-600', 'bg-orange-500', 'bg-emerald-500', 'bg-blue-500', 'bg-purple-500'];
+                                const bars = ['bg-indigo-100', 'bg-orange-100', 'bg-emerald-100', 'bg-blue-100', 'bg-purple-100'];
+                                return (
+                                    <div key={i} className="space-y-1">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <div className={`w-2 h-2 rounded-full ${colors[i % colors.length]}`} />
+                                                <span className="text-[12px] font-semibold text-slate-600">{item.label}</span>
+                                            </div>
+                                            <span className="text-[12px] font-bold text-slate-900">{item.value}</span>
+                                        </div>
+                                        <div className={`w-full ${bars[i % bars.length]} rounded-full h-1.5`}>
+                                            <div className={`h-1.5 rounded-full ${colors[i % colors.length]}`} style={{ width: `${item.percent || 0}%` }} />
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className="h-[220px] flex flex-col items-center justify-center gap-2">
+                            <PieChart size={32} className="text-slate-200" />
+                            <p className="text-[13px] font-medium text-slate-400">No distribution data yet</p>
+                            <p className="text-[11px] text-slate-300">Submit and process cases to see breakdown</p>
+                        </div>
+                    )}
                 </div>
             </div>
 

@@ -205,12 +205,10 @@ export default function LenderAllDeals() {
     const isSearching = search || selectedState !== "All States" || selectedStatus !== "All Status";
 
     return (
-        <div className="space-y-10 animate-fade-in pt-6 pb-12">
+        <div className="space-y-5 animate-fade-in pb-6">
             <div>
-                <h1 className="text-2xl font-semibold text-slate-900 mb-1">All Deals</h1>
-                <p className="text-slate-500 text-sm font-medium">
-                    Monitor and participate in live lender auctions and acquisitions
-                </p>
+                <h1 className="text-lg font-semibold text-slate-900">All Deals</h1>
+                <p className="text-slate-500 text-sm">Monitor and participate in live lender auctions and acquisitions</p>
             </div>
 
             {/* FILTER BAR */}
@@ -325,7 +323,7 @@ export default function LenderAllDeals() {
 
             {/* CATEGORIZED VIEW */}
             {filteredDeals.length > 0 ? (
-                <div className="space-y-16">
+                <div className="space-y-8">
                     {/* 1. LIVE AUCTIONS */}
                     {(isSearching ? filteredDeals : categorizedDeals.auctions).length > 0 && (
                         <div className="space-y-6">
@@ -397,12 +395,12 @@ export default function LenderAllDeals() {
                     )}
                 </div>
             ) : (
-                <div className="w-full py-20 bg-white rounded-[2.5rem] border border-dashed border-gray-200 flex flex-col items-center justify-center text-center">
-                    <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mb-6">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <div className="w-full py-12 bg-white rounded-xl border border-dashed border-gray-200 flex flex-col items-center justify-center text-center">
+                    <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900 mb-2">No matching assets found</h3>
-                    <p className="text-gray-400 font-medium max-w-sm">Adjust your filters or search terms to find available lender opportunities.</p>
+                    <h3 className="text-base font-semibold text-slate-900 mb-1">No matching assets found</h3>
+                    <p className="text-gray-400 text-sm max-w-sm">Adjust your filters or search terms to find available lender opportunities.</p>
                 </div>
             )}
         </div>

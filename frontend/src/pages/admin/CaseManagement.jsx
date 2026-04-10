@@ -24,6 +24,10 @@ export default function CaseManagement() {
     const [selectedLender, setSelectedLender] = useState('')
     const [isAssigning, setIsAssigning] = useState(false)
     const [loadError, setLoadError] = useState('')
+    const [auctionModal, setAuctionModal] = useState({ open: false, caseId: null })
+    const [auctionForm, setAuctionForm] = useState({ endDate: '', reservePrice: '', minIncrement: '1000', notes: '' })
+    const [auctionError, setAuctionError] = useState('')
+    const [isSubmittingAuction, setIsSubmittingAuction] = useState(false)
 
     // ============================================================================
     // LOAD / REFRESH CASES FROM BACKEND
@@ -163,13 +167,36 @@ export default function CaseManagement() {
         } catch (err) { console.error('Approve failed:', err) }
     }
 
-    const handleMoveToAuction = async (caseId) => {
+    const handleMoveToAuction = (caseId) => {
+        setAuctionForm({ endDate: '', reservePrice: '', minIncrement: '1000', notes: '' })
+        setAuctionError('')
+        setAuctionModal({ open: true, caseId })
+    }
+
+    const handleSubmitAuction = async () => {
+        if (!auctionForm.endDate) { setAuctionError('Auction end date is required'); return }
+        if (!auctionForm.reservePrice || Number(auctionForm.reservePrice) < 1000) { setAuctionError('Reserve price must be at least $1,000'); return }
+        const endDate = new Date(auctionForm.endDate)
+        if (endDate <= new Date()) { setAuctionError('End date must be in the future'); return }
+        setIsSubmittingAuction(true)
+        setAuctionError('')
         try {
-            await casesService.updateCaseStatus(caseId, 'AUCTION')
-            const updatedCases = allCases.map(c => c.id === caseId ? { ...c, status: 'AUCTION' } : c)
+            const res = await casesService.moveToAuction(auctionModal.caseId, {
+                end_date: endDate.toISOString(),
+                reserve_price: Number(auctionForm.reservePrice),
+                minimum_increment: Number(auctionForm.minIncrement) || 1000,
+                notes: auctionForm.notes || '',
+            })
+            if (!res.success) { setAuctionError(res.error || 'Failed to create auction'); return }
+            const updatedCases = allCases.map(c => c.id === auctionModal.caseId ? { ...c, status: 'AUCTION' } : c)
             setAllCases(updatedCases)
             applyFilters(updatedCases, statusFilter, searchTerm)
-        } catch (err) { console.error('Move to auction failed:', err) }
+            setAuctionModal({ open: false, caseId: null })
+        } catch (err) {
+            setAuctionError(err.message || 'Failed to create auction')
+        } finally {
+            setIsSubmittingAuction(false)
+        }
     }
 
     const handleDelete = async (caseId) => {
@@ -463,6 +490,93 @@ export default function CaseManagement() {
                                     onSuccess={() => { setShowNewCaseModal(false); loadCases() }}
                                 />
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Move to Auction Modal */}
+            {auctionModal.open && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md relative">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                            <div className="flex items-center gap-2">
+                                <Gavel className="w-5 h-5 text-indigo-600" />
+                                <h2 className="text-base font-semibold text-gray-900">Move Case to Auction</h2>
+                            </div>
+                            <button onClick={() => setAuctionModal({ open: false, caseId: null })} className="text-gray-400 hover:text-gray-600">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="px-6 py-5 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Auction End Date & Time <span className="text-red-500">*</span></label>
+                                <input
+                                    type="datetime-local"
+                                    value={auctionForm.endDate}
+                                    onChange={e => setAuctionForm(f => ({ ...f, endDate: e.target.value }))}
+                                    min={new Date(Date.now() + 60000).toISOString().slice(0, 16)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Reserve Price / Minimum Bid (AUD) <span className="text-red-500">*</span></label>
+                                <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                                    <input
+                                        type="number"
+                                        value={auctionForm.reservePrice}
+                                        onChange={e => setAuctionForm(f => ({ ...f, reservePrice: e.target.value }))}
+                                        placeholder="e.g. 500000"
+                                        min="1000"
+                                        className="w-full border border-gray-300 rounded-lg pl-7 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                                    />
+                                </div>
+                                <p className="text-xs text-gray-400 mt-1">Minimum $1,000</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Minimum Bid Increment (AUD)</label>
+                                <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                                    <input
+                                        type="number"
+                                        value={auctionForm.minIncrement}
+                                        onChange={e => setAuctionForm(f => ({ ...f, minIncrement: e.target.value }))}
+                                        placeholder="1000"
+                                        min="100"
+                                        className="w-full border border-gray-300 rounded-lg pl-7 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Auction Notes (optional)</label>
+                                <textarea
+                                    value={auctionForm.notes}
+                                    onChange={e => setAuctionForm(f => ({ ...f, notes: e.target.value }))}
+                                    rows={3}
+                                    placeholder="Any notes for this auction..."
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 resize-none"
+                                />
+                            </div>
+                            {auctionError && (
+                                <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{auctionError}</p>
+                            )}
+                        </div>
+                        <div className="flex justify-end gap-3 px-6 pb-5">
+                            <button
+                                onClick={() => setAuctionModal({ open: false, caseId: null })}
+                                className="px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSubmitAuction}
+                                disabled={isSubmittingAuction}
+                                className="px-5 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2"
+                            >
+                                <Gavel className="w-4 h-4" />
+                                {isSubmittingAuction ? 'Creating Auction...' : 'Move to Auction'}
+                            </button>
                         </div>
                     </div>
                 </div>

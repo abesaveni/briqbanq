@@ -234,39 +234,53 @@ export default function LenderContracts() {
 
         setIsSubmitting(true)
         try {
-            // Create contract object
-            const newContract = {
-                id: `MIP-${new Date().getFullYear()}-${String(contracts.length + 1).padStart(3, '0')}`,
-                propertyName: formData.propertyAddress.split(',')[0] || formData.propertyAddress,
-                location: formData.propertyAddress.split(',').slice(1).join(',').trim() || '',
-                propertyImage: photoPreviews[0] || '',
-                party: formData.party,
-                lender: formData.lender,
-                contractValue: Number(formData.contractValue),
-                createdDate: new Date(formData.date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }),
-                status: formData.status
+            const propertyName = formData.propertyAddress.split(',')[0]?.trim() || formData.propertyAddress
+            const res = await contractService.createContract({
+                title: `Contract — ${propertyName}`,
+                contract_type: 'Mortgage',
+                property_name: formData.propertyAddress,
+                party_name: formData.party,
+                lender_name: formData.lender,
+                value: Number(formData.contractValue),
+                signer_ids: [],
+            })
+
+            if (!res.success) {
+                setFormErrors({ submit: res.error || 'Failed to create contract' })
+                return
             }
 
-            // Add to contracts list
+            // Normalise the saved record for the list
+            const saved = res.data
+            const newContract = normalizeContract({
+                ...saved,
+                propertyName: saved.property_name || propertyName,
+                location: formData.propertyAddress.split(',').slice(1).join(',').trim() || '',
+                propertyImage: photoPreviews[0] || '',
+                party: saved.party_name || formData.party,
+                lender: saved.lender_name || formData.lender,
+                contractValue: Number(saved.value || formData.contractValue),
+                createdDate: new Date(saved.created_at || formData.date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }),
+                status: saved.status || formData.status,
+            }, contracts.length)
+
             setContracts(prev => [newContract, ...prev])
 
-            // Trigger notification
             addNotification({
                 type: 'contract',
                 title: 'New Contract Created',
-                message: `A new contract for ${newContract.propertyName} has been successfully created.`,
-            });
+                message: `Contract for ${propertyName} has been saved and submitted for admin approval.`,
+            })
 
-            // Log activity
             activityService.logActivity({
                 type: 'contract',
                 action: 'Contract Created',
-                property: newContract.propertyName,
-                party: newContract.party,
-                value: newContract.contractValue,
-                id: newContract.id,
-                time: "Just now"
-            });
+                property: propertyName,
+                party: formData.party,
+                value: Number(formData.contractValue),
+                id: saved.id,
+                time: 'Just now',
+            })
 
             closeCreateModal()
         } catch (err) {
@@ -280,11 +294,11 @@ export default function LenderContracts() {
     // if (error) return <ErrorState message={error} />;
 
     return (
-        <div className="space-y-6 pt-6 pb-6 animate-fade-in">
+        <div className="space-y-4 pb-6 animate-fade-in">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-semibold text-slate-900 mb-1">My Contracts</h1>
-                    <p className="text-slate-500 text-sm font-medium">Manage your mortgage resolution cases and signature status</p>
+                    <h1 className="text-lg font-semibold text-slate-900">My Contracts</h1>
+                    <p className="text-slate-500 text-sm">Manage your mortgage resolution cases and signature status</p>
                     {error && <p className="text-xs text-amber-600 mt-1">{error}</p>}
                 </div>
 

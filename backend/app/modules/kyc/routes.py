@@ -5,7 +5,7 @@ KYC module — FastAPI routes.
 import uuid
 from typing import Optional
 
-from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, UploadFile, File, Form, HTTPException
 from sqlalchemy import select
 
 from app.core.dependencies import get_current_user, get_db, get_trace_id
@@ -209,6 +209,7 @@ async def get_pending_kyc(
 @router.post("/{kyc_id}/approve", response_model=KYCResponse)
 async def approve_kyc(
     kyc_id: uuid.UUID,
+    background_tasks: BackgroundTasks,
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db),
     trace_id: str = Depends(get_trace_id),
@@ -217,8 +218,6 @@ async def approve_kyc(
     KYCPolicy.can_review_kyc(current_user)
     service = KYCService(db)
 
-    # Start review first
-    await service.start_review(kyc_id, uuid.UUID(current_user["user_id"]), trace_id)
     kyc_record = await service.approve_kyc(
         kyc_id, uuid.UUID(current_user["user_id"]), trace_id
     )
@@ -236,24 +235,32 @@ async def approve_kyc(
         trace_id=trace_id,
     )
 
-    # Notify the user whose KYC was approved
-    try:
-        from app.modules.notifications.service import NotificationService
-        from app.infrastructure.email_service import EmailService
-        from app.modules.identity.models import User
-        from sqlalchemy import select as sa_select
+    # Fire notifications and email in the background — do not block the response
+    user_id = kyc_record.user_id
+    meta = kyc_record.metadata_json or {}
+    name = f"{meta.get('first_name', '')} {meta.get('last_name', '')}".strip()
 
-        notif_service = NotificationService(db)
-        await notif_service.notify_kyc_approved(user_id=kyc_record.user_id, trace_id=trace_id)
+    async def _notify_approved():
+        try:
+            from app.modules.notifications.service import NotificationService
+            from app.infrastructure.email_service import EmailService
+            from app.modules.identity.models import User
+            from sqlalchemy import select as sa_select
+            from app.infrastructure.database import async_session_factory
 
-        user_row = await db.execute(sa_select(User).where(User.id == kyc_record.user_id))
-        user = user_row.scalar_one_or_none()
-        if user:
-            meta = kyc_record.metadata_json or {}
-            name = f"{meta.get('first_name', '')} {meta.get('last_name', '')}".strip() or user.email
-            await EmailService.send_kyc_approved_email(to_email=user.email, name=name)
-    except Exception:
-        pass
+            async with async_session_factory() as bg_db:
+                notif_service = NotificationService(bg_db)
+                await notif_service.notify_kyc_approved(user_id=user_id, trace_id=trace_id)
+
+                user_row = await bg_db.execute(sa_select(User).where(User.id == user_id))
+                user = user_row.scalar_one_or_none()
+                if user:
+                    display_name = name or user.email
+                    await EmailService.send_kyc_approved_email(to_email=user.email, name=display_name)
+        except Exception:
+            pass
+
+    background_tasks.add_task(_notify_approved)
 
     return kyc_record
 
@@ -262,6 +269,7 @@ async def approve_kyc(
 async def reject_kyc(
     kyc_id: uuid.UUID,
     request: KYCReviewRequest,
+    background_tasks: BackgroundTasks,
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db),
     trace_id: str = Depends(get_trace_id),
@@ -270,7 +278,6 @@ async def reject_kyc(
     KYCPolicy.can_review_kyc(current_user)
     service = KYCService(db)
 
-    await service.start_review(kyc_id, uuid.UUID(current_user["user_id"]), trace_id)
     kyc_record = await service.reject_kyc(
         kyc_id, uuid.UUID(current_user["user_id"]), request.rejection_reason, trace_id
     )
@@ -288,31 +295,40 @@ async def reject_kyc(
         trace_id=trace_id,
     )
 
-    # Notify the user whose KYC was rejected
-    try:
-        from app.modules.notifications.service import NotificationService
-        from app.infrastructure.email_service import EmailService
-        from app.modules.identity.models import User
-        from sqlalchemy import select as sa_select
+    # Fire notifications and email in the background — do not block the response
+    user_id = kyc_record.user_id
+    meta = kyc_record.metadata_json or {}
+    name = f"{meta.get('first_name', '')} {meta.get('last_name', '')}".strip()
+    rejection_reason = request.rejection_reason or ""
 
-        notif_service = NotificationService(db)
-        await notif_service.notify_kyc_rejected(
-            user_id=kyc_record.user_id,
-            reason=request.rejection_reason or "",
-            trace_id=trace_id,
-        )
+    async def _notify_rejected():
+        try:
+            from app.modules.notifications.service import NotificationService
+            from app.infrastructure.email_service import EmailService
+            from app.modules.identity.models import User
+            from sqlalchemy import select as sa_select
+            from app.infrastructure.database import async_session_factory
 
-        user_row = await db.execute(sa_select(User).where(User.id == kyc_record.user_id))
-        user = user_row.scalar_one_or_none()
-        if user:
-            meta = kyc_record.metadata_json or {}
-            name = f"{meta.get('first_name', '')} {meta.get('last_name', '')}".strip() or user.email
-            await EmailService.send_kyc_rejected_email(
-                to_email=user.email,
-                name=name,
-                reason=request.rejection_reason or "",
-            )
-    except Exception:
-        pass
+            async with async_session_factory() as bg_db:
+                notif_service = NotificationService(bg_db)
+                await notif_service.notify_kyc_rejected(
+                    user_id=user_id,
+                    reason=rejection_reason,
+                    trace_id=trace_id,
+                )
+
+                user_row = await bg_db.execute(sa_select(User).where(User.id == user_id))
+                user = user_row.scalar_one_or_none()
+                if user:
+                    display_name = name or user.email
+                    await EmailService.send_kyc_rejected_email(
+                        to_email=user.email,
+                        name=display_name,
+                        reason=rejection_reason,
+                    )
+        except Exception:
+            pass
+
+    background_tasks.add_task(_notify_rejected)
 
     return kyc_record

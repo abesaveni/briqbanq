@@ -147,14 +147,12 @@ export default function LenderAuctions() {
     const isSearching = search || filterStatus !== "all";
 
     return (
-        <div className="space-y-10 animate-fade-in pt-6 pb-12">
+        <div className="space-y-5 animate-fade-in pb-6">
 
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-slate-900 mb-1">Active Auctions</h1>
-                    <p className="text-slate-500 text-sm font-medium">
-                        Institutional monitoring of live and upcoming distressed asset recovery
-                    </p>
+                    <h1 className="text-lg font-semibold text-slate-900">Active Auctions</h1>
+                    <p className="text-slate-500 text-sm">Institutional monitoring of live and upcoming distressed asset recovery</p>
                 </div>
             </div>
 
@@ -171,7 +169,7 @@ export default function LenderAuctions() {
             />
 
             {filteredAuctions.length > 0 ? (
-                <div className="space-y-16">
+                <div className="space-y-8">
                     {/* 1. LIVE AUCTIONS */}
                     {(isSearching ? filteredAuctions : categorizedAuctions.live).length > 0 && (
                         <div className="space-y-6">
@@ -228,12 +226,12 @@ export default function LenderAuctions() {
                     )}
                 </div>
             ) : (
-                <div className="col-span-full w-full py-20 bg-white rounded-[2.5rem] border border-dashed border-gray-200 flex flex-col items-center justify-center text-center shadow-sm">
-                    <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mb-6">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <div className="col-span-full w-full py-12 bg-white rounded-xl border border-dashed border-gray-200 flex flex-col items-center justify-center text-center">
+                    <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900 mb-2">No auctions matching your criteria</h3>
-                    <p className="text-gray-400 font-medium max-w-sm">Adjust your filters or try a broader search term to discover more opportunities.</p>
+                    <h3 className="text-base font-semibold text-slate-900 mb-1">No auctions matching your criteria</h3>
+                    <p className="text-gray-400 text-sm max-w-sm">Adjust your filters or try a broader search term to discover more opportunities.</p>
                 </div>
             )}
 

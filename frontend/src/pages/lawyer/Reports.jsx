@@ -3,12 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { generateReportPDF, generateCasesTablePDF } from '../../utils/pdfGenerator'
 import { casesService, adminService } from '../../api/dataService'
 
-const REVENUE_BARS = [
-  { label: 'Residential', value: 48, color: 'bg-blue-600' },
-  { label: 'Commercial', value: 28, color: 'bg-emerald-500' },
-  { label: 'Industrial', value: 14, color: 'bg-amber-500' },
-  { label: 'Other', value: 10, color: 'bg-purple-500' },
-]
+const DISTRIBUTION_COLORS = ['bg-blue-600', 'bg-emerald-500', 'bg-amber-500', 'bg-purple-500', 'bg-rose-500']
 
 const STATUS_COLOR = {
   'In Auction': 'bg-blue-100 text-blue-700',
@@ -224,34 +219,48 @@ export default function Reports() {
           </div>
         </div>
 
-        {/* Revenue Distribution */}
+        {/* Case Distribution */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h3 className="text-base font-semibold text-gray-900">Revenue Distribution</h3>
-              <p className="text-xs text-gray-500 mt-0.5">By property category — {period}</p>
+              <h3 className="text-base font-semibold text-gray-900">Case Distribution</h3>
+              <p className="text-xs text-gray-500 mt-0.5">By property type — {period}</p>
             </div>
-            <button
-              type="button"
-              onClick={() => handleExport('PDF', 'Revenue Distribution')}
-              className="text-sm text-blue-600 hover:text-[#2a5fc4] font-medium"
-            >
-              Export →
-            </button>
           </div>
-          <div className="space-y-3">
-            {REVENUE_BARS.map((r) => (
-              <div key={r.label}>
-                <div className="flex justify-between text-xs text-gray-600 mb-1">
-                  <span>{r.label}</span>
-                  <span className="font-medium">{r.value}%</span>
-                </div>
-                <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div className={`h-full ${r.color} rounded-full`} style={{ width: `${r.value}%` }} />
-                </div>
+          {(() => {
+            const typeCounts = {}
+            allCases.forEach(c => {
+              const t = c.property_type || c.metadata_json?.property_type || 'Other'
+              typeCounts[t] = (typeCounts[t] || 0) + 1
+            })
+            const total = Object.values(typeCounts).reduce((a, b) => a + b, 0)
+            const bars = Object.entries(typeCounts).map(([label, count]) => ({
+              label,
+              count,
+              pct: total > 0 ? Math.round((count / total) * 100) : 0,
+            })).sort((a, b) => b.count - a.count)
+            if (bars.length === 0) return (
+              <div className="flex flex-col items-center justify-center h-28 gap-2 text-gray-300">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                <p className="text-sm font-medium text-gray-400">No case data yet</p>
               </div>
-            ))}
-          </div>
+            )
+            return (
+              <div className="space-y-3">
+                {bars.map((r, i) => (
+                  <div key={r.label}>
+                    <div className="flex justify-between text-xs text-gray-600 mb-1">
+                      <span>{r.label}</span>
+                      <span className="font-medium">{r.pct}% ({r.count})</span>
+                    </div>
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div className={`h-full ${DISTRIBUTION_COLORS[i % DISTRIBUTION_COLORS.length]} rounded-full`} style={{ width: `${r.pct}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
         </div>
       </div>
 

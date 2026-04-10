@@ -78,15 +78,67 @@ async def get_bids_by_case(
     return await service.get_auction_bids(auctions[0].id)
 
 
-@router.get("/my-bids", response_model=list[BidResponse])
+@router.get("/my-bids")
 async def get_my_bids(
     page: int = Query(1, ge=1), page_size: int = Query(20, ge=1, le=100),
     current_user: dict = Depends(get_current_user),
     db=Depends(get_db),
 ):
+    """Return bids with enriched auction + case data for My Bids page."""
+    from sqlalchemy import select
+    from app.modules.auctions.models import Auction as AuctionModel
+    from app.modules.deals.models import Deal
+    from app.modules.cases.models import Case
+
     service = BidService(db)
     offset = (page - 1) * page_size
-    return await service.get_user_bids(uuid.UUID(current_user["user_id"]), offset, page_size)
+    bids = await service.get_user_bids(uuid.UUID(current_user["user_id"]), offset, page_size)
+
+    # Enrich each bid with auction + case info
+    enriched = []
+    for bid in bids:
+        auction_row = await db.execute(
+            select(AuctionModel).where(AuctionModel.id == bid.auction_id)
+        )
+        auction = auction_row.scalar_one_or_none()
+        auction_data = None
+        if auction:
+            # Resolve case via deal
+            case_data = None
+            deal_row = await db.execute(select(Deal).where(Deal.id == auction.deal_id))
+            deal = deal_row.scalar_one_or_none()
+            if deal:
+                case_row = await db.execute(select(Case).where(Case.id == deal.case_id))
+                case = case_row.scalar_one_or_none()
+                if case:
+                    case_data = {
+                        "id": str(case.id),
+                        "case_number": case.case_number,
+                        "property_address": case.property_address,
+                    }
+            auction_data = {
+                "id": str(auction.id),
+                "title": auction.title,
+                "status": auction.status.value if hasattr(auction.status, "value") else str(auction.status),
+                "current_highest_bid": float(auction.current_highest_bid) if auction.current_highest_bid else None,
+                "scheduled_end": auction.scheduled_end.isoformat() if auction.scheduled_end else None,
+                "case_id": case_data["id"] if case_data else None,
+                "case_number": case_data["case_number"] if case_data else None,
+                "property_address": case_data["property_address"] if case_data else auction.title,
+            }
+        enriched.append({
+            "id": str(bid.id),
+            "auction_id": str(bid.auction_id),
+            "bidder_id": str(bid.bidder_id),
+            "amount": float(bid.amount),
+            "status": bid.status.value if hasattr(bid.status, "value") else str(bid.status),
+            "created_at": bid.created_at.isoformat(),
+            "updated_at": bid.updated_at.isoformat(),
+            "version": bid.version,
+            "auction": auction_data,
+            "auction_status": auction_data["status"] if auction_data else None,
+        })
+    return enriched
 
 
 @router.post("/approve/{bid_id}", response_model=BidResponse)

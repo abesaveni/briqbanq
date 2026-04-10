@@ -596,20 +596,38 @@ async def delete_case_endpoint(
     db=Depends(get_db),
     trace_id: str = Depends(get_trace_id),
 ):
-    """Delete a case (admin only)."""
-    CasePolicy.can_list_all_cases(current_user) # Using "list_all_cases" policy which is admin-only
+    """Delete a case. Admins can delete any case; lenders/lawyers can delete their own cases."""
+    from app.modules.cases.repository import CaseRepository
+    from app.core.exceptions import AuthorizationError, ResourceNotFoundError
+    repo = CaseRepository(db)
+    case = await repo.get_by_id(case_id)
+    if not case:
+        raise ResourceNotFoundError("Case not found")
+
+    user_role = (current_user.get("role") or "").upper()
+    user_id = current_user["user_id"]
+
+    is_admin = user_role == "ADMIN"
+    is_owner = (
+        str(getattr(case, "borrower_id", None)) == str(user_id)
+        or str(getattr(case, "assigned_lender_id", None)) == str(user_id)
+    )
+
+    if not is_admin and not is_owner:
+        raise AuthorizationError("You do not have permission to delete this case")
+
     service = CaseService(db)
     await service.delete_case(
         case_id=case_id,
-        admin_id=uuid.UUID(current_user["user_id"]),
+        admin_id=uuid.UUID(user_id),
         trace_id=trace_id,
     )
-    
+
     from app.modules.audit.service import AuditService
     audit_service = AuditService(db)
     await audit_service.log(
-        actor_id=current_user["user_id"],
-        actor_role="ADMIN",
+        actor_id=user_id,
+        actor_role=user_role or "LENDER",
         entity_type="case",
         entity_id=str(case_id),
         action="DELETE_CASE",
@@ -617,8 +635,110 @@ async def delete_case_endpoint(
         after_state=None,
         trace_id=trace_id,
     )
-    
+
     return MessageResponse(message="Case deleted successfully")
+
+
+# ─── Move to Auction ─────────────────────────────────────────────────────────
+
+from pydantic import BaseModel as _PydanticBase, Field as _Field
+from decimal import Decimal as _Decimal
+from datetime import datetime as _datetime
+
+class MoveToAuctionRequest(_PydanticBase):
+    end_date: _datetime = _Field(..., description="Auction end date/time (UTC)")
+    reserve_price: _Decimal = _Field(..., gt=0, description="Minimum acceptable bid")
+    minimum_increment: _Decimal = _Field(default=_Decimal("1000"), gt=0)
+    notes: str = _Field(default="", max_length=1000)
+
+
+@router.post("/{case_id}/move-to-auction", status_code=201)
+async def move_case_to_auction(
+    case_id: uuid.UUID,
+    request: MoveToAuctionRequest,
+    current_user: dict = Depends(get_current_user),
+    db=Depends(get_db),
+    trace_id: str = Depends(get_trace_id),
+):
+    """Admin-only: atomically create a Deal + Auction record and move case to AUCTION status."""
+    from app.core.exceptions import AuthorizationError, ResourceNotFoundError
+    from app.modules.cases.repository import CaseRepository
+    from app.modules.deals.models import Deal
+    from app.modules.auctions.models import Auction as AuctionModel
+    from app.shared.enums import DealStatus, AuctionStatus, CaseStatus
+    from datetime import datetime, timezone
+    from sqlalchemy import select as _sa_select
+
+    roles = [r.upper() for r in (current_user.get("roles") or [])]
+    if "ADMIN" not in roles:
+        raise AuthorizationError("Only admins can move cases to auction")
+
+    case_repo = CaseRepository(db)
+    case = await case_repo.get_by_id(case_id)
+    if not case:
+        raise ResourceNotFoundError("Case not found")
+    if case.status not in (CaseStatus.APPROVED, CaseStatus.LISTED):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail=f"Case must be APPROVED to move to auction (current: {case.status.value})")
+
+    # Find or create Deal for this case
+    result = await db.execute(_sa_select(Deal).where(Deal.case_id == case_id))
+    deal = result.scalar_one_or_none()
+    now = datetime.now(timezone.utc)
+
+    if not deal:
+        deal = Deal(
+            case_id=case_id,
+            title=case.title or case.property_address or f"Case {case.case_number}",
+            asking_price=request.reserve_price,
+            reserve_price=request.reserve_price,
+            status=DealStatus.LISTED,
+            seller_id=case.borrower_id,
+            created_by=uuid.UUID(current_user["user_id"]),
+        )
+        db.add(deal)
+        await db.flush()  # get deal.id
+
+    # Create Auction record (LIVE immediately)
+    auction = AuctionModel(
+        deal_id=deal.id,
+        title=case.title or case.property_address or f"Case {case.case_number}",
+        starting_price=request.reserve_price,
+        minimum_increment=request.minimum_increment,
+        status=AuctionStatus.LIVE,
+        scheduled_start=now,
+        scheduled_end=request.end_date,
+        actual_start=now,
+        created_by=uuid.UUID(current_user["user_id"]),
+    )
+    db.add(auction)
+
+    # Update case status to AUCTION
+    case.status = CaseStatus.AUCTION
+    case.version += 1
+
+    await db.commit()
+    await db.refresh(auction)
+
+    from app.modules.audit.service import AuditService
+    await AuditService(db).log(
+        actor_id=current_user["user_id"], actor_role="ADMIN",
+        entity_type="auction", entity_id=str(auction.id),
+        action="MOVE_TO_AUCTION",
+        before_state={"case_status": "APPROVED"},
+        after_state={"case_status": "AUCTION", "auction_id": str(auction.id), "deal_id": str(deal.id)},
+        trace_id=trace_id,
+    )
+
+    return {
+        "success": True,
+        "auction_id": str(auction.id),
+        "deal_id": str(deal.id),
+        "case_id": str(case_id),
+        "auction_status": auction.status.value,
+        "scheduled_end": auction.scheduled_end.isoformat(),
+        "starting_price": float(auction.starting_price),
+    }
 
 
 # ─── Image upload directory ───────────────────────────────────────────────────

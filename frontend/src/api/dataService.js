@@ -23,16 +23,23 @@ const wrap = (promise) =>
 // ─── Auction Service ─────────────────────────────────────────────────────────
 
 export const auctionService = {
-  getAuctions: () => wrap(api.get("/api/v1/auctions")),
+  getAuctions: (params) => wrap(api.get("/api/v1/auctions", { params })),
   startAuction: (id) => wrap(api.post(`/api/v1/auctions/${id}/start`)),
+  endAuction: (id) => wrap(api.post(`/api/v1/auctions/${id}/end`)),
+  closeAuction: (id) => wrap(api.post(`/api/v1/auctions/${id}/close`)),
+  cancelAuction: (id) => wrap(api.post(`/api/v1/auctions/${id}/cancel`)),
+  pauseAuction: (id) => wrap(api.post(`/api/v1/auctions/${id}/pause`)),
+  resumeAuction: (id) => wrap(api.post(`/api/v1/auctions/${id}/resume`)),
   getAuctionById: (id) => wrap(api.get(`/api/v1/auctions/${id}`)),
-  getActiveAuctions: () => wrap(api.get("/api/v1/auctions/active")),
+  getActiveAuctions: () => wrap(api.get("/api/v1/auctions")),
   placeBid: (auctionId, amount) =>
     wrap(api.post("/api/v1/bids/place", { auction_id: auctionId, amount })),
   getBidHistory: (auctionId) => wrap(api.get(`/api/v1/bids/auction/${auctionId}`)),
   getBidsByCase: (caseId) => wrap(api.get(`/api/v1/bids/by-case/${caseId}`)),
   getAuctionsByCase: (caseId) => wrap(api.get(`/api/v1/auctions/by-case/${caseId}`)),
   approveBid: (bidId) => wrap(api.post(`/api/v1/bids/approve/${bidId}`)),
+  getMyBids: (page = 1, pageSize = 50) =>
+    wrap(api.get("/api/v1/bids/my-bids", { params: { page, page_size: pageSize } })),
   getDocuments: (auctionId) => wrap(api.get(`/api/v1/documents/auction/${auctionId}`)),
 };
 
@@ -168,6 +175,8 @@ export const casesService = {
     return res.data;
   },
   deleteCase: (caseId) => wrap(api.delete(`/api/v1/cases/${caseId}`)),
+  moveToAuction: (caseId, payload) =>
+    wrap(api.post(`/api/v1/cases/${caseId}/move-to-auction`, payload)),
   uploadCaseImage: (caseId, file) => {
     const form = new FormData()
     form.append("file", file)

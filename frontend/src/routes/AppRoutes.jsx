@@ -50,6 +50,7 @@ import LawyerReports from "../pages/lawyer/Reports";
 import LawyerAdminConsole from "../pages/lawyer/AdminConsole";
 import LawyerLiveAuctions from "../pages/lawyer/LiveAuctions";
 import LawyerSubmitNewCase from "../pages/lawyer/SubmitNewCase";
+import MyBidsPage from "../pages/common/MyBidsPage";
 
 
 
@@ -81,12 +82,10 @@ import BorrowerLayout from "../pages/borrower/BorrowerLayout";
 import BorrowerDashboard from "../pages/borrower/BorrowerDashboard";
 
 import MyCase from "../pages/borrower/MyCase";
-import BorrowerContracts from "../pages/borrower/Contracts";
 import IdentityVerification from "../pages/borrower/IdentityVerification";
 import LenderIdentityVerification from "../pages/borrower/IdentityVerification";
 import LawyerIdentityVerification from "../pages/borrower/IdentityVerification";
 import InvestorIdentityVerification from "../pages/borrower/IdentityVerification";
-import BorrowerTaskCenter from "../pages/borrower/TaskCenter";
 import BorrowerAuctionRoom from "../pages/borrower/AuctionRoom";
 import BorrowerNotifications from "../pages/borrower/Notifications";
 import BorrowerSettings from "../pages/borrower/Settings";
@@ -147,8 +146,6 @@ export default function AppRoutes() {
         <Route index element={<Navigate to="/borrower/dashboard" replace />} />
         <Route path="dashboard" element={<BorrowerDashboard />} />
         <Route path="my-case" element={<MyCase />} />
-        <Route path="contracts" element={<BorrowerContracts />} />
-        <Route path="task-center" element={<BorrowerTaskCenter />} />
         <Route path="auction" element={<BorrowerAuctionRoom />} />
         <Route path="notifications" element={<BorrowerNotifications />} />
         <Route path="settings" element={<BorrowerSettings />} />
@@ -170,6 +167,7 @@ export default function AppRoutes() {
         <Route path="case-details/:id" element={<InvestorCaseDetails />} />
         <Route path="place-bid/:id" element={<InvestorPlaceBid />} />
         <Route path="buy-now/:id" element={<InvestorBuyNowRoom />} />
+        <Route path="my-bids" element={<MyBidsPage role="investor" />} />
         <Route path="notifications" element={<InvestorNotifications />} />
         <Route path="settings" element={<InvestorSettings />} />
         <Route path="identity-verification" element={<InvestorIdentityVerification />} />
@@ -192,6 +190,7 @@ export default function AppRoutes() {
         <Route path="trend-analysis" element={<RouteErrorBoundary key="lender-trend-analysis" routeLabel="Trend Analysis"><LenderTrendAnalysis /></RouteErrorBoundary>} />
         <Route path="case-details/:id" element={<RouteErrorBoundary key="lender-case-details" routeLabel="Case Details"><LenderCaseDetails /></RouteErrorBoundary>} />
         <Route path="submit-case" element={<RouteErrorBoundary key="lender-submit-case" routeLabel="Submit New Case"><LenderSubmitNewCase /></RouteErrorBoundary>} />
+        <Route path="my-bids" element={<RouteErrorBoundary key="lender-my-bids" routeLabel="My Bids"><MyBidsPage role="lender" /></RouteErrorBoundary>} />
         <Route path="notifications" element={<RouteErrorBoundary key="lender-notifications" routeLabel="Notifications"><LenderNotifications /></RouteErrorBoundary>} />
         <Route path="settings" element={<RouteErrorBoundary key="lender-settings" routeLabel="Settings"><LenderSettings /></RouteErrorBoundary>} />
         <Route path="identity-verification" element={<RouteErrorBoundary key="lender-kyc" routeLabel="Identity Verification"><LenderIdentityVerification /></RouteErrorBoundary>} />
@@ -214,6 +213,8 @@ export default function AppRoutes() {
         <Route path="settings" element={<LawyerSettings />} />
         <Route path="identity-verification" element={<LawyerIdentityVerification />} />
         <Route path="live-auctions" element={<LawyerLiveAuctions />} />
+        <Route path="auctions/:id" element={<InvestorAuctionRoom />} />
+        <Route path="my-bids" element={<MyBidsPage role="lawyer" />} />
         <Route path="submit-case" element={<RouteErrorBoundary key="lawyer-submit-case" routeLabel="Submit New Case"><LawyerSubmitNewCase /></RouteErrorBoundary>} />
       </Route>
 

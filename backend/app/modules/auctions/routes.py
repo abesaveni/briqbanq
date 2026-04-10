@@ -21,6 +21,50 @@ async def get_auction_winner(
     service = AuctionService(db)
     return await service.get_auction_winner(auction_id)
 
+@router.post("/{auction_id}/cancel")
+async def cancel_auction(
+    auction_id: uuid.UUID,
+    current_user: dict = Depends(get_current_user),
+    db=Depends(get_db), trace_id: str = Depends(get_trace_id),
+):
+    """Cancel a live/scheduled auction and revert case to APPROVED status."""
+    AuctionPolicy.can_manage_auction(current_user)
+    from sqlalchemy import select as _sa_select, update as _sa_update
+    from app.modules.auctions.models import Auction as AuctionModel
+    from app.modules.deals.models import Deal
+    from app.modules.cases.models import Case
+    from app.shared.enums import CaseStatus
+    from datetime import datetime, timezone
+
+    result = await db.execute(_sa_select(AuctionModel).where(AuctionModel.id == auction_id))
+    auction = result.scalar_one_or_none()
+    if not auction:
+        from app.core.exceptions import ResourceNotFoundError
+        raise ResourceNotFoundError("Auction not found")
+
+    auction.status = AuctionStatus.ENDED
+    auction.actual_end = datetime.now(timezone.utc)
+    auction.version += 1
+
+    # Revert case status back to APPROVED
+    deal_result = await db.execute(_sa_select(Deal).where(Deal.id == auction.deal_id))
+    deal = deal_result.scalar_one_or_none()
+    if deal:
+        await db.execute(
+            _sa_update(Case).where(Case.id == deal.case_id).values(status=CaseStatus.APPROVED)
+        )
+
+    await db.commit()
+    from app.modules.audit.service import AuditService
+    await AuditService(db).log(
+        actor_id=current_user["user_id"], actor_role="ADMIN",
+        entity_type="auction", entity_id=str(auction_id),
+        action="CANCEL_AUCTION", before_state=None, after_state={"status": "ENDED"},
+        trace_id=trace_id,
+    )
+    return {"success": True, "message": "Auction cancelled and case reverted to APPROVED"}
+
+
 @router.post("/{auction_id}/close", response_model=AuctionResponse)
 async def close_auction(
     auction_id: uuid.UUID,

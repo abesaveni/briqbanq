@@ -53,7 +53,7 @@ class AuctionResponse(BaseModel):
     created_by: uuid.UUID
     created_at: datetime
     updated_at: datetime
-    version: int
+    version: int = 0
     # Enriched from linked deal → case
     property_address: Optional[str] = None
     suburb: Optional[str] = None

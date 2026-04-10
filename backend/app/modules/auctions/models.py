@@ -97,19 +97,25 @@ class Auction(BaseEntityMixin, Base):
     @property
     def bedrooms(self) -> Optional[int]:
         if self.deal and self.deal.case and self.deal.case.metadata_json:
-            return self.deal.case.metadata_json.get("bedrooms")
+            v = self.deal.case.metadata_json.get("bedrooms")
+            try: return int(v) if v not in (None, "") else None
+            except (ValueError, TypeError): return None
         return None
 
     @property
     def bathrooms(self) -> Optional[int]:
         if self.deal and self.deal.case and self.deal.case.metadata_json:
-            return self.deal.case.metadata_json.get("bathrooms")
+            v = self.deal.case.metadata_json.get("bathrooms")
+            try: return int(v) if v not in (None, "") else None
+            except (ValueError, TypeError): return None
         return None
 
     @property
     def parking(self) -> Optional[int]:
         if self.deal and self.deal.case and self.deal.case.metadata_json:
-            return self.deal.case.metadata_json.get("parking")
+            v = self.deal.case.metadata_json.get("parking")
+            try: return int(v) if v not in (None, "") else None
+            except (ValueError, TypeError): return None
         return None
 
     @property

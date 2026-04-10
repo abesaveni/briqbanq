@@ -4,13 +4,17 @@ import { useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 
 export default function LenderLayout() {
-    const { currentRole, switchRole, token } = useAuth();
+    const { currentRole, switchRole, token, user } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
         if (!token && !localStorage.getItem('token')) { navigate('/signin', { replace: true }); return; }
+        if (user && user.role && user.role !== 'lender') {
+            navigate(`/${user.role}/dashboard`, { replace: true });
+            return;
+        }
         if (currentRole !== "lender") switchRole("lender");
-    }, [token, currentRole, switchRole, navigate]);
+    }, [token, user, currentRole, switchRole, navigate]);
 
     return (
         <div className="min-h-screen bg-gray-50">
