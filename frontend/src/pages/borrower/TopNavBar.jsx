@@ -7,7 +7,6 @@ import { useNotifications } from '../../context/NotificationContext'
 const navItems = [
   { label: 'Dashboard', path: '/borrower/dashboard', icon: 'dashboard', color: 'text-indigo-600' },
   { label: 'My Case', path: '/borrower/my-case', icon: 'briefcase', color: 'text-blue-500' },
-  { label: 'Auction Room', path: '/borrower/auction', icon: 'auction', color: 'text-orange-500' },
   { label: 'Notifications', path: '/borrower/notifications', icon: 'bell', color: 'text-rose-500' },
 ]
 
