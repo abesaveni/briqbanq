@@ -1,9 +1,17 @@
+// Roles available for sign-up (no Borrower, no Admin)
 export const USER_ROLES = [
-  { value: "borrower", label: "Borrower" },
   { value: "lender", label: "Lender" },
   { value: "investor", label: "Investor" },
   { value: "lawyer", label: "Lawyer" },
-  { value: "admin", label: "Admin" }
+];
+
+// All roles available for sign-in (Borrower shown but disabled)
+export const SIGNIN_ROLES = [
+  { value: "borrower", label: "Borrower", disabled: true },
+  { value: "lender", label: "Lender" },
+  { value: "investor", label: "Investor" },
+  { value: "lawyer", label: "Lawyer" },
+  { value: "admin", label: "Admin" },
 ];
 
 export function getDashboardPath(role) {

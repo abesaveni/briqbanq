@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { USER_ROLES, getDashboardPath } from "./authConfig";
+import { SIGNIN_ROLES, getDashboardPath } from "./authConfig";
 import api from "../../services/api";
 import { validateEmail } from "../../utils/auValidation";
 import {
@@ -28,7 +28,7 @@ export default function SignIn() {
   const [step, setStep] = useState("signin");
 
   // ── Sign-in state ──────────────────────────────────────────────────────────
-  const [selectedRole, setSelectedRole] = useState("borrower");
+  const [selectedRole, setSelectedRole] = useState("lender");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -272,7 +272,7 @@ export default function SignIn() {
                 <div className="mb-6">
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">I am signing in as</p>
                   <div className="grid grid-cols-5 gap-2">
-                    {USER_ROLES.map(({ value }) => {
+                    {SIGNIN_ROLES.map(({ value, disabled }) => {
                       const meta = ROLE_META[value];
                       if (!meta) return null;
                       const Icon = meta.icon;
@@ -281,9 +281,13 @@ export default function SignIn() {
                         <button
                           key={value}
                           type="button"
-                          onClick={() => setSelectedRole(value)}
+                          disabled={disabled}
+                          onClick={() => !disabled && setSelectedRole(value)}
+                          title={disabled ? 'Borrower sign-in is currently unavailable' : meta.label}
                           className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all duration-150 ${
-                            isActive
+                            disabled
+                              ? 'bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed opacity-50'
+                              : isActive
                               ? `${meta.activeBg} text-white border-transparent shadow-md`
                               : `bg-white ${meta.text} ${meta.border} hover:bg-slate-50`
                           }`}
