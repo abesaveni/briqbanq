@@ -52,8 +52,8 @@ export default function LiveAuctions() {
   return (
     <div className="space-y-4 pb-6">
       <div>
-        <h1 className="text-lg font-semibold text-slate-900">Live Auctions</h1>
-        <p className="text-sm text-slate-500 mt-1">Properties currently listed or in active auction</p>
+        <h1 className="text-2xl font-bold text-slate-900">Live Auctions</h1>
+        <p className="text-[13px] font-medium text-slate-500 mt-1">Properties currently listed or in active auction</p>
       </div>
 
       <div className="flex items-center gap-3">

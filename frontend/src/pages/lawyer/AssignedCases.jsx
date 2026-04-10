@@ -116,8 +116,8 @@ export default function AssignedCases() {
     <div className="space-y-4 pb-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold text-slate-900">Assigned Cases</h1>
-          <p className="text-sm text-slate-500">Manage your assigned legal cases</p>
+          <h1 className="text-2xl font-bold text-slate-900">Assigned Cases</h1>
+          <p className="text-[13px] font-medium text-slate-500">Manage your assigned legal cases</p>
         </div>
       </div>
 

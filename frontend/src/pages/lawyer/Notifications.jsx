@@ -152,8 +152,8 @@ export default function Notifications() {
   return (
     <div className="space-y-4 pb-6">
       <div>
-        <h1 className="text-lg font-semibold text-slate-900">Notifications</h1>
-        <p className="text-sm text-slate-500">Stay updated on case activity and platform events</p>
+        <h1 className="text-2xl font-bold text-slate-900">Notifications</h1>
+        <p className="text-[13px] font-medium text-slate-500">Stay updated on case activity and platform events</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

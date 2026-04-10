@@ -5,12 +5,40 @@ import { integrationService } from '../../../api/dataService'
 export default function ApiIntegrationsTab() {
   const [integrations, setIntegrations] = useState([])
   const [testing, setTesting] = useState(null)
+  const [fieldValues, setFieldValues] = useState({})
+  const [toast, setToast] = useState(null)
+
+  const showToast = (msg, type = 'success') => {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 3000)
+  }
 
   useEffect(() => {
     integrationService.getIntegrations()
-      .then((res) => { const d = res.data || res; if (Array.isArray(d)) setIntegrations(d) })
+      .then((res) => {
+        const d = res.data || res
+        if (Array.isArray(d)) {
+          setIntegrations(d)
+          // Initialise field values from API data
+          const initial = {}
+          d.forEach(int => {
+            initial[int.id] = {}
+            ;(int.fields || []).forEach(field => {
+              initial[int.id][field] = int.fieldValues?.[field] || ''
+            })
+          })
+          setFieldValues(initial)
+        }
+      })
       .catch(() => {})
   }, [])
+
+  const handleFieldChange = (intId, field, val) => {
+    setFieldValues(prev => ({
+      ...prev,
+      [intId]: { ...(prev[intId] || {}), [field]: val }
+    }))
+  }
 
   const handleTestConnection = (id) => {
     setTesting(id)
@@ -19,6 +47,12 @@ export default function ApiIntegrationsTab() {
 
   return (
     <div className="space-y-6">
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white max-w-sm ${toast.type === 'error' ? 'bg-red-600' : 'bg-green-600'}`}>
+          {toast.msg}
+        </div>
+      )}
+
       <nav className="text-sm text-slate-500">
         <Link to="/lawyer/dashboard" className="hover:text-slate-700">Dashboard</Link>
         <span className="mx-2">&gt;</span>
@@ -50,13 +84,15 @@ export default function ApiIntegrationsTab() {
               </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              {int.fields.map((field) => (
+              {(int.fields || []).map((field) => (
                 <div key={field}>
                   <label className="block text-sm font-medium text-slate-700 mb-1">{field}</label>
                   <input
                     type={field.toLowerCase().includes('secret') || field.toLowerCase().includes('password') || field.toLowerCase().includes('key') ? 'password' : 'text'}
+                    value={fieldValues[int.id]?.[field] ?? ''}
+                    onChange={(e) => handleFieldChange(int.id, field, e.target.value)}
                     placeholder={`Enter ${field}`}
-                    className="w-full border border-slate-300 rounded px-3 py-2 text-sm"
+                    className="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                   />
                 </div>
               ))}
@@ -87,9 +123,13 @@ export default function ApiIntegrationsTab() {
         <p className="text-4xl text-slate-400 mb-2">+</p>
         <h4 className="text-lg font-semibold text-slate-900">Need Another Integration?</h4>
         <p className="text-sm text-slate-500 mt-1">Contact support to add custom API integrations</p>
-        <a href="mailto:admin@brickbanq.com?subject=API%20Integration%20Request" className="mt-4 text-indigo-600 text-sm font-medium hover:underline inline-block">
+        <button
+          type="button"
+          onClick={() => showToast('Integration request sent to the support team. We\'ll be in touch soon!')}
+          className="mt-4 text-indigo-600 text-sm font-medium hover:underline inline-block"
+        >
           Request Integration
-        </a>
+        </button>
       </div>
     </div>
   )

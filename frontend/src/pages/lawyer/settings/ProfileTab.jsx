@@ -145,19 +145,23 @@ export default function ProfileTab() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">First Name *</label>
-                  <input type="text" value={form.firstName} onChange={(e) => handleChange('firstName', e.target.value)} className="w-full border border-slate-300 rounded px-3 py-2 text-sm" />
+                  <input type="text" value={form.firstName} onChange={(e) => handleChange('firstName', e.target.value)} className={`w-full border rounded px-3 py-2 text-sm ${errors.firstName ? 'border-red-500' : 'border-slate-300'}`} />
+                  {errors.firstName && <p className="text-red-600 text-xs mt-1">{errors.firstName}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Last Name</label>
-                  <input type="text" value={form.lastName} onChange={(e) => handleChange('lastName', e.target.value)} className="w-full border border-slate-300 rounded px-3 py-2 text-sm" />
+                  <input type="text" value={form.lastName} onChange={(e) => handleChange('lastName', e.target.value)} className={`w-full border rounded px-3 py-2 text-sm ${errors.lastName ? 'border-red-500' : 'border-slate-300'}`} />
+                  {errors.lastName && <p className="text-red-600 text-xs mt-1">{errors.lastName}</p>}
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-slate-700 mb-1">Email Address *</label>
-                  <input type="email" value={form.email} onChange={(e) => handleChange('email', e.target.value)} className="w-full border border-slate-300 rounded px-3 py-2 text-sm" />
+                  <input type="email" value={form.email} onChange={(e) => handleChange('email', e.target.value)} className={`w-full border rounded px-3 py-2 text-sm ${errors.email ? 'border-red-500' : 'border-slate-300'}`} />
+                  {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
-                  <input type="text" value={form.phone} onChange={(e) => handleChange('phone', e.target.value)} className="w-full border border-slate-300 rounded px-3 py-2 text-sm" />
+                  <input type="text" value={form.phone} onChange={(e) => handleChange('phone', e.target.value)} className={`w-full border rounded px-3 py-2 text-sm ${errors.phone ? 'border-red-500' : 'border-slate-300'}`} />
+                  {errors.phone && <p className="text-red-600 text-xs mt-1">{errors.phone}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Company</label>
@@ -183,7 +187,8 @@ export default function ProfileTab() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">City</label>
-                  <input type="text" value={form.city} onChange={(e) => handleChange('city', e.target.value)} className="w-full border border-slate-300 rounded px-3 py-2 text-sm" />
+                  <input type="text" value={form.city} onChange={(e) => handleChange('city', e.target.value)} className={`w-full border rounded px-3 py-2 text-sm ${errors.city ? 'border-red-500' : 'border-slate-300'}`} />
+                  {errors.city && <p className="text-red-600 text-xs mt-1">{errors.city}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">State</label>
@@ -197,7 +202,8 @@ export default function ProfileTab() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Postcode</label>
-                  <input type="text" value={form.postcode} onChange={(e) => handleChange('postcode', e.target.value)} className="w-full border border-slate-300 rounded px-3 py-2 text-sm" />
+                  <input type="text" value={form.postcode} onChange={(e) => handleChange('postcode', e.target.value)} className={`w-full border rounded px-3 py-2 text-sm ${errors.postcode ? 'border-red-500' : 'border-slate-300'}`} />
+                  {errors.postcode && <p className="text-red-600 text-xs mt-1">{errors.postcode}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Country</label>
