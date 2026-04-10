@@ -554,28 +554,33 @@ class CaseService:
         return case
 
     async def delete_case(self, case_id: uuid.UUID, admin_id: uuid.UUID, trace_id: str) -> None:
-        """Delete a case and ALL related records using raw SQL to bypass FK constraints."""
+        """Delete a case and ALL related records in FK-safe order."""
         case = await self._get_case_or_404(case_id)
         from sqlalchemy import text
         db = self.repository.db
         cid = str(case_id)
-        # Step 1: delete bids → auctions (via deals chain)
+
+        # Delete in FK-safe order (deepest dependents first)
+        # bids → auctions (via deals)
         await db.execute(text(
             "DELETE FROM bids WHERE auction_id IN "
             "(SELECT id FROM auctions WHERE deal_id IN "
-            "(SELECT id FROM deals WHERE case_id = :cid))"
+            "(SELECT id FROM deals WHERE case_id = CAST(:cid AS uuid)))"
         ), {"cid": cid})
-        # Step 2: delete auctions via deals
+
+        # auctions → deals
         await db.execute(text(
             "DELETE FROM auctions WHERE deal_id IN "
-            "(SELECT id FROM deals WHERE case_id = :cid)"
+            "(SELECT id FROM deals WHERE case_id = CAST(:cid AS uuid))"
         ), {"cid": cid})
-        # Step 3: delete tables with direct case_id FK
-        for table in ["contracts", "escrow_accounts", "case_messages", "case_activity", "documents", "case_images", "deals"]:
-            try:
-                await db.execute(text(f"DELETE FROM {table} WHERE case_id = :cid"), {"cid": cid})
-            except Exception:
-                pass
+
+        # direct case_id tables (all confirmed to have case_id column)
+        for table in ["case_messages", "case_activity", "documents", "case_images", "deals"]:
+            await db.execute(
+                text(f"DELETE FROM {table} WHERE case_id = CAST(:cid AS uuid)"),
+                {"cid": cid}
+            )
+
         await db.flush()
         await self.repository.delete(case)
 
