@@ -3,11 +3,12 @@ import { useState } from 'react'
 import { Outlet, useNavigate, useParams, useLocation, NavLink } from 'react-router-dom'
 import {
     ChevronLeft, Home, Building2, FileText, FileCheck, Shield,
-    DollarSign, MessageSquare, Activity, Settings, Download, Loader2
+    DollarSign, MessageSquare, Activity, Settings, Download, Loader2, UserPlus, X
 } from 'lucide-react'
 import { useCaseContext } from '../../../context/CaseContext'
 import ManageCaseModal from '../../../components/admin/case/ManageCaseModal'
 import { generateBrandedPDF } from '../../../utils/pdfGenerator'
+import { casesService, adminUsersService } from '../../../api/dataService'
 
 const tabs = [
     { label: 'Overview', icon: Home, path: 'overview' },
@@ -71,6 +72,13 @@ export default function CaseDetailsLayout() {
     const { caseData, loading } = useCaseContext()
     const [isManageModalOpen, setIsManageModalOpen] = useState(false)
     const [downloading, setDownloading] = useState(false)
+    const [assignModal, setAssignModal] = useState(false)
+    const [lawyers, setLawyers] = useState([])
+    const [lenders, setLenders] = useState([])
+    const [selectedLawyer, setSelectedLawyer] = useState('')
+    const [selectedLender, setSelectedLender] = useState('')
+    const [isAssigning, setIsAssigning] = useState(false)
+    const [assignToast, setAssignToast] = useState(null)
 
     const fmt = (amount) => new Intl.NumberFormat('en-AU', {
         style: 'currency', currency: 'AUD', maximumFractionDigits: 0
@@ -158,6 +166,23 @@ export default function CaseDetailsLayout() {
                         {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                     </button>
                     <button
+                        onClick={async () => {
+                            setSelectedLawyer(''); setSelectedLender('');
+                            const [lawyersRes, lendersRes] = await Promise.all([
+                                adminUsersService.getUsersByRole('LAWYER'),
+                                adminUsersService.getUsersByRole('LENDER'),
+                            ]);
+                            if (lawyersRes.success) setLawyers(lawyersRes.data || []);
+                            if (lendersRes.success) setLenders(lendersRes.data || []);
+                            setAssignModal(true);
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                        title="Assign Lawyer / Lender"
+                    >
+                        <UserPlus className="w-4 h-4" />
+                        Assign
+                    </button>
+                    <button
                         onClick={() => setIsManageModalOpen(true)}
                         className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-indigo-600 transition-colors"
                     >
@@ -240,6 +265,65 @@ export default function CaseDetailsLayout() {
                     isOpen={isManageModalOpen}
                     onClose={() => setIsManageModalOpen(false)}
                 />
+            )}
+
+            {/* Assign toast */}
+            {assignToast && (
+                <div className={`fixed top-4 right-4 z-[100] px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white ${assignToast.type === 'error' ? 'bg-red-600' : 'bg-green-600'}`}>
+                    {assignToast.msg}
+                </div>
+            )}
+
+            {/* Assign Lawyer / Lender Modal */}
+            {assignModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 relative">
+                        <button onClick={() => setAssignModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                            <X className="w-5 h-5" />
+                        </button>
+                        <h2 className="text-xl font-bold text-gray-900 mb-6">Assign Participants</h2>
+                        <div className="space-y-5">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Assign Lawyer</label>
+                                <select value={selectedLawyer} onChange={e => setSelectedLawyer(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                    <option value="">— No change —</option>
+                                    {lawyers.map(l => <option key={l.id} value={l.id}>{l.first_name} {l.last_name} ({l.email})</option>)}
+                                </select>
+                                {lawyers.length === 0 && <p className="text-xs text-gray-400 mt-1">No approved lawyers found</p>}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Assign Lender</label>
+                                <select value={selectedLender} onChange={e => setSelectedLender(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                    <option value="">— No change —</option>
+                                    {lenders.map(l => <option key={l.id} value={l.id}>{l.first_name} {l.last_name} ({l.email})</option>)}
+                                </select>
+                                {lenders.length === 0 && <p className="text-xs text-gray-400 mt-1">No approved lenders found</p>}
+                            </div>
+                        </div>
+                        <div className="flex justify-end gap-3 mt-8">
+                            <button onClick={() => setAssignModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</button>
+                            <button
+                                onClick={async () => {
+                                    if (!selectedLawyer && !selectedLender) return;
+                                    setIsAssigning(true);
+                                    const payload = {};
+                                    if (selectedLawyer) payload.lawyer_id = selectedLawyer;
+                                    if (selectedLender) payload.lender_id = selectedLender;
+                                    const res = await casesService.assignParticipants(caseData._id || caseData.id, payload);
+                                    setIsAssigning(false);
+                                    setAssignModal(false);
+                                    const msg = res.success ? 'Participants assigned successfully' : (res.error || 'Failed to assign');
+                                    setAssignToast({ msg, type: res.success ? 'success' : 'error' });
+                                    setTimeout(() => setAssignToast(null), 3000);
+                                }}
+                                disabled={isAssigning || (!selectedLawyer && !selectedLender)}
+                                className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                            >
+                                {isAssigning ? 'Assigning...' : 'Assign'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     )

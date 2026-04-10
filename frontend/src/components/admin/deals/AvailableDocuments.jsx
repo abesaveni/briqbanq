@@ -6,7 +6,13 @@ export default function AvailableDocuments({ documents }) {
 
     const getName = (doc) => doc.document_name || doc.name || 'Untitled Document'
     const getType = (doc) => doc.document_type || doc.type || doc.description || '—'
-    const getUrl = (doc) => doc.s3_key || doc.file_url || doc.url || null
+    const getUrl = (doc) => {
+        const url = doc.file_url || doc.url || null
+        // Only return if it looks like an actual URL (not a raw S3 key path)
+        if (!url) return null
+        if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) return url
+        return null
+    }
 
     const handleView = (doc) => {
         const url = getUrl(doc)

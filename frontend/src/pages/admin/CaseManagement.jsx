@@ -25,7 +25,7 @@ export default function CaseManagement() {
     const [isAssigning, setIsAssigning] = useState(false)
     const [loadError, setLoadError] = useState('')
     const [auctionModal, setAuctionModal] = useState({ open: false, caseId: null })
-    const [auctionForm, setAuctionForm] = useState({ endDate: '', reservePrice: '', minIncrement: '1000', notes: '' })
+    const [auctionForm, setAuctionForm] = useState({ endDate: '', endTime: '10:00', reservePrice: '', minIncrement: '1000', notes: '' })
     const [auctionError, setAuctionError] = useState('')
     const [isSubmittingAuction, setIsSubmittingAuction] = useState(false)
 
@@ -168,7 +168,7 @@ export default function CaseManagement() {
     }
 
     const handleMoveToAuction = (caseId) => {
-        setAuctionForm({ endDate: '', reservePrice: '', minIncrement: '1000', notes: '' })
+        setAuctionForm({ endDate: '', endTime: '10:00', reservePrice: '', minIncrement: '1000', notes: '' })
         setAuctionError('')
         setAuctionModal({ open: true, caseId })
     }
@@ -176,7 +176,14 @@ export default function CaseManagement() {
     const handleSubmitAuction = async () => {
         if (!auctionForm.endDate) { setAuctionError('Auction end date is required'); return }
         if (!auctionForm.reservePrice || Number(auctionForm.reservePrice) < 1000) { setAuctionError('Reserve price must be at least $1,000'); return }
-        const endDate = new Date(auctionForm.endDate)
+        // Combine date + time fields; support both YYYY-MM-DD and DD/MM/YYYY entry
+        let datePart = auctionForm.endDate.trim()
+        if (/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}$/.test(datePart)) {
+            const parts = datePart.split(/[\/\-]/)
+            datePart = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`
+        }
+        const endDate = new Date(`${datePart}T${auctionForm.endTime || '00:00'}`)
+        if (isNaN(endDate.getTime())) { setAuctionError('Please enter a valid date (e.g. 31/12/2026)'); return }
         if (endDate <= new Date()) { setAuctionError('End date must be in the future'); return }
         setIsSubmittingAuction(true)
         setAuctionError('')
@@ -510,14 +517,24 @@ export default function CaseManagement() {
                         </div>
                         <div className="px-6 py-5 space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Auction End Date & Time <span className="text-red-500">*</span></label>
-                                <input
-                                    type="datetime-local"
-                                    value={auctionForm.endDate}
-                                    onChange={e => setAuctionForm(f => ({ ...f, endDate: e.target.value }))}
-                                    min={new Date(Date.now() + 60000).toISOString().slice(0, 16)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                                />
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Auction End Date <span className="text-red-500">*</span></label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="date"
+                                        value={auctionForm.endDate}
+                                        onChange={e => setAuctionForm(f => ({ ...f, endDate: e.target.value }))}
+                                        min={new Date().toISOString().split('T')[0]}
+                                        className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                                        placeholder="DD/MM/YYYY"
+                                    />
+                                    <input
+                                        type="time"
+                                        value={auctionForm.endTime || '10:00'}
+                                        onChange={e => setAuctionForm(f => ({ ...f, endTime: e.target.value }))}
+                                        className="w-28 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                                    />
+                                </div>
+                                <p className="text-xs text-gray-400 mt-1">Date then time (24hr)</p>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Reserve Price / Minimum Bid (AUD) <span className="text-red-500">*</span></label>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { FileText, FolderOpen, Star, Upload, Download, Eye, Share2, Trash2, File, Search, X } from 'lucide-react'
+import { FileText, FolderOpen, Star, Upload, Download, Eye, Share2, Trash2, File, Search, X, CheckCircle } from 'lucide-react'
 import AdminStatCard from '../../components/admin/AdminStatCard'
 import AdminBreadcrumb from '../../components/admin/AdminBreadcrumb'
 import { documentService } from '../../api/dataService'
@@ -37,6 +37,7 @@ export default function DocumentLibrary() {
     const [showStarred, setShowStarred] = useState(false)
     const [viewDoc, setViewDoc] = useState(null)
     const [copiedId, setCopiedId] = useState(null)
+    const [shareToast, setShareToast] = useState(null)
     const fileInputRef = useRef(null)
 
     const toggleStar = (id) => {
@@ -105,11 +106,26 @@ export default function DocumentLibrary() {
     }
 
     const handleShare = (doc) => {
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(`https://brickbanq.com/docs/${doc.id}`)
-            setCopiedId(doc.id)
-            setTimeout(() => setCopiedId(null), 2000)
+        const url = `https://brickbanq.com/docs/${doc.id}`
+        const copyFallback = () => {
+            const ta = document.createElement('textarea')
+            ta.value = url
+            ta.style.position = 'fixed'
+            ta.style.opacity = '0'
+            document.body.appendChild(ta)
+            ta.focus()
+            ta.select()
+            try { document.execCommand('copy') } catch (_) {}
+            document.body.removeChild(ta)
         }
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(url).catch(copyFallback)
+        } else {
+            copyFallback()
+        }
+        setCopiedId(doc.id)
+        setShareToast('Link copied to clipboard!')
+        setTimeout(() => { setCopiedId(null); setShareToast(null) }, 2500)
     }
 
     const getCategoryColor = (category) => {
@@ -382,6 +398,13 @@ export default function DocumentLibrary() {
                             </button>
                         </div>
                     </div>
+                </div>
+            )}
+
+            {/* Share toast */}
+            {shareToast && (
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-5 py-3 bg-gray-900 text-white text-sm font-medium rounded-xl shadow-lg flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-400" /> {shareToast}
                 </div>
             )}
         </div>

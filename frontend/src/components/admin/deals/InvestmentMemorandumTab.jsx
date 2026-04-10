@@ -230,10 +230,10 @@ export default function InvestmentMemorandumTab({ deal }) {
                     {images.length > 0 && (
                         <Section title="Property Gallery">
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                {[images[0], images[1] || images[0], images[2] || images[0], images[3] || images[0]].map((img, i) => (
+                                {images.slice(0, 4).map((img, i) => (
                                     <div key={i} className="aspect-video rounded-xl overflow-hidden bg-gray-100">
                                         <img src={img} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                                            onError={(e) => { e.target.src = FALLBACK }} />
+                                            onError={(e) => { e.target.onerror = null; e.target.style.display = 'none' }} />
                                     </div>
                                 ))}
                             </div>
@@ -301,11 +301,11 @@ export default function InvestmentMemorandumTab({ deal }) {
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div>
                             <p className="text-sm font-bold text-white">BrickBanq Platform</p>
-                            <p className="text-xs text-gray-500 mt-0.5">Regulated Financial Workflow Platform — Confidential</p>
+                            <p className="text-xs text-gray-300 mt-0.5">Regulated Financial Workflow Platform — Confidential</p>
                         </div>
                         <div className="text-right">
-                            <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Ref: {String(deal.id).slice(0, 8).toUpperCase()}</p>
-                            <p className="text-[10px] text-gray-600 font-mono mt-0.5">{generated}</p>
+                            <p className="text-[10px] font-semibold text-gray-300 uppercase tracking-widest">Ref: {String(deal.id).slice(0, 8).toUpperCase()}</p>
+                            <p className="text-[10px] text-gray-400 font-mono mt-0.5">{generated}</p>
                         </div>
                     </div>
                 </div>

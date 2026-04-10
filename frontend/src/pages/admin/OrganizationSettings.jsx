@@ -4,6 +4,7 @@ import {
     Building2, Users, CreditCard, ChevronRight, Home,
     Plus, Mail, Trash2, Info, Save, X, Globe, Phone, ExternalLink
 } from 'lucide-react'
+import { organizationService } from '../../../api/dataService'
 
 export default function OrganizationSettings() {
     const navigate = useNavigate()
@@ -28,13 +29,26 @@ export default function OrganizationSettings() {
         { id: 3, name: 'David Wilson', email: 'david.wilson@platinumcapital.com.au', role: 'Member', avatar: 'DW' }
     ])
 
-    const handleSave = () => {
+    const [saveError, setSaveError] = useState(null)
+
+    const handleSave = async () => {
         setIsSaving(true)
-        setTimeout(() => {
+        setSaveError(null)
+        try {
+            const res = await organizationService.updateOrganization(orgData)
+            if (res.success) {
+                setSavedBanner(true)
+                setTimeout(() => setSavedBanner(false), 3000)
+            } else {
+                setSaveError(res.error || 'Failed to save. Please try again.')
+                setTimeout(() => setSaveError(null), 4000)
+            }
+        } catch {
+            setSaveError('Network error. Please try again.')
+            setTimeout(() => setSaveError(null), 4000)
+        } finally {
             setIsSaving(false)
-            setSavedBanner(true)
-            setTimeout(() => setSavedBanner(false), 3000)
-        }, 800)
+        }
     }
 
     const handleChange = (e) => {
@@ -47,6 +61,11 @@ export default function OrganizationSettings() {
             {savedBanner && (
                 <div className="fixed top-4 right-4 z-50 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium flex items-center gap-2">
                     <Save className="w-4 h-4" /> Organization settings saved successfully!
+                </div>
+            )}
+            {saveError && (
+                <div className="fixed top-4 right-4 z-50 bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium flex items-center gap-2">
+                    <X className="w-4 h-4" /> {saveError}
                 </div>
             )}
             {/* Page Header */}

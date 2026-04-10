@@ -215,7 +215,7 @@ export default function AdminTaskCenter() {
                     </div>
                 </button>
                 <button
-                    onClick={() => setStatusFilter('Overdue')}
+                    onClick={() => { setStatusFilter('Overdue'); setPriorityFilter('All Priorities'); }}
                     className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${statusFilter === 'Overdue' ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-100 shadow-sm'}`}
                 >
                     <div>
@@ -227,7 +227,7 @@ export default function AdminTaskCenter() {
                     </div>
                 </button>
                 <button
-                    onClick={() => setStatusFilter('Due Today')}
+                    onClick={() => { setStatusFilter('Due Today'); setPriorityFilter('All Priorities'); }}
                     className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${statusFilter === 'Due Today' ? 'border-orange-500 ring-1 ring-orange-500' : 'border-gray-100 shadow-sm'}`}
                 >
                     <div>
@@ -239,7 +239,7 @@ export default function AdminTaskCenter() {
                     </div>
                 </button>
                 <button
-                    onClick={() => { setPriorityFilter('Urgent'); setStatusFilter('All Status'); }}
+                    onClick={() => { setPriorityFilter(priorityFilter === 'Urgent' ? 'All Priorities' : 'Urgent'); setStatusFilter('All Status'); }}
                     className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${priorityFilter === 'Urgent' ? 'border-violet-500 ring-1 ring-violet-500' : 'border-gray-100 shadow-sm'}`}
                 >
                     <div>
@@ -251,7 +251,7 @@ export default function AdminTaskCenter() {
                     </div>
                 </button>
                 <button
-                    onClick={() => setStatusFilter('In progress')}
+                    onClick={() => { setStatusFilter('In progress'); setPriorityFilter('All Priorities'); }}
                     className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${statusFilter === 'In progress' ? 'border-blue-500 ring-1 ring-blue-500' : 'border-gray-100 shadow-sm'}`}
                 >
                     <div>
@@ -263,7 +263,7 @@ export default function AdminTaskCenter() {
                     </div>
                 </button>
                 <button
-                    onClick={() => setStatusFilter('Completed')}
+                    onClick={() => { setStatusFilter('Completed'); setPriorityFilter('All Priorities'); }}
                     className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${statusFilter === 'Completed' ? 'border-emerald-500 ring-1 ring-emerald-500' : 'border-gray-100 shadow-sm'}`}
                 >
                     <div>
@@ -439,7 +439,16 @@ export default function AdminTaskCenter() {
                                     {(!task.checked && (task.hasStartButton || task.hasMoveAndMarkCompleteButtons)) && (
                                         <div className="mt-4 pt-4 border-t border-gray-50 flex flex-wrap items-center gap-2 sm:gap-3">
                                             {task.hasStartButton && (
-                                                <button className="px-4 py-1.5 rounded-lg border border-gray-200 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm">
+                                                <button
+                                                    onClick={() => {
+                                                        taskService.updateTask(task.id, { status: 'IN_PROGRESS' }).then(res => {
+                                                            if (res.success) {
+                                                                setTasks(prev => prev.map(t => t.id === task.id ? normalizeTask(res.data) : t));
+                                                            }
+                                                        });
+                                                    }}
+                                                    className="px-4 py-1.5 rounded-lg border border-indigo-200 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-colors shadow-sm"
+                                                >
                                                     Start Task
                                                 </button>
                                             )}

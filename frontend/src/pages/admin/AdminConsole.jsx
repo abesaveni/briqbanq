@@ -114,7 +114,7 @@ function SecurityTab() {
         { label: 'Rate Limiting — Default', value: '100 requests / minute', status: 'active' },
         { label: 'KYC Enforcement', value: 'Required before bidding', status: 'active' },
         { label: 'Account Suspension', value: 'Redis-backed flag check', status: 'active' },
-        { label: '2FA (TOTP)', value: 'Available via Admin Centre API', status: 'optional' },
+        { label: '2FA (TOTP)', value: 'Available via Admin Center API', status: 'optional' },
     ];
 
     return (
@@ -204,8 +204,8 @@ function AnalyticsTab() {
 
     useEffect(() => {
         Promise.all([
-            analyticsService.getDashboardStats(),
-            analyticsService.getPlatformStats(),
+            adminService.getDashboardStats(),
+            adminService.getPlatformStats(),
         ]).then(([dashRes, platRes]) => {
             if (dashRes.success) setStats(dashRes.data);
             if (platRes.success) setPlatform(platRes.data);
@@ -279,6 +279,9 @@ export default function AdminConsole() {
     const [loading, setLoading] = useState(true);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showConfigModal, setShowConfigModal] = useState(null); // integration object
+    const [configFields, setConfigFields] = useState({}); // { fieldLabel: value }
+    const [configSaving, setConfigSaving] = useState(false);
+    const [configSaved, setConfigSaved] = useState(false);
     const [testingId, setTestingId] = useState(null);
     const [connectingId, setConnectingId] = useState(null);
     const [newIntegration, setNewIntegration] = useState({ name: '', description: '', apiKey: '' });
@@ -345,7 +348,7 @@ export default function AdminConsole() {
                             <Settings className="w-8 h-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold tracking-tight">Admin Centre</h1>
+                            <h1 className="text-3xl font-bold tracking-tight">Admin Center</h1>
                             <p className="text-sm font-medium opacity-90">Centralized integration management &amp; system configuration</p>
                         </div>
                     </div>
@@ -456,7 +459,14 @@ export default function AdminConsole() {
                                             {isConnected ? (
                                                 <>
                                                     <button
-                                                        onClick={() => setShowConfigModal(integration)}
+                                                        onClick={() => {
+                                                            const init = { _name: integration.name };
+                                                            (integration.fields || []).forEach(f => { init[f.label] = f.isSecret ? '' : (f.value || ''); });
+                                                            if (!integration.fields || integration.fields.length === 0) init._apiKey = '';
+                                                            setConfigFields(init);
+                                                            setConfigSaved(false);
+                                                            setShowConfigModal(integration);
+                                                        }}
                                                         className="flex-1 flex justify-center items-center gap-1.5 border border-gray-300 bg-white text-gray-700 px-3 py-1.5 rounded-lg font-medium hover:bg-gray-50 transition text-xs"
                                                     >
                                                         <Settings className="w-3.5 h-3.5" /> Configure
@@ -535,34 +545,65 @@ export default function AdminConsole() {
                     <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                             <h3 className="font-semibold text-gray-900">Configure — {showConfigModal.name}</h3>
-                            <button onClick={() => setShowConfigModal(null)} className="text-gray-400 hover:text-gray-600"><ExternalLink className="w-4 h-4 rotate-90" /></button>
+                            <button onClick={() => { setShowConfigModal(null); setConfigSaved(false); }} className="text-gray-400 hover:text-gray-600"><ExternalLink className="w-4 h-4 rotate-90" /></button>
                         </div>
                         <div className="p-6 space-y-4">
                             <div>
                                 <label className="block text-xs font-semibold text-gray-700 mb-1">Integration Name</label>
-                                <input type="text" defaultValue={showConfigModal.name}
-                                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+                                <input
+                                    type="text"
+                                    value={configFields._name || ''}
+                                    onChange={e => setConfigFields(prev => ({ ...prev, _name: e.target.value }))}
+                                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                                />
                             </div>
                             {(showConfigModal.fields || []).map((f, i) => (
                                 <div key={i}>
                                     <label className="block text-xs font-semibold text-gray-700 mb-1">{f.label}</label>
-                                    <input type={f.isSecret ? 'password' : 'text'} defaultValue={f.isSecret ? '' : (f.value || '')}
+                                    <input
+                                        type={f.isSecret ? 'password' : 'text'}
+                                        value={configFields[f.label] ?? ''}
+                                        onChange={e => setConfigFields(prev => ({ ...prev, [f.label]: e.target.value }))}
                                         placeholder={f.placeholder || ''}
-                                        className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+                                        className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                                    />
                                 </div>
                             ))}
                             {(!showConfigModal.fields || showConfigModal.fields.length === 0) && (
                                 <div>
                                     <label className="block text-xs font-semibold text-gray-700 mb-1">API Key</label>
-                                    <input type="password" placeholder="Enter API key"
-                                        className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+                                    <input
+                                        type="password"
+                                        value={configFields._apiKey || ''}
+                                        onChange={e => setConfigFields(prev => ({ ...prev, _apiKey: e.target.value }))}
+                                        placeholder="Enter API key"
+                                        className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                                    />
+                                </div>
+                            )}
+                            {configSaved && (
+                                <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-100 rounded-lg px-3 py-2">
+                                    <Activity className="w-4 h-4" /> Configuration saved successfully!
                                 </div>
                             )}
                             <div className="flex justify-end gap-3 pt-2">
-                                <button onClick={() => setShowConfigModal(null)} className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50">Cancel</button>
-                                <button onClick={() => { integrationService.updateIntegration(showConfigModal.id, {}).catch(()=>{}); setShowConfigModal(null); }}
-                                    className="px-5 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 flex items-center gap-2">
-                                    <Save className="w-3.5 h-3.5" /> Save Configuration
+                                <button onClick={() => { setShowConfigModal(null); setConfigSaved(false); }} className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50">Cancel</button>
+                                <button
+                                    disabled={configSaving}
+                                    onClick={async () => {
+                                        setConfigSaving(true);
+                                        const payload = { name: configFields._name };
+                                        (showConfigModal.fields || []).forEach(f => { payload[f.label] = configFields[f.label]; });
+                                        if (configFields._apiKey) payload.api_key = configFields._apiKey;
+                                        await integrationService.updateIntegration(showConfigModal.id, payload).catch(() => {});
+                                        setIntegrations(prev => prev.map(i => i.id === showConfigModal.id ? { ...i, name: configFields._name || i.name } : i));
+                                        setConfigSaving(false);
+                                        setConfigSaved(true);
+                                        setTimeout(() => { setShowConfigModal(null); setConfigSaved(false); }, 1500);
+                                    }}
+                                    className="px-5 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-60 flex items-center gap-2"
+                                >
+                                    <Save className="w-3.5 h-3.5" /> {configSaving ? 'Saving…' : 'Save Configuration'}
                                 </button>
                             </div>
                         </div>

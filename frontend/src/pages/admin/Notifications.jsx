@@ -68,7 +68,7 @@ export default function Notifications() {
             const msg = n.description || n.message || ''
             const matchesSearch = (n.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
                 msg.toLowerCase().includes(searchTerm.toLowerCase())
-            const matchesType = typeFilter === 'All Types' || n.type === typeFilter.toLowerCase()
+            const matchesType = typeFilter === 'All Types' || (n.type || '').toLowerCase() === typeFilter.toLowerCase()
             const matchesStatus = statusFilter === 'All Status' ||
                 (statusFilter === 'Unread' && n.unread) ||
                 (statusFilter === 'Read' && !n.unread)
@@ -199,7 +199,13 @@ export default function Notifications() {
                                             <p className={`text-sm ${notification.unread ? 'text-gray-800' : 'text-gray-600'} line-clamp-1`}>{notification.description || notification.message}</p>
                                         </div>
                                         <div className="flex gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
-                                            <button onClick={() => openNotification(notification)} className="text-sm border border-gray-300 text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-50 flex items-center gap-1 font-medium transition-colors">
+                                            <button
+                                                onClick={() => {
+                                                    if (notification.unread) markAsRead(notification.id);
+                                                    navigate(getRelatedUrl(notification));
+                                                }}
+                                                className="text-sm border border-gray-300 text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-50 flex items-center gap-1 font-medium transition-colors"
+                                            >
                                                 <Eye className="w-4 h-4" /> View
                                             </button>
                                             <button onClick={() => deleteNotification(notification.id)} className="text-sm border border-red-200 text-red-600 hover:bg-red-50 px-2 py-1.5 rounded-md transition-colors">

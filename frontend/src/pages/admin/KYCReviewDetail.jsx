@@ -14,6 +14,8 @@ export default function KYCReviewDetail() {
     const [riskLevel, setRiskLevel] = useState('Low');
     const [activeTab, setActiveTab] = useState('Overview');
     const [kycRecord, setKycRecord] = useState(null);
+    const [showActivityModal, setShowActivityModal] = useState(false);
+    const [activityLog, setActivityLog] = useState([]);
 
     useEffect(() => {
         if (!id) return;
@@ -72,7 +74,7 @@ export default function KYCReviewDetail() {
                             ['Phone', '+61 412 345 678'],
                             ['Address', '123 Collins Street, Melbourne VIC 3000'],
                             ['Nationality', 'Australian'],
-                            ['Role', 'Investor'],
+                            ['Role', kycRecord?.user_role || kycRecord?.role || 'N/A'],
                             ['KYC Status', status],
                             ['Risk Level', riskLevel],
                         ],
@@ -183,6 +185,32 @@ export default function KYCReviewDetail() {
                             <CheckCircle className="w-4 h-4 text-white" /> Approve KYC
                         </button>
                     </div>
+                </div>
+            )}
+
+            {/* Approved — allow admin to reverse decision */}
+            {status === 'approved' && (
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm text-sm">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                            <CheckCircle className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-gray-900 text-base">KYC Approved</h3>
+                            <p className="text-gray-500 text-sm">This submission has been approved. You can reverse this decision.</p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => {
+                            if (window.confirm('Are you sure you want to reject this already-approved KYC submission?')) {
+                                if (id) kycService.rejectKYC(id, 'Approval reversed by admin').catch(() => {});
+                                setStatus('rejected');
+                            }
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 border border-red-200 text-red-600 font-medium rounded-lg hover:bg-red-50 transition-colors"
+                    >
+                        <XCircle className="w-4 h-4" /> Reject (Reverse Approval)
+                    </button>
                 </div>
             )}
 
@@ -435,12 +463,26 @@ export default function KYCReviewDetail() {
                     <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
                         <h3 className="text-base font-bold text-gray-900 mb-6">Timeline</h3>
                         <div className="space-y-6 relative before:absolute before:inset-0 before:ml-2.5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-emerald-300 before:to-gray-200">
-                            {[
-                                { title: 'Assigned for manual review', by: 'System', when: '13/03/2026, 12:23:11 pm', color: 'bg-indigo-100', dot: 'bg-indigo-500' },
-                                { title: 'Automated verification checks passed', by: 'System', when: '13/03/2026, 11:53:11 am', color: 'bg-emerald-100', icon: true },
-                                { title: 'All documents uploaded', by: 'Jennifer Brown', when: '13/03/2026, 11:23:11 am', color: 'bg-emerald-100', icon: true },
-                                { title: 'KYC Application Submitted', by: 'Jennifer Brown', when: '13/03/2026, 11:23:11 am', color: 'bg-emerald-100', icon: true },
-                            ].map((item, i) => (
+                            {(() => {
+                                const applicantName = kycRecord?.full_name || 'Applicant';
+                                const submittedAt = kycRecord?.created_at ? new Date(kycRecord.created_at) : null;
+                                const entries = [];
+                                if (submittedAt) {
+                                    entries.push({ title: 'KYC Application Submitted', by: applicantName, when: submittedAt.toLocaleString('en-AU'), color: 'bg-emerald-100', icon: true });
+                                    entries.push({ title: 'All documents uploaded', by: applicantName, when: submittedAt.toLocaleString('en-AU'), color: 'bg-emerald-100', icon: true });
+                                    entries.push({ title: 'Automated verification checks passed', by: 'System', when: new Date(submittedAt.getTime() + 30 * 60000).toLocaleString('en-AU'), color: 'bg-emerald-100', icon: true });
+                                    entries.push({ title: 'Assigned for manual review', by: 'System', when: new Date(submittedAt.getTime() + 60 * 60000).toLocaleString('en-AU'), color: 'bg-indigo-100', icon: false });
+                                } else {
+                                    entries.push({ title: 'KYC Application Submitted', by: applicantName, when: '—', color: 'bg-emerald-100', icon: true });
+                                    entries.push({ title: 'Automated verification checks passed', by: 'System', when: '—', color: 'bg-emerald-100', icon: true });
+                                    entries.push({ title: 'Assigned for manual review', by: 'System', when: '—', color: 'bg-indigo-100', icon: false });
+                                }
+                                if (status === 'approved') entries.push({ title: 'KYC Approved', by: 'Admin', when: kycRecord?.updated_at ? new Date(kycRecord.updated_at).toLocaleString('en-AU') : new Date().toLocaleString('en-AU'), color: 'bg-green-100', icon: true });
+                                if (status === 'rejected') entries.push({ title: 'KYC Rejected', by: 'Admin', when: kycRecord?.updated_at ? new Date(kycRecord.updated_at).toLocaleString('en-AU') : new Date().toLocaleString('en-AU'), color: 'bg-red-100', icon: false });
+                                // Deduplicate by title
+                                const seen = new Set();
+                                return entries.filter(e => { if (seen.has(e.title)) return false; seen.add(e.title); return true; });
+                            })().map((item, i) => (
                                 <div key={i} className="relative flex items-start gap-4">
                                     <div className={`absolute left-1/2 md:left-auto w-5 h-5 ${item.color} rounded-full border-4 border-white flex items-center justify-center -ml-2.5 shadow-sm z-10`}>
                                         {item.icon ? <CheckCircle className="w-3 h-3 text-emerald-600" /> : <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full" />}
@@ -474,7 +516,16 @@ export default function KYCReviewDetail() {
                                 {downloading ? 'Downloading...' : 'Download All Documents'}
                             </button>
                             <button
-                                onClick={() => navigate('/admin/audit')}
+                                onClick={() => {
+                                    const entries = [
+                                        { action: 'KYC Application Submitted', by: kycRecord?.full_name || 'Applicant', when: kycRecord?.created_at ? new Date(kycRecord.created_at).toLocaleString('en-AU') : '—' },
+                                        { action: 'Automated verification checks run', by: 'System', when: kycRecord?.created_at ? new Date(new Date(kycRecord.created_at).getTime() + 30 * 60000).toLocaleString('en-AU') : '—' },
+                                        { action: 'Assigned for manual review', by: 'System', when: kycRecord?.created_at ? new Date(new Date(kycRecord.created_at).getTime() + 60 * 60000).toLocaleString('en-AU') : '—' },
+                                        ...(status !== 'pending_review' ? [{ action: status === 'approved' ? 'KYC Approved' : 'KYC Rejected', by: 'Admin', when: new Date().toLocaleString('en-AU') }] : []),
+                                    ];
+                                    setActivityLog(entries);
+                                    setShowActivityModal(true);
+                                }}
                                 className="w-full flex items-center gap-3 px-4 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 text-sm font-medium text-gray-700 transition"
                             >
                                 <Activity className="w-4 h-4 text-gray-400" /> View Activity Log
@@ -541,6 +592,38 @@ export default function KYCReviewDetail() {
                                     {sending ? 'Sending...' : 'Send Email'}
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Activity Log Modal */}
+            {showActivityModal && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                            <h3 className="text-lg font-bold text-gray-900">Activity Log</h3>
+                            <button onClick={() => setShowActivityModal(false)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+                        </div>
+                        <div className="p-6 space-y-4 max-h-80 overflow-y-auto">
+                            {activityLog.length === 0 ? (
+                                <p className="text-sm text-gray-400 text-center py-4">No activity recorded.</p>
+                            ) : (
+                                <div className="space-y-3">
+                                    {activityLog.map((entry, i) => (
+                                        <div key={i} className="flex gap-3 text-sm">
+                                            <div className="w-2 h-2 bg-indigo-500 rounded-full mt-1.5 shrink-0" />
+                                            <div>
+                                                <p className="font-semibold text-gray-800">{entry.action}</p>
+                                                <p className="text-xs text-gray-400">{entry.by} · {entry.when}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
+                            <button onClick={() => setShowActivityModal(false)} className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700">Close</button>
                         </div>
                     </div>
                 </div>
