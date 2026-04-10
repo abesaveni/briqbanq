@@ -96,8 +96,8 @@ export default function MyBidsPage({ role = 'investor' }) {
     return (
         <div className="space-y-5 pb-6">
             <div>
-                <h1 className="text-lg font-semibold text-slate-900">My Bids</h1>
-                <p className="text-sm text-slate-500">All auctions you have bid on</p>
+                <h1 className="text-2xl font-bold text-slate-900">My Bids</h1>
+                <p className="text-[13px] font-medium text-gray-500">All auctions you have bid on</p>
             </div>
 
             {/* Stats row */}

@@ -884,8 +884,7 @@ export default function InvestorCaseDetails() {
             window.open(url, '_blank');
         } else {
             const title = doc.name || doc.title || "Document";
-            setToast({ show: true, message: `Opening ${title} (Mock)...`, type: "info" });
-            window.open('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', '_blank');
+            setToast({ show: true, message: `Preview not available for "${title}".`, type: "info" });
         }
         setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000);
     };
@@ -899,7 +898,7 @@ export default function InvestorCaseDetails() {
             a.click();
         } else {
             const title = doc.name || "Document";
-            setToast({ show: true, message: `Downloading ${title} (Mock)...`, type: "info" });
+            setToast({ show: true, message: `"${title}" is not yet available for download.`, type: "info" });
         }
         setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000);
     };
@@ -1585,8 +1584,22 @@ export default function InvestorCaseDetails() {
 
                             <div className="shrink-0">
                                 <button
-                                    onClick={() => {
-                                        setToast({ show: true, message: "Exporting Case Protocol PDF...", type: "success" });
+                                    onClick={async () => {
+                                        try {
+                                            await generateInvestmentMemorandumPDF({
+                                                address: caseData?.property_address || caseData?.address || '',
+                                                property_address: caseData?.property_address || caseData?.address || '',
+                                                status: caseData?.status || '',
+                                                outstanding_debt: caseData?.outstanding_debt || 0,
+                                                estimated_value: caseData?.estimated_value || caseData?.property_value || 0,
+                                                interest_rate: caseData?.interest_rate || null,
+                                                type: caseData?.property_type || 'Residential',
+                                                documents: caseData?.documents || [],
+                                            });
+                                            setToast({ show: true, message: "Case Protocol PDF exported successfully.", type: "success" });
+                                        } catch {
+                                            setToast({ show: true, message: "Failed to export PDF. Please try again.", type: "error" });
+                                        }
                                         setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000);
                                     }}
                                     className="h-14 px-8 bg-white text-blue-900 rounded-2xl font-bold text-[13px] uppercase tracking-widest hover:bg-blue-50 transition-all shadow-xl active:scale-95 flex items-center gap-3"
@@ -1940,7 +1953,15 @@ export default function InvestorCaseDetails() {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <button className="flex items-center gap-2 px-4 py-2.5 bg-white text-[13px] font-bold text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all shadow-sm">
+                                        <button
+                                            onClick={() => {
+                                                if (soaFile) {
+                                                    const url = URL.createObjectURL(soaFile);
+                                                    window.open(url, '_blank');
+                                                }
+                                            }}
+                                            className="flex items-center gap-2 px-4 py-2.5 bg-white text-[13px] font-bold text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all shadow-sm"
+                                        >
                                             <Eye size={14} className="text-gray-500" /> Preview
                                         </button>
                                         <button
