@@ -5,6 +5,18 @@
     "dev": "cd frontend && npm run dev",
     "build": "cd frontend && npm run build",
     "preview": "cd frontend && npm run preview",
-    "serve": "cd frontend && npm run build && node server.js"
+    "serve": "cd frontend && npm run build && node server.js",
+    "test": "npx playwright test",
+    "test:prod": "BASE_URL=https://brickbanq.au npx playwright test",
+    "test:local": "BASE_URL=http://localhost:3000 npx playwright test",
+    "test:admin": "BASE_URL=https://brickbanq.au npx playwright test tests/e2e/admin",
+    "test:lawyer": "BASE_URL=https://brickbanq.au npx playwright test tests/e2e/lawyer",
+    "test:investor": "BASE_URL=https://brickbanq.au npx playwright test tests/e2e/investor",
+    "test:lender": "BASE_URL=https://brickbanq.au npx playwright test tests/e2e/lender",
+    "test:borrower": "BASE_URL=https://brickbanq.au npx playwright test tests/e2e/borrower",
+    "test:report": "npx playwright show-report tests/report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
   }
 }
