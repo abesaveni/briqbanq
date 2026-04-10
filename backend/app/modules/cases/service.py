@@ -554,28 +554,29 @@ class CaseService:
         return case
 
     async def delete_case(self, case_id: uuid.UUID, admin_id: uuid.UUID, trace_id: str) -> None:
-        """Delete a case and all related records (documents, images, deals)."""
+        """Delete a case and ALL related records using raw SQL to bypass FK constraints."""
         case = await self._get_case_or_404(case_id)
-        from sqlalchemy import delete as sa_delete
-        # Delete documents (FK has CASCADE but explicit delete ensures S3 references are handled)
-        try:
-            from app.modules.documents.models import Document
-            await self.repository.db.execute(sa_delete(Document).where(Document.case_id == case_id))
-        except Exception:
-            pass
-        # Delete property images
-        try:
-            from app.modules.platform.models import CaseImage
-            await self.repository.db.execute(sa_delete(CaseImage).where(CaseImage.case_id == case_id))
-        except Exception:
-            pass
-        # Delete related deals (no CASCADE on deals.case_id FK yet)
-        try:
-            from app.modules.deals.models import Deal
-            await self.repository.db.execute(sa_delete(Deal).where(Deal.case_id == case_id))
-        except Exception:
-            pass
-        await self.repository.db.flush()
+        from sqlalchemy import text
+        db = self.repository.db
+        cid = str(case_id)
+        # Step 1: delete bids → auctions (via deals chain)
+        await db.execute(text(
+            "DELETE FROM bids WHERE auction_id IN "
+            "(SELECT id FROM auctions WHERE deal_id IN "
+            "(SELECT id FROM deals WHERE case_id = :cid))"
+        ), {"cid": cid})
+        # Step 2: delete auctions via deals
+        await db.execute(text(
+            "DELETE FROM auctions WHERE deal_id IN "
+            "(SELECT id FROM deals WHERE case_id = :cid)"
+        ), {"cid": cid})
+        # Step 3: delete tables with direct case_id FK
+        for table in ["contracts", "escrow_accounts", "case_messages", "case_activity", "documents", "case_images", "deals"]:
+            try:
+                await db.execute(text(f"DELETE FROM {table} WHERE case_id = :cid"), {"cid": cid})
+            except Exception:
+                pass
+        await db.flush()
         await self.repository.delete(case)
 
 
