@@ -195,6 +195,49 @@ class EmailService:
         await EmailService.send_email(to_email, subject, html)
 
     @staticmethod
+    async def send_case_updated_by_admin_email(
+        to_email: str,
+        borrower_name: str,
+        case_number: str,
+        property_address: str,
+        updated_fields: str = "",
+    ):
+        """Notify borrower that an admin has updated their case details."""
+        subject = f"Your Case Has Been Updated — {case_number} | BrickBanq"
+        fields_section = f"<p><strong>Updated fields:</strong> {updated_fields}</p>" if updated_fields else ""
+        html = f"""
+        <html>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                    <div style="background: #1a1a2e; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
+                        <h1 style="color: #fff; margin: 0; font-size: 22px;">BrickBanq</h1>
+                        <p style="color: #a0a0b0; margin: 4px 0 0;">Mortgage Resolution Platform</p>
+                    </div>
+                    <div style="padding: 30px 20px;">
+                        <h2 style="color: #4f46e5;">Case Details Updated</h2>
+                        <p>Hi {borrower_name},</p>
+                        <p>An administrator has made updates to your case. Please log in to review the latest information.</p>
+                        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                            <tr><td style="padding: 8px; background: #f9f9f9; font-weight: bold; width: 40%;">Case Reference</td><td style="padding: 8px; background: #f9f9f9;">{case_number}</td></tr>
+                            <tr><td style="padding: 8px; font-weight: bold;">Property</td><td style="padding: 8px;">{property_address}</td></tr>
+                            <tr><td style="padding: 8px; background: #f9f9f9; font-weight: bold;">Updated By</td><td style="padding: 8px; background: #f9f9f9;">BrickBanq Administrator</td></tr>
+                        </table>
+                        {fields_section}
+                        <p>If you have any questions about these changes, please contact our support team.</p>
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="https://app.brickbanq.com.au/borrower/my-case" style="background: #4f46e5; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: bold;">View My Case</a>
+                        </div>
+                    </div>
+                    <div style="background: #f0f0f0; padding: 15px; text-align: center; border-radius: 0 0 8px 8px;">
+                        <p style="font-size: 12px; color: #777; margin: 0;">&copy; 2026 BrickBanq. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+        </html>
+        """
+        await EmailService.send_email(to_email, subject, html)
+
+    @staticmethod
     async def send_bid_closed_to_borrower(
         to_email: str,
         borrower_name: str,

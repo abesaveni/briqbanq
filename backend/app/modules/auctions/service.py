@@ -86,13 +86,8 @@ class AuctionService:
         return await self.repository.update(auction)
 
     async def end_auction(self, auction_id: uuid.UUID, trace_id: str) -> Auction:
-        """End an auction. LIVE/PAUSED → ENDED."""
-        auction = await self._get_auction_or_404(auction_id)
-        AuctionStateMachine.validate_transition(auction.status.value, AuctionStatus.ENDED.value)
-        auction.status = AuctionStatus.ENDED
-        auction.actual_end = datetime.now(timezone.utc)
-        auction.version += 1
-        return await self.repository.update(auction)
+        """End an auction. LIVE/PAUSED → ENDED. Delegates to close_auction_flow for notifications."""
+        return await self.close_auction_flow(auction_id, trace_id)
 
     async def update_highest_bid(
         self, auction_id: uuid.UUID, amount: Decimal, bid_id: uuid.UUID
@@ -206,29 +201,106 @@ class AuctionService:
         AuctionStateMachine.validate_transition(auction.status.value, AuctionStatus.ENDED.value)
         auction.status = AuctionStatus.ENDED
         auction.actual_end = datetime.now(timezone.utc)
-        
-        bids = await self.repository.db.execute(
-            __import__("sqlalchemy").select(__import__("app.modules.bids.models", fromlist=["Bid"]).Bid)
-            .where(__import__("app.modules.bids.models", fromlist=["Bid"]).Bid.auction_id == auction_id)
+
+        import sqlalchemy as sa
+        from app.modules.bids.models import Bid
+
+        bids_result = await self.repository.db.execute(
+            sa.select(Bid).where(Bid.auction_id == auction.id)
         )
-        bids = list(bids.scalars().all())
-        
+        bids = list(bids_result.scalars().all())
+
         if bids:
-            winner = max(bids, key=lambda bid: bid.amount)
+            winner = max(bids, key=lambda b: b.amount)
             auction.winning_bid_id = winner.id
-            
-            # Additional cross-module logic (Deal, Contract, Notification) should be triggered here
-            # Or handled by domain events. Generating deal, contract and notifications.
-            
-            # Notify Borrower
-            from app.modules.notifications.service import NotificationService
-            await NotificationService(self.db).send_notification(
-                user_id=auction.created_by,
-                type="AUCTION_ENDED",
-                title="Auction Ended",
-                message=f"Auction {auction.id} has ended with a winning bid of {winner.amount}.",
-                trace_id=trace_id,
-            )
+
+            # Update bid statuses: winner → WON, rest → LOST
+            from app.shared.enums import BidStatus
+            for bid in bids:
+                bid.status = BidStatus.WON if bid.id == winner.id else BidStatus.LOST
+                self.db.add(bid)
+
+            # Resolve case/property details for notifications
+            case_number = "N/A"
+            property_address = "N/A"
+            borrower = None
+            winning_bidder = None
+            try:
+                from app.modules.identity.models import User
+                from app.modules.cases.repository import CaseRepository
+                from app.modules.deals.repository import DealRepository
+
+                # Get case via deal
+                deal_repo = DealRepository(self.db)
+                case_repo = CaseRepository(self.db)
+                deal = await deal_repo.get_by_id(auction.deal_id) if auction.deal_id else None
+                case = await case_repo.get_by_id(deal.case_id) if deal else None
+                if case:
+                    case_number = case.case_number or str(case.id)[:8].upper()
+                    property_address = case.property_address
+
+                # Fetch borrower (case creator)
+                borrower_id = case.borrower_id if case else auction.created_by
+                borrower_row = await self.db.execute(sa.select(User).where(User.id == borrower_id))
+                borrower = borrower_row.scalar_one_or_none()
+
+                # Fetch winning bidder
+                bidder_row = await self.db.execute(sa.select(User).where(User.id == winner.bidder_id))
+                winning_bidder = bidder_row.scalar_one_or_none()
+            except Exception:
+                pass
+
+            winning_amount = f"${winner.amount:,.2f}"
+            borrower_name = f"{borrower.first_name} {borrower.last_name}".strip() if borrower else "Borrower"
+            bidder_name = f"{winning_bidder.first_name} {winning_bidder.last_name}".strip() if winning_bidder else "Investor"
+
+            try:
+                from app.modules.notifications.service import NotificationService
+                from app.infrastructure.email_service import EmailService
+                notif = NotificationService(self.db)
+
+                # In-app: notify borrower (case creator)
+                await notif.create_notification(
+                    user_id=borrower_id,
+                    title="Auction Closed",
+                    message=f"Your auction for '{property_address}' has ended. Winning bid: {winning_amount} by {bidder_name}.",
+                    entity_type="auction",
+                    entity_id=str(auction.id),
+                    trace_id=trace_id,
+                )
+
+                # In-app: notify winning bidder
+                await notif.create_notification(
+                    user_id=winner.bidder_id,
+                    title="Congratulations — You Won!",
+                    message=f"Your bid of {winning_amount} on '{property_address}' has been accepted. Our team will contact you with next steps.",
+                    entity_type="auction",
+                    entity_id=str(auction.id),
+                    trace_id=trace_id,
+                )
+
+                # Email: borrower
+                if borrower:
+                    await EmailService.send_bid_closed_to_borrower(
+                        to_email=borrower.email,
+                        borrower_name=borrower_name,
+                        case_number=case_number,
+                        property_address=property_address,
+                        winning_bidder_name=bidder_name,
+                        winning_amount=winning_amount,
+                    )
+
+                # Email: winning bidder
+                if winning_bidder:
+                    await EmailService.send_bid_won_to_bidder(
+                        to_email=winning_bidder.email,
+                        bidder_name=bidder_name,
+                        case_number=case_number,
+                        property_address=property_address,
+                        winning_amount=winning_amount,
+                    )
+            except Exception:
+                pass  # Notification failure must not roll back the auction close
 
         auction.version += 1
         return await self.repository.update(auction)

@@ -210,7 +210,54 @@ class CaseService:
             from sqlalchemy.orm.attributes import flag_modified
             flag_modified(case, "metadata_json")
         case.version += 1
-        return await self.repository.update(case)
+        updated = await self.repository.update(case)
+
+        # Notify case owner (borrower) about admin update
+        try:
+            from app.modules.notifications.service import NotificationService
+            from app.infrastructure.email_service import EmailService
+            from app.modules.identity.models import User
+            from sqlalchemy import select as sa_select
+
+            borrower_row = await self.db.execute(sa_select(User).where(User.id == updated.borrower_id))
+            borrower = borrower_row.scalar_one_or_none()
+            if borrower:
+                borrower_name = f"{borrower.first_name} {borrower.last_name}".strip() or "there"
+                # Build a human-readable list of what changed
+                changed = []
+                if property_address is not None:
+                    changed.append("Property Address")
+                if property_type is not None:
+                    changed.append("Property Type")
+                if estimated_value is not None:
+                    changed.append("Estimated Value")
+                if outstanding_debt is not None:
+                    changed.append("Outstanding Debt")
+                if interest_rate is not None:
+                    changed.append("Interest Rate")
+                if extra_meta:
+                    changed.append("Additional Details")
+                updated_fields = ", ".join(changed) if changed else "Case details"
+
+                await NotificationService(self.db).create_notification(
+                    user_id=updated.borrower_id,
+                    title="Your Case Has Been Updated",
+                    message=f"An administrator has updated your case '{updated.title}'. Updated: {updated_fields}. Please log in to review the changes.",
+                    entity_type="case",
+                    entity_id=str(updated.id),
+                    trace_id=trace_id,
+                )
+                await EmailService.send_case_updated_by_admin_email(
+                    to_email=borrower.email,
+                    borrower_name=borrower_name,
+                    case_number=updated.case_number or str(updated.id)[:8].upper(),
+                    property_address=updated.property_address,
+                    updated_fields=updated_fields,
+                )
+        except Exception:
+            pass  # Notification failure must not roll back the update
+
+        return updated
 
     async def submit_case(
         self, case_id: uuid.UUID, borrower_id: uuid.UUID, trace_id: str
