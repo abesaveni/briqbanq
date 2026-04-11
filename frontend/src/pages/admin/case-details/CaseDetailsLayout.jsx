@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Outlet, useNavigate, useParams, useLocation, NavLink } from 'react-router-dom'
 import {
     ChevronLeft, Home, Building2, FileText, FileCheck, Shield,
-    DollarSign, MessageSquare, Activity, Settings, Download, Loader2, UserPlus, X
+    DollarSign, MessageSquare, Activity, Settings, Download, Loader2, UserPlus, X, ClipboardList
 } from 'lucide-react'
 import { useCaseContext } from '../../../context/CaseContext'
 import ManageCaseModal from '../../../components/admin/case/ManageCaseModal'
@@ -15,6 +15,7 @@ const tabs = [
     { label: 'Property', icon: Building2, path: 'property' },
     { label: 'Documents', icon: FileText, path: 'documents' },
     { label: 'Investment Memo', icon: FileCheck, path: 'investment-memorandum' },
+    { label: 'Lawyer Review', icon: ClipboardList, path: 'lawyer-review' },
     { label: 'Settlement', icon: Shield, path: 'settlement' },
     { label: 'Bids', icon: DollarSign, path: 'bids' },
     { label: 'Messages', icon: MessageSquare, path: 'messages' },

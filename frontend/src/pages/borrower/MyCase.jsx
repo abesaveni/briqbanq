@@ -669,7 +669,7 @@ export default function MyCase() {
       <div className="min-h-[400px]">
         {activeTab === 'dashboard' && <DashboardTab caseData={c} onBorrowerStatusClick={handleBorrowerStatus} />}
         {activeTab === 'full-details' && <FullDetailsTab caseData={c} />}
-        {activeTab === 'lawyer-review' && <LawyerReviewTab caseId={c.id} />}
+        {activeTab === 'lawyer-review' && <LawyerReviewTab caseId={c.id} caseItem={c} />}
         {activeTab === 'property' && (
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <PropertyTab data={propertyTabData} valuation={valuationTabData} />

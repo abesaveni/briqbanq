@@ -179,6 +179,48 @@ class CaseService:
         case.version += 1
         return await self.repository.update(case)
 
+    async def save_lawyer_checklist(
+        self,
+        case_id: uuid.UUID,
+        lawyer_id: uuid.UUID,
+        checklist: dict,
+        notes: Optional[str],
+        trace_id: str,
+    ) -> Case:
+        """Persist lawyer compliance checklist into metadata_json.lawyer_review."""
+        from sqlalchemy.orm.attributes import flag_modified
+        from app.modules.identity.models import User
+        from sqlalchemy import select as sa_select
+
+        case = await self._get_case_or_404(case_id)
+
+        # Resolve lawyer display name
+        lawyer_name = None
+        try:
+            row = await self.db.execute(sa_select(User).where(User.id == lawyer_id))
+            lawyer_user = row.scalar_one_or_none()
+            if lawyer_user:
+                lawyer_name = f"{lawyer_user.first_name} {lawyer_user.last_name}".strip()
+        except Exception:
+            pass
+
+        checked_count = sum(1 for v in checklist.values() if v)
+        existing = dict(case.metadata_json or {})
+        existing["lawyer_review"] = {
+            "checklist": checklist,
+            "notes": notes or "",
+            "checked_count": checked_count,
+            "total_count": len(checklist),
+            "completed": checked_count == len(checklist),
+            "lawyer_id": str(lawyer_id),
+            "lawyer_name": lawyer_name,
+            "last_saved_at": datetime.utcnow().isoformat(),
+        }
+        case.metadata_json = existing
+        flag_modified(case, "metadata_json")
+        case.version += 1
+        return await self.repository.update(case)
+
     async def admin_update_case(
 
         self,

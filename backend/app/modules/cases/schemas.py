@@ -83,6 +83,13 @@ class CaseStatusUpdateRequest(BaseModel):
 class CaseMetadataUpdateRequest(BaseModel):
     metadata: dict
 
+
+class LawyerChecklistRequest(BaseModel):
+    """Save lawyer compliance checklist progress for a case."""
+    checklist: dict  # { item_id: bool }
+    notes: Optional[str] = Field(None, max_length=5000)
+
+
 class CaseResponse(BaseModel):
 
     """Case response model."""

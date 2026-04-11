@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { casesService, documentService } from '../../api/dataService'
 import api from '../../services/api'
@@ -7,11 +7,11 @@ import RiskBadge from './components/RiskBadge'
 import StatusBadge from './components/StatusBadge'
 import {
   FileText, Upload, CheckCircle, Clock, XCircle,
-  MapPin, DollarSign, User, Shield, Gavel,
+  MapPin, DollarSign, Shield, Gavel,
   Download, Trash2, ArrowLeft, Loader2, MessageSquare,
   Activity as ActivityIcon, Home, Eye, AlertTriangle,
   ClipboardList, ChevronRight, Building2, Landmark,
-  BarChart2, Layers, CalendarDays, Info
+  BarChart2, Layers, Info, Save
 } from 'lucide-react'
 import { useNotifications } from '../../context/NotificationContext'
 import { useAuth } from '../../context/AuthContext'
@@ -126,7 +126,7 @@ function DetailRow({ label, value, highlight }) {
   return (
     <div className="flex flex-col gap-0.5">
       <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{label}</span>
-      <span className={`text-sm font-semibold ${highlight ? 'text-emerald-600' : 'text-slate-800'}`}>{value || '—'}</span>
+      <span className={`text-sm font-semibold ${highlight ? 'text-emerald-600' : 'text-slate-800'}`}>{fmt(value)}</span>
     </div>
   )
 }
@@ -260,6 +260,10 @@ export default function LawyerCaseDetail() {
   const [checklist, setChecklist] = useState(() =>
     Object.fromEntries(COMPLIANCE_ITEMS.map(i => [i.id, false]))
   )
+  const [checklistNotes, setChecklistNotes] = useState('')
+  const [saveStatus, setSaveStatus] = useState(null) // null | 'saving' | 'saved' | 'error'
+  const saveTimerRef = useRef(null)
+  const isFirstLoad = useRef(true)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -268,16 +272,42 @@ export default function LawyerCaseDetail() {
         casesService.getCaseById(caseId),
         documentService.getDocuments(caseId),
       ])
-      if (caseRes.success) setCaseItem(caseRes.data)
+      if (caseRes.success) {
+        setCaseItem(caseRes.data)
+        // Restore saved checklist from backend
+        const saved = caseRes.data?.metadata_json?.lawyer_review
+        if (saved?.checklist) {
+          setChecklist(prev => ({ ...prev, ...saved.checklist }))
+        }
+        if (saved?.notes) setChecklistNotes(saved.notes)
+      }
       if (docsRes.success) setDocuments(docsRes.data || [])
     } catch (err) {
       console.error('Error fetching case details:', err)
     } finally {
       setLoading(false)
+      isFirstLoad.current = false
     }
   }, [caseId])
 
   useEffect(() => { fetchData() }, [fetchData])
+
+  // Auto-save checklist to backend with 800ms debounce
+  useEffect(() => {
+    if (isFirstLoad.current) return
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    setSaveStatus('saving')
+    saveTimerRef.current = setTimeout(async () => {
+      try {
+        await casesService.saveLawyerChecklist(caseId, checklist, checklistNotes)
+        setSaveStatus('saved')
+        setTimeout(() => setSaveStatus(null), 2500)
+      } catch {
+        setSaveStatus('error')
+      }
+    }, 800)
+    return () => clearTimeout(saveTimerRef.current)
+  }, [checklist, checklistNotes, caseId])
 
   // ── Start Review ─────────────────────────────────────────────────────────────
 
@@ -842,14 +872,31 @@ export default function LawyerCaseDetail() {
           {/* ── LEGAL REVIEW TAB ─────────────────────────────────────────────── */}
           {activeTab === 'legal' && (
             <div className="space-y-5">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div>
                   <h3 className="text-sm font-bold text-slate-800">Australian Legal Compliance Checklist</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">Verify each item before approving the case for auction.</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Verify each item before approving the case for auction. Progress is saved automatically.</p>
                 </div>
-                <div className="text-right">
-                  <div className="text-xl font-bold text-[#1B3A6B]">{checkedCount}<span className="text-sm font-normal text-slate-400">/{totalCount}</span></div>
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wide">Verified</p>
+                <div className="flex items-center gap-3">
+                  {saveStatus === 'saving' && (
+                    <span className="flex items-center gap-1.5 text-xs text-slate-400">
+                      <Loader2 size={12} className="animate-spin" /> Saving…
+                    </span>
+                  )}
+                  {saveStatus === 'saved' && (
+                    <span className="flex items-center gap-1.5 text-xs text-emerald-600">
+                      <Save size={12} /> Saved
+                    </span>
+                  )}
+                  {saveStatus === 'error' && (
+                    <span className="flex items-center gap-1.5 text-xs text-red-500">
+                      <AlertTriangle size={12} /> Save failed
+                    </span>
+                  )}
+                  <div className="text-right">
+                    <div className="text-xl font-bold text-[#1B3A6B]">{checkedCount}<span className="text-sm font-normal text-slate-400">/{totalCount}</span></div>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wide">Verified</p>
+                  </div>
                 </div>
               </div>
 
@@ -893,6 +940,18 @@ export default function LawyerCaseDetail() {
                   </div>
                 </div>
               ))}
+
+              {/* Lawyer notes */}
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Legal Review Notes</label>
+                <textarea
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-200 resize-none"
+                  rows={3}
+                  placeholder="Add notes, observations, or caveats for this legal review (visible to all parties once saved)…"
+                  value={checklistNotes}
+                  onChange={e => setChecklistNotes(e.target.value)}
+                />
+              </div>
 
               {/* Final actions */}
               {canReview && !isApproved && !isRejected && (

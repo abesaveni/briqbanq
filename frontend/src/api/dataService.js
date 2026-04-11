@@ -161,6 +161,8 @@ export const casesService = {
   updateCaseMetadata: (caseId, metadata) =>
     wrap(api.patch(`/api/v1/cases/${caseId}/metadata`, { metadata })),
   startCaseReview: (caseId) => wrap(api.post(`/api/v1/cases/${caseId}/review`)),
+  saveLawyerChecklist: (caseId, checklist, notes) =>
+    wrap(api.post(`/api/v1/cases/${caseId}/lawyer-checklist`, { checklist, notes: notes || "" })),
   approveCase: (caseId) => wrap(api.post(`/api/v1/cases/${caseId}/approve`)),
   rejectCase: (caseId, reason) =>
     wrap(api.post(`/api/v1/cases/${caseId}/reject`, { rejection_reason: reason })),
@@ -274,7 +276,7 @@ export const kycService = {
 export const documentService = {
   getAllDocuments: () => wrap(api.get("/api/v1/documents")),
   getDocuments: (caseId) => wrap(api.get(`/api/v1/documents/case/${caseId}`)),
-  uploadDocument: (caseId, formData) =>
+  uploadDocument: (_caseId, formData) =>
     wrap(api.post(`/api/v1/documents/upload`, formData)),
   deleteDocument: (docId) => wrap(api.delete(`/api/v1/documents/${docId}`)),
   getDocumentUrl: (docId) => wrap(api.get(`/api/v1/documents/${docId}/download`)),

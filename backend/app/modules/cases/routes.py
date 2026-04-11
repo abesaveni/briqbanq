@@ -21,6 +21,7 @@ from app.modules.cases.schemas import (
     CaseUpdateRequest,
     CaseStatusUpdateRequest,
     CaseMetadataUpdateRequest,
+    LawyerChecklistRequest,
 )
 from app.modules.cases.service import CaseService
 from app.modules.cases.pdf_service import CasePDFService
@@ -43,6 +44,27 @@ async def update_case_metadata(
     case = await service.update_case_metadata(
         case_id=case_id,
         metadata=request.metadata,
+        trace_id=trace_id,
+    )
+    return case
+
+
+@router.post("/{case_id}/lawyer-checklist", response_model=CaseResponse)
+async def save_lawyer_checklist(
+    case_id: uuid.UUID,
+    request: LawyerChecklistRequest,
+    current_user: dict = Depends(get_current_user),
+    db=Depends(get_db),
+    trace_id: str = Depends(get_trace_id),
+):
+    """Save lawyer compliance checklist progress for a case (lawyer/admin only)."""
+    CasePolicy.can_review_case(current_user)
+    service = CaseService(db)
+    case = await service.save_lawyer_checklist(
+        case_id=case_id,
+        lawyer_id=uuid.UUID(current_user["user_id"]),
+        checklist=request.checklist,
+        notes=request.notes,
         trace_id=trace_id,
     )
     return case

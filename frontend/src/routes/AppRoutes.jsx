@@ -104,6 +104,7 @@ import CaseSettlement from "../pages/admin/case-details/Settlement";
 import CaseBids from "../pages/admin/case-details/Bids";
 import CaseMessages from "../pages/admin/case-details/Messages";
 import CaseActivity from "../pages/admin/case-details/Activity";
+import CaseLawyerReview from "../pages/admin/case-details/LawyerReview";
 
 export default function AppRoutes() {
   return (
@@ -130,6 +131,7 @@ export default function AppRoutes() {
           <Route path="property" element={<CaseProperty />} />
           <Route path="documents" element={<CaseDocuments />} />
           <Route path="investment-memorandum" element={<CaseInvestmentMemorandum />} />
+          <Route path="lawyer-review" element={<CaseLawyerReview />} />
           <Route path="settlement" element={<CaseSettlement />} />
           <Route path="bids" element={<CaseBids />} />
           <Route path="messages" element={<CaseMessages />} />

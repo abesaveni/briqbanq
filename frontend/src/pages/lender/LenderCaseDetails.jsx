@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { dealsService, auctionService, casesService, settlementService, documentService } from '../../api/dataService';
 import { generateInvestmentMemorandumPDF, generateBrandedPDF } from '../../utils/pdfGenerator';
+import LawyerReviewPanel from '../../components/common/LawyerReviewPanel';
 import { LoadingState, ErrorState } from '../../components/common/States';
 import CaseChat from '../../components/common/CaseChat';
 import CaseActivityLog from '../../components/common/CaseActivityLog';
@@ -1196,72 +1197,11 @@ export default function LenderCaseDetails() {
 
                 {activeTab === "Lawyer Review" && (
                     <div className="space-y-4 animate-fade-in">
-                        {/* Read-only notice for lender */}
                         <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 flex items-center gap-2">
                             <Info size={14} className="text-blue-600 shrink-0" />
-                            <p className="text-xs text-blue-700 font-medium">This section is managed by the assigned lawyer. You can view the status but cannot modify it.</p>
+                            <p className="text-xs text-blue-700 font-medium">This section is managed by the assigned lawyer. Progress is saved in real time as they complete each verification item.</p>
                         </div>
-
-                        {/* Loan Compliance — read-only */}
-                        <div className="bg-white rounded-xl border border-slate-200 p-4">
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="flex items-center gap-2">
-                                    <ClipboardCheck size={15} className="text-emerald-600" />
-                                    <h4 className="text-sm font-semibold text-slate-900">Loan Compliance Registry</h4>
-                                </div>
-                                <span className="text-xs font-medium text-slate-500">
-                                    {loanCompliance.filter(c => c.checked).length}/{loanCompliance.length} verified
-                                </span>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                {loanCompliance.map(check => (
-                                    <div key={check.id} className="flex items-center gap-2.5 p-3 bg-slate-50 rounded-lg border border-slate-100">
-                                        <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 ${check.checked ? 'bg-emerald-500' : 'bg-white border border-slate-300'}`}>
-                                            {check.checked && <CheckCircle size={12} className="text-white" />}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className={`text-xs font-medium ${check.checked ? 'text-slate-500' : 'text-slate-800'}`}>{check.title}</p>
-                                            {check.critical && <span className="text-[10px] text-rose-500">Mandatory</span>}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Enforcement Workflow — read-only */}
-                        <div className="bg-white rounded-xl border border-slate-200 p-4">
-                            <div className="flex items-center gap-2 mb-3">
-                                <Scale size={15} className="text-amber-600" />
-                                <h4 className="text-sm font-semibold text-slate-900">Legal Enforcement Workflow</h4>
-                            </div>
-                            <div className="space-y-2">
-                                {enforcementSteps.map(step => (
-                                    <div key={step.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
-                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${step.status === 'compliant' ? 'bg-[#1B3A6B] text-white' : 'bg-slate-200 text-slate-400'}`}>
-                                            {step.id}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-xs font-semibold text-slate-800">{step.title}</p>
-                                            {step.notes && <p className="text-[10px] text-slate-400 mt-0.5">{step.notes}</p>}
-                                        </div>
-                                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded shrink-0 ${step.status === 'compliant' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
-                                            {step.status === 'compliant' ? 'Verified' : 'Pending'}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Lawyer Notes — read-only */}
-                        {lawyerReviewNotes && (
-                            <div className="bg-white rounded-xl border border-slate-200 p-4">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <FileText size={14} className="text-slate-500" />
-                                    <h4 className="text-sm font-semibold text-slate-900">Lawyer Review Notes</h4>
-                                </div>
-                                <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-lg p-3 border border-slate-100">{lawyerReviewNotes}</p>
-                            </div>
-                        )}
+                        <LawyerReviewPanel caseItem={caseData} />
                     </div>
                 )}
 
