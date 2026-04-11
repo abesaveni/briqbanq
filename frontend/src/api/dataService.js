@@ -160,6 +160,7 @@ export const casesService = {
     wrap(api.put(`/api/v1/cases/${caseId}/status`, { status: newStatus })),
   updateCaseMetadata: (caseId, metadata) =>
     wrap(api.patch(`/api/v1/cases/${caseId}/metadata`, { metadata })),
+  startCaseReview: (caseId) => wrap(api.post(`/api/v1/cases/${caseId}/review`)),
   approveCase: (caseId) => wrap(api.post(`/api/v1/cases/${caseId}/approve`)),
   rejectCase: (caseId, reason) =>
     wrap(api.post(`/api/v1/cases/${caseId}/reject`, { rejection_reason: reason })),
@@ -277,6 +278,9 @@ export const documentService = {
     wrap(api.post(`/api/v1/documents/upload`, formData)),
   deleteDocument: (docId) => wrap(api.delete(`/api/v1/documents/${docId}`)),
   getDocumentUrl: (docId) => wrap(api.get(`/api/v1/documents/${docId}/download`)),
+  approveDocument: (docId) => wrap(api.post(`/api/v1/documents/${docId}/approve`)),
+  rejectDocument: (docId, reason) =>
+    wrap(api.post(`/api/v1/documents/${docId}/reject`, { rejection_reason: reason || "" })),
 };
 
 // ─── Admin Users Service ──────────────────────────────────────────────────────
