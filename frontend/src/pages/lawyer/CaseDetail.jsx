@@ -192,24 +192,24 @@ function ApproveCaseModal({ onConfirm, onClose, loading, checkedCount, totalCoun
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6" style={{ zIndex: 10000 }}>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center">
-            <CheckCircle size={18} className="text-emerald-600" />
+          <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center">
+            <CheckCircle size={18} className="text-[#1B3A6B]" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-800">Approve Case</h3>
-            <p className="text-xs text-slate-500 mt-0.5">This action cannot be undone.</p>
+            <h3 className="text-sm font-bold text-slate-800">Complete Legal Review</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Admin will be notified to take final action.</p>
           </div>
         </div>
         {checkedCount < totalCount && (
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 flex items-start gap-2">
             <AlertTriangle size={14} className="text-amber-600 mt-0.5 shrink-0" />
             <p className="text-xs text-amber-800">
-              <strong>{totalCount - checkedCount} compliance item{totalCount - checkedCount > 1 ? 's' : ''}</strong> not yet checked. You can still approve but this will be recorded.
+              <strong>{totalCount - checkedCount} compliance item{totalCount - checkedCount > 1 ? 's' : ''}</strong> not yet checked. You can still submit — it will be recorded in your review.
             </p>
           </div>
         )}
         <p className="text-sm text-slate-600 mb-5">
-          Confirm that all legal requirements have been verified and this case is approved to proceed to auction.
+          Confirm that you have completed your legal review. Your checklist and notes will be saved and submitted to admin for final approval or rejection.
         </p>
         <div className="flex gap-2 justify-end">
           <button onClick={onClose} className="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors">
@@ -218,10 +218,10 @@ function ApproveCaseModal({ onConfirm, onClose, loading, checkedCount, totalCoun
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+            className="px-4 py-2 text-xs font-semibold text-white bg-[#1B3A6B] rounded-lg hover:bg-[#142d55] transition-colors disabled:opacity-50 flex items-center gap-1.5"
           >
             {loading ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle size={13} />}
-            Approve Case
+            Submit to Admin
           </button>
         </div>
       </div>
@@ -246,14 +246,12 @@ export default function LawyerCaseDetail() {
 
   // Action states
   const [startingReview, setStartingReview] = useState(false)
-  const [approvingCase, setApprovingCase] = useState(false)
-  const [rejectingCase, setRejectingCase] = useState(false)
+  const [completingReview, setCompletingReview] = useState(false)
   const [docActionLoading, setDocActionLoading] = useState(null) // docId
   const [downloadingDoc, setDownloadingDoc] = useState(null)
 
   // Modals
-  const [showApproveModal, setShowApproveModal] = useState(false)
-  const [showRejectCaseModal, setShowRejectCaseModal] = useState(false)
+  const [showCompleteModal, setShowCompleteModal] = useState(false)
   const [rejectDocModal, setRejectDocModal] = useState(null) // { id, name }
 
   // Checklist
@@ -328,43 +326,29 @@ export default function LawyerCaseDetail() {
     }
   }
 
-  // ── Approve Case ─────────────────────────────────────────────────────────────
+  // ── Complete Legal Review (submits back to admin) ─────────────────────────────
 
-  const handleApproveCase = async () => {
-    setApprovingCase(true)
+  const handleCompleteReview = async () => {
+    setShowCompleteModal(false)
+    setCompletingReview(true)
     try {
-      const res = await casesService.approveCase(caseId)
+      // Save latest checklist state first, then mark as complete
+      await casesService.saveLawyerChecklist(caseId, checklist, checklistNotes)
+      const res = await casesService.completeLawyerReview(caseId)
       if (res.success) {
-        addNotification({ type: 'success', title: 'Case Approved', message: 'Case has been approved and is now ready for auction.' })
+        addNotification({
+          type: 'success',
+          title: 'Review Submitted',
+          message: 'Your legal review has been submitted. Admin has been notified to take action.',
+        })
         setCaseItem(res.data)
-        setShowApproveModal(false)
       } else {
-        addNotification({ type: 'error', title: 'Failed', message: res.error || 'Could not approve case.' })
+        addNotification({ type: 'error', title: 'Failed', message: res.error || 'Could not submit review.' })
       }
     } catch (err) {
       addNotification({ type: 'error', title: 'Error', message: err.message })
     } finally {
-      setApprovingCase(false)
-    }
-  }
-
-  // ── Reject Case ──────────────────────────────────────────────────────────────
-
-  const handleRejectCase = async (reason) => {
-    setRejectingCase(true)
-    try {
-      const res = await casesService.rejectCase(caseId, reason)
-      if (res.success) {
-        addNotification({ type: 'success', title: 'Case Rejected', message: 'Case has been rejected with the provided reason.' })
-        setCaseItem(res.data)
-        setShowRejectCaseModal(false)
-      } else {
-        addNotification({ type: 'error', title: 'Failed', message: res.error || 'Could not reject case.' })
-      }
-    } catch (err) {
-      addNotification({ type: 'error', title: 'Error', message: err.message })
-    } finally {
-      setRejectingCase(false)
+      setCompletingReview(false)
     }
   }
 
@@ -507,9 +491,10 @@ export default function LawyerCaseDetail() {
 
   const meta = caseItem.metadata_json || {}
   const canStartReview = caseItem.status === 'SUBMITTED'
-  const canReview = ['UNDER_REVIEW', 'SUBMITTED'].includes(caseItem.status)
+  const canReview = caseItem.status === 'UNDER_REVIEW'
   const isApproved = caseItem.status === 'APPROVED'
   const isRejected = caseItem.status === 'REJECTED'
+  const reviewSubmittedToAdmin = !!meta?.lawyer_review?.submitted_to_admin
   const checkedCount = Object.values(checklist).filter(Boolean).length
   const totalCount = COMPLIANCE_ITEMS.length
 
@@ -555,30 +540,29 @@ export default function LawyerCaseDetail() {
               Start Legal Review
             </button>
           )}
-          {canReview && !isApproved && !isRejected && (
-            <>
-              <button
-                onClick={() => setShowApproveModal(true)}
-                className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-emerald-700 transition-colors"
-              >
-                <CheckCircle size={13} /> Approve Case
-              </button>
-              <button
-                onClick={() => setShowRejectCaseModal(true)}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-red-700 transition-colors"
-              >
-                <XCircle size={13} /> Reject Case
-              </button>
-            </>
+          {canReview && !reviewSubmittedToAdmin && (
+            <button
+              onClick={() => setShowCompleteModal(true)}
+              disabled={completingReview}
+              className="px-4 py-2 bg-[#1B3A6B] text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-[#142d55] transition-colors disabled:opacity-50"
+            >
+              {completingReview ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle size={13} />}
+              Complete Legal Review
+            </button>
+          )}
+          {canReview && reviewSubmittedToAdmin && (
+            <span className="px-3 py-1.5 bg-blue-50 text-[#1B3A6B] rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-blue-200">
+              <CheckCircle size={13} /> Review Submitted to Admin
+            </span>
           )}
           {isApproved && (
             <span className="px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-semibold flex items-center gap-1.5">
-              <CheckCircle size={13} /> Approved
+              <CheckCircle size={13} /> Approved by Admin
             </span>
           )}
           {isRejected && (
             <span className="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-semibold flex items-center gap-1.5">
-              <XCircle size={13} /> Rejected
+              <XCircle size={13} /> Rejected by Admin
             </span>
           )}
         </div>
@@ -953,33 +937,43 @@ export default function LawyerCaseDetail() {
                 />
               </div>
 
-              {/* Final actions */}
-              {canReview && !isApproved && !isRejected && (
-                <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-semibold text-slate-700">
-                      {checkedCount === totalCount
-                        ? 'All compliance items verified. Ready to approve.'
-                        : `${totalCount - checkedCount} item${totalCount - checkedCount > 1 ? 's' : ''} still unchecked.`}
+              {/* Final action */}
+              <div className="pt-4 border-t border-slate-100">
+                {canReview && !reviewSubmittedToAdmin && (
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-semibold text-slate-700">
+                        {checkedCount === totalCount
+                          ? 'All compliance items verified. Ready to submit to admin.'
+                          : `${totalCount - checkedCount} item${totalCount - checkedCount > 1 ? 's' : ''} still unchecked — you can still submit.`}
+                      </p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Submitting will notify admin to review your findings and take final action.</p>
+                    </div>
+                    <button
+                      onClick={() => setShowCompleteModal(true)}
+                      disabled={completingReview}
+                      className="px-5 py-2 bg-[#1B3A6B] text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-[#142d55] transition-colors disabled:opacity-50 whitespace-nowrap"
+                    >
+                      {completingReview ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle size={13} />}
+                      Complete &amp; Submit to Admin
+                    </button>
+                  </div>
+                )}
+                {canReview && reviewSubmittedToAdmin && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-center gap-2">
+                    <CheckCircle size={14} className="text-[#1B3A6B] shrink-0" />
+                    <p className="text-xs text-[#1B3A6B] font-semibold">Review submitted. Admin has been notified and will approve or reject the case.</p>
+                  </div>
+                )}
+                {(isApproved || isRejected) && (
+                  <div className={`rounded-xl p-3 flex items-center gap-2 ${isApproved ? 'bg-emerald-50 border border-emerald-200' : 'bg-red-50 border border-red-200'}`}>
+                    {isApproved ? <CheckCircle size={14} className="text-emerald-600 shrink-0" /> : <XCircle size={14} className="text-red-500 shrink-0" />}
+                    <p className={`text-xs font-semibold ${isApproved ? 'text-emerald-700' : 'text-red-600'}`}>
+                      {isApproved ? 'Case has been approved by admin.' : 'Case has been rejected by admin.'}
                     </p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">Your legal sign-off will be recorded on the case activity log.</p>
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setShowRejectCaseModal(true)}
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-red-700 transition-colors"
-                    >
-                      <XCircle size={13} /> Reject Case
-                    </button>
-                    <button
-                      onClick={() => setShowApproveModal(true)}
-                      className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-emerald-700 transition-colors"
-                    >
-                      <CheckCircle size={13} /> Approve Case
-                    </button>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           )}
 
@@ -1006,22 +1000,13 @@ export default function LawyerCaseDetail() {
       </div>
 
       {/* Modals */}
-      {showApproveModal && (
+      {showCompleteModal && (
         <ApproveCaseModal
           checkedCount={checkedCount}
           totalCount={totalCount}
-          loading={approvingCase}
-          onConfirm={handleApproveCase}
-          onClose={() => setShowApproveModal(false)}
-        />
-      )}
-      {showRejectCaseModal && (
-        <RejectModal
-          title="Reject Case"
-          placeholder="Provide a clear reason for rejection (e.g., title defect, outstanding arrears, incomplete documentation)…"
-          loading={rejectingCase}
-          onConfirm={handleRejectCase}
-          onClose={() => setShowRejectCaseModal(false)}
+          loading={completingReview}
+          onConfirm={handleCompleteReview}
+          onClose={() => setShowCompleteModal(false)}
         />
       )}
       {rejectDocModal && (

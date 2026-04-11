@@ -221,6 +221,86 @@ class CaseService:
         case.version += 1
         return await self.repository.update(case)
 
+    async def complete_lawyer_review(
+        self,
+        case_id: uuid.UUID,
+        lawyer_id: uuid.UUID,
+        trace_id: str,
+    ) -> Case:
+        """Mark lawyer review as complete and notify all admins to take action."""
+        from sqlalchemy.orm.attributes import flag_modified
+        from app.modules.identity.models import User
+        from app.shared.enums import RoleType
+        from sqlalchemy import select as sa_select
+
+        case = await self._get_case_or_404(case_id)
+
+        # Resolve lawyer name
+        lawyer_name = "the assigned lawyer"
+        try:
+            row = await self.db.execute(sa_select(User).where(User.id == lawyer_id))
+            lawyer_user = row.scalar_one_or_none()
+            if lawyer_user:
+                lawyer_name = f"{lawyer_user.first_name} {lawyer_user.last_name}".strip()
+        except Exception:
+            pass
+
+        # Save completion flag in metadata_json.lawyer_review
+        existing = dict(case.metadata_json or {})
+        review = dict(existing.get("lawyer_review", {}))
+        review["submitted_to_admin"] = True
+        review["completed_at"] = datetime.utcnow().isoformat()
+        review["lawyer_name"] = lawyer_name
+        review["lawyer_id"] = str(lawyer_id)
+        existing["lawyer_review"] = review
+        case.metadata_json = existing
+        flag_modified(case, "metadata_json")
+        case.version += 1
+        updated = await self.repository.update(case)
+
+        # Notify all admins
+        try:
+            from app.modules.notifications.service import NotificationService
+            from app.infrastructure.email_service import EmailService
+
+            notif_svc = NotificationService(self.db)
+            admins_row = await self.db.execute(
+                sa_select(User).where(User.roles.contains([RoleType.ADMIN.value]))
+            )
+            admins = admins_row.scalars().all()
+
+            checked = review.get("checked_count", 0)
+            total = review.get("total_count", 0)
+
+            for admin in admins:
+                admin_name = f"{admin.first_name} {admin.last_name}".strip() or "Admin"
+                await notif_svc.create_notification(
+                    user_id=admin.id,
+                    title="Legal Review Complete — Action Required",
+                    message=(
+                        f"{lawyer_name} has completed the compliance review for "
+                        f"case {case.case_number or str(case_id)[:8].upper()} "
+                        f"({case.property_address}). "
+                        f"{checked}/{total} items verified. Please review and approve or reject the case."
+                    ),
+                    notification_type="case",
+                    reference_id=str(case_id),
+                )
+                await EmailService.send_lawyer_review_complete_email(
+                    to_email=admin.email,
+                    admin_name=admin_name,
+                    lawyer_name=lawyer_name,
+                    case_number=case.case_number or str(case_id)[:8].upper(),
+                    property_address=case.property_address,
+                    checked_count=checked,
+                    total_count=total,
+                )
+        except Exception as exc:
+            import structlog
+            structlog.get_logger().error("lawyer_review_complete_notify_failed", error=str(exc))
+
+        return updated
+
     async def admin_update_case(
 
         self,

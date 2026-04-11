@@ -49,6 +49,38 @@ async def update_case_metadata(
     return case
 
 
+@router.post("/{case_id}/lawyer-complete-review", response_model=CaseResponse)
+async def lawyer_complete_review(
+    case_id: uuid.UUID,
+    current_user: dict = Depends(get_current_user),
+    db=Depends(get_db),
+    trace_id: str = Depends(get_trace_id),
+):
+    """Mark lawyer review as complete and notify admins (lawyer only)."""
+    CasePolicy.can_review_case(current_user)
+    service = CaseService(db)
+    case = await service.complete_lawyer_review(
+        case_id=case_id,
+        lawyer_id=uuid.UUID(current_user["user_id"]),
+        trace_id=trace_id,
+    )
+
+    from app.modules.audit.service import AuditService
+    audit_service = AuditService(db)
+    await audit_service.log(
+        actor_id=current_user["user_id"],
+        actor_role=",".join(current_user.get("roles", [])),
+        entity_type="case",
+        entity_id=str(case_id),
+        action="LAWYER_REVIEW_COMPLETE",
+        before_state={"status": "UNDER_REVIEW"},
+        after_state={"lawyer_review_submitted": True},
+        trace_id=trace_id,
+    )
+
+    return case
+
+
 @router.post("/{case_id}/lawyer-checklist", response_model=CaseResponse)
 async def save_lawyer_checklist(
     case_id: uuid.UUID,

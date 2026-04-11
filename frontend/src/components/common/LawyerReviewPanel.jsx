@@ -43,11 +43,26 @@ export default function LawyerReviewPanel({ caseItem }) {
     )
   }
 
-  const { checklist = {}, notes, checked_count = 0, total_count = 0, completed, lawyer_name, last_saved_at } = review
+  const { checklist = {}, notes, checked_count = 0, total_count = 0, completed, lawyer_name, last_saved_at, submitted_to_admin, completed_at } = review
   const progress = total_count > 0 ? Math.round((checked_count / total_count) * 100) : 0
 
   return (
     <div className="space-y-5">
+      {/* Submitted-to-admin banner */}
+      {submitted_to_admin && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 flex items-center gap-2">
+          <CheckCircle size={14} className="text-[#1B3A6B] shrink-0" />
+          <div>
+            <p className="text-xs font-semibold text-[#1B3A6B]">Legal Review Submitted — Awaiting Admin Action</p>
+            {completed_at && (
+              <p className="text-[10px] text-blue-500 mt-0.5">
+                Submitted {new Date(completed_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Summary card */}
       <div className={`rounded-xl p-4 border ${completed ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'}`}>
         <div className="flex items-center justify-between gap-4 flex-wrap">

@@ -907,6 +907,47 @@ class EmailService:
         await EmailService.send_email(to_email, subject, html)
 
     @staticmethod
+    async def send_lawyer_review_complete_email(
+        to_email: str,
+        admin_name: str,
+        lawyer_name: str,
+        case_number: str,
+        property_address: str,
+        checked_count: int,
+        total_count: int,
+    ):
+        """Notify admin that lawyer has completed their compliance review."""
+        subject = f"Legal Review Complete — {case_number} | BrickBanq"
+        html = f"""
+        <html><body style="font-family:Arial,sans-serif;line-height:1.6;color:#333;">
+        <div style="max-width:600px;margin:0 auto;padding:20px;border:1px solid #ddd;border-radius:10px;">
+            <div style="background:#1B3A6B;padding:20px;border-radius:8px 8px 0 0;text-align:center;">
+                <h1 style="color:#fff;margin:0;font-size:22px;">BrickBanq</h1>
+                <p style="color:#a0aec0;margin:4px 0 0;">Mortgage Resolution Platform</p>
+            </div>
+            <div style="padding:30px 20px;">
+                <h2 style="color:#1B3A6B;">Legal Review Completed</h2>
+                <p>Hi {admin_name},</p>
+                <p>The assigned lawyer <strong>{lawyer_name}</strong> has completed their legal compliance review for the following case and it is now awaiting your approval.</p>
+                <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+                    <tr><td style="padding:8px;background:#f9f9f9;font-weight:bold;width:40%;">Case Number</td><td style="padding:8px;background:#f9f9f9;">{case_number}</td></tr>
+                    <tr><td style="padding:8px;font-weight:bold;">Property</td><td style="padding:8px;">{property_address}</td></tr>
+                    <tr><td style="padding:8px;background:#f9f9f9;font-weight:bold;">Reviewed By</td><td style="padding:8px;background:#f9f9f9;">{lawyer_name}</td></tr>
+                    <tr><td style="padding:8px;font-weight:bold;">Compliance Items</td><td style="padding:8px;color:#16a34a;font-weight:bold;">{checked_count} / {total_count} verified</td></tr>
+                </table>
+                <p>Please log in to review the lawyer's findings and take action on this case.</p>
+                <div style="text-align:center;margin:30px 0;">
+                    <a href="#" style="background:#1B3A6B;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;">Review Case</a>
+                </div>
+            </div>
+            <div style="background:#f0f0f0;padding:15px;text-align:center;border-radius:0 0 8px 8px;">
+                <p style="font-size:12px;color:#777;margin:0;">&copy; 2026 BrickBanq. All rights reserved.</p>
+            </div>
+        </div></body></html>
+        """
+        await EmailService.send_email(to_email, subject, html)
+
+    @staticmethod
     def _send_smtp_sync(to_email: str, subject: str, html_content: str):
         """Synchronous SMTP helper for to_thread."""
         msg = MIMEMultipart("alternative")

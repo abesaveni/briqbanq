@@ -163,6 +163,8 @@ export const casesService = {
   startCaseReview: (caseId) => wrap(api.post(`/api/v1/cases/${caseId}/review`)),
   saveLawyerChecklist: (caseId, checklist, notes) =>
     wrap(api.post(`/api/v1/cases/${caseId}/lawyer-checklist`, { checklist, notes: notes || "" })),
+  completeLawyerReview: (caseId) =>
+    wrap(api.post(`/api/v1/cases/${caseId}/lawyer-complete-review`)),
   approveCase: (caseId) => wrap(api.post(`/api/v1/cases/${caseId}/approve`)),
   rejectCase: (caseId, reason) =>
     wrap(api.post(`/api/v1/cases/${caseId}/reject`, { rejection_reason: reason })),
