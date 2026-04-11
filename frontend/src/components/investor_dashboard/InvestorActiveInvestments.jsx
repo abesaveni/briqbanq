@@ -148,7 +148,7 @@ export default function InvestorActiveInvestments({ investments = [] }) {
     };
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col relative">
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden flex flex-col relative">
             {/* Toast Notification */}
             {toast && (
                 <div className="absolute top-4 right-4 z-[100] animate-in slide-in-from-top-4 duration-300">
@@ -156,7 +156,7 @@ export default function InvestorActiveInvestments({ investments = [] }) {
                         <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                             <CheckCircle2 size={12} className="text-white" />
                         </div>
-                        <span className="text-[11px] font-bold">{toast.message}</span>
+                        <span className="text-xs font-medium">{toast.message}</span>
                         <button onClick={() => setToast(null)} className="text-emerald-400 hover:text-emerald-600">
                             <X size={14} />
                         </button>
@@ -171,8 +171,8 @@ export default function InvestorActiveInvestments({ investments = [] }) {
                         <Briefcase size={18} className="text-indigo-600" />
                     </div>
                     <div>
-                        <h3 className="text-[#1E293B] font-bold text-base leading-none">Active Investments</h3>
-                        <p className="text-[#64748B] text-[10px] font-bold uppercase tracking-wider mt-1.5">Current portfolio</p>
+                        <h3 className="text-gray-900 font-semibold text-base leading-none">Active Investments</h3>
+                        <p className="text-gray-500 text-xs mt-1">Current portfolio</p>
                     </div>
                 </div>
 
@@ -180,7 +180,7 @@ export default function InvestorActiveInvestments({ investments = [] }) {
                     <select
                         value={filterTime}
                         onChange={(e) => setFilterTime(e.target.value)}
-                        className="bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs font-bold text-[#475569] outline-none hover:border-indigo-300 transition-colors cursor-pointer grow sm:grow-0"
+                        className="bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-600 outline-none hover:border-indigo-300 transition-colors cursor-pointer grow sm:grow-0"
                     >
                         <option>All time</option>
                         <option>Last 7 days</option>
@@ -190,7 +190,7 @@ export default function InvestorActiveInvestments({ investments = [] }) {
                     </select>
                     <button 
                         onClick={handleExport}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-bold text-[#475569] hover:bg-gray-50 transition-colors shrink-0"
+                        className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors shrink-0"
                     >
                         <Download size={14} />
                         Export
@@ -208,7 +208,7 @@ export default function InvestorActiveInvestments({ investments = [] }) {
                             placeholder="Search by Case #, Property..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-9 pr-4 py-1.5 bg-white border border-gray-200 rounded-xl text-[11px] font-bold focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none transition-all placeholder:text-gray-400"
+                            className="w-full pl-9 pr-4 py-1.5 bg-white border border-gray-200 rounded-lg text-xs focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none transition-all placeholder:text-gray-400"
                         />
                     </div>
 
@@ -239,7 +239,7 @@ export default function InvestorActiveInvestments({ investments = [] }) {
                     )}
                 </div>
 
-                <p className="text-[#64748B] text-[10px] font-bold">
+                <p className="text-gray-500 text-xs">
                     Showing {filteredInvestments.length} of {investments.length} results
                     {selectedIds.length > 0 && ` • ${selectedIds.length} selected`}
                 </p>
@@ -248,7 +248,7 @@ export default function InvestorActiveInvestments({ investments = [] }) {
             {/* Table Content */}
             <div className="overflow-x-auto scrollbar-hide">
                 <table className="w-full text-left border-collapse">
-                    <thead className="bg-[#F8FAFC]/50 text-[#64748B] text-[10px] font-semibold uppercase tracking-widest border-b border-gray-100">
+                    <thead className="bg-gray-50 text-gray-500 text-xs font-medium border-b border-gray-200">
                         <tr>
                             <th className="pl-5 pr-3 py-4 w-10">
                                 <input
@@ -285,27 +285,27 @@ export default function InvestorActiveInvestments({ investments = [] }) {
                                     <td className="px-3 py-4 whitespace-nowrap">
                                         <button
                                             onClick={() => navigate(`/investor/case-details/${deal.id}`)}
-                                            className="text-indigo-600 font-bold text-[11px] hover:underline"
+                                            className="text-indigo-600 font-medium text-xs hover:underline"
                                         >
                                             {deal.case_number || String(deal.id).slice(0, 8).toUpperCase()}
                                         </button>
                                     </td>
                                     <td className="px-3 py-4">
                                         <div className="min-w-[140px]">
-                                            <p className="text-[#0F172A] font-bold text-[11px] leading-tight truncate">{deal.title}</p>
-                                            <p className="text-gray-400 text-[10px] font-bold mt-1 uppercase tracking-tight">
+                                            <p className="text-gray-900 font-medium text-xs leading-tight truncate">{deal.title}</p>
+                                            <p className="text-gray-400 text-xs mt-0.5">
                                                 {deal.suburb}, {deal.state}
                                             </p>
                                         </div>
                                     </td>
                                     <td className="px-3 py-4 whitespace-nowrap">
-                                        <span className="text-[#0F172A] font-bold text-[11px]">
-                                            {deal.currentBid ? `A$${deal.currentBid.toLocaleString()}` : "A$No bid"}
+                                        <span className="text-gray-900 font-medium text-xs">
+                                            {deal.currentBid ? `A$${deal.currentBid.toLocaleString()}` : "—"}
                                         </span>
                                     </td>
                                     <td className="px-3 py-4 whitespace-nowrap">
-                                        <span className="text-emerald-600 font-semibold text-[11px]">
-                                            {deal.returnRate ? `+${deal.returnRate}%` : "+0%"}
+                                        <span className="text-emerald-600 font-medium text-xs">
+                                            {deal.returnRate ? `+${deal.returnRate}%` : "—"}
                                         </span>
                                     </td>
                                     <td className="px-3 py-4">
@@ -317,13 +317,13 @@ export default function InvestorActiveInvestments({ investments = [] }) {
                                                         style={{ width: `${deal.lvr || 0}%` }}
                                                     ></div>
                                                 </div>
-                                                <span className="text-gray-400 text-[10px] font-bold">{deal.lvr || 0}%</span>
+                                                <span className="text-gray-500 text-xs">{deal.lvr || 0}%</span>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="px-3 py-4 text-center">
                                         <span
-                                            className={`inline-flex px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-tighter ${deal.status === "Live Auction"
+                                            className={`inline-flex px-2 py-0.5 rounded-md text-xs font-medium ${deal.status === "Live Auction"
                                                 ? "bg-purple-50 text-purple-600"
                                                 : deal.status === "Active"
                                                     ? "bg-blue-50 text-blue-600"
@@ -364,7 +364,7 @@ export default function InvestorActiveInvestments({ investments = [] }) {
             </div>
 
             {/* Footer Info / Pagination */}
-            <div className="px-5 py-3 border-t border-gray-50 bg-gray-50/20 text-[10px] font-bold text-gray-400 flex justify-between items-center mt-auto">
+            <div className="px-5 py-3 border-t border-gray-100 bg-gray-50 text-xs text-gray-500 flex justify-between items-center mt-auto">
                 <span>
                     Showing {paginatedInvestments.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}-
                     {Math.min(currentPage * itemsPerPage, filteredInvestments.length)} of {filteredInvestments.length} investments

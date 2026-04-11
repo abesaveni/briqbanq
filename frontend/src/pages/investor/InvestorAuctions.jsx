@@ -144,12 +144,10 @@ export default function InvestorAuctions() {
   if (error) return <ErrorState message={error} />;
 
   return (
-
-    <div className="space-y-8">
-
-      <div className="mb-2">
-        <h2 className="text-2xl font-bold text-slate-900 mb-1 tracking-tight">Active Auctions</h2>
-        <p className="text-slate-500 text-sm font-medium leading-relaxed">Participate in live bidding for premium mortgage assets</p>
+    <div className="space-y-6 pb-8">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Live Auctions</h1>
+        <p className="text-sm text-gray-500 mt-1">Browse and bid on active mortgage investment opportunities</p>
       </div>
 
       <AuctionStats auctions={auctions} />
@@ -164,8 +162,7 @@ export default function InvestorAuctions() {
         onAdvancedChange={setAdvancedFilters}
       />
 
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         {filteredAuctions.length > 0 ? (
           filteredAuctions.map((auction) => (
             <InvestorAuctionCard key={auction.id} auction={auction} />
@@ -174,12 +171,11 @@ export default function InvestorAuctions() {
           <div className="col-span-full w-full">
             <EmptyState
               message="No auctions found"
-              submessage="Try searching for a different location or adjusting your status filters."
+              submessage="Try searching for a different location or adjusting your filters."
             />
           </div>
         )}
       </div>
-
     </div>
   );
 }
