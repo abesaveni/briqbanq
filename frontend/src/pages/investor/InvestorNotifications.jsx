@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import {
     Bell, Mail, MessageSquare, Search, Filter, Trash2, Check, Eye, X
 } from "lucide-react";
@@ -254,11 +255,11 @@ function NotificationDetailModal({ notification, onClose, onDelete }) {
         }
     }
 
-    return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+    return createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
 
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[520px] overflow-hidden animate-scale-in relative border border-gray-100">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[520px] overflow-hidden relative border border-gray-100" style={{zIndex: 10000}}>
                 {/* Modal Header */}
                 <div className="p-5 flex justify-between items-center border-b border-gray-50">
                     <div className="flex gap-4 items-center">
@@ -328,8 +329,9 @@ function NotificationDetailModal({ notification, onClose, onDelete }) {
                     </button>
                 </div>
             </div>
-        </div>
-    )
+        </div>,
+        document.body
+    );
 }
 
 function NotificationItem({ item, onDelete, onRead, onView }) {

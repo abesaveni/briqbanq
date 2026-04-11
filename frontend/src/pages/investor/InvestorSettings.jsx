@@ -172,14 +172,21 @@ function ProfileSettingsView() {
         if (!validate()) return;
         setLoading(true);
         try {
-            await authService.updateProfile({ ...formData, name: `${formData.firstName} ${formData.lastName}`, photoUrl: photo });
-            updateUser({ ...formData, photo, name: `${formData.firstName} ${formData.lastName}` });
-            setSaveSuccess(true);
-            setTimeout(() => setSaveSuccess(false), 3000);
+            // Backend UserUpdateRequest only accepts snake_case: first_name, last_name, phone
+            const res = await authService.updateProfile({
+                first_name: formData.firstName,
+                last_name: formData.lastName,
+                phone: formData.phone || null,
+            });
+            if (res.success) {
+                updateUser({ ...formData, photo, name: `${formData.firstName} ${formData.lastName}`, first_name: formData.firstName, last_name: formData.lastName });
+                setSaveSuccess(true);
+                setTimeout(() => setSaveSuccess(false), 3000);
+            } else {
+                setFieldErrors({ submit: res.error || 'Failed to save profile.' });
+            }
         } catch {
-            updateUser({ ...formData, photo, name: `${formData.firstName} ${formData.lastName}` });
-            setSaveSuccess(true);
-            setTimeout(() => setSaveSuccess(false), 3000);
+            setFieldErrors({ submit: 'An error occurred while saving.' });
         } finally {
             setLoading(false);
         }
@@ -338,8 +345,17 @@ function ProfileSettingsView() {
 
                 {/* Actions */}
                 <div className="flex justify-end items-center gap-3 pt-2 mt-auto pb-4">
+                    {saveSuccess && (
+                        <span className="text-xs font-semibold text-green-600 flex items-center gap-1">
+                            <Save size={13} /> Profile saved successfully
+                        </span>
+                    )}
+                    {fieldErrors.submit && (
+                        <span className="text-xs font-semibold text-red-600">{fieldErrors.submit}</span>
+                    )}
                     <button
                         className="px-6 py-[11px] rounded-lg border border-gray-200 text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm"
+                        onClick={() => setFieldErrors({})}
                     >
                         Cancel
                     </button>
@@ -1461,46 +1477,43 @@ function SecuritySettingsView() {
     };
 
     const handlePasswordChange = async () => {
-        // Validation
         if (!passwordData.current || !passwordData.new || !passwordData.confirm) {
             setStatus({ type: 'error', message: 'All password fields are required.' });
             return;
         }
+        if (passwordData.new !== passwordData.confirm) {
+            setStatus({ type: 'error', message: 'Passwords do not match.' });
+            return;
+        }
+        // Backend requires: 8+ chars, uppercase, lowercase, number, special character
         if (passwordData.new.length < 8) {
             setStatus({ type: 'error', message: 'New password must be at least 8 characters.' });
             return;
         }
-        const hasUpper = /[A-Z]/.test(passwordData.new);
-        const hasLower = /[a-z]/.test(passwordData.new);
-        const hasNumber = /[0-9]/.test(passwordData.new);
-        if (!hasUpper || !hasLower || !hasNumber) {
+        if (!/[A-Z]/.test(passwordData.new) || !/[a-z]/.test(passwordData.new) || !/[0-9]/.test(passwordData.new)) {
             setStatus({ type: 'error', message: 'Password must include uppercase, lowercase, and a number.' });
             return;
         }
-        if (passwordData.new.length < 8) {
-            setStatus({ type: 'error', message: 'New password must be at least 8 characters long.' });
-            return;
-        }
-
-        if (passwordData.new !== passwordData.confirm) {
-            setStatus({ type: 'error', message: 'Passwords do not match.' });
+        if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(passwordData.new)) {
+            setStatus({ type: 'error', message: 'Password must include at least one special character (e.g. !@#$%).' });
             return;
         }
 
         setLoading(true);
         setStatus({ type: '', message: '' });
         try {
+            // Backend ChangePasswordRequest fields: current_password, new_password
             const response = await authService.changePassword({
-                oldPassword: passwordData.current,
-                newPassword: passwordData.new
+                current_password: passwordData.current,
+                new_password: passwordData.new,
             });
             if (response.success) {
                 setStatus({ type: 'success', message: 'Password updated successfully.' });
                 setPasswordData({ current: "", new: "", confirm: "" });
             } else {
-                setStatus({ type: 'error', message: response.error || 'Failed to update password.' });
+                setStatus({ type: 'error', message: response.error || 'Failed to update password. Check your current password is correct.' });
             }
-        } catch (error) {
+        } catch {
             setStatus({ type: 'error', message: 'An unexpected error occurred.' });
         } finally {
             setLoading(false);
