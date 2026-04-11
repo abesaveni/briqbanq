@@ -490,8 +490,11 @@ export default function LawyerCaseDetail() {
   }
 
   const meta = caseItem.metadata_json || {}
+  // Show Start Review for SUBMITTED cases only
   const canStartReview = caseItem.status === 'SUBMITTED'
-  const canReview = caseItem.status === 'UNDER_REVIEW'
+  // Allow completing review for any active case (admin may advance status while review is in progress)
+  const INACTIVE_STATUSES = ['DRAFT', 'CLOSED', 'REJECTED']
+  const canReview = !INACTIVE_STATUSES.includes(caseItem.status)
   const isApproved = caseItem.status === 'APPROVED'
   const isRejected = caseItem.status === 'REJECTED'
   const reviewSubmittedToAdmin = !!meta?.lawyer_review?.submitted_to_admin
