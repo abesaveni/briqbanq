@@ -15,11 +15,29 @@ import InvestmentSummary from "../../components/auctions/InvestmentSummary";
 import InvestmentMemorandum from "../../components/auctions/InvestmentMemorandum";
 import DocumentsSection from "../../components/auctions/DocumentsSection";
 
-import { auctionService, casesService, userService } from "../../api/dataService";
+import { auctionService, casesService, userService, documentService } from "../../api/dataService";
 import { LoadingState, ErrorState } from "../../components/common/States";
 import { formatCurrency } from "../../utils/formatters";
 import { useNotifications } from "../../context/NotificationContext";
 import { useAuth } from "../../context/AuthContext";
+
+function fmtFileSize(bytes) {
+  if (!bytes) return "Unknown size";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function mapCaseDocuments(rawDocs) {
+  if (!Array.isArray(rawDocs)) return [];
+  return rawDocs.map(doc => ({
+    id: doc.id,
+    name: doc.document_name || doc.name || "Document",
+    type: doc.document_type || doc.type || "PDF",
+    size: fmtFileSize(doc.file_size || doc.size),
+    file: doc.id ? `/api/v1/documents/${doc.id}/download` : null,
+  }));
+}
 
 function mapBids(rawBids, currentUser) {
   if (!Array.isArray(rawBids)) return [];
@@ -76,10 +94,11 @@ export default function InvestorAuctionRoom() {
         setError(null);
 
         // Fetch case (id is always a case_id when navigating from live listings)
-        const [caseRes, auctionListRes, bidsRes] = await Promise.all([
+        const [caseRes, auctionListRes, bidsRes, docsRes] = await Promise.all([
           casesService.getCaseById(id),
           auctionService.getAuctionsByCase(id),
           auctionService.getBidsByCase(id),
+          documentService.getDocuments(id),
         ]);
 
         if (!isMounted) return;
@@ -112,12 +131,20 @@ export default function InvestorAuctionRoom() {
 
         const suburb = meta.suburb || caseData?.suburb || "";
         const state = meta.state || caseData?.state || "";
+        const postcode = meta.postcode || caseData?.postcode || "";
         const interestRate = Number(caseData?.interest_rate || 0);
         const defaultRate = Number(meta.default_rate) || 0;
+        const floorArea = meta.floor_area ? `${meta.floor_area} m²` : (meta.land_size ? `${meta.land_size} m²` : "N/A");
+
+        // Map case documents to DocumentsSection format
+        const rawDocsList = docsRes.success && Array.isArray(docsRes.data) ? docsRes.data : (Array.isArray(caseData?.documents) ? caseData.documents : []);
+        const caseDocs = mapCaseDocuments(rawDocsList);
 
         const deal = {
           id: auctionData?.id || id,
+          case_id: id,
           title: caseData?.title || auctionData?.title || "Investment Opportunity",
+          description: caseData?.description || "",
           status: auctionData?.status || "LIVE",
           propertyValue: value,
           outstandingDebt: debt,
@@ -128,6 +155,7 @@ export default function InvestorAuctionRoom() {
           address: caseData?.property_address || "",
           suburb,
           state,
+          postcode,
           images: resolvedImages,
           image: resolvedImages[0] || null,
           currentBid: highest,
@@ -140,27 +168,47 @@ export default function InvestorAuctionRoom() {
             interestRate,
             defaultRate,
             daysInDefault: Number(meta.days_in_default) || 0,
-            daysInArrears: 0,
-            totalArrears: debt,
+            daysInArrears: Number(meta.total_arrears ? Math.floor(meta.total_arrears / (debt / 365 || 1)) : 0),
+            totalArrears: Number(meta.total_arrears) || debt,
+            missedPayments: Number(meta.missed_payments) || 0,
           },
           financials: {
-            originalLoanAmount: debt,
+            originalLoanAmount: Number(meta.original_loan_amount) || debt,
             outstandingDebt: debt,
-            lastPaymentDate: null,
+            lastPaymentDate: meta.last_payment_date || null,
             lastPaymentAmount: 0,
-            missedPayments: 0,
+            missedPayments: Number(meta.missed_payments) || 0,
+            totalArrears: Number(meta.total_arrears) || 0,
             equityAvailable: Math.max(0, value - debt),
+            defaultRate: meta.default_rate ? `${meta.default_rate}% p.a.` : null,
+            interestRate: interestRate ? `${interestRate}% p.a.` : null,
           },
           propertyDetails: {
-            landSize: meta.land_size ?? "N/A",
+            floorArea,
+            landSize: floorArea,
             bedrooms: meta.bedrooms ?? caseData?.bedrooms ?? "N/A",
             bathrooms: meta.bathrooms ?? caseData?.bathrooms ?? "N/A",
+            kitchens: meta.kitchens ?? "N/A",
             parking: meta.parking ?? caseData?.parking ?? "N/A",
-            valuer: meta.valuer_name || caseData?.valuer_name || '—',
-            valuationDate: null,
+            yearBuilt: meta.year_built || "N/A",
+            numberOfStoreys: meta.number_of_storeys || "N/A",
+            constructionType: meta.construction_type || "N/A",
+            roofType: meta.roof_type || "N/A",
+            propertyCondition: meta.property_condition || "N/A",
+            recentRenovations: meta.recent_renovations || "N/A",
+            specialFeatures: meta.special_features || null,
+            councilRates: meta.council_rates ? formatCurrency(meta.council_rates) : "N/A",
+            waterRates: meta.water_rates ? formatCurrency(meta.water_rates) : "N/A",
+            strataFees: meta.strata_fees ? formatCurrency(meta.strata_fees) : "N/A",
+            lastSalePrice: meta.last_sale_price ? formatCurrency(meta.last_sale_price) : "N/A",
+            lastSaleDate: meta.last_sale_date || "N/A",
+            valuer: meta.valuer_name || meta.valuation_provider || caseData?.valuer_name || "N/A",
+            valuationDate: meta.valuation_date || null,
+            cbdDistance: meta.cbd_distance || null,
+            typeOfSecurity: meta.type_of_security || null,
           },
           bidHistory: bids,
-          documents: [],
+          documents: caseDocs,
           borrower_id: caseData?.borrower_id || null,
         };
 
@@ -168,10 +216,10 @@ export default function InvestorAuctionRoom() {
         setCurrentBid(highest);
         setBidHistory(bids);
 
-        // Fetch investor documents
-        const docsRes = await userService.getInvestorDocuments();
-        if (isMounted && docsRes.success) {
-          setInvestorDocs(docsRes.data || []);
+        // Fetch investor's own verification documents
+        const investorDocsRes = await userService.getInvestorDocuments();
+        if (isMounted && investorDocsRes.success) {
+          setInvestorDocs(investorDocsRes.data || []);
         }
       } catch (err) {
         if (isMounted) setError(err.message || "An error occurred while loading the auction data.");
@@ -383,13 +431,19 @@ export default function InvestorAuctionRoom() {
                   <Home size={20} />
                   <h3 className="font-bold text-lg">Property Information</h3>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-2 gap-y-8 gap-x-12">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-y-8 gap-x-12">
                   <DetailItem label="Property Type" value={deal.type} />
-                  <DetailItem label="Land Size" value={propertyDetails.landSize || "N/A"} />
-                  <DetailItem label="Bedrooms" value={propertyDetails.bedrooms || deal.bedrooms} />
-                  <DetailItem label="Bathrooms" value={propertyDetails.bathrooms || deal.bathrooms} />
-                  <DetailItem label="Parking" value={propertyDetails.parking || deal.parking || 0} />
-                  <DetailItem label="Valuer" value={propertyDetails.valuer || "PRP Valuation"} />
+                  <DetailItem label="Floor Area" value={propertyDetails.floorArea} />
+                  <DetailItem label="Bedrooms" value={propertyDetails.bedrooms} />
+                  <DetailItem label="Bathrooms" value={propertyDetails.bathrooms} />
+                  <DetailItem label="Kitchens" value={propertyDetails.kitchens} />
+                  <DetailItem label="Parking" value={propertyDetails.parking} />
+                  <DetailItem label="Year Built" value={propertyDetails.yearBuilt} />
+                  <DetailItem label="Construction" value={propertyDetails.constructionType} />
+                  <DetailItem label="Condition" value={propertyDetails.propertyCondition} />
+                  <DetailItem label="Valuer" value={propertyDetails.valuer} />
+                  <DetailItem label="Suburb" value={`${deal.suburb}${deal.postcode ? ` ${deal.postcode}` : ''}`} />
+                  <DetailItem label="State" value={deal.state} />
                 </div>
               </div>
 
@@ -493,20 +547,72 @@ export default function InvestorAuctionRoom() {
       )}
 
       {activeTab === "property" && (
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
-          <h3 className="text-lg font-bold text-gray-900">Property Details</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-            <DetailItem label="Property Type" value={deal.type} />
-            <DetailItem label="Bedrooms" value={propertyDetails.bedrooms} />
-            <DetailItem label="Bathrooms" value={propertyDetails.bathrooms} />
-            <DetailItem label="Parking" value={propertyDetails.parking} />
-            <DetailItem label="Land Size" value={propertyDetails.landSize} />
-            <DetailItem label="Valuer" value={propertyDetails.valuer} />
+        <div className="space-y-6">
+          {/* Location */}
+          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Location</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <DetailItem label="Full Address" value={deal.address} />
+              <DetailItem label="Suburb" value={deal.suburb} />
+              <DetailItem label="State" value={deal.state} />
+              <DetailItem label="Postcode" value={deal.postcode} />
+              {propertyDetails.cbdDistance && <DetailItem label="CBD Distance" value={propertyDetails.cbdDistance} />}
+            </div>
           </div>
-          <div className="pt-4 border-t border-gray-100">
-            <h4 className="text-sm font-bold text-gray-700 mb-3">Location</h4>
-            <p className="text-sm text-gray-600">{[deal.address, deal.suburb, deal.state].filter(Boolean).join(', ') || '—'}</p>
+
+          {/* Property Features */}
+          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Property Features</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <DetailItem label="Property Type" value={deal.type} />
+              <DetailItem label="Floor Area" value={propertyDetails.floorArea} />
+              <DetailItem label="Bedrooms" value={propertyDetails.bedrooms} />
+              <DetailItem label="Bathrooms" value={propertyDetails.bathrooms} />
+              <DetailItem label="Kitchens" value={propertyDetails.kitchens} />
+              <DetailItem label="Parking Spaces" value={propertyDetails.parking} />
+              <DetailItem label="Year Built" value={propertyDetails.yearBuilt} />
+              <DetailItem label="Storeys" value={propertyDetails.numberOfStoreys} />
+              <DetailItem label="Construction" value={propertyDetails.constructionType} />
+              <DetailItem label="Roof Type" value={propertyDetails.roofType} />
+              <DetailItem label="Condition" value={propertyDetails.propertyCondition} />
+              {propertyDetails.typeOfSecurity && <DetailItem label="Security Type" value={propertyDetails.typeOfSecurity} />}
+            </div>
+            {propertyDetails.specialFeatures && (
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mb-1">Special Features</p>
+                <p className="text-sm text-gray-700">{propertyDetails.specialFeatures}</p>
+              </div>
+            )}
           </div>
+
+          {/* Outgoings */}
+          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Outgoings &amp; Rates</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <DetailItem label="Council Rates" value={propertyDetails.councilRates} />
+              <DetailItem label="Water Rates" value={propertyDetails.waterRates} />
+              <DetailItem label="Strata Fees" value={propertyDetails.strataFees} />
+            </div>
+          </div>
+
+          {/* Sales History */}
+          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Sales History &amp; Valuation</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <DetailItem label="Last Sale Price" value={propertyDetails.lastSalePrice} />
+              <DetailItem label="Last Sale Date" value={propertyDetails.lastSaleDate} />
+              <DetailItem label="Current Valuation" value={formatCurrency(deal.propertyValue)} color="text-green-600" size="lg" />
+              <DetailItem label="Valuation Date" value={propertyDetails.valuationDate || "N/A"} />
+              <DetailItem label="Valuer" value={propertyDetails.valuer} />
+            </div>
+          </div>
+
+          {deal.description && (
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+              <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3">Property Description</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">{deal.description}</p>
+            </div>
+          )}
         </div>
       )}
 

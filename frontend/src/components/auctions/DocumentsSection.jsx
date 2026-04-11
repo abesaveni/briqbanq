@@ -1,25 +1,57 @@
 import { useState } from "react";
-import { Eye, Download, FileText, Lock, X, Info } from "lucide-react";
+import { Eye, Download, FileText, Lock, X, Info, Loader2 } from "lucide-react";
 import PropTypes from 'prop-types';
+import api from '../../services/api';
 
 /**
  * DocumentsSection: Displays a list of downloadable/viewable property documents.
- * Refactored for production with proper fallbacks and backend-ready structures.
+ * Handles authenticated downloads for backend-stored files.
  */
 export default function DocumentsSection({ deal, documents: providedDocs, title = "Investment Documents", icon: Icon = FileText }) {
   // Defensive fallbacks for data stability
   const documents = Array.isArray(providedDocs) ? providedDocs : (Array.isArray(deal?.documents) ? deal.documents : []);
   const propertyImage = deal?.image || deal?.images?.[0] || null;
   const [previewDoc, setPreviewDoc] = useState(null);
+  const [downloading, setDownloading] = useState(null);
 
   const handleView = (doc) => {
     setPreviewDoc(doc);
   };
 
+  // Authenticated download: fetches file as blob so JWT is included in the request
+  const handleAuthDownload = async (doc, open = false) => {
+    if (!doc.file) return;
+    // If it's a plain external URL (not API), just open directly
+    if (!doc.file.startsWith('/api/')) {
+      window.open(doc.file, '_blank');
+      return;
+    }
+    setDownloading(doc.id || doc.name);
+    try {
+      const res = await api.get(doc.file, { responseType: 'blob' });
+      const blob = new Blob([res.data], { type: res.headers['content-type'] || 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      if (open) {
+        window.open(url, '_blank');
+      } else {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = doc.name || 'document';
+        a.click();
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    } catch {
+      // If download fails (e.g. 404), show in preview modal so user sees the info
+      setPreviewDoc(doc);
+    } finally {
+      setDownloading(null);
+    }
+  };
+
   const handleDownload = async (e, doc) => {
-    if (doc.file) return; // let native <a download> handle it
-    e.preventDefault();
-    setPreviewDoc(doc);
+    if (!doc.file) { e.preventDefault(); setPreviewDoc(doc); return; }
+    if (doc.file.startsWith('/api/')) { e.preventDefault(); await handleAuthDownload(doc, false); return; }
+    // Plain URL — let native <a download> handle it
   };
 
   if (documents.length === 0) {
@@ -76,22 +108,22 @@ export default function DocumentsSection({ deal, documents: providedDocs, title 
             <div className="flex gap-3 mt-4 sm:mt-0 w-full sm:w-auto">
               {/* VIEW BUTTON */}
               <button
-                onClick={() => handleView(doc)}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-gray-200 px-5 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 hover:border-indigo-200 transition-all active:scale-95 shadow-sm"
+                onClick={() => doc.file ? handleAuthDownload(doc, true) : handleView(doc)}
+                disabled={downloading === (doc.id || doc.name)}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-gray-200 px-5 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 hover:border-indigo-200 transition-all active:scale-95 shadow-sm disabled:opacity-50"
               >
-                <Eye size={16} className="text-indigo-500" />
+                {downloading === (doc.id || doc.name) ? <Loader2 size={16} className="animate-spin" /> : <Eye size={16} className="text-indigo-500" />}
                 View
               </button>
 
               {/* DOWNLOAD BUTTON */}
-              <a
-                href={doc.file || "#"}
-                download
+              <button
                 onClick={(e) => handleDownload(e, doc)}
-                className="p-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 hover:border-indigo-200 transition-all active:scale-90 flex items-center justify-center shadow-sm"
+                disabled={downloading === (doc.id || doc.name)}
+                className="p-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 hover:border-indigo-200 transition-all active:scale-90 flex items-center justify-center shadow-sm disabled:opacity-50"
               >
-                <Download size={18} className="text-indigo-600" />
-              </a>
+                {downloading === (doc.id || doc.name) ? <Loader2 size={18} className="animate-spin text-indigo-600" /> : <Download size={18} className="text-indigo-600" />}
+              </button>
             </div>
           </div>
         ))}
@@ -137,21 +169,22 @@ export default function DocumentsSection({ deal, documents: providedDocs, title 
               <div className="space-y-3">
                 <p className="text-[13px] text-slate-600 font-medium">Click the button below to open or download this document.</p>
                 <div className="flex gap-2">
-                  <a
-                    href={previewDoc.file}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors active:scale-95 flex items-center justify-center gap-2"
+                  <button
+                    onClick={() => handleAuthDownload(previewDoc, true)}
+                    disabled={downloading === (previewDoc.id || previewDoc.name)}
+                    className="flex-1 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
                   >
-                    <Info size={14} /> Open Document
-                  </a>
-                  <a
-                    href={previewDoc.file}
-                    download
-                    className="flex-1 py-2.5 bg-slate-100 text-slate-700 text-sm font-bold rounded-xl hover:bg-slate-200 transition-colors active:scale-95 flex items-center justify-center gap-2"
+                    {downloading === (previewDoc.id || previewDoc.name) ? <Loader2 size={14} className="animate-spin" /> : <Info size={14} />}
+                    Open Document
+                  </button>
+                  <button
+                    onClick={() => handleAuthDownload(previewDoc, false)}
+                    disabled={downloading === (previewDoc.id || previewDoc.name)}
+                    className="flex-1 py-2.5 bg-slate-100 text-slate-700 text-sm font-bold rounded-xl hover:bg-slate-200 transition-colors active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
                   >
-                    <Download size={14} /> Download
-                  </a>
+                    {downloading === (previewDoc.id || previewDoc.name) ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+                    Download
+                  </button>
                 </div>
               </div>
             ) : (
