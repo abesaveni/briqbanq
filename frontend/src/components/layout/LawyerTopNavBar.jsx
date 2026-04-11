@@ -12,7 +12,6 @@ const navItems = [
     { label: 'Contract Review', path: '/lawyer/contract-review', icon: 'contract', color: 'text-[#6A0DAD]' },
     { label: 'Task Centre', path: '/lawyer/task-center', icon: 'task', color: 'text-amber-500' },
     { label: 'Reports', path: '/lawyer/reports', icon: 'reports', color: 'text-indigo-500' },
-    { label: 'Admin Console', path: '/lawyer/admin-console', icon: 'console', color: 'text-red-500' },
     { label: 'Identity Verification', path: '/lawyer/identity-verification', icon: 'shield', color: 'text-amber-600' },
     { label: 'Notifications', path: '/lawyer/notifications', icon: 'bell', color: 'text-rose-500' },
 ]
