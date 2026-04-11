@@ -72,6 +72,7 @@ export default function InvestorCaseDetails() {
 
     const { id } = useParams();
     const { user: authUser } = useAuth();
+    const isLawyer = authUser?.roles?.some(r => String(r).toLowerCase() === 'lawyer') || false;
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -1528,7 +1529,76 @@ export default function InvestorCaseDetails() {
                 </div>
             )}
 
-            {activeTab === "Lawyer Review" && (
+            {activeTab === "Lawyer Review" && !isLawyer && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
+                    {/* Investor Read-Only Summary */}
+                    <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-2xl p-8 text-white relative overflow-hidden shadow-xl">
+                        <div className="relative z-10">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/20">
+                                    <Scale size={24} className="text-white" />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold tracking-tight">Legal Readiness Assessment</h3>
+                                    <p className="text-blue-100 text-sm opacity-70 italic">Case {caseData.case_number || `#${caseData.id.slice(0,8).toUpperCase()}`}</p>
+                                </div>
+                            </div>
+                            <div className="w-full">
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-xs font-bold uppercase tracking-widest text-blue-100">Audit Completion</span>
+                                    <span className="text-xl font-bold">
+                                        {Math.round(((documentReviews.filter(d => d.reviewed).length + enforcementSteps.filter(s => s.checked).length) / Math.max(1, documentReviews.length + enforcementSteps.length)) * 100)}%
+                                    </span>
+                                </div>
+                                <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden border border-white/5">
+                                    <div
+                                        className="h-full bg-white transition-all duration-1000 ease-out"
+                                        style={{ width: `${((documentReviews.filter(d => d.reviewed).length + enforcementSteps.filter(s => s.checked).length) / Math.max(1, documentReviews.length + enforcementSteps.length)) * 100}%` }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-400 rounded-full translate-x-1/3 -translate-y-1/3 blur-[120px] opacity-20" />
+                    </div>
+
+                    {/* Read-only status grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Review Status</p>
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
+                                <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" /> In Review
+                            </span>
+                        </div>
+                        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Documents Reviewed</p>
+                            <p className="text-2xl font-bold text-gray-900">
+                                {documentReviews.filter(d => d.reviewed).length}
+                                <span className="text-sm font-medium text-gray-400 ml-1">/ {documentReviews.length}</span>
+                            </p>
+                        </div>
+                        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Enforcement Steps</p>
+                            <p className="text-2xl font-bold text-gray-900">
+                                {enforcementSteps.filter(s => s.checked).length}
+                                <span className="text-sm font-medium text-gray-400 ml-1">/ {enforcementSteps.length}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Confidential notice */}
+                    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 flex items-start gap-4">
+                        <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <Lock size={18} className="text-gray-500" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-semibold text-gray-700 mb-1">Lawyer Review — Confidential</p>
+                            <p className="text-sm text-gray-500">The detailed review notes, compliance checklist, and assessment are confidential to the assigned lawyer. The summary above reflects overall review progress. You will be notified when the review is complete.</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {activeTab === "Lawyer Review" && isLawyer && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
                     {/* Header Section - Premium Indigo Card */}
                     <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-2xl p-8 text-white relative overflow-hidden shadow-xl">

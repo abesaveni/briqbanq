@@ -90,7 +90,7 @@ export const userService = {
   getUserSettings: () => wrap(api.get("/api/v1/admin/extra/settings")),
   updateUserSettings: (settingsType, payload) =>
     wrap(api.put(`/api/v1/admin/extra/settings/${settingsType}`, payload)),
-  getInvestorDocuments: () => wrap(api.get("/api/v1/documents/my")),
+  getInvestorDocuments: () => wrap(api.get("/api/v1/documents/my-documents")),
 };
 
 // ─── Auth Service ─────────────────────────────────────────────────────────────

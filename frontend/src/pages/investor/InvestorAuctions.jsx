@@ -74,6 +74,7 @@ export default function InvestorAuctions() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortOption, setSortOption] = useState("ending");
   const [advancedFilters, setAdvancedFilters] = useState({ minLvr: '', maxLvr: '', minValue: '', maxValue: '', minBidders: '' });
+  const [stateFilter, setStateFilter] = useState("all");
 
   useEffect(() => {
     const fetchAuctions = async () => {
@@ -112,7 +113,11 @@ export default function InvestorAuctions() {
         auction.status === filterStatus ||
         (filterStatus === "upcoming" && auction.status === "active");
 
-      if (!matchesSearch || !matchesStatus) return false;
+      const matchesState =
+        stateFilter === "all" ||
+        (auction.state || "").toUpperCase() === stateFilter.toUpperCase();
+
+      if (!matchesSearch || !matchesStatus || !matchesState) return false;
 
       if (advancedFilters.minLvr && (auction.lvr || 0) < parseFloat(advancedFilters.minLvr)) return false;
       if (advancedFilters.maxLvr && (auction.lvr || 0) > parseFloat(advancedFilters.maxLvr)) return false;
@@ -138,7 +143,7 @@ export default function InvestorAuctions() {
     }
 
     return result;
-  }, [auctions, search, filterStatus, sortOption, advancedFilters]);
+  }, [auctions, search, filterStatus, stateFilter, sortOption, advancedFilters]);
 
   if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} />;
@@ -159,6 +164,8 @@ export default function InvestorAuctions() {
         setStatusFilter={setFilterStatus}
         sortOption={sortOption}
         setSortOption={setSortOption}
+        stateFilter={stateFilter}
+        setStateFilter={setStateFilter}
         onAdvancedChange={setAdvancedFilters}
       />
 

@@ -1,31 +1,29 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   Home,
   Gavel,
-  FileText,
-  Shield,
   Bell,
   Settings,
   LogOut,
-  Briefcase,
-  BarChart,
-  Folder,
+  Bookmark,
+  ClipboardList,
 } from "lucide-react";
 import AppLogo from "../common/AppLogo";
+import { useAuth } from "../../context/AuthContext";
 
 const navLinks = [
   { to: "/investor/dashboard", icon: Home, label: "Dashboard" },
-  { to: "/investor/deals", icon: Briefcase, label: "All Deals" },
-  { to: "/investor/auctions", icon: Gavel, label: "Auctions" },
-  { to: "/investor/contracts", icon: FileText, label: "Contracts" },
-  { to: "/investor/escrow", icon: Shield, label: "Escrow" },
-  { to: "/investor/reports", icon: BarChart, label: "Reports" },
-  { to: "/investor/documents", icon: Folder, label: "Documents" },
+  { to: "/investor/auctions", icon: Gavel, label: "Live Auctions" },
+  { to: "/investor/my-bids", icon: ClipboardList, label: "My Bids" },
+  { to: "/investor/watchlist", icon: Bookmark, label: "Watchlist" },
   { to: "/investor/notifications", icon: Bell, label: "Notifications" },
   { to: "/investor/settings", icon: Settings, label: "Settings" },
 ];
 
 export default function InvestorSidebar({ isOpen, setIsOpen }) {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
   return (
     <>
       {isOpen && (
@@ -36,8 +34,8 @@ export default function InvestorSidebar({ isOpen, setIsOpen }) {
       )}
 
       <aside
-        className={`fixed lg:static top-0 left-0 h-full bg-gray-900 text-white w-64 transform 
-        ${isOpen ? "translate-x-0" : "-translate-x-full"} 
+        className={`fixed lg:static top-0 left-0 h-full bg-gray-900 text-white w-64 transform
+        ${isOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0 transition-transform duration-300 z-50 flex flex-col border-r border-gray-800`}
       >
         <div className="px-4 py-4 border-b border-gray-800 flex-shrink-0">
@@ -68,7 +66,10 @@ export default function InvestorSidebar({ isOpen, setIsOpen }) {
         </nav>
 
         <div className="p-3 border-t border-gray-800">
-          <button className="flex items-center gap-2 w-full px-3 py-2 rounded text-sm font-medium text-gray-300 hover:bg-gray-800 hover:text-white transition-colors">
+          <button
+            onClick={() => { logout(); navigate("/"); }}
+            className="flex items-center gap-2 w-full px-3 py-2 rounded text-sm font-medium text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+          >
             <LogOut className="w-4 h-4 flex-shrink-0" />
             <span className="leading-tight text-xs">Sign Out</span>
           </button>

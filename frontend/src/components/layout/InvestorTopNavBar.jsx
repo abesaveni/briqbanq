@@ -5,15 +5,9 @@ import { useNotifications } from '../../context/NotificationContext'
 
 const navItems = [
   { label: 'Dashboard', path: '/investor/dashboard', icon: 'dashboard', color: 'text-indigo-600' },
-  { label: 'All Deals', path: '/investor/deals', icon: 'briefcase', color: 'text-blue-500' },
-  { label: 'Auctions', path: '/investor/auctions', icon: 'auction', color: 'text-emerald-600' },
+  { label: 'Live Auctions', path: '/investor/auctions', icon: 'auction', color: 'text-emerald-600' },
   { label: 'My Bids', path: '/investor/my-bids', icon: 'mybids', color: 'text-sky-600' },
-  { label: 'Contracts', path: '/investor/contracts', icon: 'contract', color: 'text-violet-600' },
-  { label: 'Escrow', path: '/investor/escrow', icon: 'escrow', color: 'text-amber-600' },
-  { label: 'Tasks', path: '/investor/tasks', icon: 'task', color: 'text-slate-600' },
   { label: 'Watchlist', path: '/investor/watchlist', icon: 'watchlist', color: 'text-pink-600' },
-  { label: 'Reports', path: '/investor/reports', icon: 'chart', color: 'text-teal-600' },
-  { label: 'Documents', path: '/investor/documents', icon: 'folder', color: 'text-orange-500' },
   { label: 'Notifications', path: '/investor/notifications', icon: 'bell', color: 'text-rose-500' },
 ]
 

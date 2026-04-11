@@ -1,38 +1,43 @@
-import { Gavel, Briefcase } from "lucide-react";
+import { Gavel, Home, Briefcase, FileText, History, Scale } from "lucide-react";
 import PropTypes from 'prop-types';
 
-/**
- * AuctionTabs: A premium pill-switcher for navigating auction sections.
- */
+const TABS = [
+  { id: "overview", label: "Overview", icon: Gavel },
+  { id: "property", label: "Property", icon: Home },
+  { id: "memorandum", label: "Investment Memo", icon: Briefcase },
+  { id: "documents", label: "Documents", icon: FileText },
+  { id: "bid-history", label: "Bid History", icon: History },
+  { id: "lawyer-review", label: "Lawyer Review", icon: Scale },
+];
+
 export default function AuctionTabs({ activeTab, setActiveTab }) {
   return (
-    <div className="bg-gray-100/60 p-1 rounded-2xl flex w-full">
-      <button
-        onClick={() => setActiveTab("live")}
-        className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-6 rounded-xl font-bold text-xs transition-all ${activeTab === "live"
-          ? "bg-white text-gray-900 shadow-sm"
-          : "text-gray-500 hover:text-gray-700"
-          }`}
-      >
-        <Gavel size={16} className={activeTab === "live" ? "text-gray-900" : "text-gray-400"} />
-        Live Auction
-      </button>
-      <button
-        onClick={() => setActiveTab("memorandum")}
-        className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-6 rounded-xl font-bold text-xs transition-all ${activeTab === "memorandum"
-          ? "bg-white text-gray-900 shadow-sm"
-          : "text-gray-500 hover:text-gray-700"
-          }`}
-      >
-        <Briefcase size={16} className={activeTab === "memorandum" ? "text-gray-900" : "text-gray-400"} />
-        Investment Memorandum
-      </button>
+    <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-x-auto">
+      <div className="flex min-w-max">
+        {TABS.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-5 py-3.5 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${
+                isActive
+                  ? "border-indigo-600 text-indigo-600"
+                  : "border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-200"
+              }`}
+            >
+              <Icon size={15} />
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
 AuctionTabs.propTypes = {
   activeTab: PropTypes.string.isRequired,
-  setActiveTab: PropTypes.func.isRequired
+  setActiveTab: PropTypes.func.isRequired,
 };
-

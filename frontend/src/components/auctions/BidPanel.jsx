@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
  */
 export default function BidPanel({ currentBid = 0, startingPrice = 0, minimumIncrement = 100, placeBid, isOwnCase = false }) {
   const [amount, setAmount] = useState("");
+  const [validationError, setValidationError] = useState("");
   const minIncrement = minimumIncrement || 100;
   const buyerPremiumRate = 0.02;
 
@@ -34,16 +35,20 @@ export default function BidPanel({ currentBid = 0, startingPrice = 0, minimumInc
   const handleSubmit = (e) => {
     e.preventDefault();
     const bidAmount = Number(amount);
+    setValidationError("");
 
-    if (!bidAmount) return;
+    if (!bidAmount) {
+      setValidationError("Please enter a bid amount.");
+      return;
+    }
 
     if (bidAmount <= (currentBid || 0)) {
-      alert(`Your bid must be higher than the current highest bid of ${formatCurrency(currentBid)}`);
+      setValidationError(`Your bid must be higher than the current bid of ${formatCurrency(currentBid)}.`);
       return;
     }
 
     if (bidAmount < (currentBid || 0) + minIncrement) {
-      alert(`Minimum increment is ${formatCurrency(minIncrement)}. Please bid at least ${formatCurrency((currentBid || 0) + minIncrement)}`);
+      setValidationError(`Minimum increment is ${formatCurrency(minIncrement)}. Bid at least ${formatCurrency((currentBid || 0) + minIncrement)}.`);
       return;
     }
 
@@ -89,9 +94,13 @@ export default function BidPanel({ currentBid = 0, startingPrice = 0, minimumInc
                 placeholder={recommendedBid.toString()}
               />
             </div>
-            <p className="text-[10px] text-gray-400 mt-2 font-medium">
-              Minimum bid: {formatCurrency(floor)} • Current bid: {formatCurrency(currentBid)}
-            </p>
+            {validationError ? (
+              <p className="text-xs text-red-500 mt-2 font-medium">{validationError}</p>
+            ) : (
+              <p className="text-xs text-gray-400 mt-2 font-medium">
+                Minimum bid: {formatCurrency(floor)} • Current bid: {formatCurrency(currentBid)}
+              </p>
+            )}
           </div>
 
           {/* Quick Buttons */}

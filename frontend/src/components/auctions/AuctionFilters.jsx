@@ -3,6 +3,8 @@ import { SlidersHorizontal, X } from 'lucide-react';
 
 const DEFAULT_ADVANCED = { minLvr: '', maxLvr: '', minValue: '', maxValue: '', minBidders: '' };
 
+const AU_STATES = ['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'];
+
 export default function AuctionFilters({
   search,
   setSearch,
@@ -10,6 +12,8 @@ export default function AuctionFilters({
   setStatusFilter,
   sortOption,
   setSortOption,
+  stateFilter,
+  setStateFilter,
   onAdvancedChange,
 }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -44,10 +48,22 @@ export default function AuctionFilters({
           onChange={(e) => setStatusFilter(e.target.value)}
           className="border border-gray-200 rounded-lg px-4 py-2 text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
         >
-          <option value="all">All Auctions</option>
+          <option value="all">All Status</option>
           <option value="live">Live Now</option>
           <option value="upcoming">Upcoming</option>
+          <option value="ended">Ended</option>
         </select>
+
+        {setStateFilter && (
+          <select
+            value={stateFilter || 'all'}
+            onChange={(e) => setStateFilter(e.target.value)}
+            className="border border-gray-200 rounded-lg px-4 py-2 text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+          >
+            <option value="all">All States</option>
+            {AU_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        )}
 
         <select
           value={sortOption}

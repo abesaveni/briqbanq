@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
 export default function DocumentsSection({ deal, documents: providedDocs, title = "Investment Documents", icon: Icon = FileText }) {
   // Defensive fallbacks for data stability
   const documents = Array.isArray(providedDocs) ? providedDocs : (Array.isArray(deal?.documents) ? deal.documents : []);
+  const propertyImage = deal?.image || deal?.images?.[0] || null;
   const [previewDoc, setPreviewDoc] = useState(null);
 
   const handleView = (doc) => {
@@ -108,20 +109,29 @@ export default function DocumentsSection({ deal, documents: providedDocs, title 
       {/* Document Preview Modal — shown when no file URL exists */}
       {previewDoc && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setPreviewDoc(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-8 max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-start justify-between mb-5">
-              <div className="flex items-center gap-3">
-                <div className="bg-indigo-50 p-2.5 rounded-xl">
-                  <FileText size={20} className="text-indigo-600" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-900 text-[15px]">{previewDoc.name || "Document"}</h3>
-                  <p className="text-xs text-gray-400 font-medium mt-0.5">{previewDoc.size || "Processing"} • {String(previewDoc.type || "PDF").toUpperCase()}</p>
-                </div>
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            {/* Modal Header with property image background */}
+            <div className="relative h-28 overflow-hidden">
+              {propertyImage ? (
+                <img src={propertyImage} alt="Property" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-indigo-600 to-indigo-800" />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20" />
+              <div className="absolute bottom-3 left-4 right-10">
+                <p className="text-xs font-bold text-white/70 uppercase tracking-widest mb-0.5">{String(previewDoc.type || "PDF").toUpperCase()} Document</p>
+                <h3 className="font-bold text-white text-[15px] truncate">{previewDoc.name || "Document"}</h3>
               </div>
-              <button onClick={() => setPreviewDoc(null)} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400">
-                <X size={18} />
+              <button onClick={() => setPreviewDoc(null)} className="absolute top-3 right-3 p-1.5 rounded-lg bg-black/30 hover:bg-black/50 transition-colors text-white">
+                <X size={16} />
               </button>
+            </div>
+            <div className="p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="bg-indigo-50 p-2 rounded-xl">
+                <FileText size={16} className="text-indigo-600" />
+              </div>
+              <p className="text-xs text-gray-400 font-medium">{previewDoc.size || "Processing"} • Verified</p>
             </div>
             {previewDoc.file ? (
               <div className="space-y-3">
@@ -158,6 +168,7 @@ export default function DocumentsSection({ deal, documents: providedDocs, title 
             >
               Close
             </button>
+            </div>
           </div>
         </div>
       )}

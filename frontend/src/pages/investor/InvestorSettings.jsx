@@ -17,9 +17,6 @@ export default function InvestorSettings() {
 
     const tabs = [
         { id: "profile", label: "Profile", icon: <User size={16} /> },
-        { id: "organization", label: "Organization", icon: <Building2 size={16} /> },
-        { id: "api", label: "API Integrations", icon: <Network size={16} /> },
-        { id: "form", label: "Form Customization", icon: <FolderCog size={16} /> },
         { id: "security", label: "Security", icon: <Shield size={16} /> },
         { id: "notifications", label: "Notifications", icon: <Bell size={16} /> },
     ];
@@ -77,9 +74,6 @@ export default function InvestorSettings() {
             {/* Main view container based on tab */}
             <div className="animate-in fade-in duration-300">
                 {currentView === "profile" && <ProfileSettingsView />}
-                {currentView === "organization" && <OrganizationSettingsView />}
-                {currentView === "api" && <ApiSettingsView />}
-                {currentView === "form" && <FormCustomizationView />}
                 {currentView === "security" && <SecuritySettingsView />}
                 {currentView === "notifications" && <NotificationsSettingsView />}
             </div>

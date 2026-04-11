@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import {
   History, ShieldCheck, Mail, Info, FileText,
   TrendingUp, Home, Ruler, UserCheck, Calendar,
-  DollarSign, Percent, AlertCircle
+  DollarSign, Percent, AlertCircle, Scale
 } from "lucide-react";
 
 import AuctionHero from "../../components/auctions/AuctionHero";
@@ -53,7 +53,7 @@ export default function InvestorAuctionRoom() {
   const [deal, setDeal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState("live");
+  const [activeTab, setActiveTab] = useState("overview");
   const [currentBid, setCurrentBid] = useState(0);
   const [bidHistory, setBidHistory] = useState([]);
   const [investorDocs, setInvestorDocs] = useState([]);
@@ -110,15 +110,24 @@ export default function InvestorAuctionRoom() {
           : (meta.property_images || []);
         const resolvedImages = rawImages.filter(Boolean);
 
+        const suburb = meta.suburb || caseData?.suburb || "";
+        const state = meta.state || caseData?.state || "";
+        const interestRate = Number(caseData?.interest_rate || 0);
+        const defaultRate = Number(meta.default_rate) || 0;
+
         const deal = {
           id: auctionData?.id || id,
           title: caseData?.title || auctionData?.title || "Investment Opportunity",
           status: auctionData?.status || "LIVE",
           propertyValue: value,
+          outstandingDebt: debt,
+          lvr,
+          returnRate: defaultRate || interestRate || 0,
+          location: [suburb, state].filter(Boolean).join(", "),
           type: caseData?.property_type || meta.property_type || "Residential",
           address: caseData?.property_address || "",
-          suburb: meta.suburb || caseData?.suburb || "",
-          state: meta.state || caseData?.state || "",
+          suburb,
+          state,
           images: resolvedImages,
           image: resolvedImages[0] || null,
           currentBid: highest,
@@ -128,8 +137,8 @@ export default function InvestorAuctionRoom() {
           auctionEnd: auctionData?.scheduled_end || auctionData?.actual_end,
           metrics: {
             lvr,
-            interestRate: Number(caseData?.interest_rate || 0),
-            defaultRate: Number(meta.default_rate) || 0,
+            interestRate,
+            defaultRate,
             daysInDefault: Number(meta.days_in_default) || 0,
             daysInArrears: 0,
             totalArrears: debt,
@@ -264,7 +273,7 @@ export default function InvestorAuctionRoom() {
 
       <AuctionTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {activeTab === "live" && (
+      {activeTab === "overview" && (
         <div className="space-y-8">
           {/* Key Financial Metrics Row */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -399,7 +408,7 @@ export default function InvestorAuctionRoom() {
 
             {/* Right Column: Bidding Infrastructure */}
             <div className="space-y-6">
-              {deal.status === "Sold" ? (
+              {(deal.status === "ENDED" || deal.status === "Sold") ? (
                 <div className="bg-slate-50 border border-gray-200 rounded-2xl p-6 text-center space-y-4">
                   <div className="w-16 h-16 bg-slate-900 text-white rounded-full flex items-center justify-center mx-auto shadow-lg">
                     <ShieldCheck size={32} />
@@ -413,7 +422,7 @@ export default function InvestorAuctionRoom() {
                     <p className="text-2xl font-bold text-slate-900">{formatCurrency(deal.currentBid || deal.loanAmount)}</p>
                   </div>
                 </div>
-              ) : (deal.status === "Coming Soon" || deal.status === "upcoming" || deal.status === "Coming soon") ? (
+              ) : (deal.status === "SCHEDULED" || deal.status === "Coming Soon" || deal.status === "upcoming") ? (
                 <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 text-center space-y-4">
                   <div className="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center mx-auto shadow-lg">
                     {isNotified ? <UserCheck size={32} /> : <Calendar size={32} />}
@@ -479,14 +488,82 @@ export default function InvestorAuctionRoom() {
         </div >
       )}
 
-      {
-        activeTab === "memorandum" && (
-          <InvestmentMemorandum deal={deal} />
-        )
-      }
+      {activeTab === "memorandum" && (
+        <InvestmentMemorandum deal={deal} />
+      )}
 
+      {activeTab === "property" && (
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+          <h3 className="text-lg font-bold text-gray-900">Property Details</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            <DetailItem label="Property Type" value={deal.type} />
+            <DetailItem label="Bedrooms" value={propertyDetails.bedrooms} />
+            <DetailItem label="Bathrooms" value={propertyDetails.bathrooms} />
+            <DetailItem label="Parking" value={propertyDetails.parking} />
+            <DetailItem label="Land Size" value={propertyDetails.landSize} />
+            <DetailItem label="Valuer" value={propertyDetails.valuer} />
+          </div>
+          <div className="pt-4 border-t border-gray-100">
+            <h4 className="text-sm font-bold text-gray-700 mb-3">Location</h4>
+            <p className="text-sm text-gray-600">{[deal.address, deal.suburb, deal.state].filter(Boolean).join(', ') || '—'}</p>
+          </div>
+        </div>
+      )}
 
-    </div >
+      {activeTab === "documents" && (
+        <div className="space-y-4">
+          <DocumentsSection deal={deal} />
+          {investorDocs.length > 0 && (
+            <DocumentsSection documents={investorDocs} title="My Verification Documents" icon={ShieldCheck} />
+          )}
+        </div>
+      )}
+
+      {activeTab === "bid-history" && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-100">
+            <h3 className="text-sm font-bold text-gray-900">Bid History ({bidHistory.length})</h3>
+          </div>
+          {bidHistory.length === 0 ? (
+            <div className="py-12 text-center text-gray-400 text-sm">No bids placed yet.</div>
+          ) : (
+            <div className="divide-y divide-gray-50">
+              {bidHistory.map((b, i) => (
+                <div key={b.id || i} className="flex items-center justify-between px-5 py-3.5">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">{b.user}</p>
+                    <p className="text-xs text-gray-400">{b.time}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className={`text-sm font-bold ${i === 0 ? 'text-emerald-600' : 'text-gray-700'}`}>{formatCurrency(b.amount)}</p>
+                    {i === 0 && <p className="text-xs text-emerald-500">Highest bid</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === "lawyer-review" && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-2">
+            <Scale size={20} className="text-blue-600" />
+            <h3 className="text-lg font-bold text-gray-900">Lawyer Review</h3>
+          </div>
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex items-start gap-4">
+            <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Info size={18} className="text-gray-500" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-700 mb-1">Review Summary — Confidential</p>
+              <p className="text-sm text-gray-500">The full legal compliance review is conducted by the assigned lawyer and is confidential. You will be notified when the review is complete and the outcome is available.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
   );
 }
 
