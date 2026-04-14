@@ -252,7 +252,8 @@ export default function LenderCaseDetails() {
                         date: doc.created_at ? new Date(doc.created_at).toLocaleDateString('en-AU') : (doc.date || ''),
                         status: doc.status || 'UPLOADED',
                         file_url: doc.file_url
-                    }))
+                    })),
+                    metadata_json: fetchedCase.metadata_json || {},
                 };
 
                 // Dynamic calculations for zero states

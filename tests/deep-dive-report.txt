@@ -1,0 +1,71 @@
+╔══════════════════════════════════════════════════════════════════╗
+║   BRIQBANK DEEP DIVE TEST REPORT                                 ║
+║   http://localhost:3000                                          ║
+║   2026-04-10 18:23:26                                          ║
+╚══════════════════════════════════════════════════════════════════╝
+
+SCENARIO 1 — Lender → Admin → Bids → Close
+───────────────────────────────────────────
+Passed: 0  |  Failed: 0
+
+
+SCENARIO 2 — Lawyer Creates → Same Flow
+───────────────────────────────────────────
+Passed: 0  |  Failed: 0
+
+
+SCENARIO 3 — Deep Dive Per Role
+───────────────────────────────────────────
+
+ADMIN (0✓ / 0✗):
+
+
+LENDER (0✓ / 0✗):
+
+
+LAWYER (0✓ / 0✗):
+
+
+INVESTOR (14✓ / 0✗):
+✓ Investor dashboard loaded
+✓ Auctions loads
+✓ Deals loads
+✓ My Bids loads
+✓ Contracts loads
+✓ Escrow loads
+✓ Documents loads
+✓ Reports loads
+✓ Tasks loads
+✓ Notifications loads
+✓ Settings loads
+✓ Investor auction detail opens
+✓ No delete buttons for investor
+✓ My Bids shows bid data
+
+BORROWER (13✓ / 0✗):
+✓ Borrower dashboard loaded
+✓ My Cases loads
+✓ Contracts loads
+✓ Identity Verification loads
+✓ Notifications loads
+✓ Settings loads
+✓ No Edit button
+✓ No Delete button
+✓ No Approve button
+Case count before: 0
+✓ Delete BLOCKED — no delete button visible (count stays 0)
+Delete result: BLOCKED (no button)
+Case count after: 0 (unchanged)
+API DELETE: status 422
+✓ Blocked from /investor/auctions
+✓ Blocked from lender routes
+✓ Blocked from admin routes
+
+───────────────────────────────────────────
+ALL FAILURES:
+  none
+
+SCREENSHOTS: tests/screenshots/scenario-1/
+             tests/screenshots/scenario-2/
+             tests/screenshots/scenario-3/
+VIDEOS:      tests/screenshots/ (playwright video per test)

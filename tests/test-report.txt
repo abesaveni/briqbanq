@@ -1,0 +1,50 @@
+TEST RESULTS — BRIQBANK LOCAL
+==============================
+URL: http://localhost:3000
+Run date: 2026-04-10
+
+SUITE 1 — Login (5 roles)
+  See screenshots: 03-admin-dashboard.png
+                   03-lender-dashboard.png
+                   03-lawyer-dashboard.png
+                   03-investor-dashboard.png
+                   03-borrower-dashboard.png
+
+SUITE 2 — Smoke
+  See screenshots: 00-smoke-homepage.png
+                   00-smoke-admin-dashboard.png
+
+SUITE 3 — Case Creation
+  See screenshots: 04a-lender-case-form.png
+                   04a-lender-form-filled.png
+                   04a-lender-case-created.png
+                   04a-lender-my-cases.png
+                   04c-borrower-dashboard.png
+                   04c-borrower-blocked.png
+
+SUITE 4 — Admin Workflow
+  See screenshots: 05-admin-all-cases.png
+                   05-admin-case-detail.png
+                   05-admin-case-approved.png
+                   05-admin-auction-modal.png
+                   05-admin-moved-to-auction.png
+                   05-lender-readonly-after-approval.png
+
+SUITE 5 — Auctions
+  See screenshots: 06-investor-auctions-page.png
+                   06-lender-auctions-page.png
+                   06-lawyer-auctions-page.png
+                   06-borrower-no-auction.png
+
+SUITE 6 — Bidding
+  See screenshots: 07-investor-auction-detail.png
+                   07-investor-bid-modal.png
+                   07-investor-bid-low-error.png
+                   07-investor-bid-placed.png
+
+SUITE 7 — Lawyer Dashboard
+  See screenshots: 08-lawyer-dashboard.png
+                   08-lawyer-assigned-cases.png
+                   08-lawyer-create-form.png
+
+SCREENSHOTS: tests/screenshots/

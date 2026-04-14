@@ -1,0 +1,342 @@
+{
+  "admin": [
+    {
+      "path": "/admin/dashboard",
+      "name": "p9-admin-01-dashboard",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/admin/case-management",
+      "name": "p9-admin-02-cases",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/admin/all-deals",
+      "name": "p9-admin-03-deals",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/admin/auction-control",
+      "name": "p9-admin-04-auctions",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/admin/kyc-review",
+      "name": "p9-admin-05-kyc",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/admin/document-library",
+      "name": "p9-admin-06-docs",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/admin/reports-analytics",
+      "name": "p9-admin-07-reports",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/admin/task-center",
+      "name": "p9-admin-08-tasks",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/admin/admin-center",
+      "name": "p9-admin-09-console",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/admin/notifications",
+      "name": "p9-admin-10-notif",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/admin/settings",
+      "name": "p9-admin-11-settings",
+      "title": "Brickbanq",
+      "status": "OK"
+    }
+  ],
+  "lender": [
+    {
+      "path": "/lender/dashboard",
+      "name": "p9-lender-01-dashboard",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lender/my-cases",
+      "name": "p9-lender-02-cases",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lender/deals",
+      "name": "p9-lender-03-deals",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lender/auctions",
+      "name": "p9-lender-04-auctions",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lender/contracts",
+      "name": "p9-lender-05-contracts",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lender/communications",
+      "name": "p9-lender-06-comms",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lender/tasks",
+      "name": "p9-lender-07-tasks",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lender/reports",
+      "name": "p9-lender-08-reports",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lender/review-relevant-cases",
+      "name": "p9-lender-09-review",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lender/trend-analysis",
+      "name": "p9-lender-10-trends",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lender/my-bids",
+      "name": "p9-lender-11-bids",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lender/notifications",
+      "name": "p9-lender-12-notif",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lender/settings",
+      "name": "p9-lender-13-settings",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lender/identity-verification",
+      "name": "p9-lender-14-kyc",
+      "title": "Brickbanq",
+      "status": "OK"
+    }
+  ],
+  "investor": [
+    {
+      "path": "/investor/dashboard",
+      "name": "p9-investor-01-dashboard",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/investor/deals",
+      "name": "p9-investor-02-deals",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/investor/auctions",
+      "name": "p9-investor-03-auctions",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/investor/contracts",
+      "name": "p9-investor-04-contracts",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/investor/escrow",
+      "name": "p9-investor-05-escrow",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/investor/tasks",
+      "name": "p9-investor-06-tasks",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/investor/reports",
+      "name": "p9-investor-07-reports",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/investor/documents",
+      "name": "p9-investor-08-docs",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/investor/my-bids",
+      "name": "p9-investor-09-bids",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/investor/notifications",
+      "name": "p9-investor-10-notif",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/investor/settings",
+      "name": "p9-investor-11-settings",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/investor/identity-verification",
+      "name": "p9-investor-12-kyc",
+      "title": "Brickbanq",
+      "status": "OK"
+    }
+  ],
+  "lawyer": [
+    {
+      "path": "/lawyer/dashboard",
+      "name": "p9-lawyer-01-dashboard",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lawyer/assigned-cases",
+      "name": "p9-lawyer-02-cases",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lawyer/kyc-review",
+      "name": "p9-lawyer-03-kyc",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lawyer/contract-review",
+      "name": "p9-lawyer-04-contracts",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lawyer/live-auctions",
+      "name": "p9-lawyer-05-auctions",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lawyer/task-center",
+      "name": "p9-lawyer-06-tasks",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lawyer/reports",
+      "name": "p9-lawyer-07-reports",
+      "title": "Something went wrong",
+      "status": "OK"
+    },
+    {
+      "path": "/lawyer/admin-console",
+      "name": "p9-lawyer-08-console",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lawyer/my-bids",
+      "name": "p9-lawyer-09-bids",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lawyer/notifications",
+      "name": "p9-lawyer-10-notif",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lawyer/settings",
+      "name": "p9-lawyer-11-settings",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lawyer/identity-verification",
+      "name": "p9-lawyer-12-kyc-verify",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/lawyer/submit-case",
+      "name": "p9-lawyer-13-submit-case",
+      "title": "Brickbanq",
+      "status": "OK"
+    }
+  ],
+  "borrower": [
+    {
+      "path": "/borrower/dashboard",
+      "name": "p9-borrower-01-dashboard",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/borrower/my-case",
+      "name": "p9-borrower-02-mycase",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/borrower/auction",
+      "name": "p9-borrower-03-auction",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/borrower/notifications",
+      "name": "p9-borrower-04-notif",
+      "title": "Brickbanq",
+      "status": "OK"
+    },
+    {
+      "path": "/borrower/settings",
+      "name": "p9-borrower-05-settings",
+      "title": "Brickbanq",
+      "status": "OK"
+    }
+  ]
+}

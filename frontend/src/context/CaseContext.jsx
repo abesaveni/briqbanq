@@ -139,6 +139,12 @@ function mapApiCase(apiCase) {
         settlement: { estimatedProgress: 0, checklist: [], timeline: [] },
         // preserve raw fields for tabs that may need them
         _raw: apiCase,
+        // pass through fields needed by shared components
+        metadata_json: apiCase.metadata_json || {},
+        case_number: apiCase.case_number,
+        assigned_lawyer_id: apiCase.assigned_lawyer_id,
+        lawyer_name: apiCase.lawyer_name,
+        rejection_reason: apiCase.rejection_reason,
     }
 }
 
