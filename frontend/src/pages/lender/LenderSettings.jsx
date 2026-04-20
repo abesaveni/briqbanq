@@ -1137,7 +1137,7 @@ function FormCustomizationView() {
             showStatus('error', 'Field label is required.');
             return;
         }
-        if (fields.some(f => f.name.toLowerCase() === newFieldLabel.trim().toLowerCase())) {
+        if (fields.some(f => (f.label || f.name || '').toLowerCase() === newFieldLabel.trim().toLowerCase())) {
             showStatus('error', 'A field with this name already exists.');
             return;
         }

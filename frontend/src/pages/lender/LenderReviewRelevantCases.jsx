@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Home, ChevronRight, AlertTriangle, Search, Filter, Eye, ArrowRight, X } from "lucide-react";
+import { Home, ChevronRight, AlertTriangle, Search, Eye, ArrowRight, X } from "lucide-react";
 import { Link, useNavigate } from 'react-router-dom';
 import { lenderService } from '../../api/dataService';
 import { LoadingState, ErrorState } from '../../components/common/States';
@@ -11,7 +11,6 @@ export default function LenderReviewRelevantCases() {
     const [error, setError] = useState(null);
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
-    const [showFilters, setShowFilters] = useState(false);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(false);
     const PAGE_SIZE = 20;
@@ -92,44 +91,36 @@ export default function LenderReviewRelevantCases() {
 
             {/* Cases Grid/Table */}
             <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/30 gap-3 flex-wrap">
+                {/* Header row: title + search */}
+                <div className="px-6 pt-5 pb-3 flex items-center justify-between gap-3 flex-wrap border-b border-slate-50 bg-slate-50/30">
                     <h3 className="font-bold text-slate-900 text-[15px]">Flagged Cases ({filteredCases.length})</h3>
-                    <div className="flex items-center gap-2">
-                         <div className="relative">
-                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                            <input
-                                type="text"
-                                placeholder="Search..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="pl-9 pr-4 py-1.5 bg-white border border-slate-200 rounded-lg text-[12px] outline-none focus:ring-2 focus:ring-indigo-500/10 placeholder:text-slate-400 font-medium"
-                            />
-                         </div>
-                         <button
-                            onClick={() => setShowFilters(p => !p)}
-                            className={`p-1.5 bg-white border rounded-lg transition-all ${showFilters ? 'border-indigo-300 text-indigo-600' : 'border-slate-200 text-slate-400 hover:text-indigo-600'}`}
-                         >
-                             <Filter size={16} />
-                         </button>
+                    <div className="relative">
+                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input
+                            type="text"
+                            placeholder="Search by case ID, borrower or property..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="pl-9 pr-4 py-1.5 bg-white border border-slate-200 rounded-lg text-[12px] outline-none focus:ring-2 focus:ring-indigo-500/10 placeholder:text-slate-400 font-medium w-64"
+                        />
                     </div>
-                    {showFilters && (
-                        <div className="w-full flex items-center gap-3 pt-2 flex-wrap">
-                            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Status:</span>
-                            {['All', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'LISTED'].map(s => (
-                                <button
-                                    key={s}
-                                    onClick={() => setStatusFilter(s)}
-                                    className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all ${statusFilter === s ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:border-indigo-300'}`}
-                                >
-                                    {s === 'All' ? 'All' : s.replace(/_/g, ' ')}
-                                </button>
-                            ))}
-                            {(search || statusFilter !== 'All') && (
-                                <button onClick={() => { setSearch(''); setStatusFilter('All'); }} className="flex items-center gap-1 text-[11px] font-bold text-rose-500 hover:text-rose-700">
-                                    <X size={12} /> Clear
-                                </button>
-                            )}
-                        </div>
+                </div>
+                {/* Always-visible status filter tabs */}
+                <div className="px-6 py-3 flex items-center gap-2 flex-wrap border-b border-slate-50">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mr-1">Status:</span>
+                    {['All', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'LISTED'].map(s => (
+                        <button
+                            key={s}
+                            onClick={() => setStatusFilter(s)}
+                            className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all ${statusFilter === s ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:border-indigo-300 hover:text-indigo-600'}`}
+                        >
+                            {s === 'All' ? 'All' : s.replace(/_/g, ' ')}
+                        </button>
+                    ))}
+                    {(search || statusFilter !== 'All') && (
+                        <button onClick={() => { setSearch(''); setStatusFilter('All'); }} className="flex items-center gap-1 text-[11px] font-bold text-rose-500 hover:text-rose-700 ml-1">
+                            <X size={12} /> Clear
+                        </button>
                     )}
                 </div>
 
@@ -154,7 +145,7 @@ export default function LenderReviewRelevantCases() {
                                     <td className="px-6 py-4 text-[13px] font-medium text-slate-600">{c.borrower || c.borrower_name || '—'}</td>
                                     <td className="px-6 py-4 text-[13px] font-medium text-slate-400">{c.property_address || c.property || '—'}</td>
                                     <td className="px-6 py-4">
-                                        <span className="px-2 py-1 bg-amber-50 text-amber-600 text-[10px] font-bold rounded-md border border-amber-100 uppercase tracking-tighter">Review Pending</span>
+                                        <StatusPill status={c.status} />
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <button 
@@ -182,5 +173,24 @@ export default function LenderReviewRelevantCases() {
                 </div>
             </div>
         </div>
+    );
+}
+
+const STATUS_STYLES = {
+    SUBMITTED:    { bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-100',   label: 'Submitted' },
+    UNDER_REVIEW: { bg: 'bg-amber-50',  text: 'text-amber-700',  border: 'border-amber-100',  label: 'Under Review' },
+    APPROVED:     { bg: 'bg-emerald-50',text: 'text-emerald-700',border: 'border-emerald-100',label: 'Approved' },
+    LISTED:       { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-100', label: 'Listed' },
+    CLOSED:       { bg: 'bg-slate-100', text: 'text-slate-600',  border: 'border-slate-200',  label: 'Closed' },
+    REJECTED:     { bg: 'bg-red-50',    text: 'text-red-600',    border: 'border-red-100',    label: 'Rejected' },
+    DRAFT:        { bg: 'bg-gray-50',   text: 'text-gray-500',   border: 'border-gray-200',   label: 'Draft' },
+};
+
+function StatusPill({ status }) {
+    const s = STATUS_STYLES[status] || { bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-100', label: status || 'Pending' };
+    return (
+        <span className={`px-2 py-1 ${s.bg} ${s.text} text-[10px] font-bold rounded-md border ${s.border} uppercase tracking-tighter`}>
+            {s.label}
+        </span>
     );
 }
