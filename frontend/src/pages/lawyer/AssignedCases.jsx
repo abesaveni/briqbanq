@@ -61,7 +61,7 @@ export default function AssignedCases() {
       )
     }
     if (statusFilter && statusFilter !== 'All Status') {
-      list = list.filter((c) => c.status === statusFilter.toLowerCase())
+      list = list.filter((c) => c.status === statusFilter)
     }
     return list
   }, [cases, search, statusFilter])
@@ -160,10 +160,13 @@ export default function AssignedCases() {
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-slate-800"
             >
               <option value="All Status">All Status</option>
-              <option value="Active">Active</option>
-              <option value="In Auction">In Auction</option>
-              <option value="Pending">Pending</option>
-              <option value="Completed">Completed</option>
+              <option value="DRAFT">Draft</option>
+              <option value="SUBMITTED">Submitted</option>
+              <option value="UNDER_REVIEW">Under Review</option>
+              <option value="APPROVED">Approved</option>
+              <option value="LISTED">Listed</option>
+              <option value="CLOSED">Closed</option>
+              <option value="REJECTED">Rejected</option>
             </select>
             <button type="button" onClick={handleRefresh} className="px-3 py-2 rounded-lg bg-gray-100 text-slate-800 text-sm font-medium hover:bg-gray-200 flex items-center gap-1">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>

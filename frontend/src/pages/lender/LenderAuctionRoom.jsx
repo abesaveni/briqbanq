@@ -146,7 +146,15 @@ export default function LenderAuctionRoom() {
                         parking: meta?.parking || 0,
                         landSize: meta?.land_size || "N/A",
                     },
-                    documents: Array.isArray(caseData?.documents) ? caseData.documents : [],
+                    documents: Array.isArray(caseData?.documents)
+                        ? caseData.documents.map(d => ({
+                            ...d,
+                            name: d.document_name || d.file_name || d.name || 'Document',
+                            type: d.document_type || d.content_type?.split('/')[1]?.toUpperCase() || 'PDF',
+                            size: d.file_size ? `${(d.file_size / 1024).toFixed(1)} KB` : (d.size || ''),
+                            file: d.file_url || d.file || null,
+                          }))
+                        : [],
                     suburb: meta?.suburb || "",
                     state: meta?.state || "",
                     postcode: meta?.postcode || "",

@@ -25,7 +25,7 @@ export default function UserManagement() {
     // Modals
     const [showAddModal, setShowAddModal] = useState(false)
     const [editingUser, setEditingUser] = useState(null)
-    const [addForm, setAddForm] = useState({ full_name: '', email: '', role: 'borrower' })
+    const [addForm, setAddForm] = useState({ full_name: '', email: '', role: 'borrower', password: '' })
     const [saving, setSaving] = useState(false)
     const [actionId, setActionId] = useState(null)
 
@@ -84,13 +84,14 @@ export default function UserManagement() {
         e.preventDefault()
         setSaving(true)
         try {
-            // Invite/create via identity endpoint
-            const res = await adminUsersService.getUsers({ email: addForm.email })
-            // Optimistic add to list
-            const newUser = { id: Date.now(), ...addForm, is_active: true, created_at: new Date().toISOString() }
-            setUsers(prev => [newUser, ...prev])
-            setShowAddModal(false)
-            setAddForm({ full_name: '', email: '', role: 'borrower' })
+            const res = await adminUsersService.createUser(addForm)
+            if (res.success) {
+                setShowAddModal(false)
+                setAddForm({ full_name: '', email: '', role: 'borrower', password: '' })
+                // Reload the full list from the server
+                const listRes = await adminUsersService.getUsers()
+                if (listRes.success) setUsers(listRes.data || [])
+            }
         } catch { /* ignore */ } finally {
             setSaving(false)
         }
@@ -377,6 +378,10 @@ export default function UserManagement() {
                             <div>
                                 <label className="block text-xs font-semibold text-gray-700 mb-1.5">Email Address <span className="text-red-500">*</span></label>
                                 <input type="email" required value={addForm.email} onChange={e => setAddForm(p => ({ ...p, email: e.target.value }))} placeholder="user@example.com" className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Password <span className="text-red-500">*</span></label>
+                                <input type="password" required minLength={8} value={addForm.password} onChange={e => setAddForm(p => ({ ...p, password: e.target.value }))} placeholder="Min 8 characters" className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-gray-700 mb-1.5">Role <span className="text-red-500">*</span></label>

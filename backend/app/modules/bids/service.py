@@ -64,6 +64,8 @@ class BidService:
                     raise AuthorizationError(message="You cannot bid on a case you submitted.")
                 if _case and _case.assigned_lender_id and _case.assigned_lender_id == bidder_id:
                     raise AuthorizationError(message="You cannot bid on a case where you are the assigned lender.")
+                if _case and _case.assigned_lawyer_id and _case.assigned_lawyer_id == bidder_id:
+                    raise AuthorizationError(message="You cannot bid on a case where you are the assigned lawyer.")
         except AuthorizationError:
             raise
         except Exception:

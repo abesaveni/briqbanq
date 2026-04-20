@@ -1,10 +1,13 @@
 import React, { useState, forwardRef } from 'react';
+import { createPortal } from 'react-dom';
 import ReactDatePicker from 'react-datepicker';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format, parse, isValid } from 'date-fns';
 import clsx from 'clsx';
 import "react-datepicker/dist/react-datepicker.css";
 import './GlobalDatePicker.css';
+
+const BodyPortal = ({ children }) => createPortal(children, document.body);
 
 /**
  * GlobalDatePicker - A reusable desktop-style date picker component.
@@ -122,6 +125,7 @@ const GlobalDatePicker = ({
           },
         },
       ]}
+      popperContainer={BodyPortal}
       showPopperArrow={false}
     />
   );

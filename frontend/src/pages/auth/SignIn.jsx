@@ -5,7 +5,7 @@ import { SIGNIN_ROLES, getDashboardPath } from "./authConfig";
 import api from "../../services/api";
 import { validateEmail } from "../../utils/auValidation";
 import {
-  Building2, Home, TrendingUp, Briefcase, Scale, Shield, ArrowRight, CheckCircle
+  Building2, Home, TrendingUp, Briefcase, Scale, Shield, ArrowRight, CheckCircle, Eye, EyeOff
 } from "lucide-react";
 
 
@@ -31,6 +31,9 @@ export default function SignIn() {
   const [selectedRole, setSelectedRole] = useState("lender");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
 
   // ── Forgot-password state ──────────────────────────────────────────────────
   const [fpEmail, setFpEmail] = useState("");
@@ -329,12 +332,17 @@ export default function SignIn() {
                         Forgot password?
                       </button>
                     </div>
-                    <input
-                      id="password" type="password" value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••" autoComplete="current-password"
-                      className={inputCls}
-                    />
+                    <div className="relative">
+                      <input
+                        id="password" type={showPassword ? "text" : "password"} value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••" autoComplete="current-password"
+                        className={inputCls}
+                      />
+                      <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
                   </div>
                   <button
                     type="submit" disabled={loading}
@@ -432,28 +440,38 @@ export default function SignIn() {
 
                   <div>
                     <label htmlFor="fp-new-pw" className="block text-sm font-semibold text-slate-700 mb-1.5">New password</label>
-                    <input
-                      id="fp-new-pw" type="password" value={fpNewPassword}
-                      onChange={(e) => setFpNewPassword(e.target.value)}
-                      placeholder="Min 8 chars, uppercase, number"
-                      autoComplete="new-password"
-                      className={inputCls}
-                    />
+                    <div className="relative">
+                      <input
+                        id="fp-new-pw" type={showNewPw ? "text" : "password"} value={fpNewPassword}
+                        onChange={(e) => setFpNewPassword(e.target.value)}
+                        placeholder="Min 8 chars, uppercase, number"
+                        autoComplete="new-password"
+                        className={inputCls}
+                      />
+                      <button type="button" onClick={() => setShowNewPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                        {showNewPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
                   </div>
 
                   <div>
                     <label htmlFor="fp-confirm-pw" className="block text-sm font-semibold text-slate-700 mb-1.5">Confirm new password</label>
-                    <input
-                      id="fp-confirm-pw" type="password" value={fpConfirmPassword}
-                      onChange={(e) => setFpConfirmPassword(e.target.value)}
-                      placeholder="Re-enter new password"
-                      autoComplete="new-password"
-                      className={`${inputCls} ${
-                        fpConfirmPassword && fpNewPassword !== fpConfirmPassword
-                          ? "border-red-300 focus:border-red-400 focus:ring-red-100"
-                          : ""
-                      }`}
-                    />
+                    <div className="relative">
+                      <input
+                        id="fp-confirm-pw" type={showConfirmPw ? "text" : "password"} value={fpConfirmPassword}
+                        onChange={(e) => setFpConfirmPassword(e.target.value)}
+                        placeholder="Re-enter new password"
+                        autoComplete="new-password"
+                        className={`${inputCls} ${
+                          fpConfirmPassword && fpNewPassword !== fpConfirmPassword
+                            ? "border-red-300 focus:border-red-400 focus:ring-red-100"
+                            : ""
+                        }`}
+                      />
+                      <button type="button" onClick={() => setShowConfirmPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                        {showConfirmPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
                     {fpConfirmPassword && fpNewPassword !== fpConfirmPassword && (
                       <p className="text-red-500 text-xs mt-1">Passwords do not match</p>
                     )}

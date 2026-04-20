@@ -682,10 +682,16 @@ export default function LenderCaseDetails() {
 
     const handleViewDocument = async (doc) => {
         try {
+            const fileUrl = doc.file_url;
+            // Local static files served directly — no auth needed
+            if (fileUrl && (fileUrl.startsWith('/uploads/') || fileUrl.startsWith('http'))) {
+                window.open(fileUrl, '_blank', 'noopener,noreferrer');
+                return;
+            }
+            // API download endpoint (S3-format keys or fallback)
+            const downloadUrl = fileUrl && fileUrl.startsWith('/api/') ? fileUrl : `/api/v1/documents/${doc.id}/download`;
             const token = localStorage.getItem('token') || localStorage.getItem('authToken') || '';
-            const res = await fetch(`/api/v1/documents/${doc.id}/download`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await fetch(downloadUrl, { headers: { Authorization: `Bearer ${token}` } });
             if (!res.ok) throw new Error(`Server returned ${res.status}`);
             const ct = res.headers.get('content-type') || '';
             if (ct.includes('application/json')) {
@@ -693,7 +699,6 @@ export default function LenderCaseDetails() {
                 const url = json.download_url || json.url;
                 if (url) { window.open(url, '_blank', 'noopener,noreferrer'); return; }
             }
-            // Binary blob (e.g. image served directly)
             const blob = await res.blob();
             const url = URL.createObjectURL(blob);
             window.open(url, '_blank', 'noopener,noreferrer');

@@ -5,7 +5,19 @@ const NotificationContext = createContext();
 
 const POLL_INTERVAL = 30_000;
 
+const ENTITY_TYPE_MAP = {
+  bid: 'bid', auction: 'bid',
+  message: 'message', chat: 'message',
+  contract: 'contract',
+  kyc: 'kyc',
+  payment: 'payment', wallet: 'payment', escrow: 'payment',
+  case: 'case',
+  system: 'system',
+};
+
 function normaliseNotif(n) {
+  const entityType = (n.entity_type || '').toLowerCase();
+  const derivedType = ENTITY_TYPE_MAP[entityType] || n.type || 'system';
   return {
     id: n.id,
     title: n.title || n.message || 'Notification',
@@ -13,7 +25,7 @@ function normaliseNotif(n) {
     description: n.body || n.message || '',
     time: n.created_at ? new Date(n.created_at).toLocaleString('en-AU') : 'Just now',
     unread: n.is_read === false || n.is_read === 0,
-    type: n.type || n.notification_type || 'info',
+    type: derivedType,
     entity_id: n.entity_id || null,
     entity_type: n.entity_type || null,
   };

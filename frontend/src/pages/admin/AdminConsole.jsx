@@ -461,7 +461,10 @@ export default function AdminConsole() {
                                                     <button
                                                         onClick={() => {
                                                             const init = { _name: integration.name };
-                                                            (integration.fields || []).forEach(f => { init[f.label] = f.isSecret ? '' : (f.value || ''); });
+                                                            (integration.fields || []).forEach(f => {
+                                                                const key = typeof f === 'string' ? f : (f.label || f.name || '');
+                                                                init[key] = typeof f === 'string' ? '' : (f.isSecret ? '' : (f.value || ''));
+                                                            });
                                                             if (!integration.fields || integration.fields.length === 0) init._apiKey = '';
                                                             setConfigFields(init);
                                                             setConfigSaved(false);
@@ -557,18 +560,22 @@ export default function AdminConsole() {
                                     className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
                                 />
                             </div>
-                            {(showConfigModal.fields || []).map((f, i) => (
-                                <div key={i}>
-                                    <label className="block text-xs font-semibold text-gray-700 mb-1">{f.label}</label>
-                                    <input
-                                        type={f.isSecret ? 'password' : 'text'}
-                                        value={configFields[f.label] ?? ''}
-                                        onChange={e => setConfigFields(prev => ({ ...prev, [f.label]: e.target.value }))}
-                                        placeholder={f.placeholder || ''}
-                                        className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-                                    />
-                                </div>
-                            ))}
+                            {(showConfigModal.fields || []).map((f, i) => {
+                                const label = typeof f === 'string' ? f : (f.label || f.name || `Field ${i + 1}`);
+                                const isSecret = typeof f === 'string' ? false : !!f.isSecret;
+                                return (
+                                    <div key={label}>
+                                        <label className="block text-xs font-semibold text-gray-700 mb-1">{label}</label>
+                                        <input
+                                            type={isSecret ? 'password' : 'text'}
+                                            value={configFields[label] ?? ''}
+                                            onChange={e => setConfigFields(prev => ({ ...prev, [label]: e.target.value }))}
+                                            placeholder={typeof f === 'string' ? `Enter ${label}` : (f.placeholder || '')}
+                                            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                                        />
+                                    </div>
+                                );
+                            })}
                             {(!showConfigModal.fields || showConfigModal.fields.length === 0) && (
                                 <div>
                                     <label className="block text-xs font-semibold text-gray-700 mb-1">API Key</label>
@@ -592,11 +599,19 @@ export default function AdminConsole() {
                                     disabled={configSaving}
                                     onClick={async () => {
                                         setConfigSaving(true);
-                                        const payload = { name: configFields._name };
-                                        (showConfigModal.fields || []).forEach(f => { payload[f.label] = configFields[f.label]; });
-                                        if (configFields._apiKey) payload.api_key = configFields._apiKey;
+                                        const config = {};
+                                        (showConfigModal.fields || []).forEach(f => {
+                                            const key = typeof f === 'string' ? f : (f.label || f.name || '');
+                                            config[key] = configFields[key] || '';
+                                        });
+                                        if (configFields._apiKey) config.api_key = configFields._apiKey;
+                                        const payload = { name: configFields._name || showConfigModal.name, config };
                                         await integrationService.updateIntegration(showConfigModal.id, payload).catch(() => {});
-                                        setIntegrations(prev => prev.map(i => i.id === showConfigModal.id ? { ...i, name: configFields._name || i.name } : i));
+                                        setIntegrations(prev => prev.map(i =>
+                                            i.id === showConfigModal.id
+                                                ? { ...i, name: configFields._name || i.name, config }
+                                                : i
+                                        ));
                                         setConfigSaving(false);
                                         setConfigSaved(true);
                                         setTimeout(() => { setShowConfigModal(null); setConfigSaved(false); }, 1500);

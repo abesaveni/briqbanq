@@ -297,6 +297,12 @@ export const adminUsersService = {
   getUsers: (params) => wrap(api.get("/api/v1/identity/users", { params })),
   getUserById: (id) => wrap(api.get(`/api/v1/identity/users/${id}`)),
   getUsersByRole: (role) => wrap(api.get("/api/v1/identity/users", { params: { role } })),
+  createUser: (data) => wrap(api.post("/api/v1/identity/register", {
+    email: data.email,
+    password: data.password,
+    full_name: data.full_name,
+    requested_roles: [data.role || 'borrower'],
+  })),
   suspendUser: (id) => wrap(api.post(`/api/v1/identity/users/${id}/suspend`)),
   reactivateUser: (id) => wrap(api.post(`/api/v1/identity/users/${id}/reactivate`)),
   getPendingRoles: () => wrap(api.get("/api/v1/roles/pending")),

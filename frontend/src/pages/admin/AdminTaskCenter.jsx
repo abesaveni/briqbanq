@@ -90,6 +90,7 @@ export default function AdminTaskCenter() {
             task.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
 
         const matchesStatus = statusFilter === 'All Status' ||
+            (statusFilter === 'Active' && task.status !== 'Completed') ||
             (statusFilter === 'Completed' && task.status === 'Completed') ||
             (statusFilter === 'Pending' && task.status === 'Pending') ||
             (statusFilter === 'In progress' && task.status === 'In progress') ||
@@ -203,8 +204,8 @@ export default function AdminTaskCenter() {
             {/* Stats Cards */}
             <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
                 <button
-                    onClick={() => { setStatusFilter('All Status'); setPriorityFilter('All Priorities'); }}
-                    className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${statusFilter === 'All Status' && priorityFilter === 'All Priorities' ? 'border-indigo-600 ring-1 ring-indigo-600' : 'border-gray-100 shadow-sm'}`}
+                    onClick={() => { setStatusFilter('Active'); setPriorityFilter('All Priorities'); }}
+                    className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${statusFilter === 'Active' ? 'border-indigo-600 ring-1 ring-indigo-600' : 'border-gray-100 shadow-sm'}`}
                 >
                     <div>
                         <h3 className="text-2xl font-bold text-gray-900 mb-0.5 sm:mb-1">{activeTasksCount}</h3>
@@ -454,7 +455,16 @@ export default function AdminTaskCenter() {
                                             )}
                                             {task.hasMoveAndMarkCompleteButtons && (
                                                 <>
-                                                    <button className="px-4 py-1.5 rounded-lg border border-gray-200 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm">
+                                                    <button
+                                                        onClick={() => {
+                                                            taskService.updateTask(task.id, { status: 'PENDING' }).then(res => {
+                                                                if (res.success) {
+                                                                    setTasks(prev => prev.map(t => t.id === task.id ? normalizeTask(res.data) : t));
+                                                                }
+                                                            });
+                                                        }}
+                                                        className="px-4 py-1.5 rounded-lg border border-gray-200 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm"
+                                                    >
                                                         Move to Pending
                                                     </button>
                                                     <button

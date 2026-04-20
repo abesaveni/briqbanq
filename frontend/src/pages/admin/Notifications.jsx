@@ -12,6 +12,9 @@ const TYPE_ICONS = {
     contract: FileText,
     payment: Mail,
     system: Bell,
+    case: FileText,
+    IN_APP: Bell,
+    EMAIL: Mail,
 }
 
 const TYPE_LABELS = {
@@ -22,6 +25,9 @@ const TYPE_LABELS = {
     contract: 'Contract',
     payment: 'Payment',
     system: 'System',
+    case: 'Case',
+    IN_APP: 'In-App',
+    EMAIL: 'Email',
 }
 
 function timeAgo(dateStr) {
@@ -128,12 +134,15 @@ export default function Notifications() {
                     onChange={(e) => setTypeFilter(e.target.value)}
                     className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
                 >
-                    <option>All Types</option>
+                    <option value="All Types">All Types</option>
                     <option value="bid">Bid</option>
                     <option value="message">Message</option>
                     <option value="auction">Auction</option>
                     <option value="kyc">KYC</option>
                     <option value="contract">Contract</option>
+                    <option value="payment">Payment</option>
+                    <option value="case">Case</option>
+                    <option value="system">System</option>
                 </select>
                 <select
                     value={statusFilter}
@@ -294,9 +303,16 @@ export default function Notifications() {
                                                 : 'Click "Go to Related Item" to view'}
                                         </p>
                                     </div>
-                                    <div className="w-8 h-8 rounded-full bg-white border border-blue-200 flex items-center justify-center shadow-sm">
+                                    <button
+                                        onClick={() => {
+                                            setSelectedNotification(null);
+                                            navigate(getRelatedUrl(selectedNotification));
+                                        }}
+                                        className="w-8 h-8 rounded-full bg-white border border-blue-200 flex items-center justify-center shadow-sm hover:bg-blue-50 transition-colors"
+                                        title="Go to related item"
+                                    >
                                         <Eye size={14} className="text-blue-600" />
-                                    </div>
+                                    </button>
                                 </div>
                             </div>
                         </div>

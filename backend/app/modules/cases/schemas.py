@@ -14,6 +14,22 @@ if TYPE_CHECKING:
     from app.modules.documents.schemas import DocumentResponse
 
 
+def _s3_key_to_url(doc_id: Optional[str], s3_key: Optional[str]) -> Optional[str]:
+    """Convert a raw s3_key to a usable URL for the frontend."""
+    if not s3_key:
+        return None
+    if s3_key.startswith("local://"):
+        filename = s3_key[len("local://"):]
+        return f"/uploads/documents/{filename}"
+    if s3_key.startswith("cases/"):
+        # S3-format key — point to the authenticated download endpoint so
+        # the backend can resolve it (S3 or local glob fallback)
+        return f"/api/v1/documents/{doc_id}/download" if doc_id else None
+    # Bare filename or other format
+    import pathlib
+    return f"/uploads/documents/{pathlib.Path(s3_key).name}"
+
+
 class CaseCreateRequest(BaseModel):
     """Create a new case."""
     title: str = Field(..., min_length=1, max_length=255)
@@ -158,7 +174,7 @@ class CaseResponse(BaseModel):
                         "status": item.status.value if hasattr(item, "status") and hasattr(item.status, "value") else getattr(item, "status", None),
                         "reviewed_by": str(item.reviewed_by) if hasattr(item, "reviewed_by") and item.reviewed_by else None,
                         "rejection_reason": item.rejection_reason if hasattr(item, "rejection_reason") else None,
-                        "file_url": item.s3_key if hasattr(item, "s3_key") else None,
+                        "file_url": _s3_key_to_url(str(item.id) if hasattr(item, "id") else None, item.s3_key if hasattr(item, "s3_key") else None),
                         "created_at": item.created_at.isoformat() if hasattr(item, "created_at") and hasattr(item.created_at, "isoformat") else None,
                         "updated_at": item.updated_at.isoformat() if hasattr(item, "updated_at") and hasattr(item.updated_at, "isoformat") else None,
                     })

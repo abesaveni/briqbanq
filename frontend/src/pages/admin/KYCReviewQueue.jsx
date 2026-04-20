@@ -9,17 +9,30 @@ export default function KYCReviewQueue() {
     const navigate = useNavigate();
     const [kycData, setKycData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [statusFilter, setStatusFilter] = useState('ALL');
 
-    useEffect(() => {
-        kycService.getKYCQueue()
-            .then((res) => {
-                const items = Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : [])
-                setKycData(items)
-            })
-            .catch(() => {})
-            .finally(() => setLoading(false))
-    }, [])
+    const fetchKYC = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await kycService.getKYCQueue();
+            if (res.success) {
+                const items = Array.isArray(res.data) ? res.data
+                    : Array.isArray(res.data?.items) ? res.data.items
+                    : [];
+                setKycData(items);
+            } else {
+                setError(res.error || 'Failed to load KYC data');
+            }
+        } catch (err) {
+            setError(err.message || 'Failed to load KYC data');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => { fetchKYC(); }, [])
 
     const handleApprove = async (id) => {
         try {
@@ -83,7 +96,10 @@ export default function KYCReviewQueue() {
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
                 <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                     <h2 className="text-base font-semibold text-gray-900">KYC Submissions</h2>
-                    <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full">{displayed.length} record{displayed.length !== 1 ? 's' : ''}</span>
+                    <div className="flex items-center gap-3">
+                        <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full">{displayed.length} record{displayed.length !== 1 ? 's' : ''}</span>
+                        <button onClick={fetchKYC} className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 border border-indigo-200 px-3 py-1 rounded-lg hover:bg-indigo-50 transition-colors">Refresh</button>
+                    </div>
                 </div>
 
                 <div className="overflow-x-auto">
@@ -103,6 +119,11 @@ export default function KYCReviewQueue() {
                         <tbody className="divide-y divide-gray-50">
                             {loading ? (
                                 <tr><td colSpan={8} className="py-12 text-center text-gray-400 text-sm">Loading KYC data…</td></tr>
+                            ) : error ? (
+                                <tr><td colSpan={8} className="py-12 text-center text-sm">
+                                    <p className="text-red-500 font-medium mb-2">{error}</p>
+                                    <button onClick={fetchKYC} className="text-indigo-600 text-xs font-semibold hover:underline">Retry</button>
+                                </td></tr>
                             ) : displayed.length === 0 ? (
                                 <tr><td colSpan={8} className="py-12 text-center text-gray-400 text-sm">No submissions found</td></tr>
                             ) : displayed.map((kyc) => (
