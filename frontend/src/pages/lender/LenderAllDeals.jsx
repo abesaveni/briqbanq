@@ -120,7 +120,7 @@ export default function LenderAllDeals() {
     const [search, setSearch] = useState("");
     const [selectedState, setSelectedState] = useState("All States");
     const [selectedStatus, setSelectedStatus] = useState("All Status");
-    const [sortBy, setSortBy] = useState("Newest");
+    const [sortBy, setSortBy] = useState("Newest First");
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
     const [advanced, setAdvanced] = useState(DEFAULT_ADVANCED);
 
@@ -181,10 +181,11 @@ export default function LenderAllDeals() {
 
         if (sortBy === "Price: Low to High") {
             data.sort((a, b) => (a.loanAmount || 0) - (b.loanAmount || 0));
-        }
-
-        if (sortBy === "Price: High to Low") {
+        } else if (sortBy === "Price: High to Low") {
             data.sort((a, b) => (b.loanAmount || 0) - (a.loanAmount || 0));
+        } else {
+            // Newest First — default
+            data.sort((a, b) => new Date(b.auctionEnd || 0) - new Date(a.auctionEnd || 0));
         }
 
         return data;
@@ -201,8 +202,6 @@ export default function LenderAllDeals() {
 
     if (loading) return <LoadingState />;
     if (error) return <ErrorState message={error} />;
-
-    const isSearching = search || selectedState !== "All States" || selectedStatus !== "All Status";
 
     return (
         <div className="space-y-5 animate-fade-in pb-6">
@@ -325,74 +324,68 @@ export default function LenderAllDeals() {
             {/* CATEGORIZED VIEW */}
             {filteredDeals.length > 0 ? (
                 <div className="space-y-8">
-                    {/* 1. LIVE AUCTIONS */}
-                    {(isSearching ? filteredDeals : categorizedDeals.auctions).length > 0 && (
+                    {categorizedDeals.auctions.length > 0 && (
                         <div className="space-y-6">
                             <SectionHeader
-                                title={isSearching ? "Search Results" : "Live Recovery Auctions"}
-                                count={(isSearching ? filteredDeals : categorizedDeals.auctions).length}
+                                title="Live Recovery Auctions"
+                                count={categorizedDeals.auctions.length}
                                 color="text-red-600"
                                 badgeColor="bg-red-50 text-red-600 border-red-100"
                             />
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                {(isSearching ? filteredDeals : categorizedDeals.auctions).map((deal) => (
+                                {categorizedDeals.auctions.map((deal) => (
                                     <LenderDealCard key={deal.id} deal={deal} />
                                 ))}
                             </div>
                         </div>
                     )}
 
-                    {/* Remaining categories only show when not searching or if items exist in section */}
-                    {!isSearching && (
-                        <>
-                            {categorizedDeals.buyNow.length > 0 && (
-                                <div className="space-y-6">
-                                    <SectionHeader
-                                        title="Direct Acquisition (Buy Now)"
-                                        count={categorizedDeals.buyNow.length}
-                                        color="text-green-600"
-                                        badgeColor="bg-green-50 text-green-600 border-green-100"
-                                    />
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                        {categorizedDeals.buyNow.map((deal) => (
-                                            <LenderDealCard key={deal.id} deal={deal} />
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
+                    {categorizedDeals.buyNow.length > 0 && (
+                        <div className="space-y-6">
+                            <SectionHeader
+                                title="Direct Acquisition (Buy Now)"
+                                count={categorizedDeals.buyNow.length}
+                                color="text-green-600"
+                                badgeColor="bg-green-50 text-green-600 border-green-100"
+                            />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                {categorizedDeals.buyNow.map((deal) => (
+                                    <LenderDealCard key={deal.id} deal={deal} />
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
-                            {categorizedDeals.upcoming.length > 0 && (
-                                <div className="space-y-6">
-                                    <SectionHeader
-                                        title="Upcoming Opportunities"
-                                        count={categorizedDeals.upcoming.length}
-                                        color="text-blue-600"
-                                        badgeColor="bg-blue-50 text-blue-600 border-blue-100"
-                                    />
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 opacity-90 transition-opacity hover:opacity-100">
-                                        {categorizedDeals.upcoming.map((deal) => (
-                                            <LenderDealCard key={deal.id} deal={deal} />
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
+                    {categorizedDeals.upcoming.length > 0 && (
+                        <div className="space-y-6">
+                            <SectionHeader
+                                title="Upcoming Opportunities"
+                                count={categorizedDeals.upcoming.length}
+                                color="text-blue-600"
+                                badgeColor="bg-blue-50 text-blue-600 border-blue-100"
+                            />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 opacity-90 transition-opacity hover:opacity-100">
+                                {categorizedDeals.upcoming.map((deal) => (
+                                    <LenderDealCard key={deal.id} deal={deal} />
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
-                            {categorizedDeals.sold.length > 0 && (
-                                <div className="space-y-6">
-                                    <SectionHeader
-                                        title="Recovered Assets (Sold)"
-                                        count={categorizedDeals.sold.length}
-                                        color="text-slate-900"
-                                        badgeColor="bg-slate-100 text-slate-900 border-slate-200"
-                                    />
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 grayscale-[0.5] opacity-80 hover:grayscale-0 hover:opacity-100 transition-all">
-                                        {categorizedDeals.sold.map((deal) => (
-                                            <LenderDealCard key={deal.id} deal={deal} />
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </>
+                    {categorizedDeals.sold.length > 0 && (
+                        <div className="space-y-6">
+                            <SectionHeader
+                                title="Recovered Assets (Sold)"
+                                count={categorizedDeals.sold.length}
+                                color="text-slate-900"
+                                badgeColor="bg-slate-100 text-slate-900 border-slate-200"
+                            />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 grayscale-[0.5] opacity-80 hover:grayscale-0 hover:opacity-100 transition-all">
+                                {categorizedDeals.sold.map((deal) => (
+                                    <LenderDealCard key={deal.id} deal={deal} />
+                                ))}
+                            </div>
+                        </div>
                     )}
                 </div>
             ) : (

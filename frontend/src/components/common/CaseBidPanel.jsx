@@ -18,6 +18,7 @@ export default function CaseBidPanel({ caseId, canBid = false, canClose = false,
     const [bids, setBids] = useState([]);
     const [auction, setAuction] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [bidAmount, setBidAmount] = useState("");
     const [placing, setPlacing] = useState(false);
     const [closing, setClosing] = useState(false);
@@ -28,17 +29,17 @@ export default function CaseBidPanel({ caseId, canBid = false, canClose = false,
         setTimeout(() => setToast(null), 4000);
     };
 
-    const fetchBids = useCallback(async () => {
+    // silent=true skips the loading spinner so existing bids stay visible during refresh
+    const fetchBids = useCallback(async (silent = false) => {
         if (!caseId) return;
         try {
-            setLoading(true);
+            if (silent) setRefreshing(true); else setLoading(true);
             const [bidsRes, auctionRes] = await Promise.all([
                 auctionService.getBidsByCase(caseId),
                 auctionService.getAuctionsByCase(caseId),
             ]);
             if (bidsRes.success) {
                 const raw = Array.isArray(bidsRes.data) ? bidsRes.data : [];
-                // Sorted by amount desc from backend; ensure descending order (latest/highest first)
                 const sorted = [...raw].sort((a, b) => Number(b.amount) - Number(a.amount));
                 setBids(sorted);
             }
@@ -49,16 +50,16 @@ export default function CaseBidPanel({ caseId, canBid = false, canClose = false,
         } catch {
             // silent — no bids yet is fine
         } finally {
-            setLoading(false);
+            if (silent) setRefreshing(false); else setLoading(false);
         }
     }, [caseId]);
 
     useEffect(() => { fetchBids(); }, [fetchBids]);
 
-    // Auto-refresh every 30 seconds so borrower sees new bids without manual refresh
+    // Auto-refresh every 15 seconds silently so bid history stays live
     useEffect(() => {
         if (!caseId) return;
-        const interval = setInterval(fetchBids, 30000);
+        const interval = setInterval(() => fetchBids(true), 15000);
         return () => clearInterval(interval);
     }, [fetchBids, caseId]);
 
@@ -83,8 +84,21 @@ export default function CaseBidPanel({ caseId, canBid = false, canClose = false,
             const res = await auctionService.placeBid(auction.id, amount);
             if (res.success) {
                 showToast(`Bid of ${fmt(amount)} placed successfully`);
+                // Optimistic update — show the new bid immediately without blanking the list
+                const optimisticBid = {
+                    id: `optimistic-${Date.now()}`,
+                    amount,
+                    bidder_name: currentUser?.name || "You",
+                    created_at: new Date().toISOString(),
+                    status: "ACTIVE",
+                };
+                setBids(prev => {
+                    const updated = [optimisticBid, ...prev.filter(b => !b.id?.toString().startsWith("optimistic-"))];
+                    return updated.sort((a, b) => Number(b.amount) - Number(a.amount));
+                });
                 setBidAmount("");
-                await fetchBids();
+                // Background refresh to replace optimistic data with server truth
+                fetchBids(true);
             } else {
                 showToast(res.error || "Failed to place bid", "error");
             }
@@ -238,8 +252,8 @@ export default function CaseBidPanel({ caseId, canBid = false, canClose = false,
                         <span className="text-sm font-bold text-gray-800">Bid History</span>
                         <span className="bg-indigo-100 text-indigo-700 text-[10px] font-black px-2 py-0.5 rounded-full">{bids.length}</span>
                     </div>
-                    <button onClick={fetchBids} className="text-gray-400 hover:text-indigo-600 transition-colors">
-                        <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+                    <button onClick={() => fetchBids(true)} className="text-gray-400 hover:text-indigo-600 transition-colors">
+                        <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
                     </button>
                 </div>
 
