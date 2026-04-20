@@ -199,6 +199,8 @@ export default function LenderCaseDetails() {
                     image,
                     id: fetchedCase.id || id || "Unknown ID",
                     case_number: fetchedCase.case_number || null,
+                    lender_id: fetchedCase.assigned_lender_id || fetchedCase.lender_id || null,
+                    borrower_id: fetchedCase.borrower_id || null,
                     status: fetchedCase.status || "Pending",
                     riskLevel: meta.risk_level || "N/A",
                     address: fetchedCase.property_address || "Address not provided",
@@ -1403,20 +1405,31 @@ export default function LenderCaseDetails() {
                     </div>
                 )}
 
-                {activeTab === "Bids" && (
-                    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm animate-fade-in">
-                        <div className="mb-6">
-                            <h3 className="text-lg font-semibold text-slate-900  uppercase">Live Auction Bids</h3>
-                            <p className="text-xs font-bold text-gray-400 uppercase mt-0.5">Real-time bid monitoring — lenders can also place bids</p>
+                {activeTab === "Bids" && (() => {
+                    const isOwnCase = !!(authUser?.id && caseData?.lender_id && String(caseData.lender_id) === String(authUser.id));
+                    return (
+                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm animate-fade-in">
+                            <div className="mb-6">
+                                <h3 className="text-lg font-semibold text-slate-900 uppercase">Live Auction Bids</h3>
+                                <p className="text-xs font-bold text-gray-400 uppercase mt-0.5">
+                                    {isOwnCase ? 'Bid monitoring — you cannot bid on your own case' : 'Real-time bid monitoring — lenders can also place bids'}
+                                </p>
+                            </div>
+                            {isOwnCase && (
+                                <div className="mb-4 flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                                    <svg className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /></svg>
+                                    <p className="text-xs text-amber-800 font-medium">You are the original lender on this case and cannot place a bid on your own case.</p>
+                                </div>
+                            )}
+                            <CaseBidPanel
+                                caseId={id}
+                                canBid={!isOwnCase}
+                                canClose={false}
+                                currentUser={{ name: authUser?.name, role: 'Lender' }}
+                            />
                         </div>
-                        <CaseBidPanel
-                            caseId={id}
-                            canBid={true}
-                            canClose={false}
-                            currentUser={{ name: authUser?.name, role: 'Lender' }}
-                        />
-                    </div>
-                )}
+                    );
+                })()}
 
                 {activeTab === "Messages" && (
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">

@@ -62,6 +62,8 @@ class BidService:
                 _case = case_row.scalar_one_or_none()
                 if _case and _case.borrower_id == bidder_id:
                     raise AuthorizationError(message="You cannot bid on a case you submitted.")
+                if _case and _case.assigned_lender_id and _case.assigned_lender_id == bidder_id:
+                    raise AuthorizationError(message="You cannot bid on a case where you are the assigned lender.")
         except AuthorizationError:
             raise
         except Exception:
