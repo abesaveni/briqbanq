@@ -43,6 +43,7 @@ export default function LenderCaseDetails() {
     const [settlementSubTab, setSettlementSubTab] = useState("AI Checklist Manager");
     const [expandedCategory, setExpandedCategory] = useState("Legal Requirements");
     const [settlementMessage, setSettlementMessage] = useState("");
+    const [pendingAttachment, setPendingAttachment] = useState(null); // { name, size }
     const [isAIAssistantModalOpen, setIsAIAssistantModalOpen] = useState(false);
     const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
     const [isAddChecklistItemModalOpen, setIsAddChecklistItemModalOpen] = useState(false);
@@ -528,15 +529,23 @@ export default function LenderCaseDetails() {
     };
 
     const handleSendMessage = () => {
-        if (!settlementMessage.trim()) return;
+        const hasText = settlementMessage.trim();
+        const hasFile = pendingAttachment;
+        if (!hasText && !hasFile) return;
+
+        const messageText = hasText
+            ? (hasFile ? `${settlementMessage.trim()}\n📎 Attachment: ${hasFile.name} (${(hasFile.size / 1024).toFixed(1)} KB)` : settlementMessage.trim())
+            : `📎 Attachment: ${hasFile.name} (${(hasFile.size / 1024).toFixed(1)} KB)`;
+
         const newMessage = {
             id: Date.now(),
             user: "You",
             role: "Lender",
             time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-            message: settlementMessage,
+            message: messageText,
             initials: "Y",
-            color: "bg-blue-900"
+            color: "bg-blue-900",
+            isAttachment: !!hasFile,
         };
         const updatedOverview = {
             ...settlementOverviewData,
@@ -545,6 +554,7 @@ export default function LenderCaseDetails() {
         setSettlementOverviewData(updatedOverview);
         persistSettlement(updatedOverview);
         setSettlementMessage("");
+        setPendingAttachment(null);
     };
 
     const handleSendGeneralMessage = async () => {
@@ -1948,34 +1958,31 @@ export default function LenderCaseDetails() {
                                             ))}
                                         </div>
                                         <div className="p-3 bg-slate-50/50 border-t border-slate-100">
+                                            {/* Pending attachment preview */}
+                                            {pendingAttachment && (
+                                                <div className="flex items-center gap-2 mb-2 px-2 py-1.5 bg-blue-50 border border-blue-100 rounded-lg">
+                                                    <Paperclip size={12} className="text-blue-600 shrink-0" />
+                                                    <span className="text-[11px] text-blue-800 font-medium flex-1 truncate">
+                                                        {pendingAttachment.name} ({(pendingAttachment.size / 1024).toFixed(1)} KB)
+                                                    </span>
+                                                    <button
+                                                        onClick={() => { setPendingAttachment(null); if (settlementFileInputRef.current) settlementFileInputRef.current.value = ''; }}
+                                                        className="text-blue-400 hover:text-red-500 transition-colors"
+                                                    >
+                                                        <X size={12} />
+                                                    </button>
+                                                </div>
+                                            )}
                                             <div className="flex items-center gap-2">
                                                 <input ref={settlementFileInputRef} type="file" className="hidden" onChange={(e) => {
                                                     const file = e.target.files?.[0];
                                                     if (file) {
-                                                        const fileMessage = {
-                                                            id: Date.now(),
-                                                            user: "You",
-                                                            role: "Lender",
-                                                            time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-                                                            message: `📎 Attachment: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`,
-                                                            initials: "Y",
-                                                            color: "bg-blue-900",
-                                                            isAttachment: true,
-                                                        };
-                                                        const updatedOverview = {
-                                                            ...settlementOverviewData,
-                                                            thread: [...settlementOverviewData.thread, fileMessage]
-                                                        };
-                                                        setSettlementOverviewData(updatedOverview);
-                                                        persistSettlement(updatedOverview);
-                                                        setToast({ show: true, message: `${file.name} sent to settlement thread.`, type: "success" });
-                                                        setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000);
+                                                        setPendingAttachment({ name: file.name, size: file.size });
                                                     }
-                                                    e.target.value = '';
                                                 }} />
                                                 <button
                                                     onClick={() => settlementFileInputRef.current?.click()}
-                                                    className="h-9 w-9 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-slate-400 hover:text-blue-600 transition-all"
+                                                    className={`h-9 w-9 border rounded-lg flex items-center justify-center transition-all ${pendingAttachment ? 'bg-blue-50 border-blue-300 text-blue-600' : 'bg-white border-slate-200 text-slate-400 hover:text-blue-600'}`}
                                                 >
                                                     <Paperclip size={14} />
                                                 </button>
@@ -1983,10 +1990,15 @@ export default function LenderCaseDetails() {
                                                     type="text"
                                                     value={settlementMessage}
                                                     onChange={(e) => setSettlementMessage(e.target.value)}
+                                                    onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
                                                     placeholder="Enter formal protocol communication..."
                                                     className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-900 h-9"
                                                 />
-                                                <button onClick={handleSendMessage} className="h-9 w-9 bg-blue-900 text-white rounded-lg flex items-center justify-center hover:bg-blue-800 active:scale-95 transition-all">
+                                                <button
+                                                    onClick={handleSendMessage}
+                                                    disabled={!settlementMessage.trim() && !pendingAttachment}
+                                                    className="h-9 w-9 bg-blue-900 text-white rounded-lg flex items-center justify-center hover:bg-blue-800 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                                                >
                                                     <Send size={14} />
                                                 </button>
                                             </div>
