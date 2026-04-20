@@ -162,9 +162,13 @@ export const casesService = {
     wrap(api.patch(`/api/v1/cases/${caseId}/metadata`, { metadata })),
   startCaseReview: (caseId) => wrap(api.post(`/api/v1/cases/${caseId}/review`)),
   saveLawyerChecklist: (caseId, checklist, notes) =>
-    wrap(api.post(`/api/v1/cases/${caseId}/lawyer-checklist`, { checklist, notes: notes || "" })),
+    wrap(api.patch(`/api/v1/cases/${caseId}/metadata`, {
+      metadata: { lawyer_review: { checklist, notes: notes || "", updated_at: new Date().toISOString() } },
+    })),
   completeLawyerReview: (caseId) =>
-    wrap(api.post(`/api/v1/cases/${caseId}/lawyer-complete-review`)),
+    wrap(api.patch(`/api/v1/cases/${caseId}/metadata`, {
+      metadata: { lawyer_review: { submitted_to_admin: true, submitted_at: new Date().toISOString() } },
+    })),
   approveCase: (caseId) => wrap(api.post(`/api/v1/cases/${caseId}/approve`)),
   rejectCase: (caseId, reason) =>
     wrap(api.post(`/api/v1/cases/${caseId}/reject`, { rejection_reason: reason })),
