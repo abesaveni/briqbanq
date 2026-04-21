@@ -1,6 +1,7 @@
 import { Suspense, useEffect } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import AdminTopNavBar from './AdminTopNavBar'
+import AdminSidebar from './AdminSidebar'
 import { useAuth } from '../../context/AuthContext'
 
 export default function AdminDashboardLayout() {
@@ -17,15 +18,25 @@ export default function AdminDashboardLayout() {
   if (!token && !localStorage.getItem('token')) return null
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AdminTopNavBar />
-      <main className="pt-14 flex flex-col min-h-screen">
-        <div className="flex-1 w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <Suspense fallback={<div className="p-6 text-center text-gray-500">Loading…</div>}>
+    <div className="min-h-screen bg-slate-50 flex">
+      {/* Fixed sidebar — desktop only */}
+      <div className="hidden md:block">
+        <AdminSidebar />
+      </div>
+
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col min-w-0 md:ml-[220px]">
+        <AdminTopNavBar />
+        <main className="flex-1 pt-11 p-5">
+          <Suspense fallback={
+            <div className="flex items-center justify-center h-40">
+              <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+            </div>
+          }>
             <Outlet />
           </Suspense>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   )
 }

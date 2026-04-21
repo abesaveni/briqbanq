@@ -186,117 +186,117 @@ export default function AdminTaskCenter() {
     };
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500 pb-12">
+        <div className="space-y-4 animate-in fade-in duration-500 pb-8">
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-1">Task Center</h1>
-                    <p className="text-sm text-gray-500">Manage all your administrative tasks across the platform</p>
+                    <h1 className="text-sm font-semibold text-slate-900">Task Center</h1>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Manage administrative tasks across the platform</p>
                 </div>
                 <button
                     onClick={() => setIsNewTaskModalOpen(true)}
-                    className="bg-indigo-600 text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-md shadow-indigo-500/20 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 w-full sm:w-auto"
+                    className="bg-indigo-600 text-white px-3 py-1.5 rounded text-[11px] font-semibold hover:bg-indigo-700 transition-all flex items-center gap-1.5"
                 >
-                    <Plus size={16} /> New Task
+                    <Plus size={13} /> New Task
                 </button>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                 <button
                     onClick={() => { setStatusFilter('Active'); setPriorityFilter('All Priorities'); }}
-                    className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${statusFilter === 'Active' ? 'border-indigo-600 ring-1 ring-indigo-600' : 'border-gray-100 shadow-sm'}`}
+                    className={`bg-white p-3 rounded-lg border transition-all flex items-center justify-between text-left hover:shadow-sm ${statusFilter === 'Active' ? 'border-indigo-600 ring-1 ring-indigo-600' : 'border-slate-100 shadow-sm'}`}
                 >
                     <div>
-                        <h3 className="text-2xl font-bold text-gray-900 mb-0.5 sm:mb-1">{activeTasksCount}</h3>
-                        <p className="text-xs font-medium text-gray-500">Active Tasks</p>
+                        <h3 className="text-lg font-bold text-slate-900">{activeTasksCount}</h3>
+                        <p className="text-[10px] font-medium text-slate-400">Active</p>
                     </div>
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-50/50 flex items-center justify-center border border-blue-100/50">
-                        <CheckSquare size={18} className="text-blue-700" />
+                    <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center border border-blue-100/50">
+                        <CheckSquare size={14} className="text-blue-700" />
                     </div>
                 </button>
                 <button
                     onClick={() => { setStatusFilter('Overdue'); setPriorityFilter('All Priorities'); }}
-                    className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${statusFilter === 'Overdue' ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-100 shadow-sm'}`}
+                    className={`bg-white p-3 rounded-lg border transition-all flex items-center justify-between text-left hover:shadow-sm ${statusFilter === 'Overdue' ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-100 shadow-sm'}`}
                 >
                     <div>
-                        <h3 className="text-2xl font-bold text-red-500 mb-0.5 sm:mb-1">{overdueCount}</h3>
-                        <p className="text-xs font-medium text-gray-500">Overdue</p>
+                        <h3 className="text-lg font-bold text-red-500">{overdueCount}</h3>
+                        <p className="text-[10px] font-medium text-slate-400">Overdue</p>
                     </div>
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-red-50/50 flex items-center justify-center border border-red-100/50">
-                        <AlertCircle size={18} className="text-red-500" />
+                    <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center border border-red-100/50">
+                        <AlertCircle size={14} className="text-red-500" />
                     </div>
                 </button>
                 <button
                     onClick={() => { setStatusFilter('Due Today'); setPriorityFilter('All Priorities'); }}
-                    className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${statusFilter === 'Due Today' ? 'border-orange-500 ring-1 ring-orange-500' : 'border-gray-100 shadow-sm'}`}
+                    className={`bg-white p-3 rounded-lg border transition-all flex items-center justify-between text-left hover:shadow-sm ${statusFilter === 'Due Today' ? 'border-orange-500 ring-1 ring-orange-500' : 'border-slate-100 shadow-sm'}`}
                 >
                     <div>
-                        <h3 className="text-2xl font-bold text-orange-500 mb-0.5 sm:mb-1">{dueTodayCount}</h3>
-                        <p className="text-xs font-medium text-gray-500">Due Today</p>
+                        <h3 className="text-lg font-bold text-orange-500">{dueTodayCount}</h3>
+                        <p className="text-[10px] font-medium text-slate-400">Due Today</p>
                     </div>
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-orange-50/50 flex items-center justify-center border border-orange-100/50">
-                        <Clock size={18} className="text-orange-500" />
+                    <div className="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center border border-orange-100/50">
+                        <Clock size={14} className="text-orange-500" />
                     </div>
                 </button>
                 <button
                     onClick={() => { setPriorityFilter(priorityFilter === 'Urgent' ? 'All Priorities' : 'Urgent'); setStatusFilter('All Status'); }}
-                    className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${priorityFilter === 'Urgent' ? 'border-violet-500 ring-1 ring-violet-500' : 'border-gray-100 shadow-sm'}`}
+                    className={`bg-white p-3 rounded-lg border transition-all flex items-center justify-between text-left hover:shadow-sm ${priorityFilter === 'Urgent' ? 'border-violet-500 ring-1 ring-violet-500' : 'border-slate-100 shadow-sm'}`}
                 >
                     <div>
-                        <h3 className="text-2xl font-bold text-violet-500 mb-0.5 sm:mb-1">{urgentCount}</h3>
-                        <p className="text-xs font-medium text-gray-500">Urgent</p>
+                        <h3 className="text-lg font-bold text-violet-500">{urgentCount}</h3>
+                        <p className="text-[10px] font-medium text-slate-400">Urgent</p>
                     </div>
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-purple-50/50 flex items-center justify-center border border-purple-100/50">
-                        <Flag size={18} className="text-violet-500" />
+                    <div className="w-7 h-7 rounded-lg bg-purple-50 flex items-center justify-center border border-purple-100/50">
+                        <Flag size={14} className="text-violet-500" />
                     </div>
                 </button>
                 <button
                     onClick={() => { setStatusFilter('In progress'); setPriorityFilter('All Priorities'); }}
-                    className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${statusFilter === 'In progress' ? 'border-blue-500 ring-1 ring-blue-500' : 'border-gray-100 shadow-sm'}`}
+                    className={`bg-white p-3 rounded-lg border transition-all flex items-center justify-between text-left hover:shadow-sm ${statusFilter === 'In progress' ? 'border-blue-500 ring-1 ring-blue-500' : 'border-slate-100 shadow-sm'}`}
                 >
                     <div>
-                        <h3 className="text-2xl font-bold text-blue-500 mb-0.5 sm:mb-1">{inProgressCount}</h3>
-                        <p className="text-xs font-medium text-gray-500">In Progress</p>
+                        <h3 className="text-lg font-bold text-blue-500">{inProgressCount}</h3>
+                        <p className="text-[10px] font-medium text-slate-400">In Progress</p>
                     </div>
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-50/50 flex items-center justify-center border border-blue-100/50">
-                        <BarChart2 size={18} className="text-blue-500" />
+                    <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center border border-blue-100/50">
+                        <BarChart2 size={14} className="text-blue-500" />
                     </div>
                 </button>
                 <button
                     onClick={() => { setStatusFilter('Completed'); setPriorityFilter('All Priorities'); }}
-                    className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all flex items-center justify-between text-left hover:shadow-md ${statusFilter === 'Completed' ? 'border-emerald-500 ring-1 ring-emerald-500' : 'border-gray-100 shadow-sm'}`}
+                    className={`bg-white p-3 rounded-lg border transition-all flex items-center justify-between text-left hover:shadow-sm ${statusFilter === 'Completed' ? 'border-emerald-500 ring-1 ring-emerald-500' : 'border-slate-100 shadow-sm'}`}
                 >
                     <div>
-                        <h3 className="text-2xl font-bold text-emerald-500 mb-0.5 sm:mb-1">{completedCount}</h3>
-                        <p className="text-xs font-medium text-gray-500">Completed</p>
+                        <h3 className="text-lg font-bold text-emerald-500">{completedCount}</h3>
+                        <p className="text-[10px] font-medium text-slate-400">Completed</p>
                     </div>
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-50/50 flex items-center justify-center border border-emerald-100/50">
-                        <CheckCircle2 size={18} className="text-emerald-500" />
+                    <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center border border-emerald-100/50">
+                        <CheckCircle2 size={14} className="text-emerald-500" />
                     </div>
                 </button>
             </div>
 
             {/* Filters and Controls */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+            <div className="bg-white rounded-lg border border-slate-100 shadow-sm p-3">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
                     <div className="relative">
-                        <label className="block text-xs font-semibold text-gray-700 mb-1.5 pl-1">Search Tasks</label>
+                        <label className="block text-[10px] font-semibold text-slate-600 mb-1 pl-0.5">Search Tasks</label>
                         <div className="relative flex items-center">
-                            <Search size={14} className="absolute left-3.5 text-gray-400" />
+                            <Search size={12} className="absolute left-3 text-slate-400" />
                             <input
                                 type="text"
                                 placeholder="Search by title, case number, or tags..."
-                                className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                                className="w-full pl-8 pr-3 py-1.5 text-[11px] border border-slate-200 rounded focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
                     </div>
                     <div>
-                        <label className="block text-xs font-semibold text-gray-700 mb-1.5 pl-1">Status</label>
+                        <label className="block text-[10px] font-semibold text-slate-600 mb-1 pl-0.5">Status</label>
                         <select
-                            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-white font-medium"
+                            className="w-full px-2.5 py-1.5 text-[11px] border border-slate-200 rounded focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-white font-medium"
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
                         >
@@ -309,9 +309,9 @@ export default function AdminTaskCenter() {
                         </select>
                     </div>
                     <div>
-                        <label className="block text-xs font-semibold text-gray-700 mb-1.5 pl-1">Priority</label>
+                        <label className="block text-[10px] font-semibold text-slate-600 mb-1 pl-0.5">Priority</label>
                         <select
-                            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-white font-medium"
+                            className="w-full px-2.5 py-1.5 text-[11px] border border-slate-200 rounded focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-white font-medium"
                             value={priorityFilter}
                             onChange={(e) => setPriorityFilter(e.target.value)}
                         >
@@ -323,9 +323,9 @@ export default function AdminTaskCenter() {
                         </select>
                     </div>
                     <div>
-                        <label className="block text-xs font-semibold text-gray-700 mb-1.5 pl-1">Module</label>
+                        <label className="block text-[10px] font-semibold text-slate-600 mb-1 pl-0.5">Module</label>
                         <select
-                            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-white font-medium"
+                            className="w-full px-2.5 py-1.5 text-[11px] border border-slate-200 rounded focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors bg-white font-medium"
                             value={moduleFilter}
                             onChange={(e) => setModuleFilter(e.target.value)}
                         >
@@ -338,9 +338,9 @@ export default function AdminTaskCenter() {
                     </div>
                 </div>
 
-                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 pt-4 border-t border-gray-50">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                        <span className="text-xs font-semibold text-gray-700">Sort by:</span>
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 pt-3 border-t border-slate-50">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                        <span className="text-[10px] font-semibold text-slate-600">Sort by:</span>
                         <div className="flex flex-wrap gap-1.5">
                             <button
                                 onClick={() => setSortBy('Due Date')}
@@ -368,7 +368,7 @@ export default function AdminTaskCenter() {
                             </button>
                         </div>
                     </div>
-                    <span className="text-xs text-gray-500 font-medium pb-1 xl:pb-0">Showing {filteredTasks?.length || 0} of {tasks?.length || 0} tasks</span>
+                    <span className="text-[10px] text-slate-400 font-medium pb-1 xl:pb-0">Showing {filteredTasks?.length || 0} of {tasks?.length || 0} tasks</span>
                 </div>
             </div>
 

@@ -61,86 +61,86 @@ export default function KYCReviewQueue() {
         : kycData.filter(k => k.status === statusFilter)
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             {/* Page Header */}
-            <div className="mb-2">
-                <h1 className="text-2xl font-bold text-gray-900">KYC Review</h1>
-                <p className="text-sm text-gray-500 mt-1">Platform administration and compliance management</p>
+            <div>
+                <h1 className="text-sm font-semibold text-slate-900">KYC Review</h1>
+                <p className="text-[10px] text-slate-400 mt-0.5">Identity verification queue and compliance review</p>
             </div>
 
             {/* Stat Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <button onClick={() => setStatusFilter('ALL')}
-                    className={`text-left p-4 rounded-xl border transition-all ${statusFilter === 'ALL' ? 'border-indigo-500 ring-1 ring-indigo-500 bg-indigo-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
-                    <p className="text-2xl font-bold text-gray-900">{loading ? '…' : kycData.length}</p>
-                    <p className="text-xs font-medium text-gray-500 mt-0.5">Total Submissions</p>
+                    className={`text-left p-3 rounded-lg border transition-all ${statusFilter === 'ALL' ? 'border-indigo-500 ring-1 ring-indigo-500 bg-indigo-50' : 'border-slate-100 bg-white hover:border-slate-200'}`}>
+                    <p className="text-lg font-bold text-slate-900">{loading ? '…' : kycData.length}</p>
+                    <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-wider">Total</p>
                 </button>
                 <button onClick={() => setStatusFilter('PENDING')}
-                    className={`text-left p-4 rounded-xl border transition-all ${statusFilter === 'PENDING' ? 'border-amber-500 ring-1 ring-amber-500 bg-amber-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
-                    <p className="text-2xl font-bold text-amber-600">{loading ? '…' : pendingCount}</p>
-                    <p className="text-xs font-medium text-gray-500 mt-0.5">Pending Reviews</p>
+                    className={`text-left p-3 rounded-lg border transition-all ${statusFilter === 'PENDING' ? 'border-amber-500 ring-1 ring-amber-500 bg-amber-50' : 'border-slate-100 bg-white hover:border-slate-200'}`}>
+                    <p className="text-lg font-bold text-amber-600">{loading ? '…' : pendingCount}</p>
+                    <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-wider">Pending</p>
                 </button>
                 <button onClick={() => setStatusFilter('APPROVED')}
-                    className={`text-left p-4 rounded-xl border transition-all ${statusFilter === 'APPROVED' ? 'border-emerald-500 ring-1 ring-emerald-500 bg-emerald-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
-                    <p className="text-2xl font-bold text-emerald-600">{loading ? '…' : approvedCount}</p>
-                    <p className="text-xs font-medium text-gray-500 mt-0.5">Approved</p>
+                    className={`text-left p-3 rounded-lg border transition-all ${statusFilter === 'APPROVED' ? 'border-emerald-500 ring-1 ring-emerald-500 bg-emerald-50' : 'border-slate-100 bg-white hover:border-slate-200'}`}>
+                    <p className="text-lg font-bold text-emerald-600">{loading ? '…' : approvedCount}</p>
+                    <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-wider">Approved</p>
                 </button>
                 <button onClick={() => setStatusFilter('REJECTED')}
-                    className={`text-left p-4 rounded-xl border transition-all ${statusFilter === 'REJECTED' ? 'border-red-500 ring-1 ring-red-500 bg-red-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
-                    <p className="text-2xl font-bold text-red-500">{loading ? '…' : rejectedCount}</p>
-                    <p className="text-xs font-medium text-gray-500 mt-0.5">Rejected</p>
+                    className={`text-left p-3 rounded-lg border transition-all ${statusFilter === 'REJECTED' ? 'border-red-500 ring-1 ring-red-500 bg-red-50' : 'border-slate-100 bg-white hover:border-slate-200'}`}>
+                    <p className="text-lg font-bold text-red-500">{loading ? '…' : rejectedCount}</p>
+                    <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-wider">Rejected</p>
                 </button>
             </div>
 
             {/* Table */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-                <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <h2 className="text-base font-semibold text-gray-900">KYC Submissions</h2>
-                    <div className="flex items-center gap-3">
-                        <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full">{displayed.length} record{displayed.length !== 1 ? 's' : ''}</span>
-                        <button onClick={fetchKYC} className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 border border-indigo-200 px-3 py-1 rounded-lg hover:bg-indigo-50 transition-colors">Refresh</button>
+            <div className="bg-white rounded-lg border border-slate-100 shadow-sm">
+                <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                    <h2 className="text-[11px] font-semibold text-slate-700">KYC Submissions</h2>
+                    <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">{displayed.length} record{displayed.length !== 1 ? 's' : ''}</span>
+                        <button onClick={fetchKYC} className="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 border border-indigo-200 px-2.5 py-1 rounded hover:bg-indigo-50 transition-colors">Refresh</button>
                     </div>
                 </div>
 
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
-                            <tr className="border-b border-gray-100 bg-gray-50/50">
-                                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wider">User</th>
-                                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wider">Role</th>
-                                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wider">Email</th>
-                                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wider">Submitted</th>
-                                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wider">Document</th>
-                                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wider">Risk</th>
-                                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wider">Status</th>
-                                <th className="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wider">Actions</th>
+                            <tr className="border-b border-slate-100 bg-slate-50/50">
+                                <th className="text-left text-[10px] font-semibold text-slate-400 px-4 py-2.5 uppercase tracking-wider">User</th>
+                                <th className="text-left text-[10px] font-semibold text-slate-400 px-4 py-2.5 uppercase tracking-wider">Role</th>
+                                <th className="text-left text-[10px] font-semibold text-slate-400 px-4 py-2.5 uppercase tracking-wider">Email</th>
+                                <th className="text-left text-[10px] font-semibold text-slate-400 px-4 py-2.5 uppercase tracking-wider">Submitted</th>
+                                <th className="text-left text-[10px] font-semibold text-slate-400 px-4 py-2.5 uppercase tracking-wider">Document</th>
+                                <th className="text-left text-[10px] font-semibold text-slate-400 px-4 py-2.5 uppercase tracking-wider">Risk</th>
+                                <th className="text-left text-[10px] font-semibold text-slate-400 px-4 py-2.5 uppercase tracking-wider">Status</th>
+                                <th className="text-left text-[10px] font-semibold text-slate-400 px-4 py-2.5 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50">
+                        <tbody className="divide-y divide-slate-50">
                             {loading ? (
-                                <tr><td colSpan={8} className="py-12 text-center text-gray-400 text-sm">Loading KYC data…</td></tr>
+                                <tr><td colSpan={8} className="py-10 text-center text-slate-400 text-[11px]">Loading KYC data…</td></tr>
                             ) : error ? (
-                                <tr><td colSpan={8} className="py-12 text-center text-sm">
+                                <tr><td colSpan={8} className="py-10 text-center text-[11px]">
                                     <p className="text-red-500 font-medium mb-2">{error}</p>
-                                    <button onClick={fetchKYC} className="text-indigo-600 text-xs font-semibold hover:underline">Retry</button>
+                                    <button onClick={fetchKYC} className="text-indigo-600 text-[10px] font-semibold hover:underline">Retry</button>
                                 </td></tr>
                             ) : displayed.length === 0 ? (
-                                <tr><td colSpan={8} className="py-12 text-center text-gray-400 text-sm">No submissions found</td></tr>
+                                <tr><td colSpan={8} className="py-10 text-center text-slate-400 text-[11px]">No submissions found</td></tr>
                             ) : displayed.map((kyc) => (
-                                <tr key={kyc.id} className="hover:bg-gray-50/80 transition-colors">
-                                    <td className="px-4 py-3 text-sm text-gray-900 font-semibold whitespace-nowrap">{kyc.user_name || '—'}</td>
-                                    <td className="px-4 py-3 text-sm text-gray-600 capitalize whitespace-nowrap">{kyc.user_role || '—'}</td>
-                                    <td className="px-4 py-3 text-sm text-gray-600">{kyc.user_email || '—'}</td>
-                                    <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
+                                <tr key={kyc.id} className="hover:bg-slate-50/50 transition-colors">
+                                    <td className="px-4 py-2.5 text-[11px] text-slate-900 font-semibold whitespace-nowrap">{kyc.user_name || '—'}</td>
+                                    <td className="px-4 py-2.5 text-[11px] text-slate-500 capitalize whitespace-nowrap">{kyc.user_role || '—'}</td>
+                                    <td className="px-4 py-2.5 text-[11px] text-slate-500">{kyc.user_email || '—'}</td>
+                                    <td className="px-4 py-2.5 text-[11px] text-slate-400 whitespace-nowrap">
                                         {kyc.created_at ? new Date(kyc.created_at).toLocaleDateString('en-AU') : '—'}
                                     </td>
-                                    <td className="px-4 py-3 text-sm text-gray-600 max-w-[160px] truncate">{kyc.document_type || kyc.metadata_json?.original_file_name || '—'}</td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-4 py-2.5 text-[11px] text-slate-500 max-w-[140px] truncate">{kyc.document_type || kyc.metadata_json?.original_file_name || '—'}</td>
+                                    <td className="px-4 py-2.5">
                                         <select
                                             value={kyc.risk || 'Medium'}
                                             onChange={(e) => handleRiskChange(kyc.id, e.target.value)}
                                             style={{ appearance: 'auto', WebkitAppearance: 'auto' }}
-                                            className={`text-xs border rounded px-2 py-1 font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer
+                                            className={`text-[10px] border rounded px-1.5 py-0.5 font-semibold bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer
                                                 ${kyc.risk === 'High' ? 'text-red-700 border-red-300 bg-red-50' :
                                                   kyc.risk === 'Low' ? 'text-emerald-700 border-emerald-300 bg-emerald-50' :
                                                   'text-amber-700 border-amber-300 bg-amber-50'}`}
@@ -150,38 +150,38 @@ export default function KYCReviewQueue() {
                                             <option value="High">High</option>
                                         </select>
                                     </td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-4 py-2.5">
                                         {(kyc.status === 'SUBMITTED' || kyc.status === 'UNDER_REVIEW') ? (
-                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-700">
-                                                <Clock className="w-3 h-3" /> Pending
+                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded-full bg-amber-100 text-amber-700">
+                                                <Clock className="w-2.5 h-2.5" /> Pending
                                             </span>
                                         ) : kyc.status === 'APPROVED' ? (
-                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700">
-                                                <CheckCircle className="w-3 h-3" /> Approved
+                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-100 text-emerald-700">
+                                                <CheckCircle className="w-2.5 h-2.5" /> Approved
                                             </span>
                                         ) : (
-                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">
-                                                <XCircle className="w-3 h-3" /> Rejected
+                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded-full bg-red-100 text-red-700">
+                                                <XCircle className="w-2.5 h-2.5" /> Rejected
                                             </span>
                                         )}
                                     </td>
-                                    <td className="px-4 py-3">
-                                        <div className="flex gap-2 items-center">
+                                    <td className="px-4 py-2.5">
+                                        <div className="flex gap-1.5 items-center">
                                             {(kyc.status === 'SUBMITTED' || kyc.status === 'UNDER_REVIEW') ? (
                                                 <>
-                                                    <button onClick={() => navigate(`/admin/kyc-review/${kyc.id}`)} className="text-xs border border-gray-300 text-gray-700 px-2.5 py-1 rounded-lg hover:bg-gray-50 flex items-center gap-1 font-medium">
-                                                        <Eye className="w-3.5 h-3.5 flex-shrink-0" /> Review
+                                                    <button onClick={() => navigate(`/admin/kyc-review/${kyc.id}`)} className="text-[10px] border border-slate-200 text-slate-600 px-2 py-0.5 rounded hover:bg-slate-50 flex items-center gap-1 font-medium">
+                                                        <Eye className="w-3 h-3 flex-shrink-0" /> Review
                                                     </button>
-                                                    <button onClick={() => handleApprove(kyc.id)} className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg flex items-center gap-1 font-medium">
-                                                        <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" /> Approve
+                                                    <button onClick={() => handleApprove(kyc.id)} className="text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-0.5 rounded flex items-center gap-1 font-medium">
+                                                        <CheckCircle className="w-3 h-3 flex-shrink-0" /> Approve
                                                     </button>
-                                                    <button onClick={() => handleReject(kyc.id)} className="text-xs bg-red-500 hover:bg-red-600 text-white px-2.5 py-1 rounded-lg flex items-center gap-1 font-medium">
-                                                        <XCircle className="w-3.5 h-3.5 flex-shrink-0" /> Reject
+                                                    <button onClick={() => handleReject(kyc.id)} className="text-[10px] bg-red-500 hover:bg-red-600 text-white px-2 py-0.5 rounded flex items-center gap-1 font-medium">
+                                                        <XCircle className="w-3 h-3 flex-shrink-0" /> Reject
                                                     </button>
                                                 </>
                                             ) : (
-                                                <button onClick={() => navigate(`/admin/kyc-review/${kyc.id}`)} className="text-xs border border-gray-200 text-gray-600 px-2.5 py-1 rounded-lg hover:bg-gray-50 flex items-center gap-1 font-medium">
-                                                    <Eye className="w-3.5 h-3.5 flex-shrink-0" /> View
+                                                <button onClick={() => navigate(`/admin/kyc-review/${kyc.id}`)} className="text-[10px] border border-slate-200 text-slate-500 px-2 py-0.5 rounded hover:bg-slate-50 flex items-center gap-1 font-medium">
+                                                    <Eye className="w-3 h-3 flex-shrink-0" /> View
                                                 </button>
                                             )}
                                         </div>

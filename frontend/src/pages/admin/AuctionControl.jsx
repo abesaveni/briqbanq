@@ -356,31 +356,29 @@ export default function AuctionControl() {
                 </div>
             )}
 
-            <div className="mb-2">
-                <h2 className="text-lg font-semibold text-gray-900 mb-1">Active Auctions Management</h2>
-                <p className="text-gray-500 text-sm">
-                    Monitor and manage live auction processes and active bids
-                </p>
+            <div>
+                <h2 className="text-sm font-semibold text-slate-900">Auction Control</h2>
+                <p className="text-[10px] text-slate-400 mt-0.5">Monitor and manage live auction processes and active bids</p>
             </div>
 
             <AuctionStats auctions={auctionsData} loading={loading} />
 
             {/* Filters */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm flex flex-wrap gap-3 items-center">
-                <div className="relative flex-1 min-w-[200px]">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <div className="bg-white rounded-lg border border-slate-100 p-3 shadow-sm flex flex-wrap gap-2 items-center">
+                <div className="relative flex-1 min-w-[180px]">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                     <input
                         type="text"
                         placeholder="Search auctions..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400"
+                        className="w-full pl-8 pr-3 py-1.5 border border-slate-200 rounded text-[11px] focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400"
                     />
                 </div>
                 <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
-                    className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-400"
+                    className="border border-slate-200 rounded px-2.5 py-1.5 text-[11px] focus:outline-none focus:border-indigo-400"
                 >
                     <option value="all">All Status</option>
                     <option value="live">Live</option>
@@ -390,7 +388,7 @@ export default function AuctionControl() {
                 <select
                     value={sortOption}
                     onChange={(e) => setSortOption(e.target.value)}
-                    className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-400"
+                    className="border border-slate-200 rounded px-2.5 py-1.5 text-[11px] focus:outline-none focus:border-indigo-400"
                 >
                     <option value="ending">Ending Soon</option>
                     <option value="low-high">Price: Low → High</option>
@@ -398,10 +396,10 @@ export default function AuctionControl() {
                 </select>
                 <button
                     onClick={() => setShowAdvancedFilters(p => !p)}
-                    className={`relative flex items-center gap-2 border px-4 py-2 rounded-xl text-sm font-semibold transition-colors whitespace-nowrap ml-auto ${
+                    className={`relative flex items-center gap-1.5 border px-3 py-1.5 rounded text-[11px] font-semibold transition-colors whitespace-nowrap ml-auto ${
                         showAdvancedFilters || activeAdvancedCount > 0
                             ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
-                            : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                            : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                     }`}
                 >
                     <SlidersHorizontal size={14} />

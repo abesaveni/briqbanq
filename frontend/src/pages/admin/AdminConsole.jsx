@@ -339,48 +339,36 @@ export default function AdminConsole() {
     ];
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 rounded-xl p-8 text-white">
-                <div className="flex justify-between items-start mb-6">
-                    <div className="flex items-center gap-4">
-                        <div className="bg-white/20 p-3 rounded-lg backdrop-blur-sm">
-                            <Settings className="w-8 h-8 text-white" />
-                        </div>
-                        <div>
-                            <h1 className="text-3xl font-bold tracking-tight">Admin Center</h1>
-                            <p className="text-sm font-medium opacity-90">Centralized integration management &amp; system configuration</p>
-                        </div>
-                    </div>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-sm font-semibold text-slate-900">Admin Centre</h1>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Integration management and system configuration</p>
                 </div>
-                <div className="grid grid-cols-3 gap-4 lg:w-1/2">
-                    <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm border border-white/20">
-                        <div className="text-sm font-medium opacity-80 mb-1">Connected</div>
-                        <div className="text-2xl font-bold">{loading ? '…' : `${connectedCount}/${totalCount}`}</div>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 text-[10px] text-slate-500">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        <span>{loading ? '…' : `${connectedCount}/${totalCount}`} connected</span>
                     </div>
-                    <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm border border-white/20">
-                        <div className="text-sm font-medium opacity-80 mb-1">Total Integrations</div>
-                        <div className="text-2xl font-bold">{loading ? '…' : totalCount}</div>
-                    </div>
-                    <div className="bg-white/10 p-4 rounded-lg backdrop-blur-sm border border-white/20">
-                        <div className="text-sm font-medium opacity-80 mb-1">Status</div>
-                        <div className="text-2xl font-bold text-green-300">{connectedCount === totalCount && totalCount > 0 ? 'All OK' : 'Check'}</div>
+                    <div className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${connectedCount === totalCount && totalCount > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                        {connectedCount === totalCount && totalCount > 0 ? 'All OK' : 'Check'}
                     </div>
                 </div>
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-1.5 flex-wrap border-b border-slate-100 pb-0">
                 {tabs.map(tab => (
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all shadow-sm text-sm ${activeTab === tab.id ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'}`}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-t text-[11px] font-semibold transition-all ${activeTab === tab.id ? 'bg-indigo-600 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
                     >
-                        <tab.icon className="w-4 h-4 flex-shrink-0" />
+                        <tab.icon className="w-3.5 h-3.5 flex-shrink-0" />
                         {tab.label}
                         {tab.badge != null && (
-                            <span className={`px-1.5 py-0.5 rounded-full text-xs font-bold ${activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>{tab.badge}</span>
+                            <span className={`px-1 py-0.5 rounded-full text-[9px] font-bold ${activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>{tab.badge}</span>
                         )}
                     </button>
                 ))}

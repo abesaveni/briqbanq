@@ -216,34 +216,34 @@ export default function AdminAllDeals() {
   if (error) return <ErrorState message={error} />;
 
   return (
-    <div className="space-y-8">
-      <div className="mb-2">
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">All Deals</h2>
-        <p className="text-gray-500 text-sm font-medium leading-relaxed">
+    <div className="space-y-4">
+      <div>
+        <h2 className="text-sm font-semibold text-slate-900">All Deals</h2>
+        <p className="text-[10px] text-slate-400 mt-0.5">
           Manage platform deals across auctions and buy now opportunities.
         </p>
       </div>
 
       {/* FILTER BAR */}
-      <div className="flex flex-col md:flex-row md:items-center gap-4 bg-white/60 backdrop-blur-md p-4 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex flex-col md:flex-row md:items-center gap-3 bg-white p-3 rounded-lg shadow-sm border border-slate-100">
         <div className="flex-1 relative">
           <input
             type="text"
             placeholder="Search suburb, postcode or address..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full border border-gray-200 bg-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm pr-10"
+            className="w-full border border-slate-200 bg-white px-3 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-[11px] pr-8"
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           </div>
         </div>
 
-        <div className="flex flex-wrap lg:flex-nowrap gap-3">
+        <div className="flex flex-wrap lg:flex-nowrap gap-2">
           <select
             value={selectedState}
             onChange={(e) => setSelectedState(e.target.value)}
-            className="border border-gray-200 bg-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm cursor-pointer min-w-[120px]"
+            className="border border-slate-200 bg-white px-3 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-[11px] cursor-pointer"
           >
             <option>All States</option>
             <option>VIC</option>
@@ -255,7 +255,7 @@ export default function AdminAllDeals() {
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="border border-gray-200 bg-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm cursor-pointer min-w-[120px]"
+            className="border border-slate-200 bg-white px-3 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-[11px] cursor-pointer"
           >
             <option>All Status</option>
             <option>Draft</option>
@@ -270,7 +270,7 @@ export default function AdminAllDeals() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="border border-gray-200 bg-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm cursor-pointer min-w-[120px]"
+            className="border border-slate-200 bg-white px-3 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-[11px] cursor-pointer"
           >
             <option>Newest</option>
             <option>Price: Low to High</option>
@@ -279,10 +279,10 @@ export default function AdminAllDeals() {
 
           <button
             onClick={() => setShowAdvancedFilters(p => !p)}
-            className={`relative flex items-center gap-2 border px-4 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap ${
+            className={`relative flex items-center gap-1.5 border px-3 py-1.5 rounded text-[11px] font-semibold transition-colors whitespace-nowrap ${
               showAdvancedFilters || activeAdvancedCount > 0
                 ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
-                : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                : 'border-slate-200 text-slate-600 hover:bg-slate-50'
             }`}
           >
             <SlidersHorizontal size={14} />
