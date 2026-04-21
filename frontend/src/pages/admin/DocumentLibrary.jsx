@@ -170,12 +170,12 @@ export default function DocumentLibrary() {
         <div className="space-y-4">
             {/* Page Header */}
             <div>
-                <h1 className="text-sm font-semibold text-slate-900">Document Library</h1>
-                <p className="text-[10px] text-slate-400 mt-0.5">Platform document management and compliance storage</p>
+                <h1 className="text-xl font-bold text-gray-900">Document Library</h1>
+                <p className="text-sm text-gray-500 mt-1">Platform document management and compliance storage</p>
             </div>
 
             {/* Stat Cards */}
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-4 gap-4">
                 <AdminStatCard label="Total Documents" value={documents.length.toString()} icon={FileText} iconBg="bg-blue-100" iconColor="text-blue-600" />
                 <AdminStatCard label="Storage Used" value={storageLabel} icon={FolderOpen} iconBg="bg-green-100" iconColor="text-green-600" />
                 <AdminStatCard label="Starred" value={starredCount.toString()} icon={Star} iconBg="bg-amber-100" iconColor="text-amber-600" />
@@ -185,19 +185,19 @@ export default function DocumentLibrary() {
             {/* Filter Bar */}
             <div className="flex gap-2 flex-wrap">
                 <div className="relative flex-1 min-w-[180px]">
-                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
                     <input
                         type="text"
                         placeholder="Search documents..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full border border-slate-200 rounded pl-8 pr-3 py-1.5 text-[11px] focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                        className="w-full border border-gray-200 rounded pl-8 pr-3 py-1.5 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                     />
                 </div>
                 <select
                     value={categoryFilter}
                     onChange={(e) => setCategoryFilter(e.target.value)}
-                    className="border border-slate-200 rounded px-2.5 py-1.5 text-[11px] focus:outline-none focus:border-indigo-500"
+                    className="border border-gray-200 rounded px-2.5 py-1.5 text-sm focus:outline-none focus:border-indigo-500"
                 >
                     <option>All Categories</option>
                     <option>Contract</option>
@@ -208,7 +208,7 @@ export default function DocumentLibrary() {
                 <select
                     value={typeFilter}
                     onChange={(e) => setTypeFilter(e.target.value)}
-                    className="border border-slate-200 rounded px-2.5 py-1.5 text-[11px] focus:outline-none focus:border-indigo-500"
+                    className="border border-gray-200 rounded px-2.5 py-1.5 text-sm focus:outline-none focus:border-indigo-500"
                 >
                     <option>All Types</option>
                     <option>PDF</option>
@@ -217,46 +217,46 @@ export default function DocumentLibrary() {
                 </select>
                 <button
                     onClick={() => setShowStarred(!showStarred)}
-                    className={`border rounded px-2.5 py-1.5 text-[11px] flex items-center gap-1 transition-colors ${showStarred ? 'bg-amber-500 text-white border-amber-500' : 'border-slate-200 hover:bg-slate-50'}`}
+                    className={`border rounded px-2.5 py-1.5 text-sm flex items-center gap-1 transition-colors ${showStarred ? 'bg-amber-500 text-white border-amber-500' : 'border-gray-200 hover:bg-gray-50'}`}
                 >
                     <Star className="w-3.5 h-3.5 flex-shrink-0" /> Starred
                 </button>
                 <button
                     onClick={() => { setSearchTerm(''); setCategoryFilter('All Categories'); setTypeFilter('All Types'); setShowStarred(false) }}
-                    className="border border-slate-200 rounded px-3 py-1.5 text-[11px] hover:bg-slate-50 text-slate-600 font-medium"
+                    className="border border-gray-200 rounded px-3 py-1.5 text-sm hover:bg-gray-50 text-gray-600 font-medium"
                 >
                     Clear
                 </button>
                 <button
                     onClick={() => handleDownload({ name: 'All Documents' })}
-                    className="border border-slate-200 rounded px-2.5 py-1.5 text-[11px] hover:bg-slate-50 flex items-center gap-1"
+                    className="border border-gray-200 rounded px-2.5 py-1.5 text-sm hover:bg-gray-50 flex items-center gap-1"
                 >
                     <Download className="w-3.5 h-3.5 flex-shrink-0" /> Export
                 </button>
                 <input type="file" ref={fileInputRef} className="hidden" onChange={handleUpload} />
                 <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-medium px-3 py-1.5 rounded flex items-center gap-1 transition-colors"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-3 py-1.5 rounded flex items-center gap-1 transition-colors"
                 >
                     <Upload className="w-3.5 h-3.5 flex-shrink-0" /> Upload
                 </button>
             </div>
 
             {/* Documents List */}
-            <div className="bg-white rounded-lg border border-slate-100">
-                <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-                    <h2 className="text-[11px] font-semibold text-slate-700">All Documents ({filteredDocuments.length})</h2>
-                    <span className="text-[10px] text-slate-400">{filteredDocuments.length} of {documents.length}</span>
+            <div className="bg-white rounded-lg border border-gray-200">
+                <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                    <h2 className="text-sm font-semibold text-gray-700">All Documents ({filteredDocuments.length})</h2>
+                    <span className="text-xs text-gray-400">{filteredDocuments.length} of {documents.length}</span>
                 </div>
 
                 <div className="divide-y divide-slate-100">
                     {filteredDocuments.length === 0 ? (
-                        <div className="p-8 text-center text-slate-400 text-[11px]">No documents match your filters.</div>
+                        <div className="p-8 text-center text-gray-400 text-sm">No documents match your filters.</div>
                     ) : (
                         filteredDocuments.map((doc) => {
                             const Icon = getFileIcon(doc.type)
                             return (
-                                <div key={doc.id} className="px-4 py-3 hover:bg-slate-50/50 transition-colors">
+                                <div key={doc.id} className="px-4 py-3 hover:bg-gray-50/50 transition-colors">
                                     <div className="flex items-center gap-3">
                                         {/* Icon */}
                                         <div className="w-7 h-7 rounded bg-red-100 flex items-center justify-center flex-shrink-0">
@@ -266,19 +266,19 @@ export default function DocumentLibrary() {
                                         {/* Content */}
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-0.5">
-                                                <h3 className="text-[11px] font-medium text-slate-900 truncate">{doc.name}</h3>
+                                                <h3 className="text-sm font-medium text-gray-900 truncate">{doc.name}</h3>
                                                 <div className="flex gap-1.5 flex-shrink-0">
-                                                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${getCategoryColor(doc.category)}`}>
+                                                    <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${getCategoryColor(doc.category)}`}>
                                                         {doc.category}
                                                     </span>
                                                     {doc.caseNumber && (
-                                                        <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-500">
+                                                        <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-500">
                                                             {doc.caseNumber}
                                                         </span>
                                                     )}
                                                 </div>
                                             </div>
-                                            <p className="text-[10px] text-slate-400 flex items-center gap-1.5">
+                                            <p className="text-xs text-gray-400 flex items-center gap-1.5">
                                                 <button onClick={() => toggleStar(doc.id)}>
                                                     <Star className={`w-3 h-3 inline-block ${doc.starred ? 'text-amber-400 fill-amber-400' : 'text-slate-300'}`} />
                                                 </button>
@@ -288,13 +288,13 @@ export default function DocumentLibrary() {
 
                                         {/* Actions */}
                                         <div className="flex gap-1 flex-shrink-0 items-center">
-                                            <button onClick={() => setViewDoc(doc)} title="View" className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors">
+                                            <button onClick={() => setViewDoc(doc)} title="View" className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors">
                                                 <Eye className="w-3.5 h-3.5 flex-shrink-0" />
                                             </button>
-                                            <button onClick={() => handleDownload(doc)} title="Download" className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors">
+                                            <button onClick={() => handleDownload(doc)} title="Download" className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors">
                                                 <Download className="w-3.5 h-3.5 flex-shrink-0" />
                                             </button>
-                                            <button onClick={() => handleShare(doc)} title={copiedId === doc.id ? 'Copied!' : 'Share'} className={`p-1.5 rounded transition-colors ${copiedId === doc.id ? 'text-green-600 bg-green-50' : 'text-slate-400 hover:text-green-600 hover:bg-green-50'}`}>
+                                            <button onClick={() => handleShare(doc)} title={copiedId === doc.id ? 'Copied!' : 'Share'} className={`p-1.5 rounded transition-colors ${copiedId === doc.id ? 'text-green-600 bg-green-50' : 'text-gray-400 hover:text-green-600 hover:bg-green-50'}`}>
                                                 <Share2 className="w-3.5 h-3.5 flex-shrink-0" />
                                             </button>
                                             <button onClick={() => deleteDoc(doc.id)} title="Delete" className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
@@ -314,9 +314,9 @@ export default function DocumentLibrary() {
                 <div className="flex items-start gap-2.5">
                     <FolderOpen className="w-4 h-4 text-indigo-600 flex-shrink-0 mt-0.5" />
                     <div>
-                        <h3 className="text-[11px] font-semibold text-slate-800 mb-1">Document Management</h3>
-                        <p className="text-[10px] text-slate-600 mb-2">All documents are encrypted and stored securely per Australian compliance requirements.</p>
-                        <ul className="text-[10px] text-slate-600 space-y-0.5">
+                        <h3 className="text-sm font-semibold text-slate-800 mb-1">Document Management</h3>
+                        <p className="text-xs text-gray-600 mb-2">All documents are encrypted and stored securely per Australian compliance requirements.</p>
+                        <ul className="text-xs text-gray-600 space-y-0.5">
                             <li>• Maximum file size: 50MB per document</li>
                             <li>• Supported formats: PDF, DOCX, XLSX, images (JPG, PNG)</li>
                             <li>• Version control and audit trail maintained</li>

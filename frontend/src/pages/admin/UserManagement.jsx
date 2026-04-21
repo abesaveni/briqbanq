@@ -139,67 +139,67 @@ export default function UserManagement() {
             {/* Page Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-sm font-semibold text-slate-900">User Management</h1>
-                    <p className="text-[11px] text-slate-400 mt-0.5">Manage platform users, roles, and access</p>
+                    <h1 className="text-xl font-bold text-gray-900">User Management</h1>
+                    <p className="text-sm text-gray-400 mt-0.5">Manage platform users, roles, and access</p>
                 </div>
                 <button
                     onClick={() => setShowAddModal(true)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white rounded-md text-[11px] font-semibold hover:bg-indigo-700 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white rounded-md text-sm font-semibold hover:bg-indigo-700 transition-colors"
                 >
                     <UserPlus className="w-3.5 h-3.5" /> Add User
                 </button>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {stats.map((stat, i) => (
-                    <div key={i} className="bg-white rounded-lg border border-slate-100 shadow-sm p-4">
+                    <div key={i} className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
                         <div className="flex items-start justify-between mb-2">
-                            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{stat.label}</p>
+                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{stat.label}</p>
                             <stat.icon className={`w-3.5 h-3.5 ${stat.color} shrink-0`} />
                         </div>
-                        <p className="text-xl font-bold text-slate-900 leading-none">{stat.value}</p>
-                        <p className="text-[10px] text-slate-400 mt-1.5">{stat.sub}</p>
+                        <p className="text-xl font-bold text-gray-900 leading-none">{stat.value}</p>
+                        <p className="text-xs text-gray-400 mt-1.5">{stat.sub}</p>
                     </div>
                 ))}
             </div>
 
             {/* Table Area */}
-            <div className="bg-white rounded-lg border border-slate-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 {/* Search & Filter Bar */}
-                <div className="px-4 py-3 border-b border-slate-100 flex flex-wrap items-center gap-2">
+                <div className="px-4 py-3 border-b border-gray-200 flex flex-wrap items-center gap-2">
                     <div className="flex-1 min-w-[200px] relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
                         <input
                             type="text"
                             placeholder="Search by name or email..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-[11px] focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white transition-all"
+                            className="w-full pl-9 pr-3 py-1.5 bg-gray-50 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white transition-all"
                         />
                     </div>
                     <div className="flex items-center gap-2">
-                        <select value={sortField} onChange={e => setSortField(e.target.value)} className="border border-slate-200 rounded-md px-2 py-1.5 text-[11px] focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white">
+                        <select value={sortField} onChange={e => setSortField(e.target.value)} className="border border-gray-200 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white">
                             <option>Name</option><option>Role</option><option>Status</option>
                         </select>
-                        <button onClick={() => setSortAsc(p => !p)} className="flex items-center gap-1 px-2 py-1.5 border border-slate-200 rounded-md text-[11px] text-slate-600 hover:bg-slate-50">
+                        <button onClick={() => setSortAsc(p => !p)} className="flex items-center gap-1 px-2 py-1.5 border border-gray-200 rounded-md text-sm text-gray-600 hover:bg-gray-50">
                             {sortAsc ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                         </button>
-                        <button onClick={() => setShowFilters(p => !p)} className="flex items-center gap-1.5 px-2 py-1.5 border border-slate-200 rounded-md text-[11px] text-slate-600 hover:bg-slate-50">
+                        <button onClick={() => setShowFilters(p => !p)} className="flex items-center gap-1.5 px-2 py-1.5 border border-gray-200 rounded-md text-sm text-gray-600 hover:bg-gray-50">
                             <Filter className="w-3 h-3" /> Filters
                         </button>
                     </div>
                     {showFilters && (
                         <>
-                            <select value={filterRole} onChange={e => setFilterRole(e.target.value)} className="border border-slate-200 rounded-md px-2 py-1.5 text-[11px] focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white">
+                            <select value={filterRole} onChange={e => setFilterRole(e.target.value)} className="border border-gray-200 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white">
                                 <option>All Roles</option>
                                 {ROLES.map(r => <option key={r}>{r}</option>)}
                             </select>
-                            <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="border border-slate-200 rounded-md px-2 py-1.5 text-[11px] focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white">
+                            <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="border border-gray-200 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white">
                                 <option>All Status</option><option>Active</option><option>Inactive</option>
                             </select>
                             {(filterRole !== 'All Roles' || filterStatus !== 'All Status') && (
-                                <button onClick={() => { setFilterRole('All Roles'); setFilterStatus('All Status') }} className="text-[11px] text-red-500 hover:text-red-700 flex items-center gap-1">
+                                <button onClick={() => { setFilterRole('All Roles'); setFilterStatus('All Status') }} className="text-sm text-red-500 hover:text-red-700 flex items-center gap-1">
                                     <X className="w-3 h-3" /> Reset
                                 </button>
                             )}
@@ -216,37 +216,37 @@ export default function UserManagement() {
                     ) : (
                         <table className="w-full text-left">
                             <thead>
-                                <tr className="border-b border-slate-100 bg-slate-50/50">
-                                    <th className="px-4 py-2.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">User</th>
-                                    <th className="px-4 py-2.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Role</th>
-                                    <th className="px-4 py-2.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Status</th>
-                                    <th className="px-4 py-2.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Joined</th>
-                                    <th className="px-4 py-2.5 text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Actions</th>
+                                <tr className="border-b border-gray-200 bg-gray-50/50">
+                                    <th className="px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">User</th>
+                                    <th className="px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Role</th>
+                                    <th className="px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
+                                    <th className="px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Joined</th>
+                                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {filteredUsers.length === 0 ? (
-                                    <tr><td colSpan={5} className="px-4 py-10 text-center text-[11px] text-slate-400">No users found</td></tr>
+                                    <tr><td colSpan={5} className="px-4 py-10 text-center text-sm text-gray-400">No users found</td></tr>
                                 ) : filteredUsers.map((user) => {
                                     const name = user.full_name || user.name || user.email || 'Unknown'
                                     const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
                                     const active = isActive(user)
                                     const role = user.role || 'user'
                                     return (
-                                        <tr key={user.id} className="hover:bg-slate-50/50 transition-colors">
+                                        <tr key={user.id} className="hover:bg-gray-50/50 transition-colors">
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-2.5">
-                                                    <div className="w-7 h-7 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 text-[10px] font-bold border border-indigo-100 shrink-0">
+                                                    <div className="w-7 h-7 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 text-xs font-bold border border-indigo-100 shrink-0">
                                                         {initials}
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <p className="text-[11px] font-semibold text-slate-800 truncate">{name}</p>
-                                                        <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
+                                                        <p className="text-sm font-semibold text-slate-800 truncate">{name}</p>
+                                                        <p className="text-xs text-gray-400 truncate">{user.email}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                                                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                                                     role === 'admin' ? 'bg-violet-50 text-violet-600' :
                                                     role === 'lawyer' ? 'bg-indigo-50 text-indigo-600' :
                                                     role === 'investor' ? 'bg-blue-50 text-blue-600' :
@@ -257,17 +257,17 @@ export default function UserManagement() {
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-1.5">
                                                     {active ? <CheckCircle2 className="w-3 h-3 text-emerald-500" /> : <Clock className="w-3 h-3 text-slate-300" />}
-                                                    <span className={`text-[11px] font-medium ${active ? 'text-slate-700' : 'text-slate-400'}`}>
+                                                    <span className={`text-sm font-medium ${active ? 'text-gray-700' : 'text-gray-400'}`}>
                                                         {active ? 'Active' : 'Inactive'}
                                                     </span>
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-3 text-[11px] text-slate-500">
+                                            <td className="px-4 py-3 text-sm text-gray-500">
                                                 {user.created_at ? new Date(user.created_at).toLocaleDateString('en-AU') : '—'}
                                             </td>
                                             <td className="px-4 py-3 text-right">
                                                 <div className="flex items-center justify-end gap-1">
-                                                    <button onClick={() => setEditingUser({ ...user })} className="p-1.5 text-slate-400 hover:text-indigo-600 transition-colors rounded" title="Edit">
+                                                    <button onClick={() => setEditingUser({ ...user })} className="p-1.5 text-gray-400 hover:text-indigo-600 transition-colors rounded" title="Edit">
                                                         <Edit className="w-3.5 h-3.5" />
                                                     </button>
                                                     <button onClick={() => handleToggleBan(user)} disabled={actionId === user.id} className={`p-1.5 transition-colors rounded ${active ? 'text-slate-300 hover:text-amber-500' : 'text-amber-400 hover:text-emerald-500'}`} title={active ? 'Suspend' : 'Reactivate'}>
@@ -292,33 +292,33 @@ export default function UserManagement() {
             {/* Add User Modal */}
             {showAddModal && (
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md border border-slate-100">
-                        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-                            <p className="text-[11px] font-semibold text-slate-800">Add New User</p>
-                            <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600"><X className="w-4 h-4" /></button>
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md border border-gray-200">
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+                            <p className="text-sm font-semibold text-slate-800">Add New User</p>
+                            <button onClick={() => setShowAddModal(false)} className="text-gray-400 hover:text-gray-600"><X className="w-4 h-4" /></button>
                         </div>
                         <form onSubmit={handleAddUser} className="p-4 space-y-3">
                             <div>
-                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Full Name <span className="text-red-500">*</span></label>
-                                <input type="text" required value={addForm.full_name} onChange={e => setAddForm(p => ({ ...p, full_name: e.target.value }))} placeholder="John Smith" className="w-full border border-slate-200 rounded-md px-3 py-2 text-[11px] focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                                <label className="block text-xs font-semibold text-gray-600 mb-1">Full Name <span className="text-red-500">*</span></label>
+                                <input type="text" required value={addForm.full_name} onChange={e => setAddForm(p => ({ ...p, full_name: e.target.value }))} placeholder="John Smith" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Email <span className="text-red-500">*</span></label>
-                                <input type="email" required value={addForm.email} onChange={e => setAddForm(p => ({ ...p, email: e.target.value }))} placeholder="user@example.com" className="w-full border border-slate-200 rounded-md px-3 py-2 text-[11px] focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                                <label className="block text-xs font-semibold text-gray-600 mb-1">Email <span className="text-red-500">*</span></label>
+                                <input type="email" required value={addForm.email} onChange={e => setAddForm(p => ({ ...p, email: e.target.value }))} placeholder="user@example.com" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Password <span className="text-red-500">*</span></label>
-                                <input type="password" required minLength={8} value={addForm.password} onChange={e => setAddForm(p => ({ ...p, password: e.target.value }))} placeholder="Min 8 characters" className="w-full border border-slate-200 rounded-md px-3 py-2 text-[11px] focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                                <label className="block text-xs font-semibold text-gray-600 mb-1">Password <span className="text-red-500">*</span></label>
+                                <input type="password" required minLength={8} value={addForm.password} onChange={e => setAddForm(p => ({ ...p, password: e.target.value }))} placeholder="Min 8 characters" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Role <span className="text-red-500">*</span></label>
-                                <select value={addForm.role} onChange={e => setAddForm(p => ({ ...p, role: e.target.value }))} className="w-full border border-slate-200 rounded-md px-3 py-2 text-[11px] focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <label className="block text-xs font-semibold text-gray-600 mb-1">Role <span className="text-red-500">*</span></label>
+                                <select value={addForm.role} onChange={e => setAddForm(p => ({ ...p, role: e.target.value }))} className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
                                     {ROLES.map(r => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
                                 </select>
                             </div>
                             <div className="flex gap-2 pt-1">
-                                <button type="button" onClick={() => setShowAddModal(false)} className="flex-1 border border-slate-200 text-slate-600 text-[11px] font-medium py-2 rounded-md hover:bg-slate-50">Cancel</button>
-                                <button type="submit" disabled={saving} className="flex-1 bg-indigo-600 text-white text-[11px] font-medium py-2 rounded-md hover:bg-indigo-700 flex items-center justify-center gap-1.5 disabled:opacity-70">
+                                <button type="button" onClick={() => setShowAddModal(false)} className="flex-1 border border-gray-200 text-gray-600 text-sm font-medium py-2 rounded-md hover:bg-gray-50">Cancel</button>
+                                <button type="submit" disabled={saving} className="flex-1 bg-indigo-600 text-white text-sm font-medium py-2 rounded-md hover:bg-indigo-700 flex items-center justify-center gap-1.5 disabled:opacity-70">
                                     {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <UserPlus className="w-3.5 h-3.5" />}
                                     {saving ? 'Adding…' : 'Add User'}
                                 </button>
@@ -331,29 +331,29 @@ export default function UserManagement() {
             {/* Edit User Modal */}
             {editingUser && (
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md border border-slate-100">
-                        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-                            <p className="text-[11px] font-semibold text-slate-800">Edit User</p>
-                            <button onClick={() => setEditingUser(null)} className="text-slate-400 hover:text-slate-600"><X className="w-4 h-4" /></button>
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md border border-gray-200">
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+                            <p className="text-sm font-semibold text-slate-800">Edit User</p>
+                            <button onClick={() => setEditingUser(null)} className="text-gray-400 hover:text-gray-600"><X className="w-4 h-4" /></button>
                         </div>
                         <form onSubmit={handleEditUser} className="p-4 space-y-3">
                             <div>
-                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Full Name</label>
-                                <input type="text" value={editingUser.full_name || editingUser.name || ''} onChange={e => setEditingUser(p => ({ ...p, full_name: e.target.value }))} className="w-full border border-slate-200 rounded-md px-3 py-2 text-[11px] focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                                <label className="block text-xs font-semibold text-gray-600 mb-1">Full Name</label>
+                                <input type="text" value={editingUser.full_name || editingUser.name || ''} onChange={e => setEditingUser(p => ({ ...p, full_name: e.target.value }))} className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Email</label>
-                                <input type="email" value={editingUser.email || ''} disabled className="w-full border border-slate-100 bg-slate-50 rounded-md px-3 py-2 text-[11px] text-slate-400" />
+                                <label className="block text-xs font-semibold text-gray-600 mb-1">Email</label>
+                                <input type="email" value={editingUser.email || ''} disabled className="w-full border border-gray-200 bg-gray-50 rounded-md px-3 py-2 text-sm text-gray-400" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Role</label>
-                                <select value={editingUser.role || 'borrower'} onChange={e => setEditingUser(p => ({ ...p, role: e.target.value }))} className="w-full border border-slate-200 rounded-md px-3 py-2 text-[11px] focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <label className="block text-xs font-semibold text-gray-600 mb-1">Role</label>
+                                <select value={editingUser.role || 'borrower'} onChange={e => setEditingUser(p => ({ ...p, role: e.target.value }))} className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
                                     {ROLES.map(r => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
                                 </select>
                             </div>
                             <div className="flex gap-2 pt-1">
-                                <button type="button" onClick={() => setEditingUser(null)} className="flex-1 border border-slate-200 text-slate-600 text-[11px] font-medium py-2 rounded-md hover:bg-slate-50">Cancel</button>
-                                <button type="submit" disabled={saving} className="flex-1 bg-indigo-600 text-white text-[11px] font-medium py-2 rounded-md hover:bg-indigo-700 flex items-center justify-center gap-1.5 disabled:opacity-70">
+                                <button type="button" onClick={() => setEditingUser(null)} className="flex-1 border border-gray-200 text-gray-600 text-sm font-medium py-2 rounded-md hover:bg-gray-50">Cancel</button>
+                                <button type="submit" disabled={saving} className="flex-1 bg-indigo-600 text-white text-sm font-medium py-2 rounded-md hover:bg-indigo-700 flex items-center justify-center gap-1.5 disabled:opacity-70">
                                     {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                                     {saving ? 'Saving…' : 'Save Changes'}
                                 </button>

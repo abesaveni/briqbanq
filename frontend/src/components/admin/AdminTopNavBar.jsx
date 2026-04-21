@@ -52,39 +52,39 @@ export default function AdminTopNavBar() {
 
     return (
         <>
-            {/* Desktop topbar — sits to the right of the sidebar */}
+            {/* Desktop topbar */}
             <header
-                className="fixed top-0 right-0 h-11 bg-white border-b border-slate-100 flex items-center justify-between px-5 z-20 hidden md:flex"
-                style={{ left: '220px' }}
+                className="fixed top-0 right-0 h-14 bg-white border-b border-gray-200 flex items-center justify-between px-6 z-20 hidden md:flex"
+                style={{ left: '240px' }}
             >
                 {/* Breadcrumb */}
-                <div className="flex items-center gap-1.5 min-w-0">
-                    <span className="text-[10px] text-slate-400 font-medium">Admin</span>
-                    <ChevronRight className="w-3 h-3 text-slate-300 shrink-0" />
-                    <span className="text-[11px] font-semibold text-slate-700 truncate">{pageTitle}</span>
+                <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-sm text-gray-400 font-medium">Admin</span>
+                    <ChevronRight className="w-4 h-4 text-gray-300 shrink-0" />
+                    <span className="text-sm font-semibold text-gray-800 truncate">{pageTitle}</span>
                 </div>
 
                 {/* Right controls */}
                 <div className="flex items-center gap-3 shrink-0">
                     <button
                         onClick={() => navigate('/admin/notifications')}
-                        className="relative p-1.5 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors"
+                        className="relative p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                         aria-label="Notifications"
                     >
-                        <Bell className="w-4 h-4" />
+                        <Bell className="w-5 h-5" />
                         {unreadCount > 0 && (
-                            <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-red-500 rounded-full" />
+                            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
                         )}
                     </button>
 
-                    <div className="flex items-center gap-2 pl-3 border-l border-slate-100">
+                    <div className="flex items-center gap-2.5 pl-3 border-l border-gray-200">
                         <div className="text-right hidden lg:block">
-                            <p className="text-[11px] font-semibold text-slate-700 leading-tight">{userName}</p>
-                            <p className="text-[10px] text-slate-400 leading-tight">Administrator</p>
+                            <p className="text-sm font-semibold text-gray-700 leading-tight">{userName}</p>
+                            <p className="text-xs text-gray-400 leading-tight">Administrator</p>
                         </div>
                         <button
                             onClick={() => navigate('/admin/settings')}
-                            className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-[11px] font-bold text-white hover:opacity-90 shrink-0 transition-opacity"
+                            className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-sm font-bold text-white hover:opacity-90 shrink-0 transition-opacity"
                             aria-label="Profile"
                         >
                             {initials}
@@ -93,22 +93,22 @@ export default function AdminTopNavBar() {
                 </div>
             </header>
 
-            {/* Mobile topbar — full width */}
-            <header className="fixed top-0 left-0 right-0 h-11 bg-white border-b border-slate-100 flex items-center justify-between px-4 z-50 md:hidden">
+            {/* Mobile topbar */}
+            <header className="fixed top-0 left-0 right-0 h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-50 md:hidden">
                 <button
                     onClick={() => setMobileOpen(o => !o)}
-                    className="p-1.5 rounded-md text-slate-500 hover:bg-slate-50"
+                    className="p-2 rounded-lg text-gray-500 hover:bg-gray-100"
                     aria-label="Menu"
                 >
-                    <Menu className="w-4 h-4" />
+                    <Menu className="w-5 h-5" />
                 </button>
-                <span className="text-[12px] font-bold text-slate-800">BrickBanq</span>
+                <span className="text-sm font-bold text-gray-800">BrickBanq</span>
                 <button
                     onClick={() => navigate('/admin/notifications')}
-                    className="relative p-1.5 rounded-md text-slate-400 hover:bg-slate-50"
+                    className="relative p-2 rounded-lg text-gray-400 hover:bg-gray-100"
                 >
-                    <Bell className="w-4 h-4" />
-                    {unreadCount > 0 && <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-red-500 rounded-full" />}
+                    <Bell className="w-5 h-5" />
+                    {unreadCount > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />}
                 </button>
             </header>
 
@@ -123,13 +123,13 @@ export default function AdminTopNavBar() {
             <div
                 className={`fixed top-0 left-0 bottom-0 w-64 bg-[#0F172A] z-[70] flex flex-col transition-transform duration-200 md:hidden ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
             >
-                <div className="h-11 flex items-center justify-between px-4 border-b border-white/[0.06]">
-                    <span className="text-[13px] font-bold text-white">BrickBanq</span>
+                <div className="h-14 flex items-center justify-between px-5 border-b border-white/[0.07]">
+                    <span className="text-base font-bold text-white">BrickBanq</span>
                     <button onClick={() => setMobileOpen(false)} className="text-slate-400 hover:text-white p-1">
-                        <X className="w-4 h-4" />
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
-                <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
+                <nav className="flex-1 overflow-y-auto p-3 space-y-1">
                     {MOBILE_NAV.map(item => {
                         const Icon = item.icon
                         const active = location.pathname === item.path
@@ -137,20 +137,20 @@ export default function AdminTopNavBar() {
                             <button
                                 key={item.path}
                                 onClick={() => { navigate(item.path); setMobileOpen(false) }}
-                                className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-[11px] font-medium transition-colors ${active ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-white/[0.06] hover:text-slate-200'}`}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${active ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-white/[0.06] hover:text-slate-200'}`}
                             >
-                                <Icon className="w-3.5 h-3.5 shrink-0" />
+                                <Icon className="w-4 h-4 shrink-0" />
                                 <span>{item.label}</span>
                             </button>
                         )
                     })}
                 </nav>
-                <div className="border-t border-white/[0.06] p-3">
+                <div className="border-t border-white/[0.07] p-3">
                     <button
                         onClick={() => { logout(); navigate('/'); setMobileOpen(false) }}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-[11px] font-medium text-slate-400 hover:bg-white/[0.06] hover:text-red-400 transition-colors"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-white/[0.06] hover:text-red-400 transition-colors"
                     >
-                        <LogOut className="w-3.5 h-3.5 shrink-0" />
+                        <LogOut className="w-4 h-4 shrink-0" />
                         <span>Sign Out</span>
                     </button>
                 </div>

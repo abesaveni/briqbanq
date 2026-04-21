@@ -18,16 +18,16 @@ export default function AdminDashboardLayout() {
   if (!token && !localStorage.getItem('token')) return null
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Fixed sidebar — desktop only */}
       <div className="hidden md:block">
         <AdminSidebar />
       </div>
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col min-w-0 md:ml-[220px]">
+      <div className="flex-1 flex flex-col min-w-0 md:ml-[240px]">
         <AdminTopNavBar />
-        <main className="flex-1 pt-11 p-5">
+        <main className="flex-1 pt-14 p-6">
           <Suspense fallback={
             <div className="flex items-center justify-center h-40">
               <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />

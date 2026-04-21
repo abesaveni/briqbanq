@@ -139,7 +139,7 @@ function AdminAuctionCard({ auction, onView, onClose, onCancel, actionLoading })
                 {/* View Room button */}
                 <button
                     onClick={(e) => { e.stopPropagation(); onView(auction.id); }}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-bold transition-all text-sm flex items-center justify-center gap-2 shadow-sm"
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold transition-all text-sm flex items-center justify-center gap-2 shadow-sm"
                 >
                     <Eye className="w-4 h-4" />
                     {isLive ? "Enter Auction Room" : "View Details"}
@@ -357,28 +357,28 @@ export default function AuctionControl() {
             )}
 
             <div>
-                <h2 className="text-sm font-semibold text-slate-900">Auction Control</h2>
-                <p className="text-[10px] text-slate-400 mt-0.5">Monitor and manage live auction processes and active bids</p>
+                <h2 className="text-xl font-bold text-gray-900">Auction Control</h2>
+                <p className="text-sm text-gray-500 mt-1">Monitor and manage live auction processes and active bids</p>
             </div>
 
             <AuctionStats auctions={auctionsData} loading={loading} />
 
             {/* Filters */}
-            <div className="bg-white rounded-lg border border-slate-100 p-3 shadow-sm flex flex-wrap gap-2 items-center">
+            <div className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm flex flex-wrap gap-2 items-center">
                 <div className="relative flex-1 min-w-[180px]">
-                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
                     <input
                         type="text"
                         placeholder="Search auctions..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-8 pr-3 py-1.5 border border-slate-200 rounded text-[11px] focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400"
+                        className="w-full pl-8 pr-3 py-1.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400"
                     />
                 </div>
                 <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
-                    className="border border-slate-200 rounded px-2.5 py-1.5 text-[11px] focus:outline-none focus:border-indigo-400"
+                    className="border border-gray-200 rounded px-2.5 py-1.5 text-sm focus:outline-none focus:border-indigo-400"
                 >
                     <option value="all">All Status</option>
                     <option value="live">Live</option>
@@ -388,7 +388,7 @@ export default function AuctionControl() {
                 <select
                     value={sortOption}
                     onChange={(e) => setSortOption(e.target.value)}
-                    className="border border-slate-200 rounded px-2.5 py-1.5 text-[11px] focus:outline-none focus:border-indigo-400"
+                    className="border border-gray-200 rounded px-2.5 py-1.5 text-sm focus:outline-none focus:border-indigo-400"
                 >
                     <option value="ending">Ending Soon</option>
                     <option value="low-high">Price: Low → High</option>
@@ -396,16 +396,16 @@ export default function AuctionControl() {
                 </select>
                 <button
                     onClick={() => setShowAdvancedFilters(p => !p)}
-                    className={`relative flex items-center gap-1.5 border px-3 py-1.5 rounded text-[11px] font-semibold transition-colors whitespace-nowrap ml-auto ${
+                    className={`relative flex items-center gap-1.5 border px-3 py-1.5 rounded text-sm font-semibold transition-colors whitespace-nowrap ml-auto ${
                         showAdvancedFilters || activeAdvancedCount > 0
                             ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
-                            : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                            : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                     }`}
                 >
                     <SlidersHorizontal size={14} />
                     Advanced Filters
                     {activeAdvancedCount > 0 && (
-                        <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-indigo-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                        <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-indigo-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
                             {activeAdvancedCount}
                         </span>
                     )}
@@ -437,7 +437,7 @@ export default function AuctionControl() {
                             { key: 'minBidders', label: 'Min Bidders', ph: '0' },
                         ].map(({ key, label, ph }) => (
                             <div key={key} className="space-y-1">
-                                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">{label}</label>
+                                <label className="text-sm font-bold text-gray-500 uppercase tracking-wider">{label}</label>
                                 <input
                                     type="number"
                                     placeholder={ph}

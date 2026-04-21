@@ -53,18 +53,19 @@ export default function AdminSidebar() {
     const initials = userName.charAt(0).toUpperCase()
 
     return (
-        <aside className="fixed top-0 left-0 h-full w-[220px] bg-[#0F172A] flex flex-col z-30 select-none">
+        <aside className="fixed top-0 left-0 h-full w-[240px] bg-[#0F172A] flex flex-col z-30 select-none">
             {/* Logo */}
-            <div className="h-11 flex items-center px-4 border-b border-white/[0.06] shrink-0">
-                <span className="text-[13px] font-bold tracking-tight text-white">BrickBanq</span>
-                <span className="ml-2 text-[9px] font-semibold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 uppercase tracking-[0.1em]">Admin</span>
+            <div className="h-14 flex items-center px-5 border-b border-white/[0.07] shrink-0">
+                <span className="text-base font-bold tracking-tight text-white">BrickBanq</span>
+                <span className="ml-2.5 text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-500/25 text-indigo-300 uppercase tracking-widest">Admin</span>
             </div>
 
-            {/* Nav */}
-            <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-3.5">
+            {/* Nav — scrollbar hidden */}
+            <nav className="flex-1 py-4 px-3 space-y-5 overflow-y-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                <style>{`nav::-webkit-scrollbar { display: none; }`}</style>
                 {NAV_SECTIONS.map(section => (
                     <div key={section.label}>
-                        <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-600 px-2.5 mb-1">{section.label}</p>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 px-3 mb-1.5">{section.label}</p>
                         <div className="space-y-0.5">
                             {section.items.map(item => {
                                 const Icon = item.icon
@@ -73,13 +74,13 @@ export default function AdminSidebar() {
                                         key={item.path}
                                         to={item.path}
                                         className={({ isActive }) =>
-                                            `flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[11px] font-medium transition-all duration-100 ${isActive
-                                                ? 'bg-indigo-600 text-white shadow-sm'
-                                                : 'text-slate-400 hover:bg-white/[0.06] hover:text-slate-200'
+                                            `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-100 ${isActive
+                                                ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-900/30'
+                                                : 'text-slate-400 hover:bg-white/[0.06] hover:text-slate-100'
                                             }`
                                         }
                                     >
-                                        <Icon className="w-3.5 h-3.5 shrink-0" />
+                                        <Icon className="w-4 h-4 shrink-0" />
                                         <span>{item.label}</span>
                                     </NavLink>
                                 )
@@ -90,21 +91,21 @@ export default function AdminSidebar() {
             </nav>
 
             {/* Bottom: User + Sign Out */}
-            <div className="border-t border-white/[0.06] p-3 shrink-0 space-y-1">
-                <div className="flex items-center gap-2 px-1 mb-2">
-                    <div className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+            <div className="border-t border-white/[0.07] p-3 shrink-0">
+                <div className="flex items-center gap-3 px-2 py-2 mb-1">
+                    <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-sm font-bold text-white shrink-0">
                         {initials}
                     </div>
                     <div className="min-w-0 flex-1">
-                        <p className="text-[11px] font-semibold text-slate-200 truncate leading-tight">{userName}</p>
-                        <p className="text-[9px] text-slate-500 leading-tight">Administrator</p>
+                        <p className="text-sm font-semibold text-slate-200 truncate leading-tight">{userName}</p>
+                        <p className="text-xs text-slate-500 leading-tight">Administrator</p>
                     </div>
                 </div>
                 <button
                     onClick={() => { logout(); navigate('/') }}
-                    className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[11px] font-medium text-slate-400 hover:bg-white/[0.06] hover:text-red-400 transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-white/[0.06] hover:text-red-400 transition-colors"
                 >
-                    <LogOut className="w-3.5 h-3.5 shrink-0" />
+                    <LogOut className="w-4 h-4 shrink-0" />
                     <span>Sign Out</span>
                 </button>
             </div>
