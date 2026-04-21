@@ -192,6 +192,34 @@ export const casesService = {
     return wrap(api.post(`/api/v1/cases/${caseId}/images`, form))
   },
   getCaseImages: (caseId) => wrap(api.get(`/api/v1/cases/${caseId}/images`)),
+
+  // Extended case endpoints (securities, parties, metrics, notes, history)
+  getSecurities: (caseId) => wrap(api.get(`/api/v1/cases/${caseId}/securities`)),
+  addSecurity: (caseId, payload) => wrap(api.post(`/api/v1/cases/${caseId}/securities`, payload)),
+  updateSecurity: (caseId, secId, payload) => wrap(api.put(`/api/v1/cases/${caseId}/securities/${secId}`, payload)),
+  deleteSecurity: (caseId, secId) => wrap(api.delete(`/api/v1/cases/${caseId}/securities/${secId}`)),
+
+  getParties: (caseId) => wrap(api.get(`/api/v1/cases/${caseId}/parties`)),
+  addParty: (caseId, payload) => wrap(api.post(`/api/v1/cases/${caseId}/parties`, payload)),
+  updateParty: (caseId, partyId, payload) => wrap(api.put(`/api/v1/cases/${caseId}/parties/${partyId}`, payload)),
+  deleteParty: (caseId, partyId) => wrap(api.delete(`/api/v1/cases/${caseId}/parties/${partyId}`)),
+
+  getLoanMetrics: (caseId) => wrap(api.get(`/api/v1/cases/${caseId}/loan-metrics`)),
+  saveLoanMetrics: (caseId, payload) => wrap(api.put(`/api/v1/cases/${caseId}/loan-metrics`, payload)),
+
+  getAuctionMetrics: (caseId) => wrap(api.get(`/api/v1/cases/${caseId}/auction-metrics`)),
+  saveAuctionMetrics: (caseId, payload) => wrap(api.put(`/api/v1/cases/${caseId}/auction-metrics`, payload)),
+
+  getInternalNotes: (caseId) => wrap(api.get(`/api/v1/cases/${caseId}/internal-notes`)),
+  addInternalNote: (caseId, payload) => wrap(api.post(`/api/v1/cases/${caseId}/internal-notes`, payload)),
+  deleteInternalNote: (caseId, noteId) => wrap(api.delete(`/api/v1/cases/${caseId}/internal-notes/${noteId}`)),
+
+  getStatusHistory: (caseId) => wrap(api.get(`/api/v1/cases/${caseId}/status-history`)),
+
+  saveDraft: (caseId, payload) => wrap(api.patch(`/api/v1/cases/${caseId}/draft`, payload)),
+  duplicateCase: (caseId) => wrap(api.post(`/api/v1/cases/${caseId}/duplicate`)),
+  archiveCase: (caseId) => wrap(api.post(`/api/v1/cases/${caseId}/archive`)),
+  unarchiveCase: (caseId) => wrap(api.post(`/api/v1/cases/${caseId}/unarchive`)),
 };
 
 export const caseService = casesService;

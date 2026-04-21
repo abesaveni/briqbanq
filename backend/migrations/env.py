@@ -20,7 +20,11 @@ from app.infrastructure.database import Base
 # Import all models to ensure they are registered with Base.metadata
 from app.modules.identity.models import User
 from app.modules.roles.models import UserRole
-from app.modules.cases.models import Case
+from app.modules.cases.models import Case, CaseMessage, CaseActivity
+from app.modules.cases.extended_models import (
+    CaseSecurity, CaseParty, CaseLoanMetrics,
+    CaseAuctionMetrics, CaseInternalNote, CaseStatusHistory,
+)
 from app.modules.notifications.models import Notification
 from app.modules.documents.models import Document
 from app.modules.deals.models import Deal

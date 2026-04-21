@@ -27,6 +27,10 @@ v1_router.include_router(admin_extra_router)
 v1_router.include_router(cases_router)
 v1_router.include_router(documents_router)
 
+# Phase 2b: Extended case routes (securities, parties, loan/auction metrics, notes)
+from app.modules.cases.extended_routes import router as cases_extended_router
+v1_router.include_router(cases_extended_router)
+
 # Phase 3: Deal & Auction Engine
 from app.modules.deals.routes import router as deals_router
 from app.modules.auctions.routes import router as auctions_router

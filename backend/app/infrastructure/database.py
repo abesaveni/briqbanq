@@ -57,6 +57,7 @@ async def init_db():
     import app.modules.roles.models
     import app.modules.documents.models
     import app.modules.cases.models
+    import app.modules.cases.extended_models  # CaseSecurity, CaseParty, CaseLoanMetrics, CaseAuctionMetrics, CaseInternalNote, CaseStatusHistory
     import app.modules.kyc.models
     import app.modules.tasks.models
     import app.modules.admin.models

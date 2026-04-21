@@ -8,7 +8,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Optional, List, Any
 
-from sqlalchemy import ForeignKey, String, Text, Numeric, Enum as SAEnum, Index, DateTime, Integer
+from sqlalchemy import ForeignKey, String, Text, Numeric, Boolean, Enum as SAEnum, Index, DateTime, Integer
 from sqlalchemy import Uuid, JSON as JSONB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
@@ -75,6 +75,15 @@ class Case(BaseEntityMixin, Base):
 
     rejection_reason: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     metadata_json: Mapped[Optional[Any]] = mapped_column(JSONB, nullable=True)
+
+    # Workflow / draft tracking fields (fix spec §1)
+    workflow_status: Mapped[Optional[str]] = mapped_column(String(30), nullable=True)
+    # draft | in_progress | submitted
+    completion_pct: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    last_saved_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    is_archived: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    # Step completion bitmap stored as JSON: {"1": "complete", "2": "partial", ...}
+    step_status: Mapped[Optional[Any]] = mapped_column(JSONB, nullable=True)
 
     # Relationships
     borrower: Mapped["User"] = relationship("User", foreign_keys=[borrower_id], lazy="selectin")
@@ -166,3 +175,7 @@ class CaseActivity(ImmutableEntityMixin, Base):
 
 # Avoid circular import but ensure all models are in registry
 from app.modules.documents.models import Document  # noqa: E402
+from app.modules.cases.extended_models import (  # noqa: E402
+    CaseSecurity, CaseParty, CaseLoanMetrics,
+    CaseAuctionMetrics, CaseInternalNote, CaseStatusHistory,
+)

@@ -1,9 +1,30 @@
 // src/components/admin/case/DocumentsTab.jsx
-import { FileText, Download, Loader2 } from 'lucide-react'
+import { FileText, Download, Loader2, Eye, CheckCircle, AlertCircle, FolderOpen } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { generateBrandedPDF, generateInvestmentMemorandumPDF } from '../../../utils/pdfGenerator'
 import { useCaseContext } from '../../../context/CaseContext'
 import { documentService } from '../../../api/dataService'
+
+const CATEGORIES = [
+  { key: 'security', label: 'Security Documents', colour: 'bg-purple-50 border-purple-200' },
+  { key: 'property', label: 'Property Documents', colour: 'bg-blue-50 border-blue-200' },
+  { key: 'enforcement', label: 'Enforcement Documents', colour: 'bg-red-50 border-red-200' },
+  { key: 'borrower', label: 'Borrower Documents', colour: 'bg-amber-50 border-amber-200' },
+  { key: 'financial', label: 'Financial Documents', colour: 'bg-green-50 border-green-200' },
+  { key: 'legal', label: 'Legal Documents', colour: 'bg-indigo-50 border-indigo-200' },
+  { key: 'other', label: 'Other', colour: 'bg-gray-50 border-gray-200' },
+]
+
+function guessCategory(docType, docName) {
+  const t = (docType + ' ' + docName).toLowerCase()
+  if (/mortgage|ppsa|caveat|title|charge|security/i.test(t)) return 'security'
+  if (/property|valuation|apprais|council|strata|insurance|floor|building/i.test(t)) return 'property'
+  if (/default|notice|enforcement|demand|possession|writ|court|judgement/i.test(t)) return 'enforcement'
+  if (/passport|licence|id |identity|borrower|kyc/i.test(t)) return 'borrower'
+  if (/statement|account|loan|financial|income|tax|ato|arrears|payment/i.test(t)) return 'financial'
+  if (/contract|agreement|deed|legal|settlement|discharge|transfer/i.test(t)) return 'legal'
+  return 'other'
+}
 
 export default function DocumentsTab() {
     const { caseData } = useCaseContext()
@@ -18,16 +39,25 @@ export default function DocumentsTab() {
         documentService.getDocuments(caseId).then(res => {
             if (res.success) {
                 const items = Array.isArray(res.data) ? res.data : (res.data?.items || [])
-                setCaseDocs(items.map(d => ({
-                    id: d.id,
-                    name: d.file_name || d.document_name || d.name || 'Document',
-                    type: d.document_type || d.type || 'Upload',
-                    uploadedBy: d.uploaded_by_name || d.uploader_name || '—',
-                    date: d.created_at
-                        ? new Date(d.created_at).toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' })
-                        : '—',
-                    status: d.status || 'Pending',
-                })))
+                setCaseDocs(items.map(d => {
+                    const nameStr = d.file_name || d.document_name || d.name || 'Document'
+                    const typeStr = d.document_type || d.type || ''
+                    return {
+                        id: d.id,
+                        name: nameStr,
+                        type: typeStr || 'Upload',
+                        category: d.category || guessCategory(typeStr, nameStr),
+                        uploadedBy: d.uploaded_by_name || d.uploader_name || '—',
+                        source: d.source || '—',
+                        version: d.doc_version || d.version || 1,
+                        isVerified: d.is_verified || false,
+                        date: d.created_at
+                            ? new Date(d.created_at).toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' })
+                            : '—',
+                        status: d.status || 'Pending',
+                        url: d.file_url || null,
+                    }
+                }))
             }
         }).catch(() => {}).finally(() => setLoadingDocs(false))
     }, [caseData?._id, caseData?.id])
@@ -167,49 +197,74 @@ export default function DocumentsTab() {
                 </p>
             </div>
 
-            {/* Uploaded Case Documents */}
-            <div className="mt-2">
-                <p className="text-sm font-semibold text-gray-800 mb-3">Uploaded Documents</p>
+            {/* Uploaded Case Documents — categorized */}
+            <div className="mt-2 space-y-4">
+                <p className="text-sm font-semibold text-gray-800">Uploaded Documents</p>
                 {loadingDocs ? (
                     <div className="flex items-center gap-2 text-gray-400 text-sm py-4">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Loading…
+                        <Loader2 className="w-4 h-4 animate-spin" /> Loading…
                     </div>
                 ) : caseDocs.length === 0 ? (
                     <div className="text-center py-8 border border-dashed border-gray-200 rounded-lg text-gray-400 text-xs">
                         No documents uploaded for this case yet.
                     </div>
                 ) : (
-                    <div className="overflow-x-auto rounded-lg border border-gray-200">
-                        <table className="w-full text-xs">
-                            <thead>
-                                <tr className="bg-gray-50 border-b border-gray-200">
-                                    <th className="text-left font-semibold text-gray-500 uppercase tracking-wide px-3 py-2.5">Name</th>
-                                    <th className="text-left font-semibold text-gray-500 uppercase tracking-wide px-3 py-2.5">Type</th>
-                                    <th className="text-left font-semibold text-gray-500 uppercase tracking-wide px-3 py-2.5 hidden sm:table-cell">Uploaded By</th>
-                                    <th className="text-left font-semibold text-gray-500 uppercase tracking-wide px-3 py-2.5 hidden sm:table-cell">Date</th>
-                                    <th className="text-left font-semibold text-gray-500 uppercase tracking-wide px-3 py-2.5">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
-                                {caseDocs.map(doc => (
-                                    <tr key={doc.id} className="hover:bg-gray-50">
-                                        <td className="px-3 py-2.5 font-medium text-gray-900 max-w-[200px] truncate">{doc.name}</td>
-                                        <td className="px-3 py-2.5 text-gray-500">{doc.type}</td>
-                                        <td className="px-3 py-2.5 text-gray-500 hidden sm:table-cell">{doc.uploadedBy}</td>
-                                        <td className="px-3 py-2.5 text-gray-500 hidden sm:table-cell whitespace-nowrap">{doc.date}</td>
-                                        <td className="px-3 py-2.5">
-                                            <span className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                                                doc.status === 'Verified' ? 'bg-green-100 text-green-700' :
-                                                doc.status === 'Under Review' ? 'bg-amber-100 text-amber-700' :
-                                                'bg-gray-100 text-gray-600'
-                                            }`}>{doc.status}</span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    CATEGORIES.map(cat => {
+                        const docs = caseDocs.filter(d => d.category === cat.key)
+                        if (!docs.length) return null
+                        return (
+                            <div key={cat.key} className={`rounded-xl border ${cat.colour} overflow-hidden`}>
+                                <div className="px-4 py-2.5 flex items-center gap-2">
+                                    <FolderOpen className="w-4 h-4 text-gray-500" />
+                                    <span className="text-xs font-bold uppercase tracking-wider text-gray-600">{cat.label}</span>
+                                    <span className="ml-auto text-xs text-gray-400">{docs.length} file{docs.length !== 1 ? 's' : ''}</span>
+                                </div>
+                                <div className="bg-white divide-y divide-gray-100">
+                                    {docs.map(doc => (
+                                        <div key={doc.id} className="px-4 py-3 flex items-center gap-3">
+                                            <FileText className="w-4 h-4 text-gray-400 shrink-0" />
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-medium text-gray-900 truncate">{doc.name}</p>
+                                                <div className="flex items-center gap-3 mt-0.5 flex-wrap">
+                                                    <span className="text-xs text-gray-400">{doc.date}</span>
+                                                    {doc.source && doc.source !== '—' && (
+                                                        <span className="text-xs text-gray-400">Source: {doc.source}</span>
+                                                    )}
+                                                    <span className="text-xs text-gray-400">v{doc.version}</span>
+                                                    {doc.isVerified && (
+                                                        <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
+                                                            <CheckCircle className="w-3 h-3" /> Verified
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2 shrink-0">
+                                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                                                    doc.status === 'Verified' || doc.isVerified ? 'bg-green-100 text-green-700' :
+                                                    doc.status === 'Under Review' ? 'bg-amber-100 text-amber-700' :
+                                                    'bg-gray-100 text-gray-500'
+                                                }`}>{doc.isVerified ? 'Verified' : doc.status}</span>
+                                                {doc.url ? (
+                                                    <>
+                                                        <a href={doc.url} target="_blank" rel="noopener noreferrer"
+                                                            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-indigo-600 transition-colors" title="Preview">
+                                                            <Eye className="w-4 h-4" />
+                                                        </a>
+                                                        <a href={doc.url} download
+                                                            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-indigo-600 transition-colors" title="Download">
+                                                            <Download className="w-4 h-4" />
+                                                        </a>
+                                                    </>
+                                                ) : (
+                                                    <span className="text-xs text-gray-300 italic">No preview</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )
+                    })
                 )}
             </div>
         </div>

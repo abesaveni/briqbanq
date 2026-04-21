@@ -1,12 +1,13 @@
 // src/components/admin/case/ManageCaseModal.jsx
 import { useState } from 'react'
-import { X, FileText, Image as ImageIcon, Sparkles, Download, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
+import { X, FileText, Image as ImageIcon, Sparkles, Download, Loader2, CheckCircle2, AlertCircle, StickyNote } from 'lucide-react'
 import { useCaseContext } from '../../../context/CaseContext'
 import { casesService } from '../../../api/dataService'
 import CaseDetailsTab from './CaseDetailsTab'
 import PropertyImagesTab from './PropertyImagesTab'
 import AIContentTab from './AIContentTab'
 import DocumentsTab from './DocumentsTab'
+import InternalNotesTab from './InternalNotesTab'
 
 export default function ManageCaseModal({ isOpen, onClose }) {
     const [activeTab, setActiveTab] = useState('case-details')
@@ -22,6 +23,7 @@ export default function ManageCaseModal({ isOpen, onClose }) {
         { label: 'Property Images', icon: ImageIcon, id: 'property-images' },
         { label: 'AI Content', icon: Sparkles, id: 'ai-content' },
         { label: 'Documents', icon: Download, id: 'documents' },
+        { label: 'Internal Notes', icon: StickyNote, id: 'internal-notes' },
     ]
 
     const handleSave = async () => {
@@ -81,6 +83,7 @@ export default function ManageCaseModal({ isOpen, onClose }) {
             case 'property-images': return <PropertyImagesTab />
             case 'ai-content': return <AIContentTab />
             case 'documents': return <DocumentsTab />
+            case 'internal-notes': return <InternalNotesTab />
             default: return <CaseDetailsTab onChange={setFormData} />
         }
     }

@@ -4,7 +4,9 @@ import PropTypes from 'prop-types';
 import {
     History, ShieldCheck, Mail, Info, FileText,
     TrendingUp, Home, Ruler, UserCheck, Calendar,
-    DollarSign, Percent, AlertCircle, Activity
+    DollarSign, Percent, AlertCircle, Activity,
+    ChevronDown, ChevronUp, BarChart2, BookOpen,
+    Flag, Landmark, ClipboardList, Droplets, Building2, HelpCircle
 } from "lucide-react";
 
 import AuctionHero from "../../components/auctions/AuctionHero";
@@ -15,7 +17,7 @@ import InvestmentSummary from "../../components/auctions/InvestmentSummary";
 import InvestmentMemorandum from "../../components/auctions/InvestmentMemorandum";
 import DocumentsSection from "../../components/auctions/DocumentsSection";
 
-import { auctionService, casesService, activityService } from "../../api/dataService";
+import { auctionService, casesService, activityService, documentService } from "../../api/dataService";
 import { LoadingState, ErrorState } from "../../components/common/States";
 import { formatCurrency } from "../../utils/formatters";
 import { useNotifications } from "../../context/NotificationContext";
@@ -54,6 +56,8 @@ export default function LenderAuctionRoom() {
     const [currentBid, setCurrentBid] = useState(0);
     const [bidHistory, setBidHistory] = useState([]);
     const [isNotified, setIsNotified] = useState(false);
+    const [loanMetrics, setLoanMetrics] = useState({});
+    const [auctionMetrics, setAuctionMetrics] = useState({});
 
     // Auction ID (resolved after fetching)
     const [auctionId, setAuctionId] = useState(null);
@@ -73,11 +77,13 @@ export default function LenderAuctionRoom() {
                 setLoading(true);
                 setError(null);
 
-                // Fetch: case details + auctions for this case + bids
-                const [caseRes, auctionListRes, bidsRes] = await Promise.all([
+                // Fetch: case details + auctions for this case + bids + extended metrics
+                const [caseRes, auctionListRes, bidsRes, loanMetricsRes, auctionMetricsRes] = await Promise.all([
                     casesService.getCaseById(id),
                     auctionService.getAuctionsByCase(id),
                     auctionService.getBidsByCase(id),
+                    casesService.getLoanMetrics(id),
+                    casesService.getAuctionMetrics(id),
                 ]);
 
                 if (!isMounted) return;
@@ -165,6 +171,8 @@ export default function LenderAuctionRoom() {
                 setDeal(deal);
                 setCurrentBid(highest);
                 setBidHistory(bids);
+                if (loanMetricsRes?.success) setLoanMetrics(loanMetricsRes.data || {});
+                if (auctionMetricsRes?.success) setAuctionMetrics(auctionMetricsRes.data || {});
 
             } catch (err) {
                 if (isMounted) setError(err.message || "An error occurred while loading the auction data.");
@@ -383,6 +391,219 @@ export default function LenderAuctionRoom() {
                                 </div>
                             </div>
 
+                            {/* Debt Breakdown */}
+                            {(loanMetrics.principal_amount || loanMetrics.total_payout) && (
+                                <LenderCollapsible icon={<DollarSign size={18} />} title="Debt Breakdown">
+                                    <div className="space-y-2">
+                                        {[
+                                            ['Principal Outstanding', loanMetrics.principal_amount],
+                                            ['Accrued Interest', loanMetrics.accrued_interest],
+                                            ['Default / Penalty Interest', loanMetrics.default_interest],
+                                            ['Other Fees & Charges', loanMetrics.other_fees],
+                                            ['Legal Costs', loanMetrics.legal_costs],
+                                        ].map(([label, val]) => val != null && (
+                                            <div key={label} className="flex justify-between items-center py-1.5 border-b border-gray-50 last:border-0">
+                                                <span className="text-xs text-gray-500">{label}</span>
+                                                <span className="text-sm font-semibold">{formatCurrency(val)}</span>
+                                            </div>
+                                        ))}
+                                        <div className="flex justify-between items-center pt-2 mt-1">
+                                            <span className="text-sm font-bold text-gray-900">Total Payout Required</span>
+                                            <span className="text-base font-bold text-red-600">{formatCurrency(loanMetrics.total_payout)}</span>
+                                        </div>
+                                    </div>
+                                    {loanMetrics.days_in_arrears > 0 && (
+                                        <div className="mt-4 grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+                                            <div><p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Days in Arrears</p><p className="text-xl font-bold text-orange-600">{loanMetrics.days_in_arrears}</p></div>
+                                            <div><p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Missed Payments</p><p className="text-xl font-bold text-orange-600">{loanMetrics.missed_payments || 0}</p></div>
+                                            {loanMetrics.arrears_start_date && <div><p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">In Arrears Since</p><p className="text-sm font-semibold">{new Date(loanMetrics.arrears_start_date).toLocaleDateString('en-AU')}</p></div>}
+                                            {loanMetrics.last_payment_date && <div><p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Last Payment</p><p className="text-sm font-semibold">{new Date(loanMetrics.last_payment_date).toLocaleDateString('en-AU')}</p></div>}
+                                        </div>
+                                    )}
+                                </LenderCollapsible>
+                            )}
+
+                            {/* Conservative Recovery Model */}
+                            {(loanMetrics.forced_sale_estimate || loanMetrics.net_recovery) && (
+                                <LenderCollapsible icon={<BarChart2 size={18} />} title="Conservative Recovery Model">
+                                    <div className="space-y-2">
+                                        {[
+                                            ['Market Value', loanMetrics.market_value || deal.propertyValue],
+                                            ['Forced Sale Estimate', loanMetrics.forced_sale_estimate],
+                                            ['Less: Selling Costs', loanMetrics.selling_costs ? -loanMetrics.selling_costs : null],
+                                            ['Less: Legal Costs', loanMetrics.legal_costs ? -loanMetrics.legal_costs : null],
+                                            ['Less: Holding Costs', loanMetrics.holding_costs ? -loanMetrics.holding_costs : null],
+                                        ].map(([label, val]) => val != null && (
+                                            <div key={label} className="flex justify-between items-center py-1.5 border-b border-gray-50 last:border-0">
+                                                <span className="text-xs text-gray-500">{label}</span>
+                                                <span className={`text-sm font-semibold ${val < 0 ? 'text-red-500' : ''}`}>{formatCurrency(Math.abs(val))}</span>
+                                            </div>
+                                        ))}
+                                        <div className="flex justify-between pt-2"><span className="text-sm font-bold">Estimated Net Recovery</span><span className="text-base font-bold text-green-600">{formatCurrency(loanMetrics.net_recovery)}</span></div>
+                                        {loanMetrics.equity_buffer != null && <div className="flex justify-between"><span className="text-sm font-bold">Equity Buffer After Costs</span><span className={`text-base font-bold ${loanMetrics.equity_buffer >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatCurrency(loanMetrics.equity_buffer)}</span></div>}
+                                    </div>
+                                </LenderCollapsible>
+                            )}
+
+                            {/* Scenario Analysis */}
+                            {(auctionMetrics.scenario_base || auctionMetrics.scenario_conservative || auctionMetrics.scenario_downside) && (
+                                <LenderCollapsible icon={<BookOpen size={18} />} title="Scenario Analysis">
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {[
+                                            { label: 'Base Case', data: auctionMetrics.scenario_base, color: 'border-green-200 bg-green-50 text-green-700' },
+                                            { label: 'Conservative', data: auctionMetrics.scenario_conservative, color: 'border-amber-200 bg-amber-50 text-amber-700' },
+                                            { label: 'Downside', data: auctionMetrics.scenario_downside, color: 'border-red-200 bg-red-50 text-red-700' },
+                                        ].map(({ label, data, color }) => data && (
+                                            <div key={label} className={`rounded-xl border p-3 ${color}`}>
+                                                <p className="text-xs font-bold uppercase tracking-wider mb-2">{label}</p>
+                                                {data.recovery_amount != null && <p className="text-sm font-bold">{formatCurrency(data.recovery_amount)}</p>}
+                                                {data.net_profit != null && <p className="text-xs mt-1">Net: {formatCurrency(data.net_profit)}</p>}
+                                                {data.roi != null && <p className="text-xs">ROI: {data.roi}%</p>}
+                                                {data.timeline && <p className="text-xs mt-1">{data.timeline}</p>}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </LenderCollapsible>
+                            )}
+
+                            {/* Legal Position */}
+                            {auctionMetrics.enforcement_type && (
+                                <LenderCollapsible icon={<Landmark size={18} />} title="Legal Position & Recovery Strategy">
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="col-span-2"><p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Enforcement Type</p><p className="text-sm font-semibold">{auctionMetrics.enforcement_type}</p></div>
+                                        {[
+                                            ['Default Valid', auctionMetrics.default_valid],
+                                            ['Acceleration Triggered', auctionMetrics.acceleration_triggered],
+                                            ['Enforcement Commenced', auctionMetrics.enforcement_commenced],
+                                            ['Court Action', auctionMetrics.court_action],
+                                            ['Borrower Dispute', auctionMetrics.borrower_dispute],
+                                            ['Injunction', auctionMetrics.injunction],
+                                        ].map(([label, val]) => val != null && (
+                                            <div key={label} className="flex items-center gap-2">
+                                                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${val ? 'bg-green-500' : 'bg-gray-300'}`} />
+                                                <span className="text-xs text-gray-600">{label}</span>
+                                                <span className={`ml-auto text-xs font-bold ${val ? 'text-green-600' : 'text-gray-400'}`}>{val ? 'Yes' : 'No'}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </LenderCollapsible>
+                            )}
+
+                            {/* Risk Flags */}
+                            {auctionMetrics.risk_flags && Object.keys(auctionMetrics.risk_flags).length > 0 && (
+                                <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
+                                    <div className="flex items-center gap-2 mb-3 text-red-700"><Flag size={16} /><span className="text-xs font-bold uppercase tracking-wider">Risk Flags</span></div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {Object.entries(auctionMetrics.risk_flags).map(([key, val]) => val && (
+                                            <span key={key} className="text-xs bg-red-100 text-red-700 border border-red-200 rounded-full px-3 py-1 font-medium">
+                                                {key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Property Liquidity Section (§8.6) */}
+                            {(loanMetrics.forced_sale_estimate || auctionMetrics.liquidity_rating || propertyDetails.valuer) && (
+                                <LenderCollapsible icon={<Droplets size={18} />} title="Property Liquidity">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {propertyDetails.valuer && (
+                                            <div>
+                                                <p className="text-xs text-gray-400 mb-1">Valuation Provider</p>
+                                                <p className="text-sm font-semibold">{propertyDetails.valuer}</p>
+                                            </div>
+                                        )}
+                                        {loanMetrics.forced_sale_estimate && (
+                                            <div>
+                                                <p className="text-xs text-gray-400 mb-1">Forced Sale Estimate</p>
+                                                <p className="text-sm font-bold text-amber-600">{formatCurrency(loanMetrics.forced_sale_estimate)}</p>
+                                            </div>
+                                        )}
+                                        {deal.propertyValue && (
+                                            <div>
+                                                <p className="text-xs text-gray-400 mb-1">Market Value</p>
+                                                <p className="text-sm font-bold text-gray-800">{formatCurrency(deal.propertyValue)}</p>
+                                            </div>
+                                        )}
+                                        {auctionMetrics.liquidity_rating && (
+                                            <div>
+                                                <p className="text-xs text-gray-400 mb-1">Liquidity Rating</p>
+                                                <span className={`inline-block text-xs font-bold px-2 py-0.5 rounded-full ${
+                                                    auctionMetrics.liquidity_rating === 'High' ? 'bg-green-100 text-green-700' :
+                                                    auctionMetrics.liquidity_rating === 'Medium' ? 'bg-amber-100 text-amber-700' :
+                                                    'bg-red-100 text-red-700'
+                                                }`}>{auctionMetrics.liquidity_rating}</span>
+                                            </div>
+                                        )}
+                                        {auctionMetrics.days_on_market != null && (
+                                            <div>
+                                                <p className="text-xs text-gray-400 mb-1">Days on Market</p>
+                                                <p className="text-sm font-semibold">{auctionMetrics.days_on_market}</p>
+                                            </div>
+                                        )}
+                                        {propertyDetails.propertyCondition && (
+                                            <div>
+                                                <p className="text-xs text-gray-400 mb-1">Property Condition</p>
+                                                <p className="text-sm font-semibold">{propertyDetails.propertyCondition}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    {auctionMetrics.comparable_sales_summary && (
+                                        <div className="mt-3 pt-3 border-t border-gray-100">
+                                            <p className="text-xs text-gray-400 mb-1">Comparable Sales Summary</p>
+                                            <p className="text-sm text-gray-700">{auctionMetrics.comparable_sales_summary}</p>
+                                        </div>
+                                    )}
+                                </LenderCollapsible>
+                            )}
+
+                            {/* Investment Structure Summary (§8.10) */}
+                            {(auctionMetrics.investment_structure || auctionMetrics.minimum_bid || auctionMetrics.ownership_rights) && (
+                                <LenderCollapsible icon={<Building2 size={18} />} title="Investment Structure">
+                                    <div className="space-y-3">
+                                        {auctionMetrics.investment_structure && (
+                                            <div className="bg-indigo-50 border border-indigo-100 rounded-lg px-4 py-3 flex items-center gap-3">
+                                                <HelpCircle size={16} className="text-indigo-500 shrink-0" />
+                                                <div>
+                                                    <p className="text-xs text-indigo-600 font-semibold">Investment Type</p>
+                                                    <p className="text-sm font-bold text-indigo-900 mt-0.5">{auctionMetrics.investment_structure}</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {auctionMetrics.minimum_bid && (
+                                                <div>
+                                                    <p className="text-xs text-gray-400 mb-1">Minimum Bid</p>
+                                                    <p className="text-sm font-bold text-gray-800">{formatCurrency(auctionMetrics.minimum_bid)}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                        {auctionMetrics.ownership_rights && (
+                                            <div>
+                                                <p className="text-xs text-gray-400 mb-1">Ownership Rights</p>
+                                                <p className="text-sm text-gray-700">{auctionMetrics.ownership_rights}</p>
+                                            </div>
+                                        )}
+                                        {auctionMetrics.security_rights && (
+                                            <div>
+                                                <p className="text-xs text-gray-400 mb-1">Security Rights</p>
+                                                <p className="text-sm text-gray-700">{auctionMetrics.security_rights}</p>
+                                            </div>
+                                        )}
+                                        {auctionMetrics.distribution_mechanics && (
+                                            <div>
+                                                <p className="text-xs text-gray-400 mb-1">Distribution Mechanics</p>
+                                                <p className="text-sm text-gray-700">{auctionMetrics.distribution_mechanics}</p>
+                                            </div>
+                                        )}
+                                        <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 mt-2">
+                                            <p className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">Reserve Price</p>
+                                            <p className="text-xs text-gray-500">The reserve is the minimum price the lender will accept. Bids below reserve are recorded but won't close the deal. The gap shown in the bid panel tells you how far the leading bid is from reserve.</p>
+                                        </div>
+                                    </div>
+                                </LenderCollapsible>
+                            )}
+
                             {/* 4. Property Information */}
                             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                                 <div className="flex items-center gap-2 mb-6 text-indigo-900">
@@ -515,6 +736,25 @@ function DetailItem({ label, value, size = "base", color = "text-gray-900", mono
             <p className={`font-bold ${isLarge ? 'text-2xl tracking-tight' : 'text-base font-semibold'} ${valueColor || color} ${mono ? 'font-mono' : ''}`}>
                 {value || "N/A"}
             </p>
+        </div>
+    );
+}
+
+function LenderCollapsible({ icon, title, children }) {
+    const [open, setOpen] = useState(true);
+    return (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <button
+                onClick={() => setOpen(o => !o)}
+                className="w-full flex items-center justify-between px-6 py-4 text-indigo-900 hover:bg-gray-50 transition-colors"
+            >
+                <div className="flex items-center gap-2">
+                    {icon}
+                    <span className="font-bold text-base">{title}</span>
+                </div>
+                {open ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
+            </button>
+            {open && <div className="px-6 pb-6">{children}</div>}
         </div>
     );
 }

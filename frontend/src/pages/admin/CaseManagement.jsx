@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Eye, Trash2, RefreshCw, Download, FileText, CheckSquare, CheckCircle, Gavel, UserPlus, X, Plus } from 'lucide-react'
+import { Eye, Trash2, RefreshCw, Download, FileText, CheckSquare, CheckCircle, Gavel, UserPlus, X, Plus, Copy, Archive, RotateCcw, Clock } from 'lucide-react'
 import AdminBreadcrumb from '../../components/admin/AdminBreadcrumb'
 import AdminStatCard from '../../components/admin/AdminStatCard'
 import AdminRiskBadge from '../../components/admin/AdminRiskBadge'
@@ -38,8 +38,7 @@ export default function CaseManagement() {
         const res = await casesService.getCases()
         if (res.success) {
             // Backend returns CaseListResponse: { items: [...], total, page, page_size }
-            // Exclude DRAFT cases — borrower is still filling the form
-            const data = (Array.isArray(res.data) ? res.data : (res.data?.items || [])).filter(c => c.status !== 'DRAFT')
+            const data = Array.isArray(res.data) ? res.data : (res.data?.items || [])
             setAllCases(data)
             applyFilters(data, statusFilter, searchTerm)
         } else {
@@ -80,12 +79,14 @@ export default function CaseManagement() {
 
     // Maps display label → array of API status values
     const STATUS_FILTER_MAP = {
+        'Drafts': ['DRAFT'],
         'Under Review': ['SUBMITTED', 'UNDER_REVIEW'],
         'Approved': ['APPROVED'],
         'Listed': ['LISTED', 'FUNDED'],
         'In Auction': ['AUCTION'],
         'Completed': ['CLOSED'],
         'Rejected': ['REJECTED'],
+        'Archived': ['DRAFT', 'REJECTED', 'CLOSED'], // show is_archived
     }
 
     // ============================================================================
@@ -223,6 +224,26 @@ export default function CaseManagement() {
         }
     }
 
+    const handleDuplicate = async (caseId) => {
+        const res = await casesService.duplicateCase(caseId)
+        if (res.success) {
+            loadCases()
+        } else {
+            alert(res.error || 'Failed to duplicate case')
+        }
+    }
+
+    const handleArchive = async (caseId, isArchived) => {
+        const res = isArchived
+            ? await casesService.unarchiveCase(caseId)
+            : await casesService.archiveCase(caseId)
+        if (res.success) {
+            loadCases()
+        } else {
+            alert(res.error || 'Failed to archive/unarchive case')
+        }
+    }
+
     const openAssignModal = async (caseId) => {
         setAssignModal({ open: true, caseId })
         setSelectedLawyer('')
@@ -256,8 +277,8 @@ export default function CaseManagement() {
 
     // Calculate stats based on all cases
     const stats = {
-        total: allCases.length,
-        active: allCases.filter(c => ['APPROVED', 'LISTED', 'FUNDED'].includes(c.status)).length,
+        total: allCases.filter(c => c.status !== 'DRAFT').length,
+        drafts: allCases.filter(c => c.status === 'DRAFT').length,
         inAuction: allCases.filter(c => c.status === 'AUCTION').length,
         completed: allCases.filter(c => ['CLOSED', 'FUNDED'].includes(c.status)).length,
     }
@@ -296,11 +317,11 @@ export default function CaseManagement() {
                     iconColor="text-blue-600"
                 />
                 <AdminStatCard
-                    label="Active Cases"
-                    value={stats.active.toString()}
-                    icon={Eye}
-                    iconBg="bg-green-100"
-                    iconColor="text-green-600"
+                    label="Drafts"
+                    value={stats.drafts.toString()}
+                    icon={Clock}
+                    iconBg="bg-amber-100"
+                    iconColor="text-amber-600"
                 />
                 <AdminStatCard
                     label="In Auction"
@@ -359,6 +380,7 @@ export default function CaseManagement() {
                             className="border border-gray-300 rounded px-3 py-2 text-sm"
                         >
                             <option>All Status</option>
+                            <option>Drafts</option>
                             <option>Under Review</option>
                             <option>Approved</option>
                             <option>Listed</option>
@@ -387,8 +409,9 @@ export default function CaseManagement() {
                                 <th className="text-left text-sm font-medium text-gray-500 px-4 py-3">Valuation</th>
                                 <th className="text-left text-sm font-medium text-gray-500 px-4 py-3">LVR</th>
                                 <th className="text-left text-sm font-medium text-gray-500 px-4 py-3">Status</th>
+                                <th className="text-left text-sm font-medium text-gray-500 px-4 py-3">Completion</th>
                                 <th className="text-left text-sm font-medium text-gray-500 px-4 py-3">Risk</th>
-                                <th className="text-left text-sm font-medium text-gray-500 px-4 py-3">Created</th>
+                                <th className="text-left text-sm font-medium text-gray-500 px-4 py-3">Last Updated</th>
                                 <th className="text-left text-sm font-medium text-gray-500 px-4 py-3">Actions</th>
                             </tr>
                         </thead>
@@ -404,48 +427,105 @@ export default function CaseManagement() {
                                     <td colSpan={10} className="px-4 py-12 text-center text-sm text-gray-400">No cases found</td>
                                 </tr>
                             ) : cases.map((caseItem) => {
+                                const isDraft = caseItem.status === 'DRAFT';
                                 const debt = Number(caseItem.outstanding_debt || caseItem.loan_amount || caseItem.debt || 0);
                                 const val = Number(caseItem.estimated_value || caseItem.property_value || caseItem.valuation || 0);
                                 const lvr = val > 0 ? ((debt / val) * 100).toFixed(1) : '—';
-                                
+                                const completionPct = caseItem.completion_pct ?? null;
+                                const lastUpdated = caseItem.last_saved_at || caseItem.updated_at || caseItem.created_at;
+
+                                // Derive missing info for drafts
+                                const missingItems = isDraft ? (() => {
+                                  const m = []
+                                  if (!caseItem.property_address && !caseItem.title) m.push('Property address')
+                                  if (!debt || debt === 0) m.push('Outstanding debt')
+                                  if (!val || val === 0) m.push('Property value')
+                                  if (!caseItem.borrower_name && !caseItem.borrower) m.push('Borrower details')
+                                  return m
+                                })() : [];
+
                                 return (
-                                <tr key={caseItem.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                                    <td className="px-4 py-3 text-sm text-gray-900 font-medium">{caseItem.case_number || caseItem.id?.slice(0, 8)}</td>
+                                <tr key={caseItem.id} className={`border-b border-gray-200 hover:bg-gray-50 transition-colors ${isDraft ? 'bg-amber-50/30' : ''}`}>
+                                    <td className="px-4 py-3 text-sm text-gray-900 font-medium">
+                                        <div className="flex items-center gap-1.5">
+                                            {isDraft && <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700 uppercase tracking-wide">Draft</span>}
+                                            {caseItem.is_archived && <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500 uppercase tracking-wide">Archived</span>}
+                                            {caseItem.case_number || caseItem.id?.slice(0, 8)}
+                                        </div>
+                                    </td>
                                     <td className="px-4 py-3 text-sm text-gray-900">{caseItem.borrower_name || caseItem.borrower || '—'}</td>
-                                    <td className="px-4 py-3 text-sm text-gray-900">
+                                    <td className="px-4 py-3 text-sm text-gray-900 max-w-[180px] truncate" title={caseItem.property_address || caseItem.title}>
                                         {caseItem.property_address || caseItem.title || '—'}
                                     </td>
                                     <td className="px-4 py-3 text-sm text-gray-900 font-semibold">{formatCurrency(debt)}</td>
                                     <td className="px-4 py-3 text-sm text-gray-900">{formatCurrency(val)}</td>
                                     <td className="px-4 py-3 text-sm text-indigo-600 font-bold">{lvr}{lvr !== '—' ? '%' : ''}</td>
                                     <td className="px-4 py-3">
-                                        <select
-                                            value={caseItem.status || 'pending'}
-                                            onChange={(e) => handleStatusChange(caseItem.id, e.target.value)}
-                                            className="text-[11px] font-bold uppercase tracking-wider border border-gray-200 rounded px-2 py-1 bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer"
-                                        >
-                                            <option value="UNDER_REVIEW">Under Review</option>
-                                            <option value="APPROVED">Approved</option>
-                                            <option value="LISTED">Listed</option>
-                                            <option value="AUCTION">In Auction</option>
-                                            <option value="CLOSED">Completed</option>
-                                            <option value="REJECTED">Rejected</option>
-                                        </select>
+                                        {isDraft ? (
+                                            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600">Draft</span>
+                                        ) : (
+                                            <select
+                                                value={caseItem.status || 'pending'}
+                                                onChange={(e) => handleStatusChange(caseItem.id, e.target.value)}
+                                                className="text-[11px] font-bold uppercase tracking-wider border border-gray-200 rounded px-2 py-1 bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer"
+                                            >
+                                                <option value="UNDER_REVIEW">Under Review</option>
+                                                <option value="APPROVED">Approved</option>
+                                                <option value="LISTED">Listed</option>
+                                                <option value="AUCTION">In Auction</option>
+                                                <option value="CLOSED">Completed</option>
+                                                <option value="REJECTED">Rejected</option>
+                                            </select>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        {completionPct != null ? (
+                                            <div className="flex flex-col gap-1">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-16 bg-gray-200 rounded-full h-1.5">
+                                                        <div className={`h-1.5 rounded-full ${completionPct >= 80 ? 'bg-green-500' : completionPct >= 40 ? 'bg-amber-500' : 'bg-red-400'}`} style={{ width: `${completionPct}%` }} />
+                                                    </div>
+                                                    <span className="text-xs font-bold text-gray-600">{completionPct}%</span>
+                                                </div>
+                                                {missingItems.length > 0 && (
+                                                    <div className="relative group inline-block">
+                                                        <span className="text-[10px] text-amber-600 font-semibold cursor-help underline decoration-dotted">
+                                                            {missingItems.length} missing
+                                                        </span>
+                                                        <div className="absolute bottom-full left-0 mb-1 hidden group-hover:block z-50 bg-gray-900 text-white text-xs rounded-lg px-3 py-2 w-48 shadow-xl">
+                                                            <p className="font-bold mb-1">Missing info:</p>
+                                                            <ul className="list-disc list-inside space-y-0.5">
+                                                                {missingItems.map(m => <li key={m}>{m}</li>)}
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ) : <span className="text-xs text-gray-400">—</span>}
                                     </td>
                                     <td className="px-4 py-3">
                                         <AdminRiskBadge risk={caseItem.risk_level || caseItem.risk} />
                                     </td>
-                                    <td className="px-4 py-3 text-sm text-gray-500 font-medium">
-                                        {caseItem.created_at ? new Date(caseItem.created_at).toLocaleDateString('en-AU') : caseItem.created || '—'}
+                                    <td className="px-4 py-3 text-sm text-gray-500 font-medium whitespace-nowrap">
+                                        {lastUpdated ? new Date(lastUpdated).toLocaleDateString('en-AU') : '—'}
                                     </td>
                                     <td className="px-4 py-3">
-                                        <div className="flex items-center gap-1">
-                                            <button
-                                                onClick={() => navigate(`/admin/case-details/${caseItem.id}`)}
-                                                className="p-1.5 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors" title="View Details"
-                                            >
-                                                <Eye className="w-4 h-4" />
-                                            </button>
+                                        <div className="flex items-center gap-1 flex-wrap">
+                                            {isDraft ? (
+                                                <button
+                                                    onClick={() => navigate(`/borrower/submit-case?resume=${caseItem.id}`)}
+                                                    className="px-2 py-1 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors" title="Resume Draft"
+                                                >
+                                                    Resume
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => navigate(`/admin/case-details/${caseItem.id}`)}
+                                                    className="p-1.5 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors" title="View Details"
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                </button>
+                                            )}
                                             {(caseItem.status === 'SUBMITTED' || caseItem.status === 'UNDER_REVIEW') && (
                                                 <button
                                                     onClick={() => handleApprove(caseItem.id)}
@@ -462,13 +542,28 @@ export default function CaseManagement() {
                                                     <Gavel className="w-4 h-4" />
                                                 </button>
                                             )}
+                                            {!isDraft && (
+                                                <button
+                                                    onClick={() => openAssignModal(caseItem.id)}
+                                                    className="p-1.5 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors" title="Assign Lawyer / Lender"
+                                                >
+                                                    <UserPlus className="w-4 h-4" />
+                                                </button>
+                                            )}
                                             <button
-                                                onClick={() => openAssignModal(caseItem.id)}
-                                                className="p-1.5 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors" title="Assign Lawyer / Lender"
+                                                onClick={() => handleDuplicate(caseItem.id)}
+                                                className="p-1.5 text-purple-500 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors" title="Duplicate Case"
                                             >
-                                                <UserPlus className="w-4 h-4" />
+                                                <Copy className="w-4 h-4" />
                                             </button>
-                                            {['UNDER_REVIEW', 'REJECTED'].includes(caseItem.status) && (
+                                            <button
+                                                onClick={() => handleArchive(caseItem.id, caseItem.is_archived)}
+                                                className={`p-1.5 rounded-lg transition-colors ${caseItem.is_archived ? 'text-green-500 hover:text-green-700 hover:bg-green-50' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
+                                                title={caseItem.is_archived ? 'Unarchive Case' : 'Archive Case'}
+                                            >
+                                                {caseItem.is_archived ? <RotateCcw className="w-4 h-4" /> : <Archive className="w-4 h-4" />}
+                                            </button>
+                                            {(isDraft || ['UNDER_REVIEW', 'REJECTED'].includes(caseItem.status)) && (
                                                 <button
                                                     onClick={() => handleDelete(caseItem.id)}
                                                     className="p-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete"

@@ -4,7 +4,10 @@ import PropTypes from 'prop-types';
 import {
   History, ShieldCheck, Mail, Info, FileText,
   TrendingUp, Home, Ruler, UserCheck, Calendar,
-  DollarSign, Percent, AlertCircle, Scale
+  DollarSign, Percent, AlertCircle, Scale,
+  ChevronDown, ChevronUp, Gavel, BarChart2,
+  Flag, BookOpen, ClipboardList, Landmark,
+  Droplets, Building2, HelpCircle
 } from "lucide-react";
 
 import AuctionHero from "../../components/auctions/AuctionHero";
@@ -76,6 +79,8 @@ export default function InvestorAuctionRoom() {
   const [bidHistory, setBidHistory] = useState([]);
   const [investorDocs, setInvestorDocs] = useState([]);
   const [isNotified, setIsNotified] = useState(false);
+  const [loanMetrics, setLoanMetrics] = useState({});
+  const [auctionMetrics, setAuctionMetrics] = useState({});
 
   // Auction ID (resolved after fetching)
   const [auctionId, setAuctionId] = useState(null);
@@ -94,11 +99,13 @@ export default function InvestorAuctionRoom() {
         setError(null);
 
         // Fetch case (id is always a case_id when navigating from live listings)
-        const [caseRes, auctionListRes, bidsRes, docsRes] = await Promise.all([
+        const [caseRes, auctionListRes, bidsRes, docsRes, loanMetricsRes, auctionMetricsRes] = await Promise.all([
           casesService.getCaseById(id),
           auctionService.getAuctionsByCase(id),
           auctionService.getBidsByCase(id),
           documentService.getDocuments(id),
+          casesService.getLoanMetrics(id),
+          casesService.getAuctionMetrics(id),
         ]);
 
         if (!isMounted) return;
@@ -215,6 +222,8 @@ export default function InvestorAuctionRoom() {
         setDeal(deal);
         setCurrentBid(highest);
         setBidHistory(bids);
+        if (loanMetricsRes?.success) setLoanMetrics(loanMetricsRes.data || {});
+        if (auctionMetricsRes?.success) setAuctionMetrics(auctionMetricsRes.data || {});
 
         // Fetch investor's own verification documents
         const investorDocsRes = await userService.getInvestorDocuments();
@@ -425,6 +434,264 @@ export default function InvestorAuctionRoom() {
                 </div>
               </div>
 
+              {/* Debt Breakdown Panel */}
+              {(loanMetrics.principal_amount || loanMetrics.total_payout) && (
+                <CollapsibleSection icon={<DollarSign size={18} />} title="Debt Breakdown">
+                  <div className="space-y-2">
+                    {[
+                      ['Principal Outstanding', loanMetrics.principal_amount],
+                      ['Accrued Interest', loanMetrics.accrued_interest],
+                      ['Default / Penalty Interest', loanMetrics.default_interest],
+                      ['Other Fees & Charges', loanMetrics.other_fees],
+                      ['Legal Costs', loanMetrics.legal_costs],
+                    ].map(([label, val]) => val != null && (
+                      <div key={label} className="flex justify-between items-center py-1.5 border-b border-gray-50 last:border-0">
+                        <span className="text-xs text-gray-500">{label}</span>
+                        <span className="text-sm font-semibold text-gray-800">{formatCurrency(val)}</span>
+                      </div>
+                    ))}
+                    <div className="flex justify-between items-center pt-2 mt-1">
+                      <span className="text-sm font-bold text-gray-900">Total Payout Required</span>
+                      <span className="text-base font-bold text-red-600">{formatCurrency(loanMetrics.total_payout)}</span>
+                    </div>
+                  </div>
+                  {loanMetrics.days_in_arrears > 0 && (
+                    <div className="mt-4 grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+                      <div>
+                        <p className="text-xs text-gray-400">Days in Arrears</p>
+                        <p className="text-lg font-bold text-orange-600">{loanMetrics.days_in_arrears}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400">Missed Payments</p>
+                        <p className="text-lg font-bold text-orange-600">{loanMetrics.missed_payments || 0}</p>
+                      </div>
+                      {loanMetrics.arrears_start_date && (
+                        <div>
+                          <p className="text-xs text-gray-400">Arrears Since</p>
+                          <p className="text-sm font-semibold">{new Date(loanMetrics.arrears_start_date).toLocaleDateString('en-AU')}</p>
+                        </div>
+                      )}
+                      {loanMetrics.last_payment_date && (
+                        <div>
+                          <p className="text-xs text-gray-400">Last Payment</p>
+                          <p className="text-sm font-semibold">{new Date(loanMetrics.last_payment_date).toLocaleDateString('en-AU')}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </CollapsibleSection>
+              )}
+
+              {/* Recovery Analysis */}
+              {(loanMetrics.forced_sale_estimate || loanMetrics.net_recovery) && (
+                <CollapsibleSection icon={<BarChart2 size={18} />} title="Conservative Recovery Model">
+                  <div className="space-y-2">
+                    {[
+                      ['Market Value', loanMetrics.market_value || deal.propertyValue],
+                      ['Forced Sale Estimate', loanMetrics.forced_sale_estimate],
+                      ['Less: Selling Costs', loanMetrics.selling_costs ? -loanMetrics.selling_costs : null],
+                      ['Less: Legal Costs', loanMetrics.legal_costs ? -loanMetrics.legal_costs : null],
+                      ['Less: Holding Costs', loanMetrics.holding_costs ? -loanMetrics.holding_costs : null],
+                    ].map(([label, val]) => val != null && (
+                      <div key={label} className="flex justify-between items-center py-1.5 border-b border-gray-50 last:border-0">
+                        <span className="text-xs text-gray-500">{label}</span>
+                        <span className={`text-sm font-semibold ${val < 0 ? 'text-red-500' : 'text-gray-800'}`}>{formatCurrency(Math.abs(val))}</span>
+                      </div>
+                    ))}
+                    <div className="flex justify-between items-center pt-2 mt-1">
+                      <span className="text-sm font-bold text-gray-900">Estimated Net Recovery</span>
+                      <span className="text-base font-bold text-green-600">{formatCurrency(loanMetrics.net_recovery)}</span>
+                    </div>
+                    {loanMetrics.equity_buffer != null && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-bold text-gray-900">Equity Buffer After Costs</span>
+                        <span className={`text-base font-bold ${loanMetrics.equity_buffer >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatCurrency(loanMetrics.equity_buffer)}</span>
+                      </div>
+                    )}
+                  </div>
+                </CollapsibleSection>
+              )}
+
+              {/* Scenario Analysis */}
+              {(auctionMetrics.scenario_base || auctionMetrics.scenario_conservative || auctionMetrics.scenario_downside) && (
+                <CollapsibleSection icon={<BookOpen size={18} />} title="Scenario Analysis">
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { label: 'Base Case', data: auctionMetrics.scenario_base, color: 'bg-green-50 border-green-200 text-green-700' },
+                      { label: 'Conservative', data: auctionMetrics.scenario_conservative, color: 'bg-amber-50 border-amber-200 text-amber-700' },
+                      { label: 'Downside', data: auctionMetrics.scenario_downside, color: 'bg-red-50 border-red-200 text-red-700' },
+                    ].map(({ label, data, color }) => data && (
+                      <div key={label} className={`rounded-xl border p-3 ${color}`}>
+                        <p className="text-xs font-bold uppercase tracking-wider mb-2">{label}</p>
+                        {data.recovery_amount != null && <p className="text-sm font-bold">{formatCurrency(data.recovery_amount)}</p>}
+                        {data.net_profit != null && <p className="text-xs mt-1">Net: {formatCurrency(data.net_profit)}</p>}
+                        {data.roi != null && <p className="text-xs">ROI: {data.roi}%</p>}
+                        {data.timeline && <p className="text-xs mt-1">{data.timeline}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </CollapsibleSection>
+              )}
+
+              {/* Recovery Strategy & Legal Position */}
+              {(auctionMetrics.enforcement_type || auctionMetrics.default_valid != null) && (
+                <CollapsibleSection icon={<Landmark size={18} />} title="Legal Position & Recovery Strategy">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {auctionMetrics.enforcement_type && (
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Enforcement Type</p>
+                        <p className="text-sm font-semibold">{auctionMetrics.enforcement_type}</p>
+                      </div>
+                    )}
+                    {[
+                      ['Default Valid', auctionMetrics.default_valid],
+                      ['Acceleration Triggered', auctionMetrics.acceleration_triggered],
+                      ['Enforcement Commenced', auctionMetrics.enforcement_commenced],
+                      ['Court Action', auctionMetrics.court_action],
+                      ['Borrower Dispute', auctionMetrics.borrower_dispute],
+                      ['Injunction', auctionMetrics.injunction],
+                    ].map(([label, val]) => val != null && (
+                      <div key={label} className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${val ? 'bg-green-500' : 'bg-gray-300'}`} />
+                        <span className="text-xs text-gray-600">{label}</span>
+                        <span className={`ml-auto text-xs font-bold ${val ? 'text-green-600' : 'text-gray-400'}`}>{val ? 'Yes' : 'No'}</span>
+                      </div>
+                    ))}
+                    {auctionMetrics.notice_date && (
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Notice Date</p>
+                        <p className="text-sm font-semibold">{new Date(auctionMetrics.notice_date).toLocaleDateString('en-AU')}</p>
+                      </div>
+                    )}
+                  </div>
+                </CollapsibleSection>
+              )}
+
+              {/* Risk Flags */}
+              {auctionMetrics.risk_flags && Object.keys(auctionMetrics.risk_flags).length > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-3 text-red-700">
+                    <Flag size={16} />
+                    <span className="text-xs font-bold uppercase tracking-wider">Risk Flags</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(auctionMetrics.risk_flags).map(([key, val]) => val && (
+                      <span key={key} className="text-xs bg-red-100 text-red-700 border border-red-200 rounded-full px-3 py-1 font-medium">
+                        {key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Property Liquidity Section (§8.6) */}
+              {(loanMetrics.forced_sale_estimate || auctionMetrics.liquidity_rating || propertyDetails.valuer) && (
+                <CollapsibleSection icon={<Droplets size={18} />} title="Property Liquidity">
+                  <div className="grid grid-cols-2 gap-4">
+                    {propertyDetails.valuer && (
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Valuation Provider</p>
+                        <p className="text-sm font-semibold">{propertyDetails.valuer}</p>
+                      </div>
+                    )}
+                    {propertyDetails.valuationDate && (
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Valuation Date</p>
+                        <p className="text-sm font-semibold">{new Date(propertyDetails.valuationDate).toLocaleDateString('en-AU')}</p>
+                      </div>
+                    )}
+                    {loanMetrics.forced_sale_estimate && (
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Forced Sale Estimate</p>
+                        <p className="text-sm font-bold text-amber-600">{formatCurrency(loanMetrics.forced_sale_estimate)}</p>
+                      </div>
+                    )}
+                    {deal.propertyValue && (
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Market Value</p>
+                        <p className="text-sm font-bold text-gray-800">{formatCurrency(deal.propertyValue)}</p>
+                      </div>
+                    )}
+                    {auctionMetrics.days_on_market != null && (
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Days on Market</p>
+                        <p className="text-sm font-semibold">{auctionMetrics.days_on_market}</p>
+                      </div>
+                    )}
+                    {auctionMetrics.liquidity_rating && (
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Liquidity Rating</p>
+                        <span className={`inline-block text-xs font-bold px-2 py-0.5 rounded-full ${
+                          auctionMetrics.liquidity_rating === 'High' ? 'bg-green-100 text-green-700' :
+                          auctionMetrics.liquidity_rating === 'Medium' ? 'bg-amber-100 text-amber-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>{auctionMetrics.liquidity_rating}</span>
+                      </div>
+                    )}
+                    {propertyDetails.propertyCondition && (
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Property Condition</p>
+                        <p className="text-sm font-semibold">{propertyDetails.propertyCondition}</p>
+                      </div>
+                    )}
+                  </div>
+                  {auctionMetrics.comparable_sales_summary && (
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                      <p className="text-xs text-gray-400 mb-1">Comparable Sales Summary</p>
+                      <p className="text-sm text-gray-700">{auctionMetrics.comparable_sales_summary}</p>
+                    </div>
+                  )}
+                </CollapsibleSection>
+              )}
+
+              {/* Investment Structure Summary (§8.10) */}
+              {(auctionMetrics.investment_structure || auctionMetrics.minimum_bid || auctionMetrics.ownership_rights) && (
+                <CollapsibleSection icon={<Building2 size={18} />} title="Investment Structure">
+                  <div className="space-y-3">
+                    {auctionMetrics.investment_structure && (
+                      <div className="bg-indigo-50 border border-indigo-100 rounded-lg px-4 py-3 flex items-center gap-3">
+                        <HelpCircle size={16} className="text-indigo-500 shrink-0" />
+                        <div>
+                          <p className="text-xs text-indigo-600 font-semibold">What are you buying?</p>
+                          <p className="text-sm font-bold text-indigo-900 mt-0.5">{auctionMetrics.investment_structure}</p>
+                        </div>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-2 gap-4">
+                      {auctionMetrics.minimum_bid && (
+                        <div>
+                          <p className="text-xs text-gray-400 mb-1">Minimum Bid</p>
+                          <p className="text-sm font-bold text-gray-800">{formatCurrency(auctionMetrics.minimum_bid)}</p>
+                        </div>
+                      )}
+                    </div>
+                    {auctionMetrics.ownership_rights && (
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Ownership Rights</p>
+                        <p className="text-sm text-gray-700">{auctionMetrics.ownership_rights}</p>
+                      </div>
+                    )}
+                    {auctionMetrics.security_rights && (
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Security Rights</p>
+                        <p className="text-sm text-gray-700">{auctionMetrics.security_rights}</p>
+                      </div>
+                    )}
+                    {auctionMetrics.distribution_mechanics && (
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Distribution Mechanics</p>
+                        <p className="text-sm text-gray-700">{auctionMetrics.distribution_mechanics}</p>
+                      </div>
+                    )}
+                    {/* Reserve logic explanation (§8.9) */}
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 space-y-1.5 mt-2">
+                      <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">How the Reserve Works</p>
+                      <p className="text-xs text-gray-500">The reserve is the minimum acceptable sale price set by the lender. Bids below reserve are recorded but the case will not close until a bid meets or exceeds the reserve. The reserve gap shown in the bid panel is how far the current highest bid is from the reserve amount.</p>
+                    </div>
+                  </div>
+                </CollapsibleSection>
+              )}
+
               {/* 4. Property Information */}
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                 <div className="flex items-center gap-2 mb-6 text-indigo-900">
@@ -626,28 +893,61 @@ export default function InvestorAuctionRoom() {
       )}
 
       {activeTab === "bid-history" && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-100">
-            <h3 className="text-sm font-bold text-gray-900">Bid History ({bidHistory.length})</h3>
-          </div>
-          {bidHistory.length === 0 ? (
-            <div className="py-12 text-center text-gray-400 text-sm">No bids placed yet.</div>
-          ) : (
-            <div className="divide-y divide-gray-50">
-              {bidHistory.map((b, i) => (
-                <div key={b.id || i} className="flex items-center justify-between px-5 py-3.5">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">{b.user}</p>
-                    <p className="text-xs text-gray-400">{b.time}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className={`text-sm font-bold ${i === 0 ? 'text-emerald-600' : 'text-gray-700'}`}>{formatCurrency(b.amount)}</p>
-                    {i === 0 && <p className="text-xs text-emerald-500">Highest bid</p>}
-                  </div>
-                </div>
-              ))}
+        <div className="space-y-4">
+          {/* Bid summary bar */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="bg-white border border-gray-100 rounded-2xl p-4 text-center shadow-sm">
+              <p className="text-xs text-gray-400 mb-1">Total Bids</p>
+              <p className="text-2xl font-bold text-gray-900">{bidHistory.length}</p>
             </div>
-          )}
+            <div className="bg-white border border-gray-100 rounded-2xl p-4 text-center shadow-sm">
+              <p className="text-xs text-gray-400 mb-1">Highest Bid</p>
+              <p className="text-2xl font-bold text-emerald-600">{bidHistory.length > 0 ? formatCurrency(bidHistory[0].amount) : '—'}</p>
+            </div>
+            <div className="bg-white border border-gray-100 rounded-2xl p-4 text-center shadow-sm">
+              <p className="text-xs text-gray-400 mb-1">Reserve Gap</p>
+              <p className="text-2xl font-bold text-indigo-600">
+                {deal?.startingPrice && bidHistory.length > 0
+                  ? formatCurrency(Math.max(0, deal.startingPrice - bidHistory[0].amount))
+                  : '—'}
+              </p>
+            </div>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+              <h3 className="text-sm font-bold text-gray-900">Bid History ({bidHistory.length})</h3>
+              <span className="text-xs text-gray-400">Live updates every 15s</span>
+            </div>
+            {bidHistory.length === 0 ? (
+              <div className="py-12 text-center text-gray-400 text-sm">No bids placed yet.</div>
+            ) : (
+              <div className="divide-y divide-gray-50">
+                {bidHistory.map((b, i) => {
+                  const increment = i < bidHistory.length - 1 ? b.amount - bidHistory[i + 1].amount : null;
+                  return (
+                    <div key={b.id || i} className={`flex items-center justify-between px-5 py-3.5 ${i === 0 ? 'bg-emerald-50/50' : ''}`}>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${i === 0 ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                          {i + 1}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">{b.user}</p>
+                          <p className="text-xs text-gray-400">{b.time}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className={`text-sm font-bold ${i === 0 ? 'text-emerald-600' : 'text-gray-700'}`}>{formatCurrency(b.amount)}</p>
+                        {i === 0 && <p className="text-xs text-emerald-500 font-medium">Leading bid</p>}
+                        {increment != null && increment > 0 && (
+                          <p className="text-xs text-indigo-500">+{formatCurrency(increment)}</p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -746,4 +1046,29 @@ DetailRow.propTypes = {
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   bold: PropTypes.bool,
   color: PropTypes.string
+};
+
+function CollapsibleSection({ icon, title, children }) {
+  const [open, setOpen] = useState(true);
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-6 py-4 text-indigo-900 hover:bg-gray-50 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          {icon}
+          <span className="font-bold text-base">{title}</span>
+        </div>
+        {open ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
+      </button>
+      {open && <div className="px-6 pb-6">{children}</div>}
+    </div>
+  );
+}
+
+CollapsibleSection.propTypes = {
+  icon: PropTypes.element.isRequired,
+  title: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
 };
