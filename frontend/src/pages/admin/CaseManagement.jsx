@@ -342,20 +342,33 @@ export default function CaseManagement() {
 
                 {/* Table Content */}
                 <div className="overflow-x-auto">
-                    <table className="w-full">
+                    <table className="w-full table-fixed" style={{ fontSize: '11px' }}>
+                        <colgroup>
+                            <col style={{ width: '10%' }} />
+                            <col style={{ width: '9%' }} />
+                            <col style={{ width: '11%' }} />
+                            <col style={{ width: '9%' }} />
+                            <col style={{ width: '9%' }} />
+                            <col style={{ width: '5%' }} />
+                            <col style={{ width: '10%' }} />
+                            <col style={{ width: '9%' }} />
+                            <col style={{ width: '7%' }} />
+                            <col style={{ width: '8%' }} />
+                            <col style={{ width: '13%' }} />
+                        </colgroup>
                         <thead>
                             <tr className="border-b border-gray-200 bg-gray-50/50">
-                                <th className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 py-3">Case #</th>
-                                <th className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 py-3">Borrower</th>
-                                <th className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 py-3">Property</th>
-                                <th className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 py-3">Debt</th>
-                                <th className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 py-3">Valuation</th>
-                                <th className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 py-3">LVR</th>
-                                <th className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 py-3">Status</th>
-                                <th className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 py-3">Completion</th>
-                                <th className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 py-3">Risk</th>
-                                <th className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 py-3">Updated</th>
-                                <th className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 py-3">Actions</th>
+                                <th className="text-left font-semibold text-gray-400 uppercase tracking-wide px-2 py-2" style={{ fontSize: '10px' }}>Case #</th>
+                                <th className="text-left font-semibold text-gray-400 uppercase tracking-wide px-2 py-2" style={{ fontSize: '10px' }}>Borrower</th>
+                                <th className="text-left font-semibold text-gray-400 uppercase tracking-wide px-2 py-2" style={{ fontSize: '10px' }}>Property</th>
+                                <th className="text-left font-semibold text-gray-400 uppercase tracking-wide px-2 py-2" style={{ fontSize: '10px' }}>Debt</th>
+                                <th className="text-left font-semibold text-gray-400 uppercase tracking-wide px-2 py-2" style={{ fontSize: '10px' }}>Valuation</th>
+                                <th className="text-left font-semibold text-gray-400 uppercase tracking-wide px-2 py-2" style={{ fontSize: '10px' }}>LVR</th>
+                                <th className="text-left font-semibold text-gray-400 uppercase tracking-wide px-2 py-2" style={{ fontSize: '10px' }}>Status</th>
+                                <th className="text-left font-semibold text-gray-400 uppercase tracking-wide px-2 py-2" style={{ fontSize: '10px' }}>Completion</th>
+                                <th className="text-left font-semibold text-gray-400 uppercase tracking-wide px-2 py-2" style={{ fontSize: '10px' }}>Risk</th>
+                                <th className="text-left font-semibold text-gray-400 uppercase tracking-wide px-2 py-2" style={{ fontSize: '10px' }}>Updated</th>
+                                <th className="text-left font-semibold text-gray-400 uppercase tracking-wide px-2 py-2" style={{ fontSize: '10px' }}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -382,25 +395,25 @@ export default function CaseManagement() {
 
                                 return (
                                 <tr key={caseItem.id} className={`border-b border-gray-100 hover:bg-gray-50/50 transition-colors ${isDraft ? 'bg-amber-50/20' : ''}`}>
-                                    <td className="px-4 py-3 text-sm text-slate-800 font-medium">
-                                        <div className="flex items-center gap-1.5">
-                                            {isDraft && <span className="text-xs font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded uppercase">Draft</span>}
-                                            {caseItem.is_archived && <span className="text-xs font-bold bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded uppercase">Archived</span>}
-                                            {caseItem.case_number || caseItem.id?.slice(0, 8)}
+                                    <td className="px-2 py-2 text-gray-800 font-medium truncate">
+                                        <div className="flex flex-col gap-0.5">
+                                            {isDraft && <span className="font-bold bg-amber-100 text-amber-700 px-1 py-0.5 rounded uppercase w-fit" style={{ fontSize: '9px' }}>Draft</span>}
+                                            {caseItem.is_archived && <span className="font-bold bg-gray-100 text-gray-500 px-1 py-0.5 rounded uppercase w-fit" style={{ fontSize: '9px' }}>Archived</span>}
+                                            <span className="truncate">{caseItem.case_number || caseItem.id?.slice(0, 8)}</span>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-3 text-sm text-gray-700">{caseItem.borrower_name || caseItem.borrower || '—'}</td>
-                                    <td className="px-4 py-3 text-sm text-gray-700 max-w-[160px] truncate" title={caseItem.property_address || caseItem.title}>
+                                    <td className="px-2 py-2 text-gray-700 truncate">{caseItem.borrower_name || caseItem.borrower || '—'}</td>
+                                    <td className="px-2 py-2 text-gray-700 truncate" title={caseItem.property_address || caseItem.title}>
                                         {caseItem.property_address || caseItem.title || '—'}
                                     </td>
-                                    <td className="px-4 py-3 text-sm text-slate-800 font-semibold">{formatCurrency(debt)}</td>
-                                    <td className="px-4 py-3 text-sm text-gray-600">{formatCurrency(val)}</td>
-                                    <td className="px-4 py-3 text-sm text-indigo-600 font-bold">{lvr}{lvr !== '—' ? '%' : ''}</td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-2 py-2 text-gray-800 font-semibold truncate">{formatCurrency(debt)}</td>
+                                    <td className="px-2 py-2 text-gray-600 truncate">{formatCurrency(val)}</td>
+                                    <td className="px-2 py-2 text-indigo-600 font-bold">{lvr}{lvr !== '—' ? '%' : ''}</td>
+                                    <td className="px-2 py-2">
                                         {isDraft ? (
-                                            <span className="text-xs font-bold text-amber-600 uppercase">Draft</span>
+                                            <span className="font-bold text-amber-600 uppercase">Draft</span>
                                         ) : (
-                                            <select value={caseItem.status || 'pending'} onChange={(e) => handleStatusChange(caseItem.id, e.target.value)} className="text-xs font-semibold border border-gray-200 rounded px-1.5 py-1 bg-white focus:ring-1 focus:ring-indigo-500 cursor-pointer">
+                                            <select value={caseItem.status || 'pending'} onChange={(e) => handleStatusChange(caseItem.id, e.target.value)} className="font-semibold border border-gray-200 rounded px-1 py-0.5 bg-white focus:ring-1 focus:ring-indigo-500 cursor-pointer w-full" style={{ fontSize: '11px' }}>
                                                 <option value="UNDER_REVIEW">Under Review</option>
                                                 <option value="APPROVED">Approved</option>
                                                 <option value="LISTED">Listed</option>
@@ -410,18 +423,18 @@ export default function CaseManagement() {
                                             </select>
                                         )}
                                     </td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-2 py-2">
                                         {completionPct != null ? (
                                             <div className="flex flex-col gap-0.5">
-                                                <div className="flex items-center gap-1.5">
-                                                    <div className="w-12 bg-slate-200 rounded-full h-1">
+                                                <div className="flex items-center gap-1">
+                                                    <div className="w-10 bg-gray-200 rounded-full h-1">
                                                         <div className={`h-1 rounded-full ${completionPct >= 80 ? 'bg-emerald-500' : completionPct >= 40 ? 'bg-amber-500' : 'bg-red-400'}`} style={{ width: `${completionPct}%` }} />
                                                     </div>
-                                                    <span className="text-xs font-semibold text-gray-600">{completionPct}%</span>
+                                                    <span className="font-semibold text-gray-600">{completionPct}%</span>
                                                 </div>
                                                 {missingItems.length > 0 && (
                                                     <div className="relative group inline-block">
-                                                        <span className="text-xs text-amber-600 font-semibold cursor-help underline decoration-dotted">{missingItems.length} missing</span>
+                                                        <span className="text-amber-600 font-semibold cursor-help underline decoration-dotted">{missingItems.length} missing</span>
                                                         <div className="absolute bottom-full left-0 mb-1 hidden group-hover:block z-50 bg-slate-900 text-white text-xs rounded-lg px-3 py-2 w-44 shadow-xl">
                                                             <p className="font-bold mb-1">Missing:</p>
                                                             <ul className="list-disc list-inside space-y-0.5">{missingItems.map(m => <li key={m}>{m}</li>)}</ul>
@@ -429,36 +442,36 @@ export default function CaseManagement() {
                                                     </div>
                                                 )}
                                             </div>
-                                        ) : <span className="text-sm text-gray-400">—</span>}
+                                        ) : <span className="text-gray-400">—</span>}
                                     </td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-2 py-2">
                                         <AdminRiskBadge risk={caseItem.risk_level || caseItem.risk} />
                                     </td>
-                                    <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
+                                    <td className="px-2 py-2 text-gray-500 whitespace-nowrap">
                                         {lastUpdated ? new Date(lastUpdated).toLocaleDateString('en-AU') : '—'}
                                     </td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-2 py-2">
                                         <div className="flex items-center gap-0.5 flex-wrap">
                                             {isDraft ? (
-                                                <button onClick={() => navigate(`/borrower/submit-case?resume=${caseItem.id}`)} className="px-2 py-1 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded transition-colors" title="Resume Draft">Resume</button>
+                                                <button onClick={() => navigate(`/borrower/submit-case?resume=${caseItem.id}`)} className="px-1.5 py-0.5 font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded transition-colors" style={{ fontSize: '10px' }} title="Resume Draft">Resume</button>
                                             ) : (
-                                                <button onClick={() => navigate(`/admin/case-details/${caseItem.id}`)} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors" title="View"><Eye className="w-3.5 h-3.5" /></button>
+                                                <button onClick={() => navigate(`/admin/case-details/${caseItem.id}`)} className="p-1 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors" title="View"><Eye className="w-3 h-3" /></button>
                                             )}
                                             {(caseItem.status === 'SUBMITTED' || caseItem.status === 'UNDER_REVIEW') && (
-                                                <button onClick={() => handleApprove(caseItem.id)} className="p-1.5 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 rounded transition-colors" title="Approve"><CheckCircle className="w-3.5 h-3.5" /></button>
+                                                <button onClick={() => handleApprove(caseItem.id)} className="p-1 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 rounded transition-colors" title="Approve"><CheckCircle className="w-3 h-3" /></button>
                                             )}
                                             {caseItem.status === 'APPROVED' && (
-                                                <button onClick={() => handleMoveToAuction(caseItem.id)} className="p-1.5 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded transition-colors" title="Move to Auction"><Gavel className="w-3.5 h-3.5" /></button>
+                                                <button onClick={() => handleMoveToAuction(caseItem.id)} className="p-1 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded transition-colors" title="Move to Auction"><Gavel className="w-3 h-3" /></button>
                                             )}
                                             {!isDraft && (
-                                                <button onClick={() => openAssignModal(caseItem.id)} className="p-1.5 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Assign"><UserPlus className="w-3.5 h-3.5" /></button>
+                                                <button onClick={() => openAssignModal(caseItem.id)} className="p-1 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Assign"><UserPlus className="w-3 h-3" /></button>
                                             )}
-                                            <button onClick={() => handleDuplicate(caseItem.id)} className="p-1.5 text-violet-400 hover:text-violet-600 hover:bg-violet-50 rounded transition-colors" title="Duplicate"><Copy className="w-3.5 h-3.5" /></button>
-                                            <button onClick={() => handleArchive(caseItem.id, caseItem.is_archived)} className={`p-1.5 rounded transition-colors ${caseItem.is_archived ? 'text-emerald-500 hover:bg-emerald-50' : 'text-slate-300 hover:text-gray-500 hover:bg-gray-100'}`} title={caseItem.is_archived ? 'Unarchive' : 'Archive'}>
-                                                {caseItem.is_archived ? <RotateCcw className="w-3.5 h-3.5" /> : <Archive className="w-3.5 h-3.5" />}
+                                            <button onClick={() => handleDuplicate(caseItem.id)} className="p-1 text-violet-400 hover:text-violet-600 hover:bg-violet-50 rounded transition-colors" title="Duplicate"><Copy className="w-3 h-3" /></button>
+                                            <button onClick={() => handleArchive(caseItem.id, caseItem.is_archived)} className={`p-1 rounded transition-colors ${caseItem.is_archived ? 'text-emerald-500 hover:bg-emerald-50' : 'text-gray-300 hover:text-gray-500 hover:bg-gray-100'}`} title={caseItem.is_archived ? 'Unarchive' : 'Archive'}>
+                                                {caseItem.is_archived ? <RotateCcw className="w-3 h-3" /> : <Archive className="w-3 h-3" />}
                                             </button>
                                             {(isDraft || ['UNDER_REVIEW', 'REJECTED'].includes(caseItem.status)) && (
-                                                <button onClick={() => handleDelete(caseItem.id)} className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
+                                                <button onClick={() => handleDelete(caseItem.id)} className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete"><Trash2 className="w-3 h-3" /></button>
                                             )}
                                         </div>
                                     </td>
