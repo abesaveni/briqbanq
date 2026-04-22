@@ -1,20 +1,47 @@
 // src/pages/admin/case-details/Documents.jsx
 import { useState, useRef } from 'react'
 import { useCaseContext } from '../../../context/CaseContext'
-import { Upload, FileText, Eye, Download, Search, Loader2 } from 'lucide-react'
+import { Upload, FileText, Eye, Download, Search, Loader2, Trash2, Archive } from 'lucide-react'
 import { documentService } from '../../../api/dataService'
 
 export default function Documents() {
     const { caseData, updateCase } = useCaseContext()
     const [search, setSearch] = useState('')
     const [uploading, setUploading] = useState(false)
+    const [deletingId, setDeletingId] = useState(null)
+    const [archivedIds, setArchivedIds] = useState(new Set())
+    const [showArchived, setShowArchived] = useState(false)
     const fileInputRef = useRef(null)
 
-    const filtered = (caseData.documents || []).filter(doc =>
+    const allDocs = caseData.documents || []
+    const activeDocs = allDocs.filter(doc => !archivedIds.has(String(doc.id || doc.name)))
+    const archivedDocs = allDocs.filter(doc => archivedIds.has(String(doc.id || doc.name)))
+    const sourceDocs = showArchived ? archivedDocs : activeDocs
+
+    const filtered = sourceDocs.filter(doc =>
         !search ||
         (doc.name || '').toLowerCase().includes(search.toLowerCase()) ||
         (doc.type || '').toLowerCase().includes(search.toLowerCase())
     )
+
+    const handleDelete = async (doc) => {
+        const key = String(doc.id || doc.name)
+        const snapshot = allDocs
+        updateCase({ documents: allDocs.filter(d => String(d.id || d.name) !== key) })
+        setDeletingId(key)
+        try { await documentService.deleteDocument(doc.id) } catch { updateCase({ documents: snapshot }) }
+        setDeletingId(null)
+    }
+
+    const handleArchive = (doc) => {
+        const key = String(doc.id || doc.name)
+        setArchivedIds(prev => {
+            const next = new Set(prev)
+            if (next.has(key)) next.delete(key)
+            else next.add(key)
+            return next
+        })
+    }
 
     const handleUpload = async (e) => {
         const files = Array.from(e.target.files || [])
@@ -80,7 +107,17 @@ export default function Documents() {
                             className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
                         />
                     </div>
+                    <div className="flex items-center gap-3">
+                    {archivedDocs.length > 0 && (
+                        <button
+                            onClick={() => setShowArchived(v => !v)}
+                            className={`text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors ${showArchived ? 'bg-amber-50 border-amber-300 text-amber-700' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+                        >
+                            {showArchived ? `Archived (${archivedDocs.length})` : `Show Archived (${archivedDocs.length})`}
+                        </button>
+                    )}
                     <span className="text-xs text-gray-400">{filtered.length} document{filtered.length !== 1 ? 's' : ''}</span>
+                </div>
                 </div>
 
                 {filtered.length === 0 ? (
@@ -121,10 +158,10 @@ export default function Documents() {
                                     <td className="px-4 py-3 text-sm text-gray-600">{doc.uploadedBy}</td>
                                     <td className="px-4 py-3 text-sm text-gray-500">{doc.date}</td>
                                     <td className="px-4 py-3 text-right">
-                                        <div className="flex items-center justify-end gap-2">
-                                            <button 
+                                        <div className="flex items-center justify-end gap-1">
+                                            <button
                                                 onClick={() => doc.file && window.open(doc.file, '_blank')}
-                                                className={`p-1.5 rounded-lg transition-colors ${doc.file ? 'text-gray-400 hover:text-indigo-600 hover:bg-indigo-50' : 'text-gray-200 cursor-not-allowed'}`} 
+                                                className={`p-1.5 rounded-lg transition-colors ${doc.file ? 'text-gray-400 hover:text-indigo-600 hover:bg-indigo-50' : 'text-gray-200 cursor-not-allowed'}`}
                                                 title="View"
                                                 disabled={!doc.file}
                                             >
@@ -144,6 +181,24 @@ export default function Documents() {
                                                     <Download className="w-4 h-4" />
                                                 </span>
                                             )}
+                                            <button
+                                                onClick={() => handleArchive(doc)}
+                                                className="p-1.5 rounded-lg transition-colors text-gray-400 hover:text-amber-600 hover:bg-amber-50"
+                                                title={archivedIds.has(String(doc.id || doc.name)) ? 'Unarchive' : 'Archive'}
+                                            >
+                                                <Archive className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(doc)}
+                                                disabled={deletingId === String(doc.id || doc.name)}
+                                                className="p-1.5 rounded-lg transition-colors text-gray-400 hover:text-red-600 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                title="Delete"
+                                            >
+                                                {deletingId === String(doc.id || doc.name)
+                                                    ? <Loader2 className="w-4 h-4 animate-spin" />
+                                                    : <Trash2 className="w-4 h-4" />
+                                                }
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>

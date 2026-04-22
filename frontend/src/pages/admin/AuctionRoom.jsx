@@ -108,7 +108,12 @@ function Documents({ documents }) {
     const docs = Array.isArray(documents) ? documents : []
     const getName = (d) => d.document_name || d.name || 'Document'
     const getType = (d) => d.document_type || d.type || ''
-    const getUrl = (d) => d.s3_key || d.file_url || null
+    const getUrl = (d) => {
+        const url = d.file_url || d.s3_key || null
+        if (!url) return null
+        if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) return url
+        return null
+    }
 
     const handleDownload = async (doc) => {
         const url = getUrl(doc)

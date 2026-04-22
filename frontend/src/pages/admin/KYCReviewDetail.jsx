@@ -16,6 +16,7 @@ export default function KYCReviewDetail() {
     const [kycRecord, setKycRecord] = useState(null);
     const [showActivityModal, setShowActivityModal] = useState(false);
     const [activityLog, setActivityLog] = useState([]);
+    const [showRejectConfirm, setShowRejectConfirm] = useState(false);
 
     useEffect(() => {
         if (!id) return;
@@ -190,27 +191,64 @@ export default function KYCReviewDetail() {
 
             {/* Approved — allow admin to reverse decision */}
             {status === 'approved' && (
-                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm text-sm">
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 shadow-sm text-sm">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                                <CheckCircle className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-gray-900 text-base">KYC Approved</h3>
+                                <p className="text-gray-500 text-sm">This submission has been approved. You can reverse this decision.</p>
+                            </div>
+                        </div>
+                        {!showRejectConfirm && (
+                            <button
+                                onClick={() => setShowRejectConfirm(true)}
+                                className="flex items-center gap-2 px-4 py-2 border border-red-200 text-red-600 font-medium rounded-lg hover:bg-red-50 transition-colors"
+                            >
+                                <XCircle className="w-4 h-4" /> Reject (Reverse Approval)
+                            </button>
+                        )}
+                    </div>
+                    {showRejectConfirm && (
+                        <div className="mt-4 pt-4 border-t border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <p className="text-sm text-gray-700 font-medium">Are you sure you want to reverse the approval and reject this KYC?</p>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => setShowRejectConfirm(false)}
+                                    className="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        if (id) kycService.rejectKYC(id, 'Approval reversed by admin').catch(() => {});
+                                        setStatus('rejected');
+                                        setShowRejectConfirm(false);
+                                    }}
+                                    className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700"
+                                >
+                                    Yes, Reject
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Rejected state confirmation bar */}
+            {status === 'rejected' && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm text-sm">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
-                            <CheckCircle className="w-6 h-6" />
+                        <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                            <XCircle className="w-6 h-6" />
                         </div>
                         <div>
-                            <h3 className="font-bold text-gray-900 text-base">KYC Approved</h3>
-                            <p className="text-gray-500 text-sm">This submission has been approved. You can reverse this decision.</p>
+                            <h3 className="font-bold text-gray-900 text-base">KYC Rejected</h3>
+                            <p className="text-gray-500 text-sm">This submission has been rejected.</p>
                         </div>
                     </div>
-                    <button
-                        onClick={() => {
-                            if (window.confirm('Are you sure you want to reject this already-approved KYC submission?')) {
-                                if (id) kycService.rejectKYC(id, 'Approval reversed by admin').catch(() => {});
-                                setStatus('rejected');
-                            }
-                        }}
-                        className="flex items-center gap-2 px-4 py-2 border border-red-200 text-red-600 font-medium rounded-lg hover:bg-red-50 transition-colors"
-                    >
-                        <XCircle className="w-4 h-4" /> Reject (Reverse Approval)
-                    </button>
                 </div>
             )}
 
