@@ -112,20 +112,7 @@ export default function ContractReview() {
         status: createForm.status,
       })
       if (res.error) {
-        // Optimistic fallback — add locally so the user sees the result
-        const optimistic = {
-          id: `local-${Date.now()}`,
-          contractId: `CON-${Date.now()}`,
-          propertyAddress: createForm.propertyAddress,
-          propertySuburb: createForm.propertySuburb,
-          parties: createForm.parties,
-          partiesSub: createForm.partiesSub,
-          value: createForm.value,
-          createdDate: new Date().toLocaleDateString('en-AU'),
-          status: createForm.status,
-        }
-        setContracts((prev) => [optimistic, ...prev])
-        closeCreateModal()
+        setCreateError(res.error || 'Failed to create contract. Please try again.')
         return
       }
       if (res.data) setContracts((prev) => [res.data, ...prev])

@@ -20,6 +20,7 @@ export default function KYCReview() {
           role: r.role || r.user_role || '—',
           documents: r.documents ?? r.document_count ?? (r.document_type ? 1 : 0),
           submitted: r.submitted || (r.created_at ? new Date(r.created_at).toLocaleDateString('en-AU') : '—'),
+          status: (r.status || 'pending').toLowerCase(),
         }))
         setSubmissions(data)
         setApprovedToday(data.filter((s) => s.status === 'approved').length)
@@ -29,7 +30,7 @@ export default function KYCReview() {
       .finally(() => setLoading(false))
   }, [])
 
-  const pendingCount = submissions.filter((s) => s.status === 'pending' || s.status === 'Pending').length
+  const pendingCount = submissions.filter((s) => s.status === 'pending').length
 
   const handleApprove = async (id) => {
     setSubmissions((prev) => prev.map((s) => (s.id === id ? { ...s, status: 'approved' } : s)))
@@ -121,17 +122,17 @@ export default function KYCReview() {
                   <td className="px-4 py-3 text-sm text-gray-900">{kyc.submitted || (kyc.created_at ? new Date(kyc.created_at).toLocaleDateString('en-AU') : '—')}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">{kyc.documents || kyc.document_count || 0} files</td>
                   <td className="px-4 py-3">
-                    {(kyc.status === 'Pending' || kyc.status === 'pending') && (
+                    {kyc.status === 'pending' && (
                       <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 border border-amber-200">
                         Pending
                       </span>
                     )}
-                    {(kyc.status === 'Approved' || kyc.status === 'approved') && (
+                    {kyc.status === 'approved' && (
                       <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
                         Approved
                       </span>
                     )}
-                    {(kyc.status === 'Rejected' || kyc.status === 'rejected') && (
+                    {kyc.status === 'rejected' && (
                       <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
                         Rejected
                       </span>
@@ -139,7 +140,7 @@ export default function KYCReview() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-2">
-                      {(kyc.status === 'Pending' || kyc.status === 'pending') && (
+                      {kyc.status === 'pending' && (
                         <>
                           <button
                             type="button"
@@ -174,7 +175,7 @@ export default function KYCReview() {
                           </button>
                         </>
                       )}
-                      {(['Approved', 'Rejected', 'approved', 'rejected'].includes(kyc.status)) && (
+                      {(kyc.status === 'approved' || kyc.status === 'rejected') && (
                         <button
                           type="button"
                           onClick={() => handleReview(kyc)}
@@ -241,7 +242,7 @@ export default function KYCReview() {
                 <p className="text-xs font-medium text-gray-500 uppercase">Status</p>
                 <p className="text-sm text-gray-900">{reviewModal.status}</p>
               </div>
-              {(reviewModal.status === 'Pending' || reviewModal.status === 'pending') && (
+              {reviewModal.status === 'pending' && (
                 <div className="flex gap-2 pt-2">
                   <button
                     type="button"

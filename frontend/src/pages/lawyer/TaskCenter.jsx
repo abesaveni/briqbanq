@@ -6,6 +6,22 @@ import { taskService } from '../../api/dataService'
 const priorityVariant = { Urgent: 'urgent', High: 'high', Medium: 'medium', Done: 'done' }
 const statusVariant = { Overdue: 'overdue', Pending: 'pending', InProgress: 'in-progress', Completed: 'completed' }
 
+const normalizeStatus = (s) => {
+  if (!s) return 'Pending'
+  const lower = s.toLowerCase().replace(/[_ ]/g, '')
+  if (lower === 'inprogress') return 'InProgress'
+  if (lower === 'completed' || lower === 'done') return 'Completed'
+  if (lower === 'overdue') return 'Overdue'
+  if (lower === 'pending') return 'Pending'
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+const normalizePriority = (p) => {
+  if (!p) return 'Low'
+  const cap = p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()
+  return ['Urgent', 'High', 'Medium', 'Low'].includes(cap) ? cap : 'Low'
+}
+
 const PRIORITY_OPTIONS = ['Low', 'Medium', 'High', 'Urgent']
 const MODULE_OPTIONS = ['Brickbanq', 'Accounting', 'Compliance', 'Legal Review', 'Documentation', 'AML/CTF']
 
@@ -35,7 +51,10 @@ export default function TaskCenter() {
         const data = res.data || res || []
         setTasks(data.map((t) => ({
           ...t,
+          id: t.id ?? t.task_id,
           desc: t.desc || t.description || '',
+          status: normalizeStatus(t.status),
+          priority: normalizePriority(t.priority),
           dueLabel: formatDueLabel(t.dueDate || t.due_date),
           dueDateRaw: t.dueDate || t.due_date || '',
           module: t.module || 'Brickbanq',
@@ -76,7 +95,10 @@ export default function TaskCenter() {
       const created = res.data || res
       setTasks((prev) => [...prev, {
         ...created,
+        id: created.id ?? created.task_id,
         desc: created.description || '',
+        status: normalizeStatus(created.status) || 'Pending',
+        priority: normalizePriority(created.priority) || newTaskForm.priority,
         dueLabel: formatDueLabel(created.due_date) || '—',
         dueDateRaw: created.due_date || '',
         module: created.module || newTaskForm.module,
@@ -127,8 +149,8 @@ export default function TaskCenter() {
   }
 
   const handleDeleteTask = async (taskId) => {
-    setTasks((prev) => prev.filter((t) => t.id !== taskId))
-    if (editingTask?.id === taskId) handleCloseNewTaskModal()
+    setTasks((prev) => prev.filter((t) => String(t.id) !== String(taskId)))
+    if (editingTask?.id !== undefined && String(editingTask.id) === String(taskId)) handleCloseNewTaskModal()
     try { await taskService.deleteTask(taskId) } catch (_) {}
   }
 

@@ -52,8 +52,8 @@ export const NotificationProvider = ({ children }) => {
           : null;
         if (list) setNotifications(
           list.map(normaliseNotif)
-            .filter(n => !deletedIds.current.has(n.id))
-            .map(n => markedReadIds.current.has(n.id) ? { ...n, unread: false } : n)
+            .filter(n => !deletedIds.current.has(String(n.id)))
+            .map(n => markedReadIds.current.has(String(n.id)) ? { ...n, unread: false } : n)
         );
       }
     } catch { /* stay silent on network error */ }
@@ -73,24 +73,24 @@ export const NotificationProvider = ({ children }) => {
   }, []);
 
   const markAsRead = useCallback(async (id) => {
-    markedReadIds.current.add(id);
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, unread: false } : n));
+    markedReadIds.current.add(String(id));
+    setNotifications(prev => prev.map(n => String(n.id) === String(id) ? { ...n, unread: false } : n));
     try { await notificationService.markAsRead(id); } catch { /* ignore */ }
   }, []);
 
   const markAllRead = useCallback(async () => {
-    setNotifications(prev => { prev.forEach(n => markedReadIds.current.add(n.id)); return prev.map(n => ({ ...n, unread: false })); });
+    setNotifications(prev => { prev.forEach(n => markedReadIds.current.add(String(n.id))); return prev.map(n => ({ ...n, unread: false })); });
     try { await notificationService.markAllAsRead(); } catch { /* ignore */ }
   }, []);
 
   const deleteNotification = useCallback(async (id) => {
-    deletedIds.current.add(id);
-    setNotifications(prev => prev.filter(n => n.id !== id));
+    deletedIds.current.add(String(id));
+    setNotifications(prev => prev.filter(n => String(n.id) !== String(id)));
     try { await notificationService.deleteNotification(id); } catch { /* ignore */ }
   }, []);
 
   const deleteAllNotifications = useCallback(async () => {
-    setNotifications(prev => { prev.forEach(n => deletedIds.current.add(n.id)); return []; });
+    setNotifications(prev => { prev.forEach(n => deletedIds.current.add(String(n.id))); return []; });
     try { await notificationService.deleteAllNotifications(); } catch { /* ignore */ }
   }, []);
 
