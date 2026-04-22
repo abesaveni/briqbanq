@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import {
     Mail, Send, Settings, Plus, Eye, Edit2, Copy, Trash2,
@@ -577,8 +578,8 @@ function SegmentsTab({ segments = [], onDelete, onAddNew, onLaunchCampaign }) {
             </div>
 
             {/* View Segment Detail Modal */}
-            {viewingSeg && (
-                <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+            {viewingSeg && createPortal(
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setViewingSeg(null)} />
                     <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden">
                         {/* Modal header */}
@@ -640,6 +641,7 @@ function SegmentsTab({ segments = [], onDelete, onAddNew, onLaunchCampaign }) {
                         </div>
                     </div>
                 </div>
+                , document.body
             )}
         </div>
     );

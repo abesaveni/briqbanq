@@ -688,46 +688,46 @@ export default function LenderTaskCenter() {
             {/* Edit Task Modal */}
             {isEditModalOpen && editingTask && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setIsEditModalOpen(false)}>
-                    <div className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100" onClick={(e) => e.stopPropagation()}>
-                        <div className="px-8 py-6 flex items-center justify-between border-b border-gray-100">
-                            <h2 className="text-lg font-bold text-slate-900">Edit Task</h2>
+                    <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200 border border-slate-100" onClick={(e) => e.stopPropagation()}>
+                        <div className="px-5 py-3.5 flex items-center justify-between border-b border-gray-100 shrink-0">
+                            <h2 className="text-sm font-bold text-slate-900">Edit Task</h2>
                             <button
                                 onClick={() => setIsEditModalOpen(false)}
-                                className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-gray-100 text-gray-400 transition-colors"
+                                className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"
                             >
-                                <X size={20} />
+                                <X size={16} />
                             </button>
                         </div>
 
-                        <form onSubmit={handleUpdateTask}>
-                            <div className="p-8 space-y-5">
+                        <form onSubmit={handleUpdateTask} className="flex flex-col flex-1 min-h-0">
+                            <div className="p-5 space-y-3.5 overflow-y-auto flex-1">
                                 <div>
-                                    <label className="block text-[11px] font-bold text-gray-700 mb-1.5 pl-1 uppercase tracking-wider">Task Title</label>
+                                    <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Task Title</label>
                                     <input
                                         type="text"
                                         value={editingTask.title}
                                         onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
-                                        className="w-full px-5 py-3 text-sm border border-gray-200 rounded-[1.25rem] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                                        className="w-full px-3.5 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-[11px] font-bold text-gray-700 mb-1.5 pl-1 uppercase tracking-wider">Description</label>
+                                    <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Description</label>
                                     <textarea
-                                        rows="3"
+                                        rows="2"
                                         value={editingTask.description}
                                         onChange={(e) => setEditingTask({ ...editingTask, description: e.target.value })}
-                                        className="w-full px-5 py-3 text-sm border border-gray-200 rounded-[1.25rem] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none"
+                                        className="w-full px-3.5 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none"
                                     ></textarea>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label className="block text-[11px] font-bold text-gray-700 mb-1.5 pl-1 uppercase tracking-wider">Priority</label>
+                                        <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Priority</label>
                                         <select
                                             value={editingTask.priority}
                                             onChange={(e) => setEditingTask({ ...editingTask, priority: e.target.value })}
-                                            className="w-full px-5 py-3 text-sm border border-gray-200 rounded-[1.25rem] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white font-semibold"
+                                            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white font-semibold"
                                         >
                                             <option>Low</option>
                                             <option>Medium</option>
@@ -736,23 +736,23 @@ export default function LenderTaskCenter() {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-[11px] font-bold text-gray-700 mb-1.5 pl-1 uppercase tracking-wider">Due Date</label>
+                                        <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Due Date</label>
                                         <GlobalDatePicker
                                             name="dueDate"
                                             value={editingTask.dueDateObj ? editingTask.dueDateObj.toISOString().split('T')[0] : ''}
                                             onChange={(e) => setEditingTask({ ...editingTask, dueDateObj: new Date(e.target.value), dueDate: e.target.value })}
-                                            className="w-full px-5 py-3 text-sm border border-gray-200 rounded-[1.25rem] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-semibold text-gray-700"
+                                            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-semibold text-gray-700"
                                         />
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label className="block text-[11px] font-bold text-gray-700 mb-1.5 pl-1 uppercase tracking-wider">Status</label>
+                                        <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Status</label>
                                         <select
                                             value={editingTask.status}
                                             onChange={(e) => setEditingTask({ ...editingTask, status: e.target.value })}
-                                            className="w-full px-5 py-3 text-sm border border-gray-200 rounded-[1.25rem] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white font-semibold"
+                                            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white font-semibold"
                                         >
                                             <option>Pending</option>
                                             <option>In progress</option>
@@ -761,11 +761,11 @@ export default function LenderTaskCenter() {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-[11px] font-bold text-gray-700 mb-1.5 pl-1 uppercase tracking-wider">Module</label>
+                                        <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Module</label>
                                         <select
                                             value={editingTask.module}
                                             onChange={(e) => setEditingTask({ ...editingTask, module: e.target.value })}
-                                            className="w-full px-5 py-3 text-sm border border-gray-200 rounded-[1.25rem] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white font-semibold text-gray-700"
+                                            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white font-semibold text-gray-700"
                                         >
                                             <option>Accounting</option>
                                             <option>Brickbanq</option>
@@ -776,19 +776,19 @@ export default function LenderTaskCenter() {
                                 </div>
                             </div>
 
-                            <div className="px-8 py-5 bg-gray-50 flex items-center justify-end gap-3 border-t border-gray-100">
+                            <div className="px-5 py-3.5 bg-gray-50 flex items-center justify-end gap-2 border-t border-gray-100 shrink-0">
                                 <button
                                     type="button"
                                     onClick={() => setIsEditModalOpen(false)}
-                                    className="px-6 py-2.5 text-xs font-bold text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all active:scale-95 shadow-sm"
+                                    className="px-4 py-2 text-xs font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all active:scale-95"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-8 py-2.5 text-xs font-bold text-white bg-indigo-800 rounded-xl hover:bg-indigo-900 transition-all shadow-lg shadow-indigo-100 flex items-center gap-2 active:scale-95"
+                                    className="px-5 py-2 text-xs font-bold text-white bg-indigo-700 rounded-lg hover:bg-indigo-800 transition-all flex items-center gap-1.5 active:scale-95"
                                 >
-                                    <Edit2 size={16} /> Save Changes
+                                    <Edit2 size={13} /> Save Changes
                                 </button>
                             </div>
                         </form>

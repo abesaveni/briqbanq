@@ -33,13 +33,19 @@ function fmtFileSize(bytes) {
 
 function mapCaseDocuments(rawDocs) {
   if (!Array.isArray(rawDocs)) return [];
-  return rawDocs.map(doc => ({
-    id: doc.id,
-    name: doc.document_name || doc.name || "Document",
-    type: doc.document_type || doc.type || "PDF",
-    size: fmtFileSize(doc.file_size || doc.size),
-    file: doc.id ? `/api/v1/documents/${doc.id}/download` : null,
-  }));
+  return rawDocs.map(doc => {
+    const rawUrl = doc.file_url || doc.file;
+    const isDirectUrl = rawUrl && (rawUrl.startsWith('http') || rawUrl.startsWith('/uploads/'));
+    const file = isDirectUrl ? rawUrl : (doc.id ? `/api/v1/documents/${doc.id}/download` : null);
+    return {
+      id: doc.id,
+      name: doc.document_name || doc.name || "Document",
+      type: doc.document_type || doc.type || "PDF",
+      size: fmtFileSize(doc.file_size || doc.size),
+      file,
+      file_url: rawUrl || null,
+    };
+  });
 }
 
 function mapBids(rawBids, currentUser) {

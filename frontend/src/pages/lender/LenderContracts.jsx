@@ -157,9 +157,9 @@ export default function LenderContracts() {
                 ],
                 sections: [
                     {
-                        title: 'Contract Summary',
+                        heading: 'Contract Summary',
+                        head: ['Field', 'Value'],
                         rows: [
-                            ['Field', 'Value'],
                             ['Asset ID', contract.id],
                             ['Property', contract.propertyName],
                             ['Location', contract.location || '—'],

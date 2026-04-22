@@ -92,8 +92,21 @@ export default function LenderReports() {
         });
     };
 
-    const handleExportExcel = async (section) => {
-        await handleExportPDF(section);
+    const handleExportExcel = (section) => {
+        const rows = buildRows(section);
+        const csvRows = [['Metric', 'Value'], ...rows];
+        const csv = csvRows
+            .map(row => row.map(cell => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(','))
+            .join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `lender-${section.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     };
 
     if (loading && !isRefreshing) return <div className="p-8 max-w-[1240px] mx-auto"><LoadingState /></div>;

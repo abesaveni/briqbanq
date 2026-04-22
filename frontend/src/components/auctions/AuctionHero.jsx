@@ -1,8 +1,56 @@
 import { PROPERTY_PLACEHOLDER } from '../../utils/propertyPlaceholder'
 import { useState, useEffect } from "react";
 import useCountdown from "../../hooks/useCountdown";
-import { BedDouble, Bath, Car, Home, MapPin, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { BedDouble, Bath, Car, MapPin, ChevronLeft, ChevronRight, Clock, Bookmark } from "lucide-react";
 import PropTypes from 'prop-types';
+
+const WATCHLIST_KEY = 'investor_watchlist';
+
+function useWatchlist(deal) {
+  const getId = () => deal?.case_id || deal?.id;
+  const [saved, setSaved] = useState(() => {
+    try {
+      const list = JSON.parse(localStorage.getItem(WATCHLIST_KEY) || '[]');
+      return Array.isArray(list) && list.some(i => String(i.id) === String(getId()));
+    } catch { return false; }
+  });
+  const [flash, setFlash] = useState(null); // 'added' | 'removed'
+
+  const toggle = (e) => {
+    e.stopPropagation();
+    if (!deal) return;
+    const id = getId();
+    try {
+      const list = JSON.parse(localStorage.getItem(WATCHLIST_KEY) || '[]');
+      if (saved) {
+        const updated = list.filter(i => String(i.id) !== String(id));
+        localStorage.setItem(WATCHLIST_KEY, JSON.stringify(updated));
+        setSaved(false);
+        setFlash('removed');
+      } else {
+        const images = Array.isArray(deal.images) ? deal.images : (deal.image ? [deal.image] : []);
+        const item = {
+          id,
+          title: deal.title || '',
+          image: images[0] || null,
+          property_images: images,
+          suburb: deal.suburb || '',
+          state: deal.state || '',
+          postcode: deal.postcode || '',
+          propertyValue: deal.propertyValue || 0,
+          outstandingDebt: deal.outstandingDebt || 0,
+          returnRate: deal.returnRate || deal.metrics?.interestRate || 0,
+        };
+        localStorage.setItem(WATCHLIST_KEY, JSON.stringify([...list, item]));
+        setSaved(true);
+        setFlash('added');
+      }
+    } catch { /* ignore storage errors */ }
+    setTimeout(() => setFlash(null), 2000);
+  };
+
+  return { saved, flash, toggle };
+}
 
 /**
  * AuctionHero: The visual centerpiece of the Auction Room.
@@ -12,6 +60,7 @@ export default function AuctionHero({ deal }) {
   const [currentImage, setCurrentImage] = useState("");
   const [imgIndex, setImgIndex] = useState(0);
   const countdown = useCountdown(deal?.auctionEnd);
+  const { saved, flash, toggle } = useWatchlist(deal);
 
   // Sync internal state with prop changes
   useEffect(() => {
@@ -104,6 +153,29 @@ export default function AuctionHero({ deal }) {
             </div>
           )}
         </div>
+
+        {/* Watchlist button — top right */}
+        <button
+          onClick={toggle}
+          title={saved ? 'Remove from Watchlist' : 'Add to Watchlist'}
+          className={`absolute top-3 right-3 md:top-5 md:right-5 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold shadow-lg backdrop-blur-sm transition-all active:scale-95 ${
+            saved
+              ? 'bg-pink-500 text-white hover:bg-pink-600'
+              : 'bg-white/20 text-white border border-white/30 hover:bg-white/30'
+          }`}
+        >
+          <Bookmark size={13} className={saved ? 'fill-white' : ''} />
+          {saved ? 'Saved' : 'Watchlist'}
+        </button>
+
+        {/* Flash toast */}
+        {flash && (
+          <div className={`absolute top-12 md:top-14 right-3 md:right-5 z-20 px-3 py-1.5 rounded-xl text-[11px] font-bold shadow-xl backdrop-blur-sm transition-all ${
+            flash === 'added' ? 'bg-emerald-500 text-white' : 'bg-slate-700 text-white'
+          }`}>
+            {flash === 'added' ? '✓ Added to Watchlist' : 'Removed from Watchlist'}
+          </div>
+        )}
 
         {/* Bottom Left Info Overlay */}
         <div className="absolute bottom-4 left-4 md:bottom-8 md:left-8 right-4 md:right-auto">

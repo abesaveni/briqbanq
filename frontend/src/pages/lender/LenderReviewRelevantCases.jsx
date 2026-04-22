@@ -45,13 +45,15 @@ export default function LenderReviewRelevantCases() {
         fetchCases(next);
     };
 
+    const normalizeStatus = (s) => (s || '').replace(/[\s_]+/g, '').toLowerCase();
+
     const filteredCases = useMemo(() => {
         return cases.filter(c => {
             const matchesSearch = !search ||
                 (c.id || '').toString().toLowerCase().includes(search.toLowerCase()) ||
                 (c.borrower || c.borrower_name || '').toLowerCase().includes(search.toLowerCase()) ||
                 (c.property_address || c.property || '').toLowerCase().includes(search.toLowerCase());
-            const matchesStatus = statusFilter === 'All' || c.status === statusFilter;
+            const matchesStatus = statusFilter === 'All' || normalizeStatus(c.status) === normalizeStatus(statusFilter);
             return matchesSearch && matchesStatus;
         });
     }, [cases, search, statusFilter]);
@@ -108,13 +110,13 @@ export default function LenderReviewRelevantCases() {
                 {/* Always-visible status filter tabs */}
                 <div className="px-6 py-3 flex items-center gap-2 flex-wrap border-b border-slate-50">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mr-1">Status:</span>
-                    {['All', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'LISTED'].map(s => (
+                    {['All', 'SUBMITTED', 'UNDER REVIEW', 'AUCTION', 'APPROVED', 'LISTED', 'CLOSED', 'REJECTED'].map(s => (
                         <button
                             key={s}
                             onClick={() => setStatusFilter(s)}
                             className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all ${statusFilter === s ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:border-indigo-300 hover:text-indigo-600'}`}
                         >
-                            {s === 'All' ? 'All' : s.replace(/_/g, ' ')}
+                            {s}
                         </button>
                     ))}
                     {(search || statusFilter !== 'All') && (
@@ -177,13 +179,15 @@ export default function LenderReviewRelevantCases() {
 }
 
 const STATUS_STYLES = {
-    SUBMITTED:    { bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-100',   label: 'Submitted' },
-    UNDER_REVIEW: { bg: 'bg-amber-50',  text: 'text-amber-700',  border: 'border-amber-100',  label: 'Under Review' },
-    APPROVED:     { bg: 'bg-emerald-50',text: 'text-emerald-700',border: 'border-emerald-100',label: 'Approved' },
-    LISTED:       { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-100', label: 'Listed' },
-    CLOSED:       { bg: 'bg-slate-100', text: 'text-slate-600',  border: 'border-slate-200',  label: 'Closed' },
-    REJECTED:     { bg: 'bg-red-50',    text: 'text-red-600',    border: 'border-red-100',    label: 'Rejected' },
-    DRAFT:        { bg: 'bg-gray-50',   text: 'text-gray-500',   border: 'border-gray-200',   label: 'Draft' },
+    SUBMITTED:      { bg: 'bg-blue-50',    text: 'text-blue-700',   border: 'border-blue-100',   label: 'Submitted' },
+    UNDER_REVIEW:   { bg: 'bg-amber-50',   text: 'text-amber-700',  border: 'border-amber-100',  label: 'Under Review' },
+    'UNDER REVIEW': { bg: 'bg-amber-50',   text: 'text-amber-700',  border: 'border-amber-100',  label: 'Under Review' },
+    APPROVED:       { bg: 'bg-emerald-50', text: 'text-emerald-700',border: 'border-emerald-100',label: 'Approved' },
+    LISTED:         { bg: 'bg-indigo-50',  text: 'text-indigo-700', border: 'border-indigo-100', label: 'Listed' },
+    AUCTION:        { bg: 'bg-violet-50',  text: 'text-violet-700', border: 'border-violet-100', label: 'Auction' },
+    CLOSED:         { bg: 'bg-slate-100',  text: 'text-slate-600',  border: 'border-slate-200',  label: 'Closed' },
+    REJECTED:       { bg: 'bg-red-50',     text: 'text-red-600',    border: 'border-red-100',    label: 'Rejected' },
+    DRAFT:          { bg: 'bg-gray-50',    text: 'text-gray-500',   border: 'border-gray-200',   label: 'Draft' },
 };
 
 function StatusPill({ status }) {
