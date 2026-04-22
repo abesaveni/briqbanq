@@ -6,6 +6,7 @@ import { useNotifications } from '../../context/NotificationContext'
 const navItems = [
   { label: 'Dashboard', path: '/investor/dashboard', icon: 'dashboard', color: 'text-indigo-600' },
   { label: 'Live Auctions', path: '/investor/auctions', icon: 'auction', color: 'text-emerald-600' },
+  { label: 'Submit New Case', path: '/investor/submit-case', icon: 'add', color: 'text-green-600' },
   { label: 'My Bids', path: '/investor/my-bids', icon: 'mybids', color: 'text-sky-600' },
   { label: 'Watchlist', path: '/investor/watchlist', icon: 'watchlist', color: 'text-pink-600' },
   { label: 'Notifications', path: '/investor/notifications', icon: 'bell', color: 'text-rose-500' },
@@ -13,6 +14,9 @@ const navItems = [
 
 const NavIcon = ({ icon, className }) => {
   const c = className || 'w-5 h-5 flex-shrink-0'
+  if (icon === 'add') {
+    return <svg className={c} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+  }
   if (icon === 'dashboard') {
     return <svg className={c} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 012-2h2a2 2 0 012 2v2M4 18h16" /></svg>
   }

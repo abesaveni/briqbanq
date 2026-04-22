@@ -16,6 +16,7 @@ import InvestorTaskCenter from "../pages/investor/InvestorTaskCenter";
 import InvestorReports from "../pages/investor/InvestorReports";
 import InvestorDocuments from "../pages/investor/InvestorDocuments";
 import InvestorWatchlist from "../pages/investor/InvestorWatchlist";
+import InvestorSubmitNewCase from "../pages/investor/InvestorSubmitNewCase";
 
 // Lender Imports
 import LenderDashboard from "../pages/lender/LenderDashboard";
@@ -179,6 +180,7 @@ export default function AppRoutes() {
         <Route path="notifications" element={<InvestorNotifications />} />
         <Route path="settings" element={<InvestorSettings />} />
         <Route path="identity-verification" element={<InvestorIdentityVerification />} />
+        <Route path="submit-case" element={<RouteErrorBoundary key="investor-submit-case" routeLabel="Submit New Case"><InvestorSubmitNewCase /></RouteErrorBoundary>} />
       </Route>
 
       {/* Lender Routes Layout */}

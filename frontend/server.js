@@ -63,13 +63,26 @@ const server = http.createServer((req, res) => {
       // SPA fallback — serve index.html for unknown routes
       fs.readFile(path.join(DIST, 'index.html'), (err2, indexData) => {
         if (err2) { res.writeHead(404); res.end('Not found'); return; }
-        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.writeHead(200, {
+          'Content-Type': 'text/html',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        });
         res.end(indexData);
       });
       return;
     }
     const ext = path.extname(filePath);
-    res.writeHead(200, { 'Content-Type': MIMES[ext] || 'application/octet-stream' });
+    const isHtml = ext === '.html';
+    const cacheHeader = isHtml
+      ? 'no-cache, no-store, must-revalidate'
+      : 'public, max-age=31536000, immutable';
+    res.writeHead(200, {
+      'Content-Type': MIMES[ext] || 'application/octet-stream',
+      'Cache-Control': cacheHeader,
+      ...(isHtml ? { 'Pragma': 'no-cache', 'Expires': '0' } : {}),
+    });
     res.end(data);
   });
 });

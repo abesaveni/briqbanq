@@ -710,54 +710,6 @@ async def save_draft(
     return {"success": True, "case_id": str(case_id), "saved_at": now.isoformat()}
 
 
-# ─── Duplicate Case ───────────────────────────────────────────────────────────
-
-@router.post("/{case_id}/duplicate", status_code=201)
-async def duplicate_case(
-    case_id: uuid.UUID,
-    current_user: dict = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    """Create a DRAFT copy of a case."""
-    from app.modules.cases.models import Case
-    from app.shared.enums import CaseStatus
-
-    result = await db.execute(select(Case).where(Case.id == case_id))
-    orig = result.scalar_one_or_none()
-    if not orig:
-        raise HTTPException(status_code=404, detail="Case not found")
-
-    borrower_uid = _uid(current_user.get("user_id"))
-    if not borrower_uid:
-        raise HTTPException(status_code=400, detail="Invalid user identity")
-
-    new_case = Case(
-        title=f"Copy of {orig.title}",
-        description=orig.description,
-        property_address=orig.property_address or "TBC",
-        property_type=orig.property_type or "Residential",
-        estimated_value=orig.estimated_value or Decimal("0"),
-        outstanding_debt=orig.outstanding_debt or Decimal("0"),
-        interest_rate=orig.interest_rate,
-        tenure=orig.tenure,
-        borrower_id=borrower_uid,
-        status=CaseStatus.DRAFT,
-        workflow_status="draft",
-        metadata_json=dict(orig.metadata_json or {}),
-        step_status={},
-        completion_pct=0,
-    )
-    db.add(new_case)
-    await db.commit()
-    await db.refresh(new_case)
-
-    return {
-        "success": True,
-        "new_case_id": str(new_case.id),
-        "title": new_case.title,
-        "status": new_case.status.value,
-    }
-
 
 # ─── Archive / Unarchive ──────────────────────────────────────────────────────
 

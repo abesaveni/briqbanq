@@ -217,7 +217,6 @@ export const casesService = {
   getStatusHistory: (caseId) => wrap(api.get(`/api/v1/cases/${caseId}/status-history`)),
 
   saveDraft: (caseId, payload) => wrap(api.patch(`/api/v1/cases/${caseId}/draft`, payload)),
-  duplicateCase: (caseId) => wrap(api.post(`/api/v1/cases/${caseId}/duplicate`)),
   archiveCase: (caseId) => wrap(api.post(`/api/v1/cases/${caseId}/archive`)),
   unarchiveCase: (caseId) => wrap(api.post(`/api/v1/cases/${caseId}/unarchive`)),
 };

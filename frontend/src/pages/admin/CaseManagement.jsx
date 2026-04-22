@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Eye, Trash2, RefreshCw, Download, FileText, CheckSquare, CheckCircle, Gavel, UserPlus, X, Plus, Copy, Archive, RotateCcw, Clock } from 'lucide-react'
+import { Eye, Trash2, RefreshCw, Download, FileText, CheckSquare, CheckCircle, Gavel, UserPlus, X, Plus, Archive, RotateCcw, Clock } from 'lucide-react'
 import AdminBreadcrumb from '../../components/admin/AdminBreadcrumb'
 import AdminStatCard from '../../components/admin/AdminStatCard'
 import AdminRiskBadge from '../../components/admin/AdminRiskBadge'
@@ -220,38 +220,23 @@ export default function CaseManagement() {
     }
 
     const handleDelete = async (caseId) => {
-        const caseToDelete = allCases.find(c => c.id === caseId)
-        const isDraftCase = (caseToDelete?.status || '').toUpperCase() === 'DRAFT'
-        if (window.confirm('Are you sure you want to delete this case?')) {
-            // Optimistically remove from UI first
+        if (window.confirm('Are you sure you want to permanently delete this case? This cannot be undone.')) {
+            const snapshot = allCases
             const updatedCases = allCases.filter(c => c.id !== caseId)
             setAllCases(updatedCases)
             applyFilters(updatedCases, statusFilter, searchTerm)
             try {
                 const res = await casesService.deleteCase(caseId)
-                if (res && res.success === false && !isDraftCase) {
-                    // Only show error for non-draft cases; drafts are removed silently
+                if (res && res.success === false) {
                     alert(res.error || 'Failed to delete case')
-                    // Restore the case if backend rejected it
-                    setAllCases(allCases)
-                    applyFilters(allCases, statusFilter, searchTerm)
+                    setAllCases(snapshot)
+                    applyFilters(snapshot, statusFilter, searchTerm)
                 }
             } catch (err) {
-                if (!isDraftCase) {
-                    alert(err?.message || 'Failed to delete case')
-                    setAllCases(allCases)
-                    applyFilters(allCases, statusFilter, searchTerm)
-                }
+                alert(err?.message || 'Failed to delete case')
+                setAllCases(snapshot)
+                applyFilters(snapshot, statusFilter, searchTerm)
             }
-        }
-    }
-
-    const handleDuplicate = async (caseId) => {
-        const res = await casesService.duplicateCase(caseId)
-        if (res.success) {
-            loadCases()
-        } else {
-            alert(res.error || 'Failed to duplicate case')
         }
     }
 
@@ -495,9 +480,6 @@ export default function CaseManagement() {
                                                     <button onClick={() => openAssignModal(caseItem.id)} className="p-1 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"><UserPlus className="w-3 h-3" /></button>
                                                 </Tip>
                                             )}
-                                            <Tip label="Duplicate this case">
-                                                <button onClick={() => handleDuplicate(caseItem.id)} className="p-1 text-violet-400 hover:text-violet-600 hover:bg-violet-50 rounded transition-colors"><Copy className="w-3 h-3" /></button>
-                                            </Tip>
                                             <Tip label={caseItem.is_archived ? 'Restore from archive' : 'Archive case'}>
                                                 <button onClick={() => handleArchive(caseItem.id, caseItem.is_archived)} className={`p-1 rounded transition-colors ${caseItem.is_archived ? 'text-emerald-500 hover:bg-emerald-50' : 'text-gray-300 hover:text-gray-500 hover:bg-gray-100'}`}>
                                                     {caseItem.is_archived ? <RotateCcw className="w-3 h-3" /> : <Archive className="w-3 h-3" />}
