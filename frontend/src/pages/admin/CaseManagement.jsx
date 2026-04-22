@@ -8,6 +8,18 @@ import { generateCasesTablePDF } from '../../utils/pdfGenerator'
 import { casesService, adminUsersService } from '../../api/dataService'
 import SubmitCaseForm from '../../components/case/SubmitCaseForm'
 
+function Tip({ label, children }) {
+    return (
+        <div className="relative group/tip">
+            {children}
+            <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/tip:flex flex-col items-center z-50">
+                <div className="bg-gray-900 text-white text-[10px] font-medium px-2 py-1 rounded whitespace-nowrap shadow-lg">{label}</div>
+                <div className="border-4 border-transparent border-t-gray-900 -mt-px" />
+            </div>
+        </div>
+    )
+}
+
 export default function CaseManagement() {
     const navigate = useNavigate()
     const [searchTerm, setSearchTerm] = useState('')
@@ -460,24 +472,40 @@ export default function CaseManagement() {
                                     <td className="px-2 py-2">
                                         <div className="flex items-center gap-0.5 flex-wrap">
                                             {isDraft ? (
-                                                <button onClick={() => navigate(`/admin/case-details/${caseItem.id}/overview`)} className="px-1.5 py-0.5 font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded transition-colors" style={{ fontSize: '10px' }} title="View Draft">View</button>
+                                                <Tip label="View draft case details">
+                                                    <button onClick={() => navigate(`/admin/case-details/${caseItem.id}/overview`)} className="px-1.5 py-0.5 font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded transition-colors" style={{ fontSize: '10px' }}>View</button>
+                                                </Tip>
                                             ) : (
-                                                <button onClick={() => navigate(`/admin/case-details/${caseItem.id}`)} className="p-1 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors" title="View"><Eye className="w-3 h-3" /></button>
+                                                <Tip label="View case details">
+                                                    <button onClick={() => navigate(`/admin/case-details/${caseItem.id}`)} className="p-1 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"><Eye className="w-3 h-3" /></button>
+                                                </Tip>
                                             )}
                                             {(caseItem.status === 'SUBMITTED' || caseItem.status === 'UNDER_REVIEW') && (
-                                                <button onClick={() => handleApprove(caseItem.id)} className="p-1 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 rounded transition-colors" title="Approve"><CheckCircle className="w-3 h-3" /></button>
+                                                <Tip label="Approve case">
+                                                    <button onClick={() => handleApprove(caseItem.id)} className="p-1 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 rounded transition-colors"><CheckCircle className="w-3 h-3" /></button>
+                                                </Tip>
                                             )}
                                             {caseItem.status === 'APPROVED' && (
-                                                <button onClick={() => handleMoveToAuction(caseItem.id)} className="p-1 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded transition-colors" title="Move to Auction"><Gavel className="w-3 h-3" /></button>
+                                                <Tip label="Move to Auction">
+                                                    <button onClick={() => handleMoveToAuction(caseItem.id)} className="p-1 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded transition-colors"><Gavel className="w-3 h-3" /></button>
+                                                </Tip>
                                             )}
                                             {!isDraft && (
-                                                <button onClick={() => openAssignModal(caseItem.id)} className="p-1 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Assign"><UserPlus className="w-3 h-3" /></button>
+                                                <Tip label="Assign lawyer / lender">
+                                                    <button onClick={() => openAssignModal(caseItem.id)} className="p-1 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"><UserPlus className="w-3 h-3" /></button>
+                                                </Tip>
                                             )}
-                                            <button onClick={() => handleDuplicate(caseItem.id)} className="p-1 text-violet-400 hover:text-violet-600 hover:bg-violet-50 rounded transition-colors" title="Duplicate"><Copy className="w-3 h-3" /></button>
-                                            <button onClick={() => handleArchive(caseItem.id, caseItem.is_archived)} className={`p-1 rounded transition-colors ${caseItem.is_archived ? 'text-emerald-500 hover:bg-emerald-50' : 'text-gray-300 hover:text-gray-500 hover:bg-gray-100'}`} title={caseItem.is_archived ? 'Unarchive' : 'Archive'}>
-                                                {caseItem.is_archived ? <RotateCcw className="w-3 h-3" /> : <Archive className="w-3 h-3" />}
-                                            </button>
-                                            <button onClick={() => handleDelete(caseItem.id)} className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete"><Trash2 className="w-3 h-3" /></button>
+                                            <Tip label="Duplicate this case">
+                                                <button onClick={() => handleDuplicate(caseItem.id)} className="p-1 text-violet-400 hover:text-violet-600 hover:bg-violet-50 rounded transition-colors"><Copy className="w-3 h-3" /></button>
+                                            </Tip>
+                                            <Tip label={caseItem.is_archived ? 'Restore from archive' : 'Archive case'}>
+                                                <button onClick={() => handleArchive(caseItem.id, caseItem.is_archived)} className={`p-1 rounded transition-colors ${caseItem.is_archived ? 'text-emerald-500 hover:bg-emerald-50' : 'text-gray-300 hover:text-gray-500 hover:bg-gray-100'}`}>
+                                                    {caseItem.is_archived ? <RotateCcw className="w-3 h-3" /> : <Archive className="w-3 h-3" />}
+                                                </button>
+                                            </Tip>
+                                            <Tip label="Delete case">
+                                                <button onClick={() => handleDelete(caseItem.id)} className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"><Trash2 className="w-3 h-3" /></button>
+                                            </Tip>
                                         </div>
                                     </td>
                                 </tr>
