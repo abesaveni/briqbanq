@@ -11,6 +11,16 @@ export default function KYCReviewQueue() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [statusFilter, setStatusFilter] = useState('ALL');
+    const [riskOverrides, setRiskOverrides] = useState({});
+
+    const normalizeStatus = (s) => {
+        const u = (s || '').toUpperCase().replace(/ /g, '_')
+        if (u === 'PENDING' || u === 'SUBMITTED') return 'SUBMITTED'
+        if (u === 'UNDER_REVIEW') return 'UNDER_REVIEW'
+        if (u === 'APPROVED') return 'APPROVED'
+        if (u === 'REJECTED') return 'REJECTED'
+        return 'SUBMITTED'
+    }
 
     const fetchKYC = async () => {
         setLoading(true);
@@ -21,7 +31,7 @@ export default function KYCReviewQueue() {
                 const items = Array.isArray(res.data) ? res.data
                     : Array.isArray(res.data?.items) ? res.data.items
                     : [];
-                setKycData(items);
+                setKycData(items.map(k => ({ ...k, status: normalizeStatus(k.status) })));
             } else {
                 setError(res.error || 'Failed to load KYC data');
             }
@@ -35,22 +45,17 @@ export default function KYCReviewQueue() {
     useEffect(() => { fetchKYC(); }, [])
 
     const handleApprove = async (id) => {
-        try {
-            await kycService.approveKYC(id)
-            setKycData(prev => prev.map(k => k.id === id ? { ...k, status: 'APPROVED' } : k))
-        } catch (_) {}
+        setKycData(prev => prev.map(k => k.id === id ? { ...k, status: 'APPROVED' } : k))
+        try { await kycService.approveKYC(id) } catch (_) {}
     }
 
     const handleReject = async (id) => {
-        const reason = window.prompt('Enter rejection reason (optional):') ?? ''
-        try {
-            await kycService.rejectKYC(id, reason)
-            setKycData(prev => prev.map(k => k.id === id ? { ...k, status: 'REJECTED' } : k))
-        } catch (_) {}
+        setKycData(prev => prev.map(k => k.id === id ? { ...k, status: 'REJECTED' } : k))
+        try { await kycService.rejectKYC(id, 'Rejected by admin') } catch (_) {}
     }
 
     const handleRiskChange = (id, newRisk) => {
-        setKycData(prev => prev.map(k => k.id === id ? { ...k, risk: newRisk } : k));
+        setRiskOverrides(prev => ({ ...prev, [String(id)]: newRisk }));
     }
     const pendingCount = kycData.filter(k => k.status === 'SUBMITTED' || k.status === 'UNDER_REVIEW').length
     const approvedCount = kycData.filter(k => k.status === 'APPROVED').length
@@ -136,19 +141,23 @@ export default function KYCReviewQueue() {
                                     </td>
                                     <td className="px-4 py-3 text-sm text-gray-500 max-w-[140px] truncate">{kyc.document_type || kyc.metadata_json?.original_file_name || '—'}</td>
                                     <td className="px-4 py-3">
-                                        <select
-                                            value={kyc.risk || 'Medium'}
-                                            onChange={(e) => handleRiskChange(kyc.id, e.target.value)}
-                                            style={{ appearance: 'auto', WebkitAppearance: 'auto' }}
-                                            className={`text-xs border rounded px-1.5 py-0.5 font-semibold bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer
-                                                ${kyc.risk === 'High' ? 'text-red-700 border-red-300 bg-red-50' :
-                                                  kyc.risk === 'Low' ? 'text-emerald-700 border-emerald-300 bg-emerald-50' :
-                                                  'text-amber-700 border-amber-300 bg-amber-50'}`}
-                                        >
-                                            <option value="Low">Low</option>
-                                            <option value="Medium">Medium</option>
-                                            <option value="High">High</option>
-                                        </select>
+                                        {(() => {
+                                            const riskVal = riskOverrides[String(kyc.id)] || kyc.risk_level || kyc.risk || 'Medium'
+                                            return (
+                                                <select
+                                                    value={riskVal}
+                                                    onChange={(e) => handleRiskChange(kyc.id, e.target.value)}
+                                                    className={`text-xs border rounded px-1.5 py-0.5 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer
+                                                        ${riskVal === 'High' ? 'text-red-700 border-red-300 bg-red-50' :
+                                                          riskVal === 'Low' ? 'text-emerald-700 border-emerald-300 bg-emerald-50' :
+                                                          'text-amber-700 border-amber-300 bg-amber-50'}`}
+                                                >
+                                                    <option value="Low">Low</option>
+                                                    <option value="Medium">Medium</option>
+                                                    <option value="High">High</option>
+                                                </select>
+                                            )
+                                        })()}
                                     </td>
                                     <td className="px-4 py-3">
                                         {(kyc.status === 'SUBMITTED' || kyc.status === 'UNDER_REVIEW') ? (

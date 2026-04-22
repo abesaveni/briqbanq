@@ -83,14 +83,27 @@ export default function UserManagement() {
     const handleAddUser = async (e) => {
         e.preventDefault()
         setSaving(true)
+        const formData = { ...addForm }
         try {
-            const res = await adminUsersService.createUser(addForm)
+            const res = await adminUsersService.createUser(formData)
             if (res.success) {
+                // Optimistically add to list immediately
+                const newUser = res.data || {
+                    id: `local-${Date.now()}`,
+                    full_name: formData.full_name,
+                    email: formData.email,
+                    role: formData.role,
+                    is_active: true,
+                    created_at: new Date().toISOString(),
+                }
+                setUsers(prev => [...prev, newUser])
                 setShowAddModal(false)
                 setAddForm({ full_name: '', email: '', role: 'borrower', password: '' })
-                // Reload the full list from the server
-                const listRes = await adminUsersService.getUsers()
-                if (listRes.success) setUsers(listRes.data || [])
+                // Background refetch to get real server data
+                try {
+                    const listRes = await adminUsersService.getUsers()
+                    if (listRes.success && listRes.data) setUsers(listRes.data)
+                } catch { /* keep optimistic state */ }
             }
         } catch { /* ignore */ } finally {
             setSaving(false)

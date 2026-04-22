@@ -22,12 +22,15 @@ export default function KYCReviewDetail() {
         if (!id) return;
         kycService.getKYCById(id).then(res => {
             if (res.success && res.data) {
-                setKycRecord(res.data);
-                const s = res.data.status?.toLowerCase();
+                const d = res.data;
+                setKycRecord(d);
+                const s = d.status?.toLowerCase();
                 if (s === 'approved') setStatus('approved');
                 else if (s === 'rejected') setStatus('rejected');
                 else setStatus('pending_review');
-                if (res.data.risk_level) setRiskLevel(res.data.risk_level);
+                if (d.risk_level) setRiskLevel(d.risk_level);
+                const firstName = (d.full_name || d.user_name || 'there').split(' ')[0];
+                setEmailBody(`Dear ${firstName},\n\nWe are reviewing your KYC application and require additional information.\n\nPlease log in to your account and provide the requested details.\n\nRegards,\nBrickBanq Compliance Team`);
             }
         }).catch(() => {});
     }, [id]);
@@ -37,7 +40,7 @@ export default function KYCReviewDetail() {
     const [showEmailModal, setShowEmailModal] = useState(false);
     const [requestMessage, setRequestMessage] = useState('');
     const [emailSubject, setEmailSubject] = useState('Your KYC Application — Action Required');
-    const [emailBody, setEmailBody] = useState('Dear Jennifer,\n\nWe are reviewing your KYC application and require additional information.\n\nPlease log in to your account and provide the requested details.\n\nRegards,\nBrickBanq Compliance Team');
+    const [emailBody, setEmailBody] = useState('');
     const [sending, setSending] = useState(false);
     const [downloading, setDownloading] = useState(false);
     const [requestSent, setRequestSent] = useState(false);
@@ -582,7 +585,7 @@ export default function KYCReviewDetail() {
                             <button onClick={() => setShowRequestModal(false)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
                         </div>
                         <div className="p-6 space-y-4">
-                            <p className="text-sm text-gray-600">Describe what additional information is required from <strong>Jennifer Brown</strong>:</p>
+                            <p className="text-sm text-gray-600">Describe what additional information is required from <strong>{kycRecord?.full_name || kycRecord?.user_name || 'the applicant'}</strong>:</p>
                             <textarea
                                 value={requestMessage}
                                 onChange={e => setRequestMessage(e.target.value)}
@@ -613,7 +616,7 @@ export default function KYCReviewDetail() {
                         <div className="p-6 space-y-4">
                             <div>
                                 <label className="block text-xs font-semibold text-gray-700 mb-1.5">To</label>
-                                <input type="text" value="jennifer.brown@example.com" disabled className="w-full border border-gray-100 bg-gray-50 rounded-lg px-3 py-2.5 text-sm text-gray-500" />
+                                <input type="text" value={kycRecord?.email || kycRecord?.user_email || '—'} disabled className="w-full border border-gray-100 bg-gray-50 rounded-lg px-3 py-2.5 text-sm text-gray-500" />
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-gray-700 mb-1.5">Subject</label>
