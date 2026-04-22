@@ -52,7 +52,7 @@ export default function LenderAuctionRoom() {
     const [deal, setDeal] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [activeTab, setActiveTab] = useState("live");
+    const [activeTab, setActiveTab] = useState("overview");
     const [currentBid, setCurrentBid] = useState(0);
     const [bidHistory, setBidHistory] = useState([]);
     const [isNotified, setIsNotified] = useState(false);
@@ -153,13 +153,17 @@ export default function LenderAuctionRoom() {
                         landSize: meta?.land_size || "N/A",
                     },
                     documents: Array.isArray(caseData?.documents)
-                        ? caseData.documents.map(d => ({
-                            ...d,
-                            name: d.document_name || d.file_name || d.name || 'Document',
-                            type: d.document_type || d.content_type?.split('/')[1]?.toUpperCase() || 'PDF',
-                            size: d.file_size ? `${(d.file_size / 1024).toFixed(1)} KB` : (d.size || ''),
-                            file: d.file_url || d.file || null,
-                          }))
+                        ? caseData.documents.map(d => {
+                            const rawUrl = d.file_url || d.file;
+                            const isValidUrl = rawUrl && (rawUrl.startsWith('http://') || rawUrl.startsWith('https://') || rawUrl.startsWith('/'));
+                            return {
+                                ...d,
+                                name: d.document_name || d.file_name || d.name || 'Document',
+                                type: d.document_type || d.content_type?.split('/')[1]?.toUpperCase() || 'PDF',
+                                size: d.file_size ? `${(d.file_size / 1024).toFixed(1)} KB` : (d.size || ''),
+                                file: isValidUrl ? rawUrl : (d.id ? `/api/v1/documents/${d.id}/download` : null),
+                            };
+                          })
                         : [],
                     suburb: meta?.suburb || "",
                     state: meta?.state || "",
@@ -285,7 +289,7 @@ export default function LenderAuctionRoom() {
                 <AuctionTabs activeTab={activeTab} setActiveTab={setActiveTab} />
             </div>
 
-            {activeTab === "live" && (
+            {activeTab !== "memorandum" && (
                 <div className="space-y-8">
                     {/* Key Financial Metrics Row */}
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">

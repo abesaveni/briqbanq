@@ -594,6 +594,7 @@ export default function LenderCaseDetails() {
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('case_id', id);
+                formData.append('document_name', file.name);
                 formData.append('document_type', 'Lender Document');
                 
                 const res = await documentService.uploadDocument(id, formData);
@@ -664,19 +665,37 @@ export default function LenderCaseDetails() {
     const handleDownloadDocument = async (doc) => {
         try {
             setToast({ show: true, message: `Downloading ${doc.name}...`, type: "info" });
-            const blob = await _fetchDocBlob(doc.id);
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
             const filename = doc.name || 'document';
-            a.download = filename.includes('.') ? filename : filename + '.pdf';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const doDownload = (blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename.includes('.') ? filename : filename + '.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            };
+
+            // Try direct file_url first (local static files — no auth needed)
+            const fileUrl = doc.file_url;
+            if (fileUrl && fileUrl.startsWith('/uploads/')) {
+                try {
+                    const res = await fetch(fileUrl);
+                    if (res.ok) {
+                        doDownload(await res.blob());
+                        setToast({ show: true, message: `${doc.name} downloaded.`, type: "success" });
+                        return;
+                    }
+                } catch { /* fall through to API */ }
+            }
+
+            // Fall back to authenticated API download endpoint
+            const blob = await _fetchDocBlob(doc.id);
+            doDownload(blob);
             setToast({ show: true, message: `${doc.name} downloaded.`, type: "success" });
         } catch (err) {
-            setToast({ show: true, message: "Failed to download document.", type: "error" });
+            setToast({ show: true, message: "Failed to download document. The file may no longer be available.", type: "error" });
         }
     };
 

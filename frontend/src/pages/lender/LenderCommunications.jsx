@@ -19,6 +19,7 @@ export default function LenderCommunications() {
     const [showNewTemplateModal, setShowNewTemplateModal] = useState(false);
     const [showNewCampaignModal, setShowNewCampaignModal] = useState(false);
     const [showNewSegmentModal, setShowNewSegmentModal] = useState(false);
+    const [viewingCampaign, setViewingCampaign] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -173,6 +174,7 @@ export default function LenderCommunications() {
                         onNewTemplate={() => setShowNewTemplateModal(true)}
                         onNewSegment={() => setShowNewSegmentModal(true)}
                         onDeleteCampaign={handleDeleteCampaign}
+                        onViewCampaign={setViewingCampaign}
                     />
                 )}
                 {activeTab === 'Templates' && (
@@ -187,6 +189,7 @@ export default function LenderCommunications() {
                         campaigns={campaigns}
                         onDelete={handleDeleteCampaign}
                         onAddNew={() => setShowNewCampaignModal(true)}
+                        onView={setViewingCampaign}
                     />
                 )}
                 {activeTab === 'Segments' && (
@@ -223,13 +226,19 @@ export default function LenderCommunications() {
                     onSave={handleAddSegment}
                 />
             )}
+            {viewingCampaign && (
+                <CampaignDetailModal
+                    campaign={viewingCampaign}
+                    onClose={() => setViewingCampaign(null)}
+                />
+            )}
         </div>
     );
 }
 
 function OverviewTab({
     templates = [], campaigns = [], segments = [], analytics,
-    setActiveTab, onNewCampaign, onNewTemplate, onNewSegment, onDeleteCampaign
+    setActiveTab, onNewCampaign, onNewTemplate, onNewSegment, onDeleteCampaign, onViewCampaign
 }) {
     const stats = [
         { label: 'Total Templates', value: templates?.length || 0, sub: `${templates?.length || 0} active`, icon: <FileText className="text-blue-500" />, bg: 'bg-blue-50/50' },
@@ -295,8 +304,8 @@ function OverviewTab({
                                 )}
                             </div>
                             <div className="flex items-center gap-2">
-                                <button className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors"><Eye size={16} /></button>
-                                <button className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors"><BarChart2 size={16} /></button>
+                                <button onClick={() => onViewCampaign && onViewCampaign(campaign)} className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors" title="View campaign"><Eye size={16} /></button>
+                                <button onClick={() => setActiveTab('Analytics')} className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors" title="View analytics"><BarChart2 size={16} /></button>
                                 <button
                                     onClick={() => onDeleteCampaign(campaign.id)}
                                     className="p-1.5 text-gray-400 hover:text-rose-600 transition-colors"
@@ -306,6 +315,9 @@ function OverviewTab({
                             </div>
                         </div>
                     ))}
+                    {(!campaigns || campaigns.length === 0) && (
+                        <div className="py-8 text-center text-slate-400 text-sm font-medium">No campaigns yet. Create your first campaign above.</div>
+                    )}
                 </div>
             </div>
 
@@ -340,7 +352,7 @@ function OverviewTab({
     );
 }
 
-function CampaignsTab({ campaigns = [], onDelete, onAddNew }) {
+function CampaignsTab({ campaigns = [], onDelete, onAddNew, onView }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedStatus, setSelectedStatus] = useState('All');
 
@@ -432,8 +444,8 @@ function CampaignsTab({ campaigns = [], onDelete, onAddNew }) {
                             </div>
 
                             <div className="flex items-center gap-2">
-                                <button className="p-2 text-gray-400 hover:text-blue-600 transition-colors"><Eye size={16} /></button>
-                                <button className="p-2 text-gray-400 hover:text-blue-600 transition-colors"><BarChart2 size={16} /></button>
+                                <button onClick={() => onView && onView(camp)} className="p-2 text-gray-400 hover:text-blue-600 transition-colors" title="View campaign"><Eye size={16} /></button>
+                                <button className="p-2 text-gray-400 hover:text-blue-600 transition-colors" title="View analytics"><BarChart2 size={16} /></button>
                                 <button
                                     onClick={() => onDelete(camp.id)}
                                     className="p-2 text-gray-400 hover:text-rose-600 transition-colors"
@@ -1012,6 +1024,85 @@ function NewCampaignModal({ onClose, onSave, templates = [], segments = [] }) {
                     >
                         <Send size={15} />
                         Create & Send
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function CampaignDetailModal({ campaign, onClose }) {
+    if (!campaign) return null;
+    const statusColors = {
+        sent: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        scheduled: 'bg-amber-50 text-amber-700 border-amber-200',
+        sending: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+        draft: 'bg-gray-50 text-gray-600 border-gray-200',
+    };
+    const statusCls = statusColors[campaign.status] || 'bg-gray-50 text-gray-600 border-gray-200';
+
+    return (
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+            <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden">
+                <div className="bg-gradient-to-r from-indigo-600 to-blue-600 px-6 py-5">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                                <Send size={20} className="text-white" />
+                            </div>
+                            <div>
+                                <h3 className="text-[16px] font-bold text-white">{campaign.name || campaign.title}</h3>
+                                <p className="text-[12px] text-indigo-200 font-medium capitalize">{campaign.status} campaign</p>
+                            </div>
+                        </div>
+                        <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-all text-white">
+                            <X size={16} />
+                        </button>
+                    </div>
+                </div>
+
+                <div className="p-6 space-y-4">
+                    <div className="flex items-center gap-3">
+                        <span className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border ${statusCls}`}>
+                            {campaign.status}
+                        </span>
+                        {campaign.date && (
+                            <span className="text-[12px] text-slate-400 font-medium flex items-center gap-1">
+                                <Calendar size={12} />
+                                {campaign.status === 'sent' ? 'Sent' : 'Scheduled'} {campaign.date}
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Recipients</p>
+                            <p className="text-[22px] font-bold text-slate-900">{(campaign.recipients || 0).toLocaleString()}</p>
+                        </div>
+                        <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Type</p>
+                            <p className="text-[13px] font-semibold text-slate-700 mt-1">{campaign.category || campaign.type || '—'}</p>
+                        </div>
+                    </div>
+
+                    {campaign.status === 'sent' && (campaign.openRate != null || campaign.clickRate != null) && (
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100 text-center">
+                                <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider mb-1">Open Rate</p>
+                                <p className="text-[26px] font-bold text-emerald-700 leading-none">{campaign.openRate ?? '—'}%</p>
+                            </div>
+                            <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 text-center">
+                                <p className="text-[10px] font-bold text-blue-500 uppercase tracking-wider mb-1">Click Rate</p>
+                                <p className="text-[26px] font-bold text-blue-700 leading-none">{campaign.clickRate ?? '—'}%</p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                <div className="px-6 pb-6">
+                    <button onClick={onClose} className="w-full py-2.5 bg-indigo-600 text-white rounded-xl text-[13px] font-bold hover:bg-indigo-700 transition-all">
+                        Close
                     </button>
                 </div>
             </div>
