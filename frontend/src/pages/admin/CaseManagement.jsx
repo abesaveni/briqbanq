@@ -208,18 +208,28 @@ export default function CaseManagement() {
     }
 
     const handleDelete = async (caseId) => {
+        const caseToDelete = allCases.find(c => c.id === caseId)
+        const isDraftCase = (caseToDelete?.status || '').toUpperCase() === 'DRAFT'
         if (window.confirm('Are you sure you want to delete this case?')) {
+            // Optimistically remove from UI first
+            const updatedCases = allCases.filter(c => c.id !== caseId)
+            setAllCases(updatedCases)
+            applyFilters(updatedCases, statusFilter, searchTerm)
             try {
                 const res = await casesService.deleteCase(caseId)
-                if (res && res.success === false) {
+                if (res && res.success === false && !isDraftCase) {
+                    // Only show error for non-draft cases; drafts are removed silently
                     alert(res.error || 'Failed to delete case')
-                    return
+                    // Restore the case if backend rejected it
+                    setAllCases(allCases)
+                    applyFilters(allCases, statusFilter, searchTerm)
                 }
-                const updatedCases = allCases.filter(c => c.id !== caseId)
-                setAllCases(updatedCases)
-                applyFilters(updatedCases, statusFilter, searchTerm)
             } catch (err) {
-                alert(err?.message || 'Failed to delete case')
+                if (!isDraftCase) {
+                    alert(err?.message || 'Failed to delete case')
+                    setAllCases(allCases)
+                    applyFilters(allCases, statusFilter, searchTerm)
+                }
             }
         }
     }
@@ -277,10 +287,10 @@ export default function CaseManagement() {
 
     // Calculate stats based on all cases
     const stats = {
-        total: allCases.filter(c => c.status !== 'DRAFT').length,
-        drafts: allCases.filter(c => c.status === 'DRAFT').length,
-        inAuction: allCases.filter(c => c.status === 'AUCTION').length,
-        completed: allCases.filter(c => ['CLOSED', 'FUNDED'].includes(c.status)).length,
+        total: allCases.filter(c => (c.status || '').toUpperCase() !== 'DRAFT').length,
+        drafts: allCases.filter(c => (c.status || '').toUpperCase() === 'DRAFT').length,
+        inAuction: allCases.filter(c => (c.status || '').toUpperCase() === 'AUCTION').length,
+        completed: allCases.filter(c => ['CLOSED', 'FUNDED'].includes((c.status || '').toUpperCase())).length,
     }
 
     return (
@@ -377,7 +387,7 @@ export default function CaseManagement() {
                             ) : cases.length === 0 ? (
                                 <tr><td colSpan={11} className="px-4 py-10 text-center text-sm text-gray-400">No cases found</td></tr>
                             ) : cases.map((caseItem) => {
-                                const isDraft = caseItem.status === 'DRAFT';
+                                const isDraft = (caseItem.status || '').toUpperCase() === 'DRAFT';
                                 const debt = Number(caseItem.outstanding_debt || caseItem.loan_amount || caseItem.debt || 0);
                                 const val = Number(caseItem.estimated_value || caseItem.property_value || caseItem.valuation || 0);
                                 const lvr = val > 0 ? ((debt / val) * 100).toFixed(1) : '—';
@@ -410,18 +420,15 @@ export default function CaseManagement() {
                                     <td className="px-2 py-2 text-gray-600 truncate">{formatCurrency(val)}</td>
                                     <td className="px-2 py-2 text-indigo-600 font-bold">{lvr}{lvr !== '—' ? '%' : ''}</td>
                                     <td className="px-2 py-2">
-                                        {isDraft ? (
-                                            <span className="font-bold text-amber-600 uppercase">Draft</span>
-                                        ) : (
-                                            <select value={caseItem.status || 'pending'} onChange={(e) => handleStatusChange(caseItem.id, e.target.value)} className="font-semibold border border-gray-200 rounded px-1 py-0.5 bg-white focus:ring-1 focus:ring-indigo-500 cursor-pointer w-full" style={{ fontSize: '11px' }}>
-                                                <option value="UNDER_REVIEW">Under Review</option>
-                                                <option value="APPROVED">Approved</option>
-                                                <option value="LISTED">Listed</option>
-                                                <option value="AUCTION">In Auction</option>
-                                                <option value="CLOSED">Completed</option>
-                                                <option value="REJECTED">Rejected</option>
-                                            </select>
-                                        )}
+                                        <select value={caseItem.status || 'DRAFT'} onChange={(e) => handleStatusChange(caseItem.id, e.target.value)} className="font-semibold border border-gray-200 rounded px-1 py-0.5 bg-white focus:ring-1 focus:ring-indigo-500 cursor-pointer w-full" style={{ fontSize: '11px' }}>
+                                            {isDraft && <option value="DRAFT">Draft</option>}
+                                            <option value="UNDER_REVIEW">Under Review</option>
+                                            <option value="APPROVED">Approved</option>
+                                            <option value="LISTED">Listed</option>
+                                            <option value="AUCTION">In Auction</option>
+                                            <option value="CLOSED">Completed</option>
+                                            <option value="REJECTED">Rejected</option>
+                                        </select>
                                     </td>
                                     <td className="px-2 py-2">
                                         {completionPct != null ? (
@@ -453,7 +460,7 @@ export default function CaseManagement() {
                                     <td className="px-2 py-2">
                                         <div className="flex items-center gap-0.5 flex-wrap">
                                             {isDraft ? (
-                                                <button onClick={() => navigate(`/borrower/submit-case?resume=${caseItem.id}`)} className="px-1.5 py-0.5 font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded transition-colors" style={{ fontSize: '10px' }} title="Resume Draft">Resume</button>
+                                                <button onClick={() => navigate(`/admin/case-details/${caseItem.id}/overview`)} className="px-1.5 py-0.5 font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded transition-colors" style={{ fontSize: '10px' }} title="View Draft">View</button>
                                             ) : (
                                                 <button onClick={() => navigate(`/admin/case-details/${caseItem.id}`)} className="p-1 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors" title="View"><Eye className="w-3 h-3" /></button>
                                             )}
@@ -470,9 +477,7 @@ export default function CaseManagement() {
                                             <button onClick={() => handleArchive(caseItem.id, caseItem.is_archived)} className={`p-1 rounded transition-colors ${caseItem.is_archived ? 'text-emerald-500 hover:bg-emerald-50' : 'text-gray-300 hover:text-gray-500 hover:bg-gray-100'}`} title={caseItem.is_archived ? 'Unarchive' : 'Archive'}>
                                                 {caseItem.is_archived ? <RotateCcw className="w-3 h-3" /> : <Archive className="w-3 h-3" />}
                                             </button>
-                                            {(isDraft || ['UNDER_REVIEW', 'REJECTED'].includes(caseItem.status)) && (
-                                                <button onClick={() => handleDelete(caseItem.id)} className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete"><Trash2 className="w-3 h-3" /></button>
-                                            )}
+                                            <button onClick={() => handleDelete(caseItem.id)} className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete"><Trash2 className="w-3 h-3" /></button>
                                         </div>
                                     </td>
                                 </tr>

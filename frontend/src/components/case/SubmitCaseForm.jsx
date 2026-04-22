@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useNavigate, useBlocker } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { casesService, documentService } from '../../api/dataService'
 import { toast } from 'react-toastify'
 import {
@@ -398,13 +398,15 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
   const imageInputRef = useRef(null)
   const autosaveTimerRef = useRef(null)
 
-  // ─── Unsaved changes blocker ────────────────────────────────────────────────
+  // ─── Warn on browser close/refresh when dirty ───────────────────────────────
 
-  useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      isDirty && currentLocation.pathname !== nextLocation.pathname &&
-      !window.confirm('You have unsaved changes. Leave without saving?')
-  )
+  useEffect(() => {
+    const handle = (e) => {
+      if (isDirty) { e.preventDefault(); e.returnValue = '' }
+    }
+    window.addEventListener('beforeunload', handle)
+    return () => window.removeEventListener('beforeunload', handle)
+  }, [isDirty])
 
   // ─── Scroll on step change ──────────────────────────────────────────────────
 
