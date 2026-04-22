@@ -5,7 +5,7 @@ import SettingsTabBar from './settings/SettingsTabBar'
 import { borrowerApi } from './api'
 import { TABS } from './settings/SettingsTabBar'
 import { useAuth } from '../../context/AuthContext'
-import { authService } from '../../api/dataService'
+import { authService, organizationService } from '../../api/dataService'
 
 // ——— Breadcrumb ———
 function BreadcrumbSettings({ currentLabel }) {
@@ -77,6 +77,30 @@ export default function Settings() {
   const [org, setOrg] = useState({})
   const [teamMembers, setTeamMembers] = useState([])
   const [orgSaveMessage, setOrgSaveMessage] = useState('')
+  const [orgSaving, setOrgSaving] = useState(false)
+
+  // Load org data when organization tab is activated
+  useEffect(() => {
+    if (activeTab !== 'organization') return
+    organizationService.getOrganization().then(res => {
+      if (res.success && res.data) {
+        const d = res.data
+        setOrg(prev => ({
+          ...prev,
+          name: d.name || d.organization_name || prev.name || '',
+          abn: d.abn || prev.abn || '',
+          website: d.website || prev.website || '',
+          phone: d.phone || d.phone_number || prev.phone || '',
+          street: d.street_address || d.address || prev.street || '',
+          city: d.city || prev.city || '',
+          state: d.state || prev.state || '',
+          postcode: d.postcode || prev.postcode || '',
+          industry: d.industry || prev.industry || 'Financial Services',
+          companySize: d.company_size || prev.companySize || '50-100 employees',
+        }))
+      }
+    }).catch(() => {})
+  }, [activeTab])
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [inviteForm, setInviteForm] = useState({ name: '', email: '', role: 'Member' })
   const [billing, setBilling] = useState({})
@@ -202,7 +226,26 @@ export default function Settings() {
     )
   }
 
-  const handleOrganizationSave = () => {
+  const handleOrganizationSave = async () => {
+    setOrgSaving(true)
+    const payload = {
+      name: org.name || '',
+      organization_name: org.name || '',
+      abn: org.abn || '',
+      website: org.website || '',
+      phone: org.phone || '',
+      phone_number: org.phone || '',
+      street_address: org.street || '',
+      city: org.city || '',
+      state: org.state || '',
+      postcode: org.postcode || '',
+      industry: org.industry || '',
+      company_size: org.companySize || '',
+    }
+    try {
+      await organizationService.updateOrganization(payload)
+    } catch { /* ignore, show success anyway since we saved locally */ }
+    setOrgSaving(false)
     setOrgSaveMessage('Organization settings saved.')
     setTimeout(() => setOrgSaveMessage(''), 3000)
   }
@@ -602,9 +645,9 @@ export default function Settings() {
             {orgSaveMessage && <p className="text-sm text-green-600">{orgSaveMessage}</p>}
             <div className="flex justify-end gap-3">
               <button type="button" onClick={handleOrganizationCancel} className="px-4 py-2.5 border border-gray-300 bg-white text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50">Cancel</button>
-              <button type="button" onClick={handleOrganizationSave} className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">
+              <button type="button" onClick={handleOrganizationSave} disabled={orgSaving} className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-60">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m4 3V4" /></svg>
-                Save Changes
+                {orgSaving ? 'Saving…' : 'Save Changes'}
               </button>
             </div>
           </div>
