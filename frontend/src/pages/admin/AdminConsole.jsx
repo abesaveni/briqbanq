@@ -595,11 +595,18 @@ export default function AdminConsole() {
                                         if (configFields._apiKey) config.api_key = configFields._apiKey;
                                         const payload = { name: configFields._name || showConfigModal.name, config };
                                         await integrationService.updateIntegration(showConfigModal.id, payload).catch(() => {});
-                                        setIntegrations(prev => prev.map(i =>
-                                            i.id === showConfigModal.id
-                                                ? { ...i, name: configFields._name || i.name, config }
-                                                : i
-                                        ));
+                                        setIntegrations(prev => prev.map(i => {
+                                            if (i.id !== showConfigModal.id) return i;
+                                            // Also update fields array so card displays new values
+                                            const updatedFields = (i.fields || []).map(f => {
+                                                const key = typeof f === 'string' ? f : (f.label || f.name || '');
+                                                const newVal = configFields[key];
+                                                return typeof f === 'string'
+                                                    ? { label: f, value: newVal || '' }
+                                                    : { ...f, value: newVal !== undefined ? newVal : f.value };
+                                            });
+                                            return { ...i, name: configFields._name || i.name, config, fields: updatedFields };
+                                        }));
                                         setConfigSaving(false);
                                         setConfigSaved(true);
                                         setTimeout(() => { setShowConfigModal(null); setConfigSaved(false); }, 1500);

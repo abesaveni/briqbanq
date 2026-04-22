@@ -74,7 +74,17 @@ export default function Notifications() {
             const msg = n.description || n.message || ''
             const matchesSearch = (n.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
                 msg.toLowerCase().includes(searchTerm.toLowerCase())
-            const matchesType = typeFilter === 'All Types' || (n.type || '').toLowerCase() === typeFilter.toLowerCase()
+
+            // n.type may be a delivery channel ('IN_APP', 'EMAIL') from backend; real category is in entity_type
+            const nType = (n.type || '').toLowerCase()
+            const nEntityType = (n.entity_type || '').toLowerCase()
+            const tf = typeFilter.toLowerCase()
+            const matchesType = typeFilter === 'All Types' ||
+                nType === tf ||
+                nEntityType === tf ||
+                // alias: 'auction' entity maps to 'bid' dropdown option
+                (tf === 'bid' && (nEntityType === 'auction' || nType === 'auction'))
+
             const matchesStatus = statusFilter === 'All Status' ||
                 (statusFilter === 'Unread' && n.unread) ||
                 (statusFilter === 'Read' && !n.unread)
