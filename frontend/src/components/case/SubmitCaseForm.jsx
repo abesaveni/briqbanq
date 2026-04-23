@@ -689,22 +689,18 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
       const meta = buildMetadataJson()
 
       if (formData.caseId) {
-        // PATCH existing draft
-        await fetch(`/api/v1/cases/${formData.caseId}/draft`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-          body: JSON.stringify({
-            metadata_json: meta,
-            workflow_status: 'draft',
-            completion_pct: pct,
-            step_status: stepSt,
-            property_address: formData.securities[0]?.property_address || 'TBC',
-            property_type: formData.securities[0]?.property_type || 'Unknown',
-          }),
-        })
+        // Update existing draft via PUT /cases/{id}
+        const primarySec = formData.securities[0] || {}
+        const draftUpdate = {
+          metadata_json: meta,
+          property_address: primarySec.property_address || 'TBC',
+          property_type: primarySec.property_type || 'Unknown',
+        }
+        const draftEstimate = parseFloat(primarySec.estimated_value)
+        const draftDebt = parseFloat(formData.total_payout || formData.principal_outstanding)
+        if (draftEstimate > 0) draftUpdate.estimated_value = draftEstimate
+        if (draftDebt > 0) draftUpdate.outstanding_debt = draftDebt
+        await casesService.updateCase(formData.caseId, draftUpdate)
       } else {
         // Create new draft case
         const primarySec = formData.securities[0] || {}
@@ -891,57 +887,6 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
         fd.append('file', doc.file)
         await documentService.uploadDocument(caseId, fd)
       }
-
-      // Save securities to DB
-      const existingToken = localStorage.getItem('token')
-      for (const sec of formData.securities) {
-        await fetch(`/api/v1/cases/${caseId}/securities`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${existingToken}` },
-          body: JSON.stringify({
-            ...sec, _id: undefined, collapsed: undefined,
-            estimated_value: parseFloat(sec.estimated_value) || null,
-            existing_debt: parseFloat(sec.existing_debt) || null,
-          }),
-        })
-      }
-
-      // Save parties to DB
-      const allParties = [
-        ...formData.individuals.map(p => ({ ...p, party_type: 'individual', _id: undefined, collapsed: undefined })),
-        ...formData.companies.map(p => ({ ...p, party_type: 'company', _id: undefined, collapsed: undefined })),
-        ...formData.trusts.map(p => ({ ...p, party_type: 'trust', _id: undefined, collapsed: undefined })),
-      ]
-      for (const party of allParties) {
-        await fetch(`/api/v1/cases/${caseId}/parties`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${existingToken}` },
-          body: JSON.stringify(party),
-        })
-      }
-
-      // Save loan metrics
-      const loanMetrics = {
-        principal_outstanding: parseFloat(formData.principal_outstanding) || null,
-        accrued_interest: parseFloat(formData.accrued_interest) || null,
-        default_interest: parseFloat(formData.default_interest) || null,
-        fees: parseFloat(formData.fees) || null,
-        legal_costs: parseFloat(formData.legal_costs) || null,
-        total_arrears: parseFloat(formData.total_arrears) || null,
-        total_payout: parseFloat(formData.total_payout) || null,
-        missed_payments: parseInt(formData.missed_payments) || null,
-        days_in_arrears: parseInt(formData.days_in_arrears) || null,
-        arrears_start_date: formData.arrears_start_date || null,
-        last_payment_date: formData.last_payment_date || null,
-        forced_sale_estimate: parseFloat(formData.forced_sale_estimate) || null,
-        nccp_subject: formData.nccpSubject,
-        borrower_cooperation: formData.borrowerCooperation,
-      }
-      await fetch(`/api/v1/cases/${caseId}/loan-metrics`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${existingToken}` },
-        body: JSON.stringify(loanMetrics),
-      })
 
       // Advance to SUBMITTED
       await casesService.submitCaseActual(caseId)
@@ -1381,17 +1326,20 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
               {caseDocuments.filter(d => !d.docName).length > 0 && (
                 <div className="mt-4 space-y-2">
                   <p className="text-sm font-medium text-amber-700 flex items-center gap-1"><AlertTriangle className="w-4 h-4" /> Files needing manual assignment:</p>
-                  {caseDocuments.filter(d => !d.docName).map((doc, i) => (
-                    <div key={i} className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                  {caseDocuments.filter(d => !d.docName).map((doc) => {
+                    const origIdx = caseDocuments.indexOf(doc)
+                    return (
+                    <div key={origIdx} className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                       <FileText className="w-4 h-4 text-amber-500 shrink-0" />
                       <span className="text-sm text-slate-700 flex-1 truncate">{doc.file?.name}</span>
-                      <select className="text-xs border border-amber-200 rounded px-2 py-1 bg-white" onChange={e => reassignDoc(i, e.target.value)}>
+                      <select className="text-xs border border-amber-200 rounded px-2 py-1 bg-white" onChange={e => reassignDoc(origIdx, e.target.value)}>
                         <option value="">Assign to...</option>
                         {LENDER_DOCS.map(d => <option key={d.name} value={d.name}>{d.name}</option>)}
                       </select>
-                      <button type="button" onClick={() => removeDoc(i)} className="text-red-400 hover:text-red-600"><X className="w-4 h-4" /></button>
+                      <button type="button" onClick={() => removeDoc(origIdx)} className="text-red-400 hover:text-red-600"><X className="w-4 h-4" /></button>
                     </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
             </SectionCard>
