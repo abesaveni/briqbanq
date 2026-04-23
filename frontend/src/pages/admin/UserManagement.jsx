@@ -28,6 +28,7 @@ export default function UserManagement() {
     const [addForm, setAddForm] = useState({ full_name: '', email: '', role: 'borrower', password: '' })
     const [saving, setSaving] = useState(false)
     const [actionId, setActionId] = useState(null)
+    const [addError, setAddError] = useState('')
 
     useEffect(() => {
         adminUsersService.getUsers().then(res => {
@@ -83,11 +84,11 @@ export default function UserManagement() {
     const handleAddUser = async (e) => {
         e.preventDefault()
         setSaving(true)
+        setAddError('')
         const formData = { ...addForm }
         try {
             const res = await adminUsersService.createUser(formData)
             if (res.success) {
-                // Optimistically add to list immediately
                 const newUser = res.data || {
                     id: `local-${Date.now()}`,
                     full_name: formData.full_name,
@@ -99,13 +100,16 @@ export default function UserManagement() {
                 setUsers(prev => [...prev, newUser])
                 setShowAddModal(false)
                 setAddForm({ full_name: '', email: '', role: 'borrower', password: '' })
-                // Background refetch to get real server data
                 try {
                     const listRes = await adminUsersService.getUsers()
                     if (listRes.success && listRes.data) setUsers(listRes.data)
                 } catch { /* keep optimistic state */ }
+            } else {
+                setAddError(res.error || 'Failed to create user. Please try again.')
             }
-        } catch { /* ignore */ } finally {
+        } catch (err) {
+            setAddError(err?.message || 'Failed to create user. Please try again.')
+        } finally {
             setSaving(false)
         }
     }
@@ -308,9 +312,10 @@ export default function UserManagement() {
                     <div className="bg-white rounded-xl shadow-xl w-full max-w-md border border-gray-200">
                         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
                             <p className="text-sm font-semibold text-slate-800">Add New User</p>
-                            <button onClick={() => setShowAddModal(false)} className="text-gray-400 hover:text-gray-600"><X className="w-4 h-4" /></button>
+                            <button onClick={() => { setShowAddModal(false); setAddError('') }} className="text-gray-400 hover:text-gray-600"><X className="w-4 h-4" /></button>
                         </div>
-                        <form onSubmit={handleAddUser} className="p-4 space-y-3">
+                        <form onSubmit={handleAddUser} autoComplete="off" className="p-4 space-y-3">
+                            {addError && <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">{addError}</p>}
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1">Full Name <span className="text-red-500">*</span></label>
                                 <input type="text" required value={addForm.full_name} onChange={e => setAddForm(p => ({ ...p, full_name: e.target.value }))} placeholder="John Smith" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
@@ -321,7 +326,7 @@ export default function UserManagement() {
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1">Password <span className="text-red-500">*</span></label>
-                                <input type="password" required minLength={8} value={addForm.password} onChange={e => setAddForm(p => ({ ...p, password: e.target.value }))} placeholder="Min 8 characters" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                                <input type="password" required minLength={8} autoComplete="new-password" value={addForm.password} onChange={e => setAddForm(p => ({ ...p, password: e.target.value }))} placeholder="Min 8 characters" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1">Role <span className="text-red-500">*</span></label>

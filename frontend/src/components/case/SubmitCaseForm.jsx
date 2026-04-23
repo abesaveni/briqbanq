@@ -364,9 +364,14 @@ function calcStepStatus(formData, step) {
       if (sec.property_address && sec.property_type && sec.security_type) return 'complete'
       if (sec.property_address || sec.property_type) return 'partial'
       return 'not_started'
-    case 2:
-      if (hasParty) return 'complete'
+    case 2: {
+      const filledInd = formData.individuals.some(p => p.first_name || p.last_name || p.email)
+      const filledCo = formData.companies.some(p => p.company_name || p.acn)
+      const filledTr = formData.trusts.some(p => p.trust_name)
+      if (filledInd || filledCo || filledTr) return 'complete'
+      if (hasParty) return 'partial'
       return 'not_started'
+    }
     case 3:
       return formData.paymentAuthorized ? 'complete' : 'not_started'
     case 4:
@@ -1814,7 +1819,7 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
                 <span className={`text-[10px] mt-1 whitespace-nowrap font-medium ${isCurrent ? 'text-indigo-600' : isCompleted ? 'text-indigo-500' : 'text-slate-400'}`}>
                   {s.label}
                 </span>
-                {idx <= 5 && <StepBadge status={stepSt} />}
+                <StepBadge status={stepSt} />
               </div>
               {idx < STEPS.length - 1 && (
                 <div className={`w-6 h-0.5 mx-1 mt-[-22px] ${currentStep > s.id ? 'bg-indigo-400' : 'bg-slate-200'}`} />

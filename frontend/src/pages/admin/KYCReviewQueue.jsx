@@ -46,12 +46,21 @@ export default function KYCReviewQueue() {
 
     const handleApprove = async (id) => {
         setKycData(prev => prev.map(k => k.id === id ? { ...k, status: 'APPROVED' } : k))
-        try { await kycService.approveKYC(id) } catch (_) {}
+        try { await kycService.approveKYC(id) } catch (_) {
+            setKycData(prev => prev.map(k => k.id === id ? { ...k, status: 'SUBMITTED' } : k))
+        }
     }
 
     const handleReject = async (id) => {
         setKycData(prev => prev.map(k => k.id === id ? { ...k, status: 'REJECTED' } : k))
-        try { await kycService.rejectKYC(id, 'Rejected by admin') } catch (_) {}
+        try { await kycService.rejectKYC(id, 'Rejected by admin') } catch (_) {
+            setKycData(prev => prev.map(k => k.id === id ? { ...k, status: 'SUBMITTED' } : k))
+        }
+    }
+
+    const normalizeRisk = (r) => {
+        const map = { low: 'Low', medium: 'Medium', high: 'High' }
+        return map[(r || '').toLowerCase()] || r || 'Medium'
     }
 
     const handleRiskChange = (id, newRisk) => {
@@ -142,7 +151,7 @@ export default function KYCReviewQueue() {
                                     <td className="px-4 py-3 text-sm text-gray-500 max-w-[140px] truncate">{kyc.document_type || kyc.metadata_json?.original_file_name || '—'}</td>
                                     <td className="px-4 py-3">
                                         {(() => {
-                                            const riskVal = riskOverrides[String(kyc.id)] || kyc.risk_level || kyc.risk || 'Medium'
+                                            const riskVal = riskOverrides[String(kyc.id)] || normalizeRisk(kyc.risk_level || kyc.risk)
                                             return (
                                                 <select
                                                     value={riskVal}

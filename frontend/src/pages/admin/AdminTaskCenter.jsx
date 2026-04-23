@@ -100,7 +100,7 @@ export default function AdminTaskCenter() {
             (priorityFilter === 'Urgent' && task.priority === 'Urgent') ||
             task.priority === priorityFilter;
 
-        const matchesModule = moduleFilter === 'All Modules' || task.module === moduleFilter;
+        const matchesModule = moduleFilter === 'All Modules' || (task.module || '').toLowerCase() === moduleFilter.toLowerCase();
 
         return matchesSearch && matchesStatus && matchesPriority && matchesModule;
     }).sort((a, b) => {
@@ -331,7 +331,7 @@ export default function AdminTaskCenter() {
                             <option>All Modules</option>
                             <option>Accounting</option>
                             <option>Brickbanq</option>
-                            <option>Crm</option>
+                            <option>CRM</option>
                             <option>Compliance</option>
                         </select>
                     </div>
@@ -706,7 +706,7 @@ export default function AdminTaskCenter() {
                                         >
                                             <option>Accounting</option>
                                             <option>Brickbanq</option>
-                                            <option>Crm</option>
+                                            <option>CRM</option>
                                             <option>Compliance</option>
                                         </select>
                                     </div>

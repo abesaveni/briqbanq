@@ -246,16 +246,6 @@ function ProfileSettingsView() {
                     <h3 className="font-bold text-base text-gray-900 mb-6">Account Info</h3>
                     <div className="space-y-4">
                         <div className="flex justify-between items-center text-sm">
-                            <span className="text-gray-500 font-medium">Member Since:</span>
-                            <span className="font-bold text-gray-900">
-                                {user?.created_at
-                                    ? new Date(user.created_at).toLocaleDateString('en-AU', { month: 'short', year: 'numeric' })
-                                    : profile.created_at
-                                        ? new Date(profile.created_at).toLocaleDateString('en-AU', { month: 'short', year: 'numeric' })
-                                        : 'N/A'}
-                            </span>
-                        </div>
-                        <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-500 font-medium">Account Type:</span>
                             <span className="font-bold text-gray-900 capitalize">{user?.role || 'Investor'}</span>
                         </div>
