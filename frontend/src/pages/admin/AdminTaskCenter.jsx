@@ -27,12 +27,16 @@ function formatDueDate(isoDate) {
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+const MODULE_DISPLAY = { brickbanq: 'Brickbanq', accounting: 'Accounting', crm: 'CRM', compliance: 'Compliance' };
+const normalizeModule = (m) => MODULE_DISPLAY[(m || '').toLowerCase()] || m || '';
+
 function normalizeTask(t) {
     const displayStatus = STATUS_DISPLAY[t.status] || t.status;
     return {
         ...t,
         status: displayStatus,
         priority: PRIORITY_DISPLAY[t.priority] || t.priority,
+        module: normalizeModule(t.module),
         dueDate: formatDueDate(t.due_date),
         dueDateObj: t.due_date ? new Date(t.due_date) : new Date(),
         caseNumber: t.case_number || null,

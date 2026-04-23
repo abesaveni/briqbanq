@@ -131,12 +131,40 @@ class AdminService:
         """Get platform statistics."""
         from app.modules.identity.repository import UserRepository
         from app.modules.cases.repository import CaseRepository
+        from app.modules.auctions.repository import AuctionRepository
+        from app.shared.enums import AuctionStatus, UserStatus, KYCStatus
+
         user_repo = UserRepository(self.db)
         case_repo = CaseRepository(self.db)
-        
+
+        total_users = await user_repo.count()
+        active_users = await user_repo.count(status=UserStatus.ACTIVE)
+        suspended_users = await user_repo.count(status=UserStatus.SUSPENDED)
+        total_cases = await case_repo.count()
+
+        try:
+            auction_repo = AuctionRepository(self.db)
+            live_auctions = await auction_repo.count(status=AuctionStatus.LIVE)
+        except Exception:
+            live_auctions = 0
+
+        try:
+            from sqlalchemy import select, func as sqlfunc
+            from app.modules.kyc.models import KYCRecord
+            result = await self.db.execute(
+                select(sqlfunc.count()).where(KYCRecord.status == KYCStatus.SUBMITTED)
+            )
+            pending_approvals = result.scalar() or 0
+        except Exception:
+            pending_approvals = 0
+
         return {
-            "total_users": await user_repo.count(),
-            "total_cases": await case_repo.count(),
+            "total_users": total_users,
+            "active_users": active_users,
+            "suspended_users": suspended_users,
+            "total_cases": total_cases,
+            "live_auctions": live_auctions,
+            "pending_approvals": pending_approvals,
             "total_investments": 100,  # Mocked
-            "platform_revenue": 50000.0, # Mocked
+            "platform_revenue": 50000.0,  # Mocked
         }

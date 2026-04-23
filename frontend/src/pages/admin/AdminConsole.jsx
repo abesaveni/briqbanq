@@ -245,12 +245,12 @@ function AnalyticsTab() {
                         <p className="text-xs text-gray-400 mt-0.5">Live system metrics</p>
                     </div>
                     {[
-                        { label: 'Live Auctions', value: num(platform.live_auctions) },
-                        { label: 'Pending Approvals', value: num(platform.pending_approvals) },
-                        { label: 'Active Users', value: num(platform.active_users) },
-                        { label: 'Suspended Users', value: num(platform.suspended_users) },
-                        { label: 'Total Cases', value: num(platform.total_cases) },
-                        { label: 'Total Users', value: num(platform.total_users) },
+                        { label: 'Live Auctions', value: num(platform.live_auctions ?? stats?.active_auctions) },
+                        { label: 'Pending Approvals', value: num(platform.pending_approvals ?? stats?.pending_kyc_reviews ?? stats?.pending_role_requests) },
+                        { label: 'Active Users', value: num(platform.active_users ?? stats?.active_users) },
+                        { label: 'Suspended Users', value: num(platform.suspended_users ?? stats?.suspended_users) },
+                        { label: 'Total Cases', value: num(platform.total_cases ?? stats?.total_cases) },
+                        { label: 'Total Users', value: num(platform.total_users ?? stats?.total_users) },
                     ].map(row => (
                         <div key={row.label} className="flex justify-between items-center px-6 py-3">
                             <span className="text-sm text-gray-600">{row.label}</span>
@@ -502,22 +502,22 @@ export default function AdminConsole() {
                             <h3 className="font-semibold text-gray-900">Add Integration</h3>
                             <button onClick={() => setShowAddModal(false)} className="text-gray-400 hover:text-gray-600"><ExternalLink className="w-4 h-4 rotate-90" /></button>
                         </div>
-                        <form onSubmit={handleAddIntegration} className="p-6 space-y-4">
+                        <form onSubmit={handleAddIntegration} autoComplete="off" className="p-6 space-y-4">
                             <div>
                                 <label className="block text-xs font-semibold text-gray-700 mb-1">Integration Name *</label>
-                                <input required type="text" value={newIntegration.name} onChange={e => setNewIntegration(p => ({ ...p, name: e.target.value }))}
+                                <input required type="text" autoComplete="off" value={newIntegration.name} onChange={e => setNewIntegration(p => ({ ...p, name: e.target.value }))}
                                     placeholder="e.g. Stripe, Twilio, SendGrid"
                                     className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-gray-700 mb-1">Description</label>
-                                <input type="text" value={newIntegration.description} onChange={e => setNewIntegration(p => ({ ...p, description: e.target.value }))}
+                                <input type="text" autoComplete="off" value={newIntegration.description} onChange={e => setNewIntegration(p => ({ ...p, description: e.target.value }))}
                                     placeholder="Brief description of what this integration does"
                                     className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-gray-700 mb-1">API Key / Credential</label>
-                                <input type="password" value={newIntegration.apiKey} onChange={e => setNewIntegration(p => ({ ...p, apiKey: e.target.value }))}
+                                <input type="password" autoComplete="new-password" value={newIntegration.apiKey} onChange={e => setNewIntegration(p => ({ ...p, apiKey: e.target.value }))}
                                     placeholder="Enter API key or token"
                                     className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
                             </div>

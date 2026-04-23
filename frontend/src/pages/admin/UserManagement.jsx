@@ -100,10 +100,6 @@ export default function UserManagement() {
                 setUsers(prev => [...prev, newUser])
                 setShowAddModal(false)
                 setAddForm({ full_name: '', email: '', role: 'borrower', password: '' })
-                try {
-                    const listRes = await adminUsersService.getUsers()
-                    if (listRes.success && listRes.data) setUsers(listRes.data)
-                } catch { /* keep optimistic state */ }
             } else {
                 setAddError(res.error || 'Failed to create user. Please try again.')
             }
@@ -318,11 +314,11 @@ export default function UserManagement() {
                             {addError && <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">{addError}</p>}
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1">Full Name <span className="text-red-500">*</span></label>
-                                <input type="text" required value={addForm.full_name} onChange={e => setAddForm(p => ({ ...p, full_name: e.target.value }))} placeholder="John Smith" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                                <input type="text" required autoComplete="off" value={addForm.full_name} onChange={e => setAddForm(p => ({ ...p, full_name: e.target.value }))} placeholder="John Smith" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1">Email <span className="text-red-500">*</span></label>
-                                <input type="email" required value={addForm.email} onChange={e => setAddForm(p => ({ ...p, email: e.target.value }))} placeholder="user@example.com" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                                <input type="email" required autoComplete="off" value={addForm.email} onChange={e => setAddForm(p => ({ ...p, email: e.target.value }))} placeholder="user@example.com" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1">Password <span className="text-red-500">*</span></label>
