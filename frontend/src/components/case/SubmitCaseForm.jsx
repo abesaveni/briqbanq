@@ -158,6 +158,24 @@ const initialFormData = {
   disclosedInterestRate: '6.50', disclosedComparisonRate: '6.75',
 }
 
+// ─── Input validation helpers ─────────────────────────────────────────────────
+
+const onlyNumbers = (e) => {
+  if (['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Enter','Home','End'].includes(e.key)) return
+  if (!/^\d$/.test(e.key)) e.preventDefault()
+}
+
+const onlyDecimal = (e) => {
+  if (['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Enter','Home','End'].includes(e.key)) return
+  if (!/[\d.]/.test(e.key)) e.preventDefault()
+  if (e.key === '.' && e.target.value.includes('.')) e.preventDefault()
+}
+
+const onlyPhone = (e) => {
+  if (['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Enter','Home','End'].includes(e.key)) return
+  if (!/[\d +\-()]/.test(e.key)) e.preventDefault()
+}
+
 // ─── Shared Style Helpers ─────────────────────────────────────────────────────
 
 const inputCls = 'h-10 bg-white border border-slate-200 rounded-lg px-3 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors w-full'
@@ -369,7 +387,6 @@ function calcStepStatus(formData, step) {
       const filledCo = formData.companies.some(p => p.company_name || p.acn)
       const filledTr = formData.trusts.some(p => p.trust_name)
       if (filledInd || filledCo || filledTr) return 'complete'
-      if (hasParty) return 'partial'
       return 'not_started'
     }
     case 3:
@@ -1085,7 +1102,7 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
                         <Field label="First Name"><input className={inputCls} value={ind.first_name} onChange={e => updateParty('individuals', idx, 'first_name', e.target.value)} /></Field>
                         <Field label="Last Name"><input className={inputCls} value={ind.last_name} onChange={e => updateParty('individuals', idx, 'last_name', e.target.value)} /></Field>
                         <Field label="Date of Birth"><input type="date" className={inputCls} value={ind.dob} onChange={e => updateParty('individuals', idx, 'dob', e.target.value)} /></Field>
-                        <Field label="Phone"><input className={inputCls} value={ind.phone} onChange={e => updateParty('individuals', idx, 'phone', e.target.value)} placeholder="04XX XXX XXX" /></Field>
+                        <Field label="Phone"><input className={inputCls} value={ind.phone} onChange={e => updateParty('individuals', idx, 'phone', e.target.value)} onKeyDown={onlyPhone} placeholder="04XX XXX XXX" /></Field>
                         <Field label="Email"><input type="email" className={inputCls} value={ind.email} onChange={e => updateParty('individuals', idx, 'email', e.target.value)} /></Field>
                         <Field label="Occupation"><input className={inputCls} value={ind.occupation} onChange={e => updateParty('individuals', idx, 'occupation', e.target.value)} /></Field>
                         <Field label="Employer"><input className={inputCls} value={ind.employer} onChange={e => updateParty('individuals', idx, 'employer', e.target.value)} /></Field>
@@ -1151,7 +1168,7 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
                         </Field>
                         <Field label="Industry"><input className={inputCls} value={co.industry} onChange={e => updateParty('companies', idx, 'industry', e.target.value)} /></Field>
                         <Field label="Contact Person"><input className={inputCls} value={co.contact_person} onChange={e => updateParty('companies', idx, 'contact_person', e.target.value)} /></Field>
-                        <Field label="Contact Phone"><input className={inputCls} value={co.contact_phone} onChange={e => updateParty('companies', idx, 'contact_phone', e.target.value)} /></Field>
+                        <Field label="Contact Phone"><input className={inputCls} value={co.contact_phone} onChange={e => updateParty('companies', idx, 'contact_phone', e.target.value)} onKeyDown={onlyPhone} /></Field>
                         <Field label="Contact Email"><input className={inputCls} value={co.contact_email} onChange={e => updateParty('companies', idx, 'contact_email', e.target.value)} /></Field>
                       </div>
                       <Field label="Registered Address"><input className={inputCls} value={co.registered_address} onChange={e => updateParty('companies', idx, 'registered_address', e.target.value)} /></Field>
@@ -1326,7 +1343,7 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
                 <Field label="Lender / Institution Name"><input className={inputCls} name="lenderName" value={formData.lenderName} onChange={updateFormData} /></Field>
                 <Field label="Primary Contact"><input className={inputCls} name="primaryContact" value={formData.primaryContact} onChange={updateFormData} /></Field>
                 <Field label="Email"><input type="email" className={inputCls} name="lenderEmail" value={formData.lenderEmail} onChange={updateFormData} /></Field>
-                <Field label="Phone"><input className={inputCls} name="lenderPhone" value={formData.lenderPhone} onChange={updateFormData} /></Field>
+                <Field label="Phone"><input className={inputCls} name="lenderPhone" value={formData.lenderPhone} onChange={updateFormData} onKeyDown={onlyPhone} /></Field>
                 <Field label="Loan Account Number"><input className={inputCls} name="loanAccountNumber" value={formData.loanAccountNumber} onChange={updateFormData} /></Field>
               </div>
             </SectionCard>
@@ -1421,22 +1438,22 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
             <SectionCard title="Debt Breakdown" icon={DollarSign}>
               <div className={grid2}>
                 <Field label="Principal Outstanding (A$)">
-                  <input className={inputCls} name="principal_outstanding" value={formData.principal_outstanding} onChange={updateFormData} placeholder="0" />
+                  <input className={inputCls} name="principal_outstanding" value={formData.principal_outstanding} onChange={updateFormData} onKeyDown={onlyDecimal} placeholder="0" />
                 </Field>
                 <Field label="Accrued Interest (A$)">
-                  <input className={inputCls} name="accrued_interest" value={formData.accrued_interest} onChange={updateFormData} placeholder="0" />
+                  <input className={inputCls} name="accrued_interest" value={formData.accrued_interest} onChange={updateFormData} onKeyDown={onlyDecimal} placeholder="0" />
                 </Field>
                 <Field label="Default Interest (A$)">
-                  <input className={inputCls} name="default_interest" value={formData.default_interest} onChange={updateFormData} placeholder="0" />
+                  <input className={inputCls} name="default_interest" value={formData.default_interest} onChange={updateFormData} onKeyDown={onlyDecimal} placeholder="0" />
                 </Field>
                 <Field label="Fees (A$)">
-                  <input className={inputCls} name="fees" value={formData.fees} onChange={updateFormData} placeholder="0" />
+                  <input className={inputCls} name="fees" value={formData.fees} onChange={updateFormData} onKeyDown={onlyDecimal} placeholder="0" />
                 </Field>
                 <Field label="Legal Costs (A$)">
-                  <input className={inputCls} name="legal_costs" value={formData.legal_costs} onChange={updateFormData} placeholder="0" />
+                  <input className={inputCls} name="legal_costs" value={formData.legal_costs} onChange={updateFormData} onKeyDown={onlyDecimal} placeholder="0" />
                 </Field>
                 <Field label="Total Arrears (A$)">
-                  <input className={inputCls} name="total_arrears" value={formData.total_arrears} onChange={updateFormData} placeholder="0" />
+                  <input className={inputCls} name="total_arrears" value={formData.total_arrears} onChange={updateFormData} onKeyDown={onlyDecimal} placeholder="0" />
                 </Field>
               </div>
               <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-center justify-between">
@@ -1466,11 +1483,12 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
             <SectionCard title="Arrears Details" icon={Clock}>
               <div className={grid2}>
                 <Field label="Missed Payments (count)">
-                  <input className={inputCls} name="missed_payments" value={formData.missed_payments} onChange={updateFormData} placeholder="3" />
+                  <input className={inputCls} name="missed_payments" value={formData.missed_payments} onChange={updateFormData} onKeyDown={onlyNumbers} placeholder="3" />
                 </Field>
                 <Field label="Days in Arrears" hint="auto-calculated or override">
                   <input className={inputCls} name="days_in_arrears" value={formData.days_in_arrears}
                     onChange={e => { update('days_in_arrears', e.target.value); update('_daysManual', true) }}
+                    onKeyDown={onlyNumbers}
                     placeholder="Auto from start date" />
                 </Field>
                 <Field label="Arrears Start Date">
@@ -1488,13 +1506,13 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
             <SectionCard title="Loan Terms" icon={DollarSign}>
               <div className={grid2}>
                 <Field label="Original Loan Amount (A$)">
-                  <input className={inputCls} name="originalLoanAmount" value={formData.originalLoanAmount} onChange={updateFormData} />
+                  <input className={inputCls} name="originalLoanAmount" value={formData.originalLoanAmount} onChange={updateFormData} onKeyDown={onlyDecimal} />
                 </Field>
                 <Field label="Loan Start Date">
                   <input type="date" className={inputCls} name="loanStartDate" value={formData.loanStartDate} onChange={updateFormData} />
                 </Field>
                 <Field label="Interest Rate (% p.a.)">
-                  <input className={inputCls} name="interestRate" value={formData.interestRate} onChange={updateFormData} />
+                  <input className={inputCls} name="interestRate" value={formData.interestRate} onChange={updateFormData} onKeyDown={onlyDecimal} />
                 </Field>
                 <Field label="Repayment Type">
                   <select className={selectCls} name="repaymentType" value={formData.repaymentType} onChange={updateFormData}>
@@ -1507,10 +1525,10 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
             <SectionCard title="Valuation & Recovery" icon={ActivityIcon}>
               <div className={grid2}>
                 <Field label="Valuation Amount (A$)">
-                  <input className={inputCls} name="valuationAmount" value={formData.valuationAmount} onChange={updateFormData} />
+                  <input className={inputCls} name="valuationAmount" value={formData.valuationAmount} onChange={updateFormData} onKeyDown={onlyDecimal} />
                 </Field>
                 <Field label="Forced Sale Estimate (A$)">
-                  <input className={inputCls} name="forced_sale_estimate" value={formData.forced_sale_estimate} onChange={updateFormData} />
+                  <input className={inputCls} name="forced_sale_estimate" value={formData.forced_sale_estimate} onChange={updateFormData} onKeyDown={onlyDecimal} />
                 </Field>
                 <Field label="Valuation Date">
                   <input type="date" className={inputCls} name="valuationDate" value={formData.valuationDate} onChange={updateFormData} />

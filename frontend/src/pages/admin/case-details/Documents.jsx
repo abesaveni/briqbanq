@@ -1,7 +1,7 @@
 // src/pages/admin/case-details/Documents.jsx
 import { useState, useRef } from 'react'
 import { useCaseContext } from '../../../context/CaseContext'
-import { Upload, FileText, Eye, Download, Search, Loader2, Trash2, Archive } from 'lucide-react'
+import { Upload, FileText, Eye, Download, Search, Loader2, Trash2 } from 'lucide-react'
 import { documentService } from '../../../api/dataService'
 
 export default function Documents() {
@@ -9,16 +9,11 @@ export default function Documents() {
     const [search, setSearch] = useState('')
     const [uploading, setUploading] = useState(false)
     const [deletingId, setDeletingId] = useState(null)
-    const [archivedIds, setArchivedIds] = useState(new Set())
-    const [showArchived, setShowArchived] = useState(false)
     const fileInputRef = useRef(null)
 
     const allDocs = caseData.documents || []
-    const activeDocs = allDocs.filter(doc => !archivedIds.has(String(doc.id || doc.name)))
-    const archivedDocs = allDocs.filter(doc => archivedIds.has(String(doc.id || doc.name)))
-    const sourceDocs = showArchived ? archivedDocs : activeDocs
 
-    const filtered = sourceDocs.filter(doc =>
+    const filtered = allDocs.filter(doc =>
         !search ||
         (doc.name || '').toLowerCase().includes(search.toLowerCase()) ||
         (doc.type || '').toLowerCase().includes(search.toLowerCase())
@@ -31,16 +26,6 @@ export default function Documents() {
         setDeletingId(key)
         try { await documentService.deleteDocument(doc.id) } catch { updateCase({ documents: snapshot }) }
         setDeletingId(null)
-    }
-
-    const handleArchive = (doc) => {
-        const key = String(doc.id || doc.name)
-        setArchivedIds(prev => {
-            const next = new Set(prev)
-            if (next.has(key)) next.delete(key)
-            else next.add(key)
-            return next
-        })
     }
 
     const handleUpload = async (e) => {
@@ -108,14 +93,6 @@ export default function Documents() {
                         />
                     </div>
                     <div className="flex items-center gap-3">
-                    {archivedDocs.length > 0 && (
-                        <button
-                            onClick={() => setShowArchived(v => !v)}
-                            className={`text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors ${showArchived ? 'bg-amber-50 border-amber-300 text-amber-700' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}
-                        >
-                            {showArchived ? `Archived (${archivedDocs.length})` : `Show Archived (${archivedDocs.length})`}
-                        </button>
-                    )}
                     <span className="text-xs text-gray-400">{filtered.length} document{filtered.length !== 1 ? 's' : ''}</span>
                 </div>
                 </div>
@@ -181,13 +158,6 @@ export default function Documents() {
                                                     <Download className="w-4 h-4" />
                                                 </span>
                                             )}
-                                            <button
-                                                onClick={() => handleArchive(doc)}
-                                                className="p-1.5 rounded-lg transition-colors text-gray-400 hover:text-amber-600 hover:bg-amber-50"
-                                                title={archivedIds.has(String(doc.id || doc.name)) ? 'Unarchive' : 'Archive'}
-                                            >
-                                                <Archive className="w-4 h-4" />
-                                            </button>
                                             <button
                                                 onClick={() => handleDelete(doc)}
                                                 disabled={deletingId === String(doc.id || doc.name)}
