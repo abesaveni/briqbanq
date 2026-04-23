@@ -861,15 +861,19 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
         setCreatedCaseId(caseId)
       } else {
         // Update existing draft
-        await casesService.updateCase(caseId, {
+        const submitUpdate = {
           title: `${primarySec.property_address?.split(',')[0] || 'MIP Case'} – ${primarySec.suburb || ''}`.trim(),
           property_address: primarySec.property_address || 'TBC',
           property_type: primarySec.property_type || 'Unknown',
-          estimated_value: parseFloat(primarySec.estimated_value) || 0,
-          outstanding_debt: parseFloat(formData.total_payout || formData.principal_outstanding) || 0,
-          interest_rate: parseFloat(formData.interestRate) || 0,
           metadata_json: meta,
-        })
+        }
+        const submitEstimate = parseFloat(primarySec.estimated_value)
+        const submitDebt = parseFloat(formData.total_payout || formData.principal_outstanding)
+        const submitRate = parseFloat(formData.interestRate)
+        if (submitEstimate > 0) submitUpdate.estimated_value = submitEstimate
+        if (submitDebt > 0) submitUpdate.outstanding_debt = submitDebt
+        if (submitRate > 0) submitUpdate.interest_rate = submitRate
+        await casesService.updateCase(caseId, submitUpdate)
       }
 
       // Upload property images
