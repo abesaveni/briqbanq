@@ -10,11 +10,36 @@ export default function TaskCenter() {
   const navigate = useNavigate()
   const [tasks, setTasks] = useState([])
 
+  const normalizeStatus = (s) => {
+    if (!s) return 'Pending'
+    const lower = s.toLowerCase().replace(/[_ ]/g, '')
+    if (lower === 'inprogress') return 'InProgress'
+    if (lower === 'completed' || lower === 'done') return 'Completed'
+    if (lower === 'overdue') return 'Overdue'
+    if (lower === 'pending') return 'Pending'
+    return s.charAt(0).toUpperCase() + s.slice(1)
+  }
+  const normalizePriority = (p) => {
+    if (!p) return 'Low'
+    const cap = p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()
+    return ['Urgent', 'High', 'Medium', 'Low'].includes(cap) ? cap : 'Low'
+  }
+
   useEffect(() => {
     taskService.getTasks()
       .then((res) => {
         const data = res.data || res || []
-        setTasks(data.map((t) => ({ ...t, desc: t.desc || t.description || '', dueLabel: t.dueLabel || t.due_date || '', module: t.module || 'Brickbanq', tags: t.tags || [] })))
+        setTasks(data.map((t) => ({
+          ...t,
+          id: t.id ?? t.task_id,
+          desc: t.desc || t.description || '',
+          status: normalizeStatus(t.status),
+          priority: normalizePriority(t.priority),
+          dueLabel: t.dueLabel || (t.due_date ? t.due_date : ''),
+          dueDateRaw: t.due_date || '',
+          module: t.module || 'Brickbanq',
+          tags: t.tags || [],
+        })))
       })
       .catch(() => {})
   }, [])
@@ -59,7 +84,7 @@ export default function TaskCenter() {
 
   const handleCreateTask = () => {
     if (!newTaskForm.title.trim()) return
-    const optimisticId = Date.now()
+    const optimisticId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `t-${Date.now()}-${Math.random()}`
     const newTask = {
       id: optimisticId,
       title: newTaskForm.title.trim(),
@@ -110,8 +135,9 @@ export default function TaskCenter() {
     setTasks((prev) => prev.map((t) => t.id === taskId ? { ...t, status: t.status === 'Completed' ? 'Pending' : 'Completed' } : t))
   }
   const handleDeleteTask = (taskId) => {
-    setTasks((prev) => prev.filter((t) => t.id !== taskId))
-    if (editingTask?.id === taskId) handleCloseNewTaskModal()
+    setTasks((prev) => prev.filter((t) => String(t.id) !== String(taskId)))
+    if (editingTask?.id !== undefined && String(editingTask.id) === String(taskId)) handleCloseNewTaskModal()
+    taskService.deleteTask(taskId).catch(() => {})
   }
   const handleEditTask = (task) => () => {
     setEditingTask(task)
@@ -332,6 +358,7 @@ export default function TaskCenter() {
           <option>Urgent</option>
           <option>High</option>
           <option>Medium</option>
+          <option>Low</option>
         </select>
         <select value={moduleFilter} onChange={(e) => setModuleFilter(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
           <option>All Modules</option>

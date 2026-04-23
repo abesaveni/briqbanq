@@ -678,19 +678,8 @@ export default function LenderCaseDetails() {
             };
 
             const fileUrl = doc.file_url;
-            // Direct download for local static files
-            if (fileUrl && fileUrl.startsWith('/uploads/')) {
-                try {
-                    const res = await fetch(fileUrl);
-                    if (res.ok) {
-                        doDownload(await res.blob());
-                        setToast({ show: true, message: `${doc.name} downloaded.`, type: "success" });
-                        return;
-                    }
-                } catch { /* fall through */ }
-            }
-            // Direct download for external/S3 URLs — no auth needed
-            if (fileUrl && (fileUrl.startsWith('http://') || fileUrl.startsWith('https://'))) {
+            // Direct download for external S3/CDN URLs — no auth needed
+            if (fileUrl && fileUrl.startsWith('https://')) {
                 const a = document.createElement('a');
                 a.href = fileUrl;
                 a.download = filename.includes('.') ? filename : filename + '.pdf';
@@ -701,13 +690,14 @@ export default function LenderCaseDetails() {
                 setToast({ show: true, message: `${doc.name} downloaded.`, type: "success" });
                 return;
             }
-            // Fall back to authenticated API download endpoint
+            // Route all other files through the authenticated API download endpoint
+            // which has server-side glob fallback for locally-stored files
             if (!doc.id) throw new Error('No document ID');
             const blob = await _fetchDocBlob(doc.id);
             doDownload(blob);
             setToast({ show: true, message: `${doc.name} downloaded.`, type: "success" });
         } catch (err) {
-            setToast({ show: true, message: "Failed to download document. The file may no longer be available.", type: "error" });
+            setToast({ show: true, message: "Failed to download document. The file may no longer be available on the server.", type: "error" });
         }
     };
 

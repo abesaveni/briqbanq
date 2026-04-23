@@ -106,7 +106,7 @@ export default function TaskCenter() {
         tags: created.tags || [],
       }])
     } catch (_) {
-      const id = `t-${Date.now()}`
+      const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `t-${Date.now()}-${Math.random()}`
       setTasks((prev) => [...prev, { id, title: newTaskForm.title.trim(), desc: newTaskForm.description.trim() || '', status: 'Pending', priority: newTaskForm.priority, dueLabel: formatDueLabel(newTaskForm.dueDate) || '—', tags: [], caseId: null, module: newTaskForm.module }])
     }
     resetNewTaskForm()
