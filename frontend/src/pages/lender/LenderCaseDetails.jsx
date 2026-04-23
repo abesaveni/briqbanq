@@ -714,13 +714,15 @@ export default function LenderCaseDetails() {
     const handleViewDocument = async (doc) => {
         try {
             const fileUrl = doc.file_url;
-            // Local static files served directly — no auth needed
-            if (fileUrl && (fileUrl.startsWith('/uploads/') || fileUrl.startsWith('http'))) {
+            // For external S3/CDN URLs open directly — they are already accessible
+            if (fileUrl && fileUrl.startsWith('https://')) {
                 window.open(fileUrl, '_blank', 'noopener,noreferrer');
                 return;
             }
-            // API download endpoint (S3-format keys or fallback)
-            const downloadUrl = fileUrl && fileUrl.startsWith('/api/') ? fileUrl : `/api/v1/documents/${doc.id}/download`;
+            // Always route through the authenticated download endpoint so the backend
+            // can locate the file regardless of how it was stored (local or S3).
+            const downloadUrl = doc.id ? `/api/v1/documents/${doc.id}/download` : null;
+            if (!downloadUrl) throw new Error('No document ID');
             const token = localStorage.getItem('token') || localStorage.getItem('authToken') || '';
             const res = await fetch(downloadUrl, { headers: { Authorization: `Bearer ${token}` } });
             if (!res.ok) throw new Error(`Server returned ${res.status}`);
@@ -729,6 +731,7 @@ export default function LenderCaseDetails() {
                 const json = await res.json();
                 const url = json.download_url || json.url;
                 if (url) { window.open(url, '_blank', 'noopener,noreferrer'); return; }
+                throw new Error('No URL in response');
             }
             const blob = await res.blob();
             const url = URL.createObjectURL(blob);
@@ -801,13 +804,15 @@ export default function LenderCaseDetails() {
                         onClick={() => generateBrandedPDF({
                             title: `Recovery Pack — ${caseDisplayId}`,
                             subtitle: caseData.address,
-                            sections: [
-                                { heading: "Borrower", body: caseData.borrower },
-                                { heading: "Lead Institution", body: caseData.lender },
-                                { heading: "Outstanding Debt", body: `$${caseData.outstandingDebt.toLocaleString()}` },
-                                { heading: "Property Valuation", body: `$${caseData.propertyValuation.toLocaleString()}` },
-                                { heading: "LVR", body: `${caseData.lvr}%` },
-                                { heading: "Status", body: caseData.status },
+                            infoItems: [
+                                { label: "Borrower", value: caseData.borrower || '—' },
+                                { label: "Lead Institution", value: caseData.lender || '—' },
+                                { label: "Outstanding Debt", value: `$${(caseData.outstandingDebt || 0).toLocaleString()}` },
+                                { label: "Property Valuation", value: `$${(caseData.propertyValuation || 0).toLocaleString()}` },
+                                { label: "LVR", value: `${caseData.lvr || 0}%` },
+                                { label: "Status", value: caseData.status || '—' },
+                                { label: "Risk Level", value: caseData.riskLevel || '—' },
+                                { label: "Case ID", value: caseDisplayId || '—' },
                             ],
                         })}
                         className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"

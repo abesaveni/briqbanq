@@ -103,13 +103,13 @@ export default function ContractReview() {
     setCreateError('')
     try {
       const res = await createContract({
-        propertyAddress: createForm.propertyAddress,
-        propertySuburb: createForm.propertySuburb,
-        parties: createForm.parties,
-        partiesSub: createForm.partiesSub,
-        value: createForm.value,
-        date: createForm.date,
-        status: createForm.status,
+        title: [createForm.propertyAddress, createForm.propertySuburb].filter(Boolean).join(', ') || 'New Contract',
+        contract_type: 'Mortgage',
+        property_name: [createForm.propertyAddress, createForm.propertySuburb].filter(Boolean).join(', ') || undefined,
+        party_name: createForm.parties || undefined,
+        lender_name: createForm.partiesSub || undefined,
+        value: createForm.value ? Number(String(createForm.value).replace(/[^0-9.]/g, '')) : undefined,
+        signer_ids: [],
       })
       if (res.error) {
         setCreateError(res.error || 'Failed to create contract. Please try again.')

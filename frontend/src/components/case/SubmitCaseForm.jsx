@@ -392,11 +392,36 @@ function calcStepStatus(formData, step) {
     case 3:
       return formData.paymentAuthorized ? 'complete' : 'not_started'
     case 4:
-      return formData.lenderName ? 'partial' : 'not_started'
+      return formData.lenderName ? 'complete' : 'not_started'
     case 5:
       if (formData.principal_outstanding && formData.total_payout) return 'complete'
       if (formData.principal_outstanding || formData.total_arrears) return 'partial'
       return 'not_started'
+    case 6: {
+      const s6 = formData.yearBuilt || formData.floorArea || formData.numberOfBedrooms
+      if (formData.yearBuilt && formData.floorArea && formData.numberOfBedrooms) return 'complete'
+      if (s6) return 'partial'
+      return 'not_started'
+    }
+    case 7: {
+      const s7 = formData.borrowersLawyerName || formData.lendersLawyerName || formData.realEstateAgentName
+      if (formData.borrowersLawyerName && formData.lendersLawyerName) return 'complete'
+      if (s7) return 'partial'
+      return 'not_started'
+    }
+    case 8:
+      return 'complete'
+    case 9: {
+      const checks = Object.values(formData.disclosureChecks || {})
+      const allChecked = checks.length > 0 && checks.every(Boolean)
+      if (allChecked && formData.disclosedInterestRate) return 'complete'
+      if (formData.disclosedInterestRate || checks.some(Boolean)) return 'partial'
+      return 'not_started'
+    }
+    case 10:
+      return 'complete'
+    case 11:
+      return 'complete'
     default:
       return 'not_started'
   }

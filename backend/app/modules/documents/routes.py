@@ -209,6 +209,16 @@ async def download_document(
                 filename=document.document_name or filename,  # type: ignore[arg-type]
                 media_type=document.content_type or "application/octet-stream",
             )
+        # Fallback: scan uploads directory for any file containing the original filename stem
+        original_stem = pathlib.Path(filename).name
+        matches = list(upload_dir.glob(f"*{original_stem}*")) or list(upload_dir.glob(f"*_{original_stem}"))
+        if matches:
+            found = matches[0]
+            return FileResponse(
+                path=str(found),
+                filename=document.document_name or original_stem,  # type: ignore[arg-type]
+                media_type=document.content_type or "application/octet-stream",
+            )
         raise HTTPException(status_code=404, detail="Document file not found on server")
 
     # S3-format key — try S3 first, fall back to scanning local uploads by original filename

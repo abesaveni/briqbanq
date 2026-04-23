@@ -102,21 +102,26 @@ class CaseService:
         trace_id: str = "",
         extra_meta: Optional[dict] = None,
         metadata_json: Optional[dict] = None,
+        user_roles: Optional[list] = None,
     ) -> Case:
         """
-        Update case details. Only allowed in DRAFT status.
+        Update case details. Structural edits blocked only for terminal statuses (CLOSED/FUNDED).
         Uses optimistic locking via version column.
         """
         case = await self._get_case_or_404(case_id)
 
-        # Verify ownership — creator can always edit their own case
-        # (borrower_id stores the creator's user_id for non-borrower created cases)
-        if case.borrower_id != borrower_id:  # type: ignore[comparison-overlap]
+        # Privileged roles (admin/lawyer/lender) skip the ownership check — they are already
+        # authorized by can_edit_case policy. Only block borrowers from editing others' cases.
+        from app.shared.enums import RoleType
+        _privileged = {RoleType.ADMIN.value, RoleType.LAWYER.value, RoleType.LENDER.value}
+        is_privileged = bool(set(user_roles or []) & _privileged)
+        if not is_privileged and case.borrower_id != borrower_id:  # type: ignore[comparison-overlap]
             raise AuthorizationError(message="You can only update cases you created")
 
-        # Always allow metadata-only updates; only restrict structural fields to DRAFT
+        # Only block structural edits on truly terminal statuses (CLOSED / FUNDED)
+        _terminal = {CaseStatus.CLOSED, CaseStatus.FUNDED}  # type: ignore[attr-defined]
         has_structural_changes = any(v is not None for v in [title, description, property_address, property_type, estimated_value, outstanding_debt, interest_rate, tenure])
-        if has_structural_changes and case.status != CaseStatus.DRAFT:  # type: ignore[comparison-overlap]
+        if has_structural_changes and case.status in _terminal:  # type: ignore[comparison-overlap]
             raise InvalidStateTransitionError(
                 message=f"Case cannot be edited in {case.status.value} status"
             )

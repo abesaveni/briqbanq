@@ -166,6 +166,7 @@ async def update_case(
         tenure=request.tenure,
         trace_id=trace_id,
         metadata_json=request.metadata_json,
+        user_roles=current_user.get("roles", []),
         extra_meta={k: v for k, v in {
             "suburb": request.suburb,
             "postcode": request.postcode,
