@@ -220,8 +220,16 @@ export function CaseProvider({ children }) {
         setCaseData(prev => ({ ...prev, ...updates }))
     }
 
+    const refreshCase = async () => {
+        if (!caseId) return
+        const res = await casesService.getCaseById(caseId)
+        if (res.success && res.data) {
+            setCaseData(prev => ({ ...mapApiCase(res.data), bids: prev?.bids || [], documents: prev?.documents || [], settlement: prev?.settlement || { estimatedProgress: 0, checklist: [], timeline: [] }, auctionStart: prev?.auctionStart, auctionEnd: prev?.auctionEnd, auctionStatus: prev?.auctionStatus }))
+        }
+    }
+
     return (
-        <CaseContext.Provider value={{ caseData, loading, setLoading, updateCase }}>
+        <CaseContext.Provider value={{ caseData, loading, setLoading, updateCase, refreshCase }}>
             {children}
         </CaseContext.Provider>
     )

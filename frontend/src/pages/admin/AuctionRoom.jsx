@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { auctionService } from '../../api/dataService'
 import { useNotifications } from '../../context/NotificationContext'
+import useCountdown from '../../hooks/useCountdown'
 import AuctionHero from '../../components/admin/deals/AuctionHero'
 import InvestmentMemorandumTab from '../../components/admin/deals/InvestmentMemorandumTab'
 import {
@@ -108,29 +109,44 @@ function Documents({ documents }) {
     const docs = Array.isArray(documents) ? documents : []
     const getName = (d) => d.document_name || d.name || 'Document'
     const getType = (d) => d.document_type || d.type || ''
-    const getUrl = (d) => {
-        const url = d.file || d.file_url || d.url || d.s3_key || null
-        if (!url) return null
-        if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) return url
-        return null
+
+    const fetchDoc = async (doc) => {
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken') || ''
+        const url = `/api/v1/documents/${doc.id}/download`
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+        if (!res.ok) throw new Error(`${res.status}`)
+        const ct = res.headers.get('content-type') || ''
+        if (ct.includes('application/json')) {
+            const json = await res.json()
+            return { type: 'url', value: json.download_url || json.url }
+        }
+        return { type: 'blob', value: await res.blob() }
     }
 
-    const handleView = (doc) => {
-        const url = getUrl(doc)
-        if (url) window.open(url, '_blank')
+    const handleView = async (doc) => {
+        if (!doc.id) return
+        try {
+            const result = await fetchDoc(doc)
+            if (result.type === 'url') { window.open(result.value, '_blank', 'noopener,noreferrer') }
+            else { window.open(URL.createObjectURL(result.value), '_blank', 'noopener,noreferrer') }
+        } catch { }
     }
 
-    const handleDownload = (doc) => {
-        const url = getUrl(doc)
-        if (url) {
+    const handleDownload = async (doc) => {
+        if (!doc.id) return
+        const filename = getName(doc)
+        try {
+            const result = await fetchDoc(doc)
+            const href = result.type === 'url' ? result.value : URL.createObjectURL(result.value)
             const a = document.createElement('a')
-            a.href = url
-            a.download = doc.file_name || getName(doc)
+            a.href = href
+            a.download = filename.includes('.') ? filename : filename + '.pdf'
             a.target = '_blank'
             document.body.appendChild(a)
             a.click()
             document.body.removeChild(a)
-        }
+            if (result.type === 'blob') URL.revokeObjectURL(href)
+        } catch { }
     }
 
     return (
@@ -143,7 +159,7 @@ function Documents({ documents }) {
             ) : (
                 <div className="space-y-2">
                     {docs.map((doc, i) => {
-                        const url = getUrl(doc)
+                        const canAccess = !!doc.id
                         return (
                             <div key={doc.id || i} className="flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-gray-50 transition-colors">
                                 <div className="flex items-center gap-3 min-w-0">
@@ -156,19 +172,19 @@ function Documents({ documents }) {
                                 <div className="flex gap-1.5">
                                     <button
                                         onClick={() => handleView(doc)}
-                                        disabled={!url}
+                                        disabled={!canAccess}
                                         title="View"
-                                        className={`p-1.5 rounded-lg transition-colors ${url ? 'text-gray-400 hover:bg-indigo-50 hover:text-indigo-600' : 'text-gray-200 cursor-not-allowed'}`}
+                                        className={`p-1.5 rounded-lg transition-colors ${canAccess ? 'text-gray-500 hover:bg-indigo-50 hover:text-indigo-600' : 'text-gray-200 cursor-not-allowed'}`}
                                     >
-                                        <Eye className="w-3.5 h-3.5" />
+                                        <Eye className="w-4 h-4" />
                                     </button>
                                     <button
                                         onClick={() => handleDownload(doc)}
-                                        disabled={!url}
+                                        disabled={!canAccess}
                                         title="Download"
-                                        className={`p-1.5 rounded-lg transition-colors ${url ? 'text-gray-400 hover:bg-indigo-50 hover:text-indigo-600' : 'text-gray-200 cursor-not-allowed'}`}
+                                        className={`p-1.5 rounded-lg transition-colors ${canAccess ? 'text-gray-500 hover:bg-indigo-50 hover:text-indigo-600' : 'text-gray-200 cursor-not-allowed'}`}
                                     >
-                                        <Download className="w-3.5 h-3.5" />
+                                        <Download className="w-4 h-4" />
                                     </button>
                                 </div>
                             </div>
@@ -317,6 +333,10 @@ export default function AuctionRoom() {
     const [activeTab, setActiveTab] = useState('live')
     const [bids, setBids] = useState([])
     const [highestBid, setHighestBid] = useState(0)
+    const [auctionEndTime, setAuctionEndTime] = useState(null)
+    const endCountdown = useCountdown(auctionEndTime)
+    const isAuctionEnded = auctionEndTime && endCountdown.total <= 0
+    const effectiveDealStatus = (deal?.status === 'LIVE' && isAuctionEnded) ? 'ENDED' : (deal?.status || 'Auction')
 
     useEffect(() => {
         setLoading(true)
@@ -391,6 +411,7 @@ export default function AuctionRoom() {
                 setDeal(normalized)
                 setBids(bidHistory)
                 setHighestBid(currentHighestBid || startingPrice)
+                if (a.scheduled_end) setAuctionEndTime(a.scheduled_end)
             })
             .catch(() => {})
             .finally(() => setLoading(false))
@@ -479,7 +500,7 @@ export default function AuctionRoom() {
         PAUSED: 'bg-amber-50 text-amber-600 border-amber-200',
         ENDED: 'bg-gray-100 text-gray-500 border-gray-200',
     }
-    const statusColor = statusColors[deal.status] || 'bg-gray-100 text-gray-500 border-gray-200'
+    const statusColor = statusColors[effectiveDealStatus] || 'bg-gray-100 text-gray-500 border-gray-200'
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -496,8 +517,8 @@ export default function AuctionRoom() {
                         <div className="h-4 w-px bg-gray-200" />
                         <div className="flex items-center gap-3 min-w-0">
                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border shrink-0 ${statusColor}`}>
-                                {deal.status === 'LIVE' && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />}
-                                {deal.status || 'Auction'}
+                                {effectiveDealStatus === 'LIVE' && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />}
+                                {effectiveDealStatus === 'ENDED' ? 'Auction Closed' : effectiveDealStatus}
                             </span>
                             <h1 className="text-sm font-bold text-gray-900 truncate">{deal.address || deal.title}</h1>
                             <span className="text-xs text-gray-400 font-medium shrink-0 hidden sm:block">

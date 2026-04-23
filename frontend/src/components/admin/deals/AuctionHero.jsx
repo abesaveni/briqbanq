@@ -17,7 +17,9 @@ export default function AuctionHero({ deal }) {
     const next = () => setIdx((idx + 1) % total)
 
     const pad = (n) => String(n ?? 0).padStart(2, '0')
-    const isLive = deal?.status === 'LIVE'
+    const hasEndTime = !!(deal?.scheduled_end || deal?.scheduledEnd || deal?.auctionEnd || deal?.end_time)
+    const isEnded = hasEndTime && countdown.total <= 0
+    const isLive = deal?.status === 'LIVE' && !isEnded
 
     return (
         <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
@@ -37,7 +39,11 @@ export default function AuctionHero({ deal }) {
 
                     {/* Status badge */}
                     <div className="absolute top-4 left-4">
-                        {isLive ? (
+                        {isEnded ? (
+                            <span className="inline-flex items-center gap-1.5 bg-gray-700 text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                                Auction Closed
+                            </span>
+                        ) : isLive ? (
                             <span className="inline-flex items-center gap-1.5 bg-red-600 text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
                                 <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> Live Auction
                             </span>

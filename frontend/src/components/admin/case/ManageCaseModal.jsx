@@ -14,7 +14,7 @@ export default function ManageCaseModal({ isOpen, onClose }) {
     const [formData, setFormData] = useState(null)
     const [saving, setSaving] = useState(false)
     const [saveStatus, setSaveStatus] = useState(null) // 'success' | 'error' | null
-    const { caseData, updateCase } = useCaseContext()
+    const { caseData, updateCase, refreshCase } = useCaseContext()
 
     if (!isOpen) return null
 
@@ -27,7 +27,8 @@ export default function ManageCaseModal({ isOpen, onClose }) {
     ]
 
     const handleSave = async () => {
-        if (!caseData?._id) { onClose(); return }
+        const caseUUID = caseData?._id || caseData?._raw?.id
+        if (!caseUUID) { onClose(); return }
         setSaving(true)
         setSaveStatus(null)
 
@@ -62,14 +63,10 @@ export default function ManageCaseModal({ isOpen, onClose }) {
         const valuerName = f.valuerName ?? caseData.valuation.valuer
         if (valuerName) payload.valuer_name = valuerName
 
-        const res = await casesService.adminUpdateCase(caseData._id, payload)
+        const res = await casesService.adminUpdateCase(caseUUID, payload)
         setSaving(false)
         if (res.success) {
-            updateCase({
-                loan: { ...caseData.loan, outstandingDebt: payload.outstanding_debt ?? caseData.loan.outstandingDebt, interestRate: payload.interest_rate ?? caseData.loan.interestRate, defaultRate: payload.default_rate ?? caseData.loan.defaultRate, daysInDefault: payload.days_in_default ?? caseData.loan.daysInDefault },
-                property: { ...caseData.property, address: payload.property_address ?? caseData.property.address, suburb: payload.suburb ?? caseData.property.suburb, postcode: payload.postcode ?? caseData.property.postcode, bedrooms: payload.bedrooms ?? caseData.property.bedrooms, bathrooms: payload.bathrooms ?? caseData.property.bathrooms, kitchens: payload.kitchens ?? caseData.property.kitchens },
-                valuation: { ...caseData.valuation, amount: payload.estimated_value ?? caseData.valuation.amount, valuer: payload.valuer_name ?? caseData.valuation.valuer },
-            })
+            if (refreshCase) await refreshCase()
             setSaveStatus('success')
             setTimeout(() => onClose(), 1200)
         } else {
