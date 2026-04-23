@@ -109,22 +109,28 @@ function Documents({ documents }) {
     const getName = (d) => d.document_name || d.name || 'Document'
     const getType = (d) => d.document_type || d.type || ''
     const getUrl = (d) => {
-        const url = d.file_url || d.s3_key || null
+        const url = d.file || d.file_url || d.url || d.s3_key || null
         if (!url) return null
         if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) return url
         return null
     }
 
-    const handleDownload = async (doc) => {
+    const handleView = (doc) => {
         const url = getUrl(doc)
-        if (url) { window.open(url, '_blank'); return }
-        try {
-            await generateBrandedPDF({
-                title: getName(doc), subtitle: getType(doc),
-                fileName: `${getName(doc).replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`,
-                infoItems: [{ label: 'Document', value: getName(doc) }, { label: 'Type', value: getType(doc) }],
-            })
-        } catch { /* ignore */ }
+        if (url) window.open(url, '_blank')
+    }
+
+    const handleDownload = (doc) => {
+        const url = getUrl(doc)
+        if (url) {
+            const a = document.createElement('a')
+            a.href = url
+            a.download = doc.file_name || getName(doc)
+            a.target = '_blank'
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+        }
     }
 
     return (
@@ -136,27 +142,38 @@ function Documents({ documents }) {
                 </div>
             ) : (
                 <div className="space-y-2">
-                    {docs.map((doc, i) => (
-                        <div key={doc.id || i} className="flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-gray-50 group transition-colors">
-                            <div className="flex items-center gap-3 min-w-0">
-                                <FileText className="w-4 h-4 text-gray-300 shrink-0" />
-                                <div className="min-w-0">
-                                    <p className="text-sm font-semibold text-gray-800 truncate">{getName(doc)}</p>
-                                    <p className="text-[10px] text-gray-400 font-medium">{getType(doc)}</p>
+                    {docs.map((doc, i) => {
+                        const url = getUrl(doc)
+                        return (
+                            <div key={doc.id || i} className="flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-gray-50 transition-colors">
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <FileText className="w-4 h-4 text-gray-300 shrink-0" />
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-semibold text-gray-800 truncate">{getName(doc)}</p>
+                                        <p className="text-[10px] text-gray-400 font-medium">{getType(doc)}</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                {getUrl(doc) && (
-                                    <button onClick={() => window.open(getUrl(doc), '_blank')} className="p-1.5 rounded-lg hover:bg-indigo-50 text-gray-400 hover:text-indigo-600 transition-colors">
+                                <div className="flex gap-1.5">
+                                    <button
+                                        onClick={() => handleView(doc)}
+                                        disabled={!url}
+                                        title="View"
+                                        className={`p-1.5 rounded-lg transition-colors ${url ? 'text-gray-400 hover:bg-indigo-50 hover:text-indigo-600' : 'text-gray-200 cursor-not-allowed'}`}
+                                    >
                                         <Eye className="w-3.5 h-3.5" />
                                     </button>
-                                )}
-                                <button onClick={() => handleDownload(doc)} className="p-1.5 rounded-lg hover:bg-indigo-50 text-gray-400 hover:text-indigo-600 transition-colors">
-                                    <Download className="w-3.5 h-3.5" />
-                                </button>
+                                    <button
+                                        onClick={() => handleDownload(doc)}
+                                        disabled={!url}
+                                        title="Download"
+                                        className={`p-1.5 rounded-lg transition-colors ${url ? 'text-gray-400 hover:bg-indigo-50 hover:text-indigo-600' : 'text-gray-200 cursor-not-allowed'}`}
+                                    >
+                                        <Download className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
             )}
         </Card>

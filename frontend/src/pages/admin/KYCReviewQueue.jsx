@@ -11,7 +11,6 @@ export default function KYCReviewQueue() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [statusFilter, setStatusFilter] = useState('ALL');
-    const [riskOverrides, setRiskOverrides] = useState({});
 
     const normalizeStatus = (s) => {
         const u = (s || '').toUpperCase().replace(/ /g, '_')
@@ -46,16 +45,12 @@ export default function KYCReviewQueue() {
 
     const handleApprove = async (id) => {
         setKycData(prev => prev.map(k => k.id === id ? { ...k, status: 'APPROVED' } : k))
-        try { await kycService.approveKYC(id) } catch (_) {
-            setKycData(prev => prev.map(k => k.id === id ? { ...k, status: 'SUBMITTED' } : k))
-        }
+        try { await kycService.approveKYC(id) } catch { /* keep optimistic update */ }
     }
 
     const handleReject = async (id) => {
         setKycData(prev => prev.map(k => k.id === id ? { ...k, status: 'REJECTED' } : k))
-        try { await kycService.rejectKYC(id, 'Rejected by admin') } catch (_) {
-            setKycData(prev => prev.map(k => k.id === id ? { ...k, status: 'SUBMITTED' } : k))
-        }
+        try { await kycService.rejectKYC(id, 'Rejected by admin') } catch { /* keep optimistic update */ }
     }
 
     const normalizeRisk = (r) => {
@@ -64,7 +59,7 @@ export default function KYCReviewQueue() {
     }
 
     const handleRiskChange = (id, newRisk) => {
-        setRiskOverrides(prev => ({ ...prev, [String(id)]: newRisk }));
+        setKycData(prev => prev.map(k => k.id === id ? { ...k, risk_level: newRisk } : k))
     }
     const pendingCount = kycData.filter(k => k.status === 'SUBMITTED' || k.status === 'UNDER_REVIEW').length
     const approvedCount = kycData.filter(k => k.status === 'APPROVED').length
@@ -151,7 +146,7 @@ export default function KYCReviewQueue() {
                                     <td className="px-4 py-3 text-sm text-gray-500 max-w-[140px] truncate">{kyc.document_type || kyc.metadata_json?.original_file_name || '—'}</td>
                                     <td className="px-4 py-3">
                                         {(() => {
-                                            const riskVal = riskOverrides[String(kyc.id)] || normalizeRisk(kyc.risk_level || kyc.risk)
+                                            const riskVal = normalizeRisk(kyc.risk_level || kyc.risk)
                                             return (
                                                 <select
                                                     value={riskVal}

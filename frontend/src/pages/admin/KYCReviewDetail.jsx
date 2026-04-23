@@ -63,23 +63,24 @@ export default function KYCReviewDetail() {
 
     const handleDownloadAllDocuments = async () => {
         setDownloading(true);
+        const applicantName = kycRecord?.full_name || kycRecord?.user_name || 'Applicant';
+        const safeName = applicantName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
         try {
             await generateBrandedPDF({
-                title: 'KYC Application Documents — Jennifer Brown',
-                role: 'Admin',
+                title: `KYC Application Documents — ${applicantName}`,
                 sections: [
                     {
                         heading: 'Applicant Details',
                         head: ['Field', 'Value'],
                         rows: [
-                            ['Full Name', 'Jennifer Brown'],
-                            ['Date of Birth', '15/03/1985'],
-                            ['Email', 'jennifer.brown@example.com'],
-                            ['Phone', '+61 412 345 678'],
-                            ['Address', '123 Collins Street, Melbourne VIC 3000'],
-                            ['Nationality', 'Australian'],
+                            ['Full Name', kycRecord?.full_name || kycRecord?.user_name || 'N/A'],
+                            ['Date of Birth', kycRecord?.date_of_birth ? new Date(kycRecord.date_of_birth).toLocaleDateString('en-AU') : (kycRecord?.dob || 'N/A')],
+                            ['Email', kycRecord?.email || kycRecord?.user_email || 'N/A'],
+                            ['Phone', kycRecord?.phone || kycRecord?.phone_number || 'N/A'],
+                            ['Address', kycRecord?.address || kycRecord?.residential_address || 'N/A'],
+                            ['Nationality', kycRecord?.nationality || 'Australian'],
                             ['Role', kycRecord?.user_role || kycRecord?.role || 'N/A'],
-                            ['KYC Status', status],
+                            ['KYC Status', status === 'approved' ? 'Approved' : status === 'rejected' ? 'Rejected' : 'Pending Review'],
                             ['Risk Level', riskLevel],
                         ],
                     },
@@ -108,7 +109,7 @@ export default function KYCReviewDetail() {
                         ],
                     },
                 ],
-                fileName: `kyc-documents-jennifer-brown-${new Date().toISOString().split('T')[0]}.pdf`,
+                fileName: `kyc-documents-${safeName}-${new Date().toISOString().split('T')[0]}.pdf`,
             });
         } catch { /* ignore */ } finally {
             setDownloading(false);
@@ -172,7 +173,7 @@ export default function KYCReviewDetail() {
                         </button>
                         <button
                             onClick={async () => {
-                                if (id) await kycService.rejectKYC(id, 'Rejected by admin').catch(() => {});
+                                try { if (id) await kycService.rejectKYC(id, 'Rejected by admin'); } catch { /* ignore */ }
                                 setStatus('rejected');
                             }}
                             className="flex items-center gap-2 px-4 py-2 border border-red-200 text-red-600 font-medium rounded-lg hover:bg-red-50 transition-colors"
@@ -225,8 +226,8 @@ export default function KYCReviewDetail() {
                                     Cancel
                                 </button>
                                 <button
-                                    onClick={() => {
-                                        if (id) kycService.rejectKYC(id, 'Approval reversed by admin').catch(() => {});
+                                    onClick={async () => {
+                                        try { if (id) await kycService.rejectKYC(id, 'Approval reversed by admin'); } catch { /* ignore */ }
                                         setStatus('rejected');
                                         setShowRejectConfirm(false);
                                     }}
