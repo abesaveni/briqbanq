@@ -111,10 +111,6 @@ export default function ProfileSettings() {
                         <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-widest mb-6">Account Info</h3>
                         <div className="space-y-6">
                             <div className="flex items-center justify-between">
-                                <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Member Since:</span>
-                                <span className="text-sm font-semibold text-gray-900">Jan 2024</span>
-                            </div>
-                            <div className="flex items-center justify-between">
                                 <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Account Type:</span>
                                 <span className="text-sm font-semibold text-gray-900">Premium Investor</span>
                             </div>

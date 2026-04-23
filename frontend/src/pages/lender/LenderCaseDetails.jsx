@@ -677,8 +677,8 @@ export default function LenderCaseDetails() {
                 URL.revokeObjectURL(url);
             };
 
-            // Try direct file_url first (local static files — no auth needed)
             const fileUrl = doc.file_url;
+            // Direct download for local static files
             if (fileUrl && fileUrl.startsWith('/uploads/')) {
                 try {
                     const res = await fetch(fileUrl);
@@ -687,10 +687,22 @@ export default function LenderCaseDetails() {
                         setToast({ show: true, message: `${doc.name} downloaded.`, type: "success" });
                         return;
                     }
-                } catch { /* fall through to API */ }
+                } catch { /* fall through */ }
             }
-
+            // Direct download for external/S3 URLs — no auth needed
+            if (fileUrl && (fileUrl.startsWith('http://') || fileUrl.startsWith('https://'))) {
+                const a = document.createElement('a');
+                a.href = fileUrl;
+                a.download = filename.includes('.') ? filename : filename + '.pdf';
+                a.target = '_blank';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setToast({ show: true, message: `${doc.name} downloaded.`, type: "success" });
+                return;
+            }
             // Fall back to authenticated API download endpoint
+            if (!doc.id) throw new Error('No document ID');
             const blob = await _fetchDocBlob(doc.id);
             doDownload(blob);
             setToast({ show: true, message: `${doc.name} downloaded.`, type: "success" });

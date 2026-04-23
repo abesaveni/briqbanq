@@ -400,10 +400,6 @@ export default function Settings() {
                   <h3 className="text-base font-semibold text-gray-900 mb-4">Account Info</h3>
                   <div className="space-y-3 text-sm">
                     <div className="flex justify-between items-baseline">
-                      <span className="text-gray-600">Member Since:</span>
-                      <span className="text-gray-900 font-medium">{profile.memberSince}</span>
-                    </div>
-                    <div className="flex justify-between items-baseline">
                       <span className="text-gray-600">Account Type:</span>
                       <span className="text-blue-600 font-medium">{profile.accountType}</span>
                     </div>

@@ -289,7 +289,7 @@ export default function LenderAuctionRoom() {
                 <AuctionTabs activeTab={activeTab} setActiveTab={setActiveTab} />
             </div>
 
-            {activeTab !== "memorandum" && (
+            {activeTab === "overview" && (
                 <div className="space-y-8">
                     {/* Key Financial Metrics Row */}
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -608,24 +608,7 @@ export default function LenderAuctionRoom() {
                                 </LenderCollapsible>
                             )}
 
-                            {/* 4. Property Information */}
-                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                                <div className="flex items-center gap-2 mb-6 text-indigo-900">
-                                    <Home size={20} className="text-indigo-600" />
-                                    <h3 className="font-bold text-lg">Property Information</h3>
-                                </div>
-                                <div className="grid grid-cols-2 md:grid-cols-2 gap-y-8 gap-x-12">
-                                    <DetailItem label="Property Asset Class" value={deal.type} />
-                                    <DetailItem label="Land Size" value={propertyDetails.landSize || "N/A"} />
-                                    <DetailItem label="Bedrooms" value={propertyDetails.bedrooms || deal.bedrooms || "—"} />
-                                    <DetailItem label="Bathrooms" value={propertyDetails.bathrooms || deal.bathrooms || "—"} />
-                                    <DetailItem label="Parking Capacity" value={propertyDetails.parking || deal.parking || "—"} />
-                                    <DetailItem label="Accredited Valuer" value={propertyDetails.valuer || "PRP Valuation"} />
-                                </div>
-                            </div>
-
-                            {/* 5. Documents Section */}
-                            <DocumentsSection deal={deal} />
+                            {/* Property Info and Documents are in their own tabs */}
                         </div>
 
                         {/* Right Column: Bidding Infrastructure */}
@@ -691,6 +674,44 @@ export default function LenderAuctionRoom() {
                         </div>
 
                     </div>
+                </div>
+            )}
+
+            {activeTab === "property" && (
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 max-w-2xl">
+                    <div className="flex items-center gap-2 mb-6 text-indigo-900">
+                        <Home size={20} className="text-indigo-600" />
+                        <h3 className="font-bold text-lg">Property Information</h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-y-8 gap-x-12">
+                        <DetailItem label="Property Asset Class" value={deal.type} />
+                        <DetailItem label="Land Size" value={propertyDetails.landSize || "N/A"} />
+                        <DetailItem label="Bedrooms" value={propertyDetails.bedrooms || deal.bedrooms || "—"} />
+                        <DetailItem label="Bathrooms" value={propertyDetails.bathrooms || deal.bathrooms || "—"} />
+                        <DetailItem label="Parking Capacity" value={propertyDetails.parking || deal.parking || "—"} />
+                        <DetailItem label="Accredited Valuer" value={propertyDetails.valuer || "PRP Valuation"} />
+                        <DetailItem label="Suburb" value={deal.suburb || "N/A"} />
+                        <DetailItem label="State" value={deal.state || "N/A"} />
+                        <DetailItem label="Postcode" value={deal.postcode || "N/A"} />
+                    </div>
+                </div>
+            )}
+
+            {activeTab === "documents" && (
+                <DocumentsSection deal={deal} />
+            )}
+
+            {activeTab === "bid-history" && (
+                <div className="rounded-[2.5rem] overflow-hidden border border-gray-100">
+                    <BidHistory history={bidHistory} />
+                </div>
+            )}
+
+            {activeTab === "lawyer-review" && (
+                <div className="bg-white p-10 rounded-2xl shadow-sm border border-gray-100 text-center">
+                    <ShieldCheck size={40} className="text-indigo-400 mx-auto mb-4" />
+                    <h3 className="font-bold text-lg text-gray-900 mb-2">Lawyer Review</h3>
+                    <p className="text-sm text-gray-500">Legal review for this asset is managed by the assigned lawyer. Please contact the case lawyer for review status and legal opinions.</p>
                 </div>
             )}
 

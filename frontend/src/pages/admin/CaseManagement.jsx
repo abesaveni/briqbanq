@@ -50,7 +50,8 @@ export default function CaseManagement() {
         const res = await casesService.getCases()
         if (res.success) {
             // Backend returns CaseListResponse: { items: [...], total, page, page_size }
-            const data = Array.isArray(res.data) ? res.data : (res.data?.items || [])
+            const raw = Array.isArray(res.data) ? res.data : (res.data?.items || [])
+            const data = [...raw].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
             setAllCases(data)
             applyFilters(data, statusFilter, searchTerm)
         } else {

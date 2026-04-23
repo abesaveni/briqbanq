@@ -229,10 +229,6 @@ function ProfileSettingsView() {
                     <h3 className="font-bold text-[15px] text-gray-900 mb-6">Account Info</h3>
                     <div className="space-y-4">
                         <div className="flex justify-between items-center text-[13px]">
-                            <span className="text-gray-500 font-medium">Member Since:</span>
-                            <span className="font-bold text-gray-900">Jan 2024</span>
-                        </div>
-                        <div className="flex justify-between items-center text-[13px]">
                             <span className="text-gray-500 font-medium">Account Type:</span>
                             <span className="font-bold text-gray-900">Premium Investor</span>
                         </div>

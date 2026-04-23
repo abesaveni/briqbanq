@@ -217,7 +217,6 @@ export default function ProfileSettings() {
           <div className="bg-white rounded-lg border border-slate-200 p-6">
             <h3 className="text-lg font-semibold text-slate-900 mb-4">Account Info</h3>
             <dl className="space-y-3 text-sm">
-              <div><dt className="text-slate-500">Member Since:</dt><dd className="text-slate-900 font-medium">{formData.memberSince}</dd></div>
               <div><dt className="text-slate-500">Account Type:</dt><dd className="text-slate-900 font-medium">{formData.accountType}</dd></div>
               <div><dt className="text-slate-500">Verification:</dt><dd><span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${formData.verified ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}`}>{formData.verified ? 'Verified' : 'Pending'}</span></dd></div>
             </dl>

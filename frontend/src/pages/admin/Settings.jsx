@@ -214,12 +214,6 @@ function ProfileView() {
                     <h3 className="font-bold text-sm text-gray-900 mb-6">Account Info</h3>
                     <div className="space-y-4">
                         <div className="flex justify-between items-center text-sm">
-                            <span className="text-gray-500 font-medium">Member Since:</span>
-                            <span className="font-bold text-gray-900">
-                                {user?.created_at ? new Date(user.created_at).toLocaleDateString('en-AU', { month: 'short', year: 'numeric' }) : '—'}
-                            </span>
-                        </div>
-                        <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-500 font-medium">Account Type:</span>
                             <span className="font-bold text-gray-900 capitalize">{user?.role || 'Administrator'}</span>
                         </div>
@@ -295,6 +289,8 @@ function ProfileView() {
 function OrganizationView() {
     const [loading, setLoading] = useState(false);
     const [orgErrors, setOrgErrors] = useState({});
+    const [savedBanner, setSavedBanner] = useState(false);
+    const [saveError, setSaveError] = useState(null);
     const [orgData, setOrgData] = useState({
         orgName: '', abn: '',
         industry: 'Financial Services', companySize: '1-10 employees',
@@ -386,7 +382,15 @@ function OrganizationView() {
                 </div>
             </div>
 
-            <div className="flex justify-end max-w-[800px]">
+            <div className="flex justify-end items-center gap-3 max-w-[800px]">
+                {savedBanner && (
+                    <span className="flex items-center gap-1.5 text-sm font-semibold text-green-600 bg-green-50 border border-green-200 px-4 py-2 rounded-lg">
+                        <CheckCircle size={15} /> Organization saved successfully
+                    </span>
+                )}
+                {saveError && (
+                    <span className="text-sm font-semibold text-red-600 bg-red-50 border border-red-200 px-4 py-2 rounded-lg">{saveError}</span>
+                )}
                 <button onClick={async () => {
                     const e = {};
                     if (orgData.abn) { const err = validateABN(orgData.abn); if (err) e.abn = err; }
@@ -394,7 +398,15 @@ function OrganizationView() {
                     if (orgData.postcode) { const err = validateAuPostcode(orgData.postcode, orgData.state); if (err) e.postcode = err; }
                     if (Object.keys(e).length) { setOrgErrors(e); return; }
                     setLoading(true);
-                    try { await authService.updateProfile({ organization: orgData }); } catch {}
+                    setSavedBanner(false);
+                    setSaveError(null);
+                    try {
+                        await authService.updateProfile({ organization: orgData });
+                        setSavedBanner(true);
+                        setTimeout(() => setSavedBanner(false), 3000);
+                    } catch (err) {
+                        setSaveError(err?.message || 'Failed to save organization details');
+                    }
                     setLoading(false);
                 }} disabled={loading} className="px-6 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold shadow-sm transition-all flex items-center gap-2 disabled:opacity-70">
                     {loading ? 'Saving...' : <><Save size={14} /> Save Changes</>}

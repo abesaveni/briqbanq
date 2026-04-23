@@ -133,7 +133,6 @@ export default function ProfileTab() {
             <div>
               <h3 className="text-lg font-semibold text-slate-900 mb-2">Account Info</h3>
               <dl className="space-y-2 text-sm">
-                <div><dt className="text-slate-500">Member Since:</dt><dd className="text-slate-900">{form.memberSince}</dd></div>
                 <div><dt className="text-slate-500">Account Type:</dt><dd className="text-slate-900">{form.accountType}</dd></div>
                 <div><dt className="text-slate-500">Verification:</dt><dd className="text-green-600 font-medium">{form.verification}</dd></div>
               </dl>
