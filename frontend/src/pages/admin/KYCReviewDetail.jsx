@@ -44,6 +44,8 @@ export default function KYCReviewDetail() {
     const [sending, setSending] = useState(false);
     const [downloading, setDownloading] = useState(false);
     const [requestSent, setRequestSent] = useState(false);
+    const [actionError, setActionError] = useState(null);
+    const [actioning, setActioning] = useState(false);
 
     const handleRequestMoreInfo = async () => {
         setSending(true);
@@ -173,23 +175,36 @@ export default function KYCReviewDetail() {
                         </button>
                         <button
                             onClick={async () => {
-                                try { if (id) await kycService.rejectKYC(id, 'Rejected by admin'); } catch { /* ignore */ }
-                                setStatus('rejected');
+                                if (!id || actioning) return;
+                                setActioning(true); setActionError(null);
+                                const res = await kycService.rejectKYC(id, 'Rejected by admin');
+                                setActioning(false);
+                                if (res.success) { setStatus('rejected'); }
+                                else { setActionError('Failed to reject — please try again.'); }
                             }}
-                            className="flex items-center gap-2 px-4 py-2 border border-red-200 text-red-600 font-medium rounded-lg hover:bg-red-50 transition-colors"
+                            disabled={actioning}
+                            className="flex items-center gap-2 px-4 py-2 border border-red-200 text-red-600 font-medium rounded-lg hover:bg-red-50 transition-colors disabled:opacity-60"
                         >
                             <XCircle className="w-4 h-4" /> Reject
                         </button>
                         <button
                             onClick={async () => {
-                                if (id) await kycService.approveKYC(id).catch(() => {});
-                                setStatus('approved');
+                                if (!id || actioning) return;
+                                setActioning(true); setActionError(null);
+                                const res = await kycService.approveKYC(id).catch(() => ({ success: false }));
+                                setActioning(false);
+                                if (res.success) { setStatus('approved'); }
+                                else { setActionError('Failed to approve — please try again.'); }
                             }}
-                            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors"
+                            disabled={actioning}
+                            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-60"
                         >
                             <CheckCircle className="w-4 h-4 text-white" /> Approve KYC
                         </button>
                     </div>
+                    {actionError && (
+                        <p className="text-xs text-red-500 font-medium mt-2 text-right">{actionError}</p>
+                    )}
                 </div>
             )}
 
@@ -215,6 +230,9 @@ export default function KYCReviewDetail() {
                             </button>
                         )}
                     </div>
+                    {actionError && !showRejectConfirm && (
+                        <p className="text-xs text-red-500 font-medium mt-2">{actionError}</p>
+                    )}
                     {showRejectConfirm && (
                         <div className="mt-4 pt-4 border-t border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-3">
                             <p className="text-sm text-gray-700 font-medium">Are you sure you want to reverse the approval and reject this KYC?</p>
@@ -227,11 +245,20 @@ export default function KYCReviewDetail() {
                                 </button>
                                 <button
                                     onClick={async () => {
-                                        try { if (id) await kycService.rejectKYC(id, 'Approval reversed by admin'); } catch { /* ignore */ }
-                                        setStatus('rejected');
-                                        setShowRejectConfirm(false);
+                                        if (!id || actioning) return;
+                                        setActioning(true); setActionError(null);
+                                        const res = await kycService.rejectKYC(id, 'Approval reversed by admin');
+                                        setActioning(false);
+                                        if (res.success) {
+                                            setStatus('rejected');
+                                            setShowRejectConfirm(false);
+                                        } else {
+                                            setActionError('Failed to reject — please try again.');
+                                            setShowRejectConfirm(false);
+                                        }
                                     }}
-                                    className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700"
+                                    disabled={actioning}
+                                    className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-60"
                                 >
                                     Yes, Reject
                                 </button>

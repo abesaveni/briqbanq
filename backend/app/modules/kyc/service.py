@@ -114,8 +114,8 @@ class KYCService:
         if not kyc_record:
             raise ResourceNotFoundError(message="KYC record not found")
 
-        # Allow direct SUBMITTED → REJECTED (skip UNDER_REVIEW intermediate step)
-        if kyc_record.status.value == KYCStatus.SUBMITTED.value:
+        # Allow direct SUBMITTED → REJECTED or APPROVED → REJECTED (reverse approval)
+        if kyc_record.status.value in [KYCStatus.SUBMITTED.value, KYCStatus.APPROVED.value]:
             kyc_record.status = KYCStatus.UNDER_REVIEW  # type: ignore[assignment]
 
         KYCStateMachine.validate_transition(
