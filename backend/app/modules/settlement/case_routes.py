@@ -146,6 +146,22 @@ async def archive_settlement_task(
     return {"success": True, "data": {"task_id": task_id, "archived": True}}
 
 
+@router.post("/case/{case_id}/ready")
+async def mark_settlement_ready(
+    case_id: uuid.UUID,
+    current_user: dict = Depends(get_current_user),
+    db=Depends(get_db),
+    trace_id: str = Depends(get_trace_id),
+):
+    """Mark a case settlement as ready for finalisation."""
+    case, meta, checklist = await _get_case_and_checklist(case_id, db)
+    checklist["settlement_ready"] = True
+    checklist["settlement_ready_at"] = datetime.now(timezone.utc).isoformat()
+    checklist["settlement_ready_by"] = current_user.get("email") or current_user.get("user_id", "system")
+    await _save_checklist(case_id, meta, checklist, db, trace_id)
+    return {"success": True, "data": {"settlement_ready": True}}
+
+
 @router.post("/case/{case_id}/tasks/{task_id}/escalate")
 async def escalate_settlement_task(
     case_id: uuid.UUID,

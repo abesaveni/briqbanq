@@ -1167,3 +1167,109 @@ async def ai_generate_content(
         "suggestion": suggestions.get(content_type, suggestions["description"]),
         "case_id": str(case_id),
     }
+
+
+# ─── Archive / Unarchive ──────────────────────────────────────────────────────
+
+@router.post("/{case_id}/archive")
+async def archive_case(
+    case_id: uuid.UUID,
+    current_user: dict = Depends(get_current_user),
+    db=Depends(get_db),
+):
+    """Archive a case (admin only)."""
+    CasePolicy.can_review_case(current_user)
+    service = CaseService(db)
+    case = await service.get_case(case_id)
+    case.is_archived = True
+    case.version += 1
+    await service.repository.update(case)
+    return {"success": True, "message": "Case archived"}
+
+
+@router.post("/{case_id}/unarchive")
+async def unarchive_case(
+    case_id: uuid.UUID,
+    current_user: dict = Depends(get_current_user),
+    db=Depends(get_db),
+):
+    """Unarchive a case (admin only)."""
+    CasePolicy.can_review_case(current_user)
+    service = CaseService(db)
+    case = await service.get_case(case_id)
+    case.is_archived = False
+    case.version += 1
+    await service.repository.update(case)
+    return {"success": True, "message": "Case restored from archive"}
+
+
+# ─── Message Delete / Edit ────────────────────────────────────────────────────
+
+@router.delete("/{case_id}/messages/{message_id}")
+async def delete_case_message(
+    case_id: uuid.UUID,
+    message_id: uuid.UUID,
+    current_user: dict = Depends(get_current_user),
+    db=Depends(get_db),
+):
+    """Delete a case message. Sender can delete own messages; admin/lawyer can delete any."""
+    from sqlalchemy import select, delete as sa_delete
+    from app.modules.cases.models import CaseMessage
+    roles = set(current_user.get("roles", []))
+    privileged = {"ADMIN", "LAWYER"}
+    user_id = uuid.UUID(current_user["user_id"])
+
+    async with db as session:
+        result = await session.execute(
+            select(CaseMessage).where(CaseMessage.id == message_id, CaseMessage.case_id == case_id)
+        )
+        msg = result.scalar_one_or_none()
+        if not msg:
+            raise HTTPException(status_code=404, detail="Message not found")
+        if not roles & privileged and msg.sender_id != user_id:
+            raise HTTPException(status_code=403, detail="Not authorised to delete this message")
+        await session.delete(msg)
+        await session.commit()
+    return {"success": True, "message": "Message deleted"}
+
+
+@router.patch("/{case_id}/messages/{message_id}")
+async def edit_case_message(
+    case_id: uuid.UUID,
+    message_id: uuid.UUID,
+    body: dict,
+    current_user: dict = Depends(get_current_user),
+    db=Depends(get_db),
+):
+    """Edit a case message text. Sender can edit own messages; admin/lawyer can edit any."""
+    from sqlalchemy import select
+    from app.modules.cases.models import CaseMessage
+    roles = set(current_user.get("roles", []))
+    privileged = {"ADMIN", "LAWYER"}
+    user_id = uuid.UUID(current_user["user_id"])
+    new_text = (body.get("message") or "").strip()
+    if not new_text:
+        raise HTTPException(status_code=422, detail="Message cannot be empty")
+
+    async with db as session:
+        result = await session.execute(
+            select(CaseMessage).where(CaseMessage.id == message_id, CaseMessage.case_id == case_id)
+        )
+        msg = result.scalar_one_or_none()
+        if not msg:
+            raise HTTPException(status_code=404, detail="Message not found")
+        if not roles & privileged and msg.sender_id != user_id:
+            raise HTTPException(status_code=403, detail="Not authorised to edit this message")
+        msg.message = new_text
+        await session.commit()
+        await session.refresh(msg)
+    return {
+        "id": str(msg.id),
+        "case_id": str(msg.case_id),
+        "sender_id": str(msg.sender_id) if msg.sender_id else None,
+        "sender_name": msg.sender_name or "Unknown",
+        "sender_role": msg.sender_role or "User",
+        "message": msg.message,
+        "created_at": msg.created_at.isoformat(),
+        "edited": True,
+    }

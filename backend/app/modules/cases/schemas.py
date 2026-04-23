@@ -134,6 +134,7 @@ class CaseResponse(BaseModel):
     property_images: List[str] = []
     documents: List[dict] = []
     metadata_json: Optional[dict] = None
+    is_archived: bool = False
     auction_status: Optional[str] = None
     auction_scheduled_end: Optional[datetime] = None
     bid_count: Optional[int] = None

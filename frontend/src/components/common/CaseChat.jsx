@@ -5,7 +5,7 @@
  *   currentUser {object} — { name, role } of the logged-in user
  */
 import { useState, useEffect, useRef } from 'react'
-import { Send, ShieldCheck, Loader2, RefreshCw } from 'lucide-react'
+import { Send, ShieldCheck, Loader2, RefreshCw, Trash2, Pencil, Check, X } from 'lucide-react'
 import api from '../../services/api'
 
 const ROLE_COLORS = {
@@ -37,7 +37,11 @@ export default function CaseChat({ caseId, currentUser = {} }) {
     const [loading, setLoading] = useState(true)
     const [sending, setSending] = useState(false)
     const [error, setError] = useState(null)
+    const [editingId, setEditingId] = useState(null)
+    const [editText, setEditText] = useState('')
     const scrollRef = useRef(null)
+
+    const isPrivileged = ['admin', 'lawyer'].includes((currentUser.role || '').toLowerCase())
 
     const fetchMessages = async () => {
         if (!caseId) return
@@ -93,6 +97,38 @@ export default function CaseChat({ caseId, currentUser = {} }) {
         }
     }
 
+    const handleDelete = async (msgId) => {
+        setMessages(prev => prev.filter(m => m.id !== msgId))
+        try {
+            await api.delete(`/api/v1/cases/${caseId}/messages/${msgId}`)
+        } catch {
+            fetchMessages()
+        }
+    }
+
+    const startEdit = (msg) => {
+        setEditingId(msg.id)
+        setEditText(msg.message)
+    }
+
+    const cancelEdit = () => {
+        setEditingId(null)
+        setEditText('')
+    }
+
+    const submitEdit = async (msgId) => {
+        const text = editText.trim()
+        if (!text) return
+        setMessages(prev => prev.map(m => m.id === msgId ? { ...m, message: text, edited: true } : m))
+        setEditingId(null)
+        setEditText('')
+        try {
+            await api.patch(`/api/v1/cases/${caseId}/messages/${msgId}`, { message: text })
+        } catch {
+            fetchMessages()
+        }
+    }
+
     const myRole = (currentUser.role || '').toLowerCase()
 
     return (
@@ -144,9 +180,11 @@ export default function CaseChat({ caseId, currentUser = {} }) {
                             {messages.map((msg, i) => {
                                 const isMe = msg.sender_name === (currentUser.name || '') ||
                                     (msg.sender_role || '').toLowerCase() === myRole
+                                const canManage = isPrivileged || isMe
                                 const color = roleColor(msg.sender_role)
+                                const isEditing = editingId === msg.id
                                 return (
-                                    <div key={msg.id || i} className={`flex gap-3 ${isMe ? 'flex-row-reverse' : ''}`}>
+                                    <div key={msg.id || i} className={`flex gap-3 group ${isMe ? 'flex-row-reverse' : ''}`}>
                                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 text-white ${color}`}>
                                             {initials(msg.sender_name)}
                                         </div>
@@ -157,14 +195,39 @@ export default function CaseChat({ caseId, currentUser = {} }) {
                                                     {msg.sender_role}
                                                 </span>
                                                 {msg._pending && <span className="text-[10px] text-gray-400 italic">sending…</span>}
+                                                {msg.edited && <span className="text-[10px] text-gray-400 italic">edited</span>}
                                             </div>
-                                            <div className={`px-4 py-2.5 rounded-xl text-sm leading-relaxed ${
-                                                isMe
-                                                    ? 'bg-indigo-600 text-white rounded-tr-sm'
-                                                    : 'bg-white text-gray-800 border border-gray-200 rounded-tl-sm'
-                                            }`}>
-                                                {msg.message}
-                                            </div>
+                                            {isEditing ? (
+                                                <div className="flex items-center gap-1.5 w-full">
+                                                    <input
+                                                        autoFocus
+                                                        value={editText}
+                                                        onChange={e => setEditText(e.target.value)}
+                                                        onKeyDown={e => { if (e.key === 'Enter') submitEdit(msg.id); if (e.key === 'Escape') cancelEdit() }}
+                                                        className="flex-1 px-3 py-1.5 border border-indigo-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                                                    />
+                                                    <button onClick={() => submitEdit(msg.id)} className="p-1 text-green-600 hover:bg-green-50 rounded"><Check className="w-3.5 h-3.5" /></button>
+                                                    <button onClick={cancelEdit} className="p-1 text-gray-400 hover:bg-gray-100 rounded"><X className="w-3.5 h-3.5" /></button>
+                                                </div>
+                                            ) : (
+                                                <div className={`relative px-4 py-2.5 rounded-xl text-sm leading-relaxed ${
+                                                    isMe
+                                                        ? 'bg-indigo-600 text-white rounded-tr-sm'
+                                                        : 'bg-white text-gray-800 border border-gray-200 rounded-tl-sm'
+                                                }`}>
+                                                    {msg.message}
+                                                    {canManage && !msg._pending && (
+                                                        <div className={`absolute top-1 ${isMe ? 'left-1' : 'right-1'} hidden group-hover:flex gap-0.5`}>
+                                                            <button onClick={() => startEdit(msg)} title="Edit" className="p-0.5 bg-white/80 hover:bg-white rounded text-gray-500 hover:text-indigo-600 shadow-sm">
+                                                                <Pencil className="w-3 h-3" />
+                                                            </button>
+                                                            <button onClick={() => handleDelete(msg.id)} title="Delete" className="p-0.5 bg-white/80 hover:bg-white rounded text-gray-500 hover:text-red-500 shadow-sm">
+                                                                <Trash2 className="w-3 h-3" />
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
                                             <span className="text-xs text-gray-400">{fmtTime(msg.created_at)}</span>
                                         </div>
                                     </div>

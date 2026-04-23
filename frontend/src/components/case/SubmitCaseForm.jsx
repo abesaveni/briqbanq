@@ -398,9 +398,12 @@ function calcStepStatus(formData, step) {
       if (formData.principal_outstanding || formData.total_arrears) return 'partial'
       return 'not_started'
     case 6: {
-      const s6 = formData.yearBuilt || formData.floorArea || formData.numberOfBedrooms
-      if (formData.yearBuilt && formData.floorArea && formData.numberOfBedrooms) return 'complete'
-      if (s6) return 'partial'
+      const anyFilled = formData.yearBuilt || formData.floorArea || formData.numberOfBedrooms ||
+                        formData.numberOfBathrooms || formData.numberOfParking || formData.constructionType ||
+                        formData.numberOfStoreys || formData.renovations || formData.specialFeatures
+      const coreFilled = formData.yearBuilt && formData.floorArea && formData.numberOfBedrooms
+      if (coreFilled) return 'complete'
+      if (anyFilled) return 'partial'
       return 'not_started'
     }
     case 7: {
