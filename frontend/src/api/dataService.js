@@ -302,6 +302,8 @@ export const kycService = {
   submitKYC: (payload) => wrap(api.post("/api/v1/kyc/submit", payload)),
   submitKYCForm: (formData) =>
     wrap(api.post("/api/v1/kyc/submit-form", formData)),
+  updateKYCRisk: (id, riskLevel) =>
+    wrap(api.patch(`/api/v1/kyc/${id}/risk`, { risk_level: riskLevel })),
 };
 
 // ─── Document Service ─────────────────────────────────────────────────────────

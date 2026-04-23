@@ -403,7 +403,11 @@ export default function KYCReviewDetail() {
                                 <h3 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-4"><span className="text-indigo-600">🛡</span> Risk Assessment</h3>
                                 <div className={`border rounded-lg p-4 mb-4 ${riskLevel === 'High' ? 'border-red-200 bg-red-50' : riskLevel === 'Low' ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50'}`}>
                                     <div className={`text-sm font-medium mb-1 ${riskLevel === 'High' ? 'text-red-800' : riskLevel === 'Low' ? 'text-emerald-800' : 'text-amber-800'}`}>Overall Risk Level</div>
-                                    <select value={riskLevel} onChange={(e) => setRiskLevel(e.target.value)} className={`text-xl font-bold bg-transparent focus:outline-none ${riskLevel === 'High' ? 'text-red-600' : riskLevel === 'Low' ? 'text-emerald-600' : 'text-amber-600'}`}>
+                                    <select value={riskLevel} onChange={async (e) => {
+                                    const newRisk = e.target.value
+                                    setRiskLevel(newRisk)
+                                    if (id) await kycService.updateKYCRisk(id, newRisk).catch(() => {})
+                                }} className={`text-xl font-bold bg-transparent focus:outline-none ${riskLevel === 'High' ? 'text-red-600' : riskLevel === 'Low' ? 'text-emerald-600' : 'text-amber-600'}`}>
                                         <option value="Low">Low</option>
                                         <option value="Medium">Medium</option>
                                         <option value="High">High</option>

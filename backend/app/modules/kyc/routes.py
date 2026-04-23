@@ -252,6 +252,30 @@ async def get_kyc_by_id(
     }
 
 
+@router.patch("/{kyc_id}/risk")
+async def update_kyc_risk(
+    kyc_id: uuid.UUID,
+    body: dict,
+    current_user: dict = Depends(get_current_user),
+    db=Depends(get_db),
+):
+    """Update risk level stored in metadata_json (admin only)."""
+    KYCPolicy.can_review_kyc(current_user)
+    service = KYCService(db)
+    record = await service.get_kyc_by_id(kyc_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="KYC record not found")
+    risk_level = body.get("risk_level", "Medium")
+    meta = dict(record.metadata_json or {})
+    meta["risk_level"] = risk_level
+    record.metadata_json = meta
+    from sqlalchemy.orm.attributes import flag_modified
+    flag_modified(record, "metadata_json")
+    await db.commit()
+    await db.refresh(record)
+    return {"id": str(record.id), "risk_level": risk_level, "success": True}
+
+
 @router.post("/{kyc_id}/approve", response_model=KYCResponse)
 async def approve_kyc(
     kyc_id: uuid.UUID,

@@ -58,8 +58,9 @@ export default function KYCReviewQueue() {
         return map[(r || '').toLowerCase()] || r || 'Medium'
     }
 
-    const handleRiskChange = (id, newRisk) => {
+    const handleRiskChange = async (id, newRisk) => {
         setKycData(prev => prev.map(k => k.id === id ? { ...k, risk_level: newRisk } : k))
+        await kycService.updateKYCRisk(id, newRisk).catch(() => {})
     }
     const pendingCount = kycData.filter(k => k.status === 'SUBMITTED' || k.status === 'UNDER_REVIEW').length
     const approvedCount = kycData.filter(k => k.status === 'APPROVED').length
