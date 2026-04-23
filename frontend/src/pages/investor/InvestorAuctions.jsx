@@ -55,6 +55,7 @@ function mapCaseToAuction(c) {
     expectedReturn: returnRate,
     currentBid: parseFloat(c.current_highest_bid) || 0,
     endTime: c.auction_scheduled_end || null,
+    createdAt: c.created_at || null,
     bedrooms: meta.bedrooms ?? c.bedrooms ?? 0,
     bathrooms: meta.bathrooms ?? c.bathrooms ?? 0,
     parking: meta.parking ?? c.parking ?? 0,
@@ -72,7 +73,7 @@ export default function InvestorAuctions() {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [sortOption, setSortOption] = useState("ending");
+  const [sortOption, setSortOption] = useState("newest");
   const [advancedFilters, setAdvancedFilters] = useState({ minLvr: '', maxLvr: '', minValue: '', maxValue: '', minBidders: '' });
   const [stateFilter, setStateFilter] = useState("all");
 
@@ -127,6 +128,10 @@ export default function InvestorAuctions() {
 
       return true;
     });
+
+    if (sortOption === "newest") {
+      result.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    }
 
     if (sortOption === "low-high") {
       result.sort((a, b) => (a.propertyValue || 0) - (b.propertyValue || 0));

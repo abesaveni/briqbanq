@@ -70,6 +70,7 @@ export default function AuctionFilters({
           onChange={(e) => setSortOption(e.target.value)}
           className="border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
         >
+          <option value="newest">Newest First</option>
           <option value="ending">Ending Soon</option>
           <option value="low-high">Price: Low to High</option>
           <option value="high-low">Price: High to Low</option>

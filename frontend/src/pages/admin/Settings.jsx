@@ -321,7 +321,7 @@ function OrganizationView() {
                     </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-4 mb-4">
-                    <InputGroup label="Organization Name" name="orgName" value={orgData.orgName} onChange={(e) => setOrgData(p => ({ ...p, orgName: e.target.value }))} required />
+                    <InputGroup label="Organization Name" name="orgName" value={orgData.orgName} onChange={(e) => { setOrgData(p => ({ ...p, orgName: e.target.value })); if (orgErrors.orgName) setOrgErrors(p => ({ ...p, orgName: null })); }} required error={orgErrors.orgName} />
                     <InputGroup label="ABN" name="abn" value={orgData.abn} onChange={(e) => { setOrgData(p => ({ ...p, abn: e.target.value })); if (orgErrors.abn) setOrgErrors(p => ({ ...p, abn: null })); }} required error={orgErrors.abn} />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-4 mb-4">
@@ -393,6 +393,7 @@ function OrganizationView() {
                 )}
                 <button onClick={async () => {
                     const e = {};
+                    if (!orgData.orgName.trim()) e.orgName = 'Organization Name is required';
                     if (orgData.abn) { const err = validateABN(orgData.abn); if (err) e.abn = err; }
                     if (orgData.phone) { const err = validateAuPhone(orgData.phone); if (err) e.phone = err; }
                     if (orgData.postcode) { const err = validateAuPostcode(orgData.postcode, orgData.state); if (err) e.postcode = err; }
