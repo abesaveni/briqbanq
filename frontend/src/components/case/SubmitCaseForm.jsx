@@ -392,6 +392,7 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState(initialFormData)
   const [propertyImages, setPropertyImages] = useState([])
+  const [imgDragging, setImgDragging] = useState(false)
   const [caseDocuments, setCaseDocuments] = useState([]) // [{file, docName, confidence}]
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSavingDraft, setIsSavingDraft] = useState(false)
@@ -560,6 +561,14 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
     setPropertyImages(prev => [...prev, ...newImages])
     toast.success(`${files.length} image${files.length !== 1 ? 's' : ''} added`)
     e.target.value = ''
+  }
+
+  const handleImageDrop = (fileList) => {
+    const files = Array.from(fileList || []).filter(f => f.type.startsWith('image/'))
+    if (!files.length) return
+    const newImages = files.map(file => ({ file, preview: URL.createObjectURL(file), name: file.name }))
+    setPropertyImages(prev => [...prev, ...newImages])
+    toast.success(`${files.length} image${files.length !== 1 ? 's' : ''} added`)
   }
 
   const removeImage = (idx) => {
@@ -1024,12 +1033,17 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
             {/* Property Images */}
             <SectionCard title="Property Images" icon={Upload}>
               <input ref={imageInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
-              <button type="button" onClick={() => imageInputRef.current?.click()}
-                className="w-full border-2 border-dashed border-slate-200 rounded-xl py-8 flex flex-col items-center gap-2 text-slate-400 hover:border-indigo-300 hover:text-indigo-500 transition-colors">
+              <div
+                onClick={() => imageInputRef.current?.click()}
+                onDragOver={e => { e.preventDefault(); setImgDragging(true) }}
+                onDragLeave={() => setImgDragging(false)}
+                onDrop={e => { e.preventDefault(); setImgDragging(false); handleImageDrop(e.dataTransfer.files) }}
+                className={`w-full border-2 border-dashed rounded-xl py-8 flex flex-col items-center gap-2 cursor-pointer transition-colors ${imgDragging ? 'border-indigo-400 bg-indigo-50 text-indigo-500' : 'border-slate-200 text-slate-400 hover:border-indigo-300 hover:text-indigo-500'}`}
+              >
                 <Upload className="w-8 h-8" />
-                <span className="text-sm font-medium">Click to upload property images</span>
+                <span className="text-sm font-medium">Click or drag images here</span>
                 <span className="text-xs">PNG, JPG, WEBP — multiple files supported</span>
-              </button>
+              </div>
               {propertyImages.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {propertyImages.map((img, i) => (

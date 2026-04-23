@@ -107,7 +107,7 @@ export default function AssignedCases() {
 
   const stats = {
     total: cases.length,
-    active: cases.filter((c) => ['UNDER_REVIEW', 'APPROVED'].includes(c.status)).length,
+    active: cases.filter((c) => ['SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'LISTED', 'AUCTION'].includes(c.status)).length,
     inAuction: cases.filter((c) => ['LISTED', 'AUCTION'].includes(c.status)).length,
     completed: cases.filter((c) => c.status === 'CLOSED').length,
   }

@@ -33,8 +33,10 @@ async def get_lawyer_dashboard(
         if c.status in {CaseStatus.SUBMITTED, CaseStatus.UNDER_REVIEW}
     )
 
-    # Approved: my created cases that are APPROVED
-    approved_count = sum(1 for c in my_cases if c.status == CaseStatus.APPROVED)
+    # Approved: cases that have been approved (including those that progressed further)
+    approved_count = sum(1 for c in my_cases if c.status in {
+        CaseStatus.APPROVED, CaseStatus.LISTED, CaseStatus.AUCTION, CaseStatus.FUNDED, CaseStatus.CLOSED
+    })
 
     # Live Auctions: all platform auctions that are LIVE
     try:
