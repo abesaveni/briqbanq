@@ -139,6 +139,7 @@ export const formService = {
 
 export const integrationService = {
   getIntegrations: () => wrap(api.get("/api/v1/admin/extra/integrations")),
+  createIntegration: (payload) => wrap(api.post("/api/v1/admin/extra/integrations", payload)),
   testIntegration: (id) =>
     wrap(api.post(`/api/v1/admin/extra/integrations/${id}/test`)),
   updateIntegration: (id, payload) =>
@@ -330,7 +331,7 @@ export const adminUsersService = {
     email: data.email,
     password: data.password,
     full_name: data.full_name,
-    requested_roles: [data.role || 'borrower'],
+    requested_roles: [(data.role || 'BORROWER').toUpperCase()],
   })),
   suspendUser: (id) => wrap(api.post(`/api/v1/identity/users/${id}/suspend`)),
   reactivateUser: (id) => wrap(api.post(`/api/v1/identity/users/${id}/reactivate`)),

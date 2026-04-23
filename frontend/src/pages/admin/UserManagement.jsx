@@ -89,19 +89,19 @@ export default function UserManagement() {
         try {
             const res = await adminUsersService.createUser(formData)
             if (res.success) {
-                const newUser = res.data || {
-                    id: `local-${Date.now()}`,
-                    full_name: formData.full_name,
-                    email: formData.email,
-                    role: formData.role,
-                    is_active: true,
-                    created_at: new Date().toISOString(),
-                }
-                setUsers(prev => [...prev, newUser])
                 setShowAddModal(false)
                 setAddForm({ full_name: '', email: '', role: 'borrower', password: '' })
+                // Re-fetch to get server-assigned role from user_roles
+                adminUsersService.getUsers().then(r => { if (r.success) setUsers(r.data || []) })
             } else {
-                setAddError(res.error || 'Failed to create user. Please try again.')
+                // Extract human-readable error from pydantic/FastAPI response
+                let msg = res.error || 'Failed to create user.'
+                try {
+                    const parsed = typeof msg === 'string' ? JSON.parse(msg) : msg
+                    if (Array.isArray(parsed)) msg = parsed.map(e => e.msg || e.message || JSON.stringify(e)).join('; ')
+                    else if (parsed?.detail) msg = Array.isArray(parsed.detail) ? parsed.detail.map(e => e.msg || JSON.stringify(e)).join('; ') : parsed.detail
+                } catch { /* keep original */ }
+                setAddError(msg)
             }
         } catch (err) {
             setAddError(err?.message || 'Failed to create user. Please try again.')

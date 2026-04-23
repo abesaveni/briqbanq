@@ -247,7 +247,7 @@ async def change_password(
     return MessageResponse(message="Password changed successfully")
 
 
-@router.get("/users", response_model=list[UserResponse])
+@router.get("/users")
 async def list_users(
     page: int = 1,
     page_size: int = 20,
@@ -259,6 +259,9 @@ async def list_users(
     """List all users (admin only). Optionally filter by role (e.g. ?role=LAWYER)."""
     IdentityPolicy.can_view_all_users(current_user)
     from app.modules.identity.repository import UserRepository
+    from sqlalchemy import select
+    from app.modules.identity.models import User
+    from sqlalchemy.orm import selectinload
     repo = UserRepository(db)
     if role:
         try:
@@ -266,12 +269,36 @@ async def list_users(
         except ValueError:
             role_type = RoleType(role)
         users = await repo.get_users_by_role(role_type)
-        return users
-    service = UserService(db)
-    user_status = UserStatus(status) if status else None
-    offset = (page - 1) * page_size
-    users = await service.get_all_users(offset=offset, limit=page_size, status=user_status)
-    return users
+    else:
+        service = UserService(db)
+        user_status = UserStatus(status) if status else None
+        offset = (page - 1) * page_size
+        users = await service.get_all_users(offset=offset, limit=page_size, status=user_status)
+
+    def _primary_role(u) -> str:
+        roles = getattr(u, "user_roles", []) or []
+        approved = [r for r in roles if getattr(r, "status", None) and r.status.value == "APPROVED"]
+        source = approved if approved else roles
+        if source:
+            return source[0].role_type.value.lower()
+        return "user"
+
+    return [
+        {
+            "id": str(u.id),
+            "email": u.email,
+            "full_name": u.full_name,
+            "first_name": u.first_name,
+            "last_name": u.last_name,
+            "phone": u.phone,
+            "status": u.status.value,
+            "role": _primary_role(u),
+            "is_active": u.status.value == "ACTIVE",
+            "created_at": u.created_at.isoformat() if u.created_at else None,
+            "updated_at": u.updated_at.isoformat() if u.updated_at else None,
+        }
+        for u in users
+    ]
 
 
 @router.get("/users/{user_id}", response_model=UserResponse)

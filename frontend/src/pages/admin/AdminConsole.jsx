@@ -283,6 +283,7 @@ export default function AdminConsole() {
     const [configSaving, setConfigSaving] = useState(false);
     const [configSaved, setConfigSaved] = useState(false);
     const [testingId, setTestingId] = useState(null);
+    const [testResult, setTestResult] = useState({}); // { [id]: 'success'|'error' }
     const [connectingId, setConnectingId] = useState(null);
     const [newIntegration, setNewIntegration] = useState({ name: '', description: '', apiKey: '' });
 
@@ -299,10 +300,27 @@ export default function AdminConsole() {
     const handleAddIntegration = async (e) => {
         e.preventDefault();
         if (!newIntegration.name.trim()) return;
-        const tempId = Date.now();
-        setIntegrations(prev => [...prev, { id: tempId, ...newIntegration, status: 'Disconnected' }]);
+        const defaultFields = newIntegration.apiKey
+            ? [{ label: 'API Key', value: newIntegration.apiKey, isSecret: true }]
+            : [{ label: 'API Key', value: '', isSecret: true }];
+        const payload = {
+            name: newIntegration.name,
+            description: newIntegration.description,
+            status: 'Disconnected',
+            config: { api_key: newIntegration.apiKey || '' },
+        };
+        const tempId = `local-${Date.now()}`;
+        const optimistic = { id: tempId, ...payload, fields: defaultFields };
+        setIntegrations(prev => [...prev, optimistic]);
         setShowAddModal(false);
         setNewIntegration({ name: '', description: '', apiKey: '' });
+        // Persist to backend; on success replace temp entry with real ID
+        const res = await integrationService.createIntegration(payload).catch(() => ({ success: false }));
+        if (res.success && res.data?.id) {
+            setIntegrations(prev => prev.map(i =>
+                i.id === tempId ? { ...i, id: res.data.id, fields: (res.data.fields || defaultFields) } : i
+            ));
+        }
     };
 
     const handleConnect = async (integration) => {
@@ -319,8 +337,12 @@ export default function AdminConsole() {
 
     const handleTest = async (integration) => {
         setTestingId(integration.id);
-        await integrationService.testIntegration(integration.id).catch(() => {});
+        setTestResult(prev => ({ ...prev, [integration.id]: null }));
+        const res = await integrationService.testIntegration(integration.id).catch(() => ({ success: false }));
         setTestingId(null);
+        const result = res.success ? 'success' : 'error';
+        setTestResult(prev => ({ ...prev, [integration.id]: result }));
+        setTimeout(() => setTestResult(prev => ({ ...prev, [integration.id]: null })), 4000);
     };
 
     const connectedCount = integrations.filter(i => i.status === 'Connected').length;
@@ -465,10 +487,16 @@ export default function AdminConsole() {
                                                     <button
                                                         onClick={() => handleTest(integration)}
                                                         disabled={testingId === integration.id}
-                                                        className="flex justify-center items-center gap-1.5 border border-blue-200 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg font-medium hover:bg-blue-100 text-xs transition disabled:opacity-60"
+                                                        className={`flex justify-center items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium text-xs transition disabled:opacity-60 border ${
+                                                            testResult[integration.id] === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' :
+                                                            testResult[integration.id] === 'error' ? 'bg-red-50 border-red-200 text-red-700' :
+                                                            'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100'
+                                                        }`}
                                                     >
                                                         <RefreshCw className={`w-3.5 h-3.5 ${testingId === integration.id ? 'animate-spin' : ''}`} />
-                                                        {testingId === integration.id ? 'Testing…' : 'Test'}
+                                                        {testingId === integration.id ? 'Testing…' :
+                                                         testResult[integration.id] === 'success' ? 'OK ✓' :
+                                                         testResult[integration.id] === 'error' ? 'Failed ✗' : 'Test'}
                                                     </button>
                                                 </>
                                             ) : (
