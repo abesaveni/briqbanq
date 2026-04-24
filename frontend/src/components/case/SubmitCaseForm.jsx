@@ -1797,99 +1797,104 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
     stepContent = <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm font-mono">{String(err)}</div>
   }
 
+  const isModal = !!onClose
+
+  const statusLabel = formData.workflow_status === 'submitted' ? 'Submitted'
+    : formData.workflow_status === 'in_progress' ? 'In Progress' : 'Draft'
+  const statusCls = formData.workflow_status === 'submitted' ? 'bg-green-100 text-green-700'
+    : formData.workflow_status === 'in_progress' ? 'bg-blue-100 text-blue-700'
+    : 'bg-slate-100 text-slate-600'
+
   return (
-    <div className="max-w-4xl mx-auto pb-20 pt-6">
-      {/* Header */}
-      <div className="mb-4 px-1 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Submit New MIP Case</h1>
-          <div className="flex items-center gap-3 mt-1">
-            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-              formData.workflow_status === 'submitted' ? 'bg-green-100 text-green-700'
-              : formData.workflow_status === 'in_progress' ? 'bg-blue-100 text-blue-700'
-              : 'bg-slate-100 text-slate-600'
-            }`}>
-              Status: {formData.workflow_status === 'draft' ? 'Draft' : formData.workflow_status === 'in_progress' ? 'In Progress' : 'Submitted'}
-            </span>
-            {lastSavedAt && (
-              <span className="text-xs text-slate-400 flex items-center gap-1">
-                <Clock className="w-3 h-3" /> Last saved {lastSavedAt.toLocaleTimeString()}
-              </span>
-            )}
-            {isSavingDraft && <span className="text-xs text-indigo-400 flex items-center gap-1"><RefreshCw className="w-3 h-3 animate-spin" /> Saving...</span>}
-            {isDirty && !isSavingDraft && <span className="text-xs text-amber-500 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Unsaved changes</span>}
+    <div className={isModal ? 'flex flex-col h-full overflow-hidden' : 'max-w-4xl mx-auto pb-20 pt-6'}>
+
+      {/* ── Sticky header ──────────────────────────────────────────────── */}
+      <div className={`shrink-0 ${isModal ? 'px-6 pt-5 pb-4 border-b border-slate-100' : 'mb-5 px-1'}`}>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight">New MIP Case</h2>
+            <div className="flex flex-wrap items-center gap-2 mt-1.5">
+              <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${statusCls}`}>{statusLabel}</span>
+              {lastSavedAt && (
+                <span className="text-xs text-slate-400 flex items-center gap-1">
+                  <Clock className="w-3 h-3" /> Saved {lastSavedAt.toLocaleTimeString()}
+                </span>
+              )}
+              {isSavingDraft && <span className="text-xs text-indigo-400 flex items-center gap-1"><RefreshCw className="w-3 h-3 animate-spin" /> Saving…</span>}
+              {isDirty && !isSavingDraft && <span className="text-xs text-amber-500 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Unsaved</span>}
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {onClose && (
-            <button type="button" onClick={onClose} className="text-indigo-600 text-sm font-medium hover:underline flex items-center gap-1">
-              <ChevronLeft className="w-4 h-4" /> Back
+          {isModal && (
+            <button type="button" onClick={onClose}
+              className="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors shrink-0 mt-0.5">
+              <X className="w-4 h-4" />
             </button>
           )}
         </div>
-      </div>
 
-      {/* Progress bar */}
-      <div className="mb-4 px-1">
-        <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
-          <span>Completion</span><span>{completionPct}%</span>
+        {/* Progress bar */}
+        <div className="mt-4">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
+            <span className="font-medium">Completion</span>
+            <span className="font-semibold text-indigo-600">{completionPct}%</span>
+          </div>
+          <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+            <div className="h-full bg-indigo-500 rounded-full transition-all duration-300" style={{ width: `${completionPct}%` }} />
+          </div>
         </div>
-        <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-          <div className="h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${completionPct}%` }} />
-        </div>
-      </div>
 
-      {/* Stepper */}
-      <div className="flex items-center gap-0 overflow-x-auto pb-2 mb-8">
-        {STEPS.map((s, idx) => {
-          const isCompleted = currentStep > s.id
-          const isCurrent = currentStep === s.id
-          const stepSt = calcStepStatus(formData, s.id)
-          return (
-            <div key={s.id} className="flex items-center shrink-0">
-              <div className="flex flex-col items-center">
-                <button type="button" onClick={() => handleStepClick(s.id)}
-                  disabled={s.id > currentStep}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
-                    isCurrent ? 'bg-indigo-600 border-indigo-600 text-white'
-                    : isCompleted ? 'bg-indigo-50 border-indigo-600 text-indigo-600 hover:bg-indigo-100 cursor-pointer'
-                    : 'bg-white border-slate-300 text-slate-400 cursor-default'
-                  }`}>
-                  {isCompleted ? '✓' : s.id}
-                </button>
-                <span className={`text-[10px] mt-1 whitespace-nowrap font-medium ${isCurrent ? 'text-indigo-600' : isCompleted ? 'text-indigo-500' : 'text-slate-400'}`}>
-                  {s.label}
-                </span>
+        {/* Stepper */}
+        <div className="flex items-center overflow-x-auto mt-5 pb-1 scrollbar-none">
+          {STEPS.map((s, idx) => {
+            const isCompleted = currentStep > s.id
+            const isCurrent = currentStep === s.id
+            return (
+              <div key={s.id} className="flex items-center shrink-0">
+                <div className="flex flex-col items-center">
+                  <button type="button" onClick={() => handleStepClick(s.id)}
+                    disabled={s.id > currentStep}
+                    className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold border-2 transition-all ${
+                      isCurrent ? 'bg-indigo-600 border-indigo-600 text-white scale-110'
+                      : isCompleted ? 'bg-white border-indigo-500 text-indigo-600 hover:bg-indigo-50 cursor-pointer'
+                      : 'bg-white border-slate-200 text-slate-400 cursor-default'
+                    }`}>
+                    {isCompleted ? <Check className="w-3 h-3" /> : s.id}
+                  </button>
+                  <span className={`text-[9px] mt-1 whitespace-nowrap font-semibold tracking-wide ${isCurrent ? 'text-indigo-600' : isCompleted ? 'text-indigo-400' : 'text-slate-300'}`}>
+                    {s.label.toUpperCase()}
+                  </span>
+                </div>
+                {idx < STEPS.length - 1 && (
+                  <div className={`w-5 h-px mx-0.5 mb-4 ${currentStep > s.id ? 'bg-indigo-400' : 'bg-slate-200'}`} />
+                )}
               </div>
-              {idx < STEPS.length - 1 && (
-                <div className={`w-6 h-0.5 mx-1 mt-[-22px] ${currentStep > s.id ? 'bg-indigo-400' : 'bg-slate-200'}`} />
-              )}
-            </div>
-          )
-        })}
+            )
+          })}
+        </div>
       </div>
 
-      {/* Step content */}
-      <div className="mb-10">{stepContent}</div>
+      {/* ── Scrollable body ────────────────────────────────────────────── */}
+      <div className={isModal ? 'flex-1 overflow-y-auto px-6 py-6' : 'mb-10'}>
+        {stepContent}
+      </div>
 
-      {/* Navigation — standardised: Previous | Save Draft | Save and Continue */}
+      {/* ── Sticky footer navigation ───────────────────────────────────── */}
       {!submitSuccess && (
-        <div className="flex items-center justify-between border-t border-gray-100 pt-6 px-1">
+        <div className={`shrink-0 flex items-center justify-between ${isModal ? 'px-6 py-4 border-t border-slate-100 bg-white' : 'border-t border-gray-100 pt-6 px-1'}`}>
           <button type="button" onClick={handleBack} disabled={currentStep === 1 || isSubmitting}
-            className={`flex items-center gap-1.5 px-5 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 transition-colors ${currentStep === 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-slate-50'}`}>
+            className={`flex items-center gap-1.5 px-5 py-2.5 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 transition-colors ${currentStep === 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-slate-50'}`}>
             <ChevronLeft className="w-4 h-4" /> Previous
           </button>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button type="button" onClick={() => saveDraft(true)} disabled={isSavingDraft || isSubmitting}
-              className="flex items-center gap-1.5 px-4 py-2.5 border border-indigo-200 rounded-lg text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition-colors disabled:opacity-50">
+              className="flex items-center gap-1.5 px-4 py-2.5 border border-indigo-200 rounded-xl text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition-colors disabled:opacity-50">
               <Save className="w-4 h-4" />
-              {isSavingDraft ? 'Saving...' : 'Save Draft'}
+              {isSavingDraft ? 'Saving…' : 'Save Draft'}
             </button>
-
             <button type="button" onClick={handleNext} disabled={isSubmitting}
-              className="flex items-center gap-1.5 px-6 py-2.5 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-              {isSubmitting ? 'Submitting...' : currentStep === 11 ? 'Submit Case' : 'Save and Continue'}
+              className="flex items-center gap-1.5 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              {isSubmitting ? 'Submitting…' : currentStep === 11 ? 'Submit Case' : 'Save & Continue'}
               {!isSubmitting && currentStep !== 11 && <ChevronRight className="w-4 h-4" />}
             </button>
           </div>

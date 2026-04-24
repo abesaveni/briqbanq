@@ -509,17 +509,9 @@ export default function CaseManagement() {
 
             {/* New Case Modal */}
             {showNewCaseModal && (
-                <div className="fixed inset-0 z-50 bg-black/40 overflow-y-auto">
-                    <div className="min-h-screen py-8 px-4 flex items-start justify-center">
-                        <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl border border-gray-200">
-                            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-                                <p className="text-sm font-semibold text-slate-800">Create New Case</p>
-                                <button onClick={() => setShowNewCaseModal(false)} className="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-50"><X className="w-4 h-4" /></button>
-                            </div>
-                            <div className="px-4">
-                                <SubmitCaseForm role="admin" onClose={() => setShowNewCaseModal(false)} onSuccess={() => { setShowNewCaseModal(false); loadCases() }} />
-                            </div>
-                        </div>
+                <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 2rem)' }}>
+                        <SubmitCaseForm role="admin" onClose={() => setShowNewCaseModal(false)} onSuccess={() => { setShowNewCaseModal(false); loadCases() }} />
                     </div>
                 </div>
             )}
