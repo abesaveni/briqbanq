@@ -105,10 +105,10 @@ export default function Dashboard() {
     ]
 
     const platformRows = [
-        { label: 'Live Auctions', value: liveCases.filter(c => c.status === 'AUCTION').length, sub: `${liveCases.length} total listed`, dot: 'bg-rose-500', pulse: true },
-        { label: 'Pending Approvals', value: pendingActions, sub: `KYC: ${d.pending_kyc_reviews ?? 0} · Roles: ${d.pending_role_requests ?? 0}`, dot: 'bg-amber-500' },
-        { label: 'Active Users', value: d.active_users ?? 0, sub: `of ${d.total_users ?? 0} total`, dot: 'bg-emerald-500' },
-        { label: 'Suspended Users', value: d.suspended_users ?? 0, sub: 'Requires admin review', dot: 'bg-slate-400' },
+        { label: 'Live Auctions', value: liveCases.filter(c => c.status === 'AUCTION').length, sub: `${liveCases.length} total listed`, dot: 'bg-rose-500', pulse: true, rowBg: 'bg-rose-50/60', valueCls: 'text-rose-600', iconBg: 'bg-rose-100', iconCls: 'text-rose-500' },
+        { label: 'Pending Approvals', value: pendingActions, sub: `KYC: ${d.pending_kyc_reviews ?? 0} · Roles: ${d.pending_role_requests ?? 0}`, dot: 'bg-amber-500', rowBg: 'bg-amber-50/60', valueCls: 'text-amber-600', iconBg: 'bg-amber-100', iconCls: 'text-amber-500' },
+        { label: 'Active Users', value: d.active_users ?? 0, sub: `of ${d.total_users ?? 0} total`, dot: 'bg-emerald-500', rowBg: 'bg-emerald-50/60', valueCls: 'text-emerald-600', iconBg: 'bg-emerald-100', iconCls: 'text-emerald-500' },
+        { label: 'Suspended Users', value: d.suspended_users ?? 0, sub: 'Requires admin review', dot: 'bg-slate-400', rowBg: 'bg-slate-50/60', valueCls: 'text-slate-500', iconBg: 'bg-slate-100', iconCls: 'text-slate-400' },
     ]
 
     if (loading) {
@@ -149,15 +149,15 @@ export default function Dashboard() {
 
                 {/* Platform Status */}
                 <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                    <div className="px-5 py-4 border-b border-slate-50">
+                    <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
                         <div className="flex items-center gap-2">
                             <Activity className="w-4 h-4 text-slate-400" />
                             <p className="text-sm font-semibold text-slate-800">Platform Status</p>
                         </div>
                     </div>
-                    <div className="divide-y divide-slate-50">
+                    <div className="divide-y divide-slate-100 p-3 space-y-1">
                         {platformRows.map((row, i) => (
-                            <div key={i} className="flex items-center justify-between px-5 py-4">
+                            <div key={i} className={`flex items-center justify-between px-4 py-3.5 rounded-xl ${row.rowBg}`}>
                                 <div className="flex items-center gap-3 min-w-0">
                                     <span className="relative flex h-2.5 w-2.5 shrink-0">
                                         {row.pulse && <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${row.dot} opacity-60`} />}
@@ -168,7 +168,7 @@ export default function Dashboard() {
                                         <p className="text-xs text-slate-400 mt-0.5">{row.sub}</p>
                                     </div>
                                 </div>
-                                <span className="text-xl font-bold text-slate-800 shrink-0 ml-3 tabular-nums">{row.value}</span>
+                                <span className={`text-xl font-bold shrink-0 ml-3 tabular-nums ${row.valueCls}`}>{row.value}</span>
                             </div>
                         ))}
                     </div>
@@ -176,7 +176,7 @@ export default function Dashboard() {
 
                 {/* Recent Cases */}
                 <div className="lg:col-span-3 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                    <div className="flex items-center justify-between px-5 py-4 border-b border-slate-50">
+                    <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-slate-50/50">
                         <div className="flex items-center gap-2">
                             <FileText className="w-4 h-4 text-slate-400" />
                             <p className="text-sm font-semibold text-slate-800">Recent Cases</p>
@@ -192,23 +192,26 @@ export default function Dashboard() {
                         </div>
                     ) : (
                         <div className="divide-y divide-slate-50">
-                            {recentCases.map((c, i) => (
-                                <div key={c.id || i} className="flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50/60 transition-colors">
-                                    <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
-                                        <FileText className="w-4 h-4 text-indigo-500" />
+                            {recentCases.map((c, i) => {
+                                const m = STATUS_META[c.status] || STATUS_META.DRAFT
+                                return (
+                                    <div key={c.id || i} className={`flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50/70 transition-colors border-l-2 ${m.dot.replace('bg-', 'border-')}`}>
+                                        <div className={`w-8 h-8 rounded-lg ${m.bg} flex items-center justify-center shrink-0`}>
+                                            <FileText className={`w-4 h-4 ${m.text}`} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-medium text-slate-800 truncate">{c.title || c.property_address || 'Untitled Case'}</p>
+                                            <p className="text-xs text-slate-400 mt-0.5">
+                                                {c.case_number || String(c.id || '').slice(0, 8).toUpperCase()} · {c.created_at ? new Date(c.created_at).toLocaleDateString('en-AU') : '—'}
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center gap-3 shrink-0">
+                                            {c.loan_amount && <p className="text-sm font-semibold text-slate-600 hidden sm:block">{formatCurrency(c.loan_amount)}</p>}
+                                            <StatusBadge status={c.status} />
+                                        </div>
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium text-slate-800 truncate">{c.title || c.property_address || 'Untitled Case'}</p>
-                                        <p className="text-xs text-slate-400 mt-0.5">
-                                            {c.case_number || String(c.id || '').slice(0, 8).toUpperCase()} · {c.created_at ? new Date(c.created_at).toLocaleDateString('en-AU') : '—'}
-                                        </p>
-                                    </div>
-                                    <div className="flex items-center gap-3 shrink-0">
-                                        {c.loan_amount && <p className="text-sm font-semibold text-slate-600 hidden sm:block">{formatCurrency(c.loan_amount)}</p>}
-                                        <StatusBadge status={c.status} />
-                                    </div>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
                     )}
                 </div>
@@ -216,7 +219,7 @@ export default function Dashboard() {
 
             {/* Quick Actions */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-50">
+                <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100 bg-slate-50/50">
                     <Zap className="w-4 h-4 text-slate-400" />
                     <p className="text-sm font-semibold text-slate-800">Quick Actions</p>
                 </div>
