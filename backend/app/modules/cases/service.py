@@ -729,36 +729,52 @@ class CaseService:
 
     async def delete_case(self, case_id: uuid.UUID, admin_id: uuid.UUID, trace_id: str) -> None:
         """Delete a case and ALL related records, including uploaded files."""
-        case = await self._get_case_or_404(case_id)
+        # Verify case exists first
+        await self._get_case_or_404(case_id)
         from sqlalchemy import text, select as sa_select
         from app.modules.documents.models import Document as DocumentModel
         db = self.repository.db
         cid = str(case_id)
 
-        # Collect s3_keys before deletion so we can clean up storage afterwards
+        # Collect document s3_keys before deletion so we can clean storage afterwards
         doc_result = await db.execute(
             sa_select(DocumentModel.s3_key).where(DocumentModel.case_id == case_id)
         )
         s3_keys = [row[0] for row in doc_result.fetchall() if row[0]]
 
-        # Bids have no CASCADE path back to cases — delete explicitly
+        # All deletes use raw SQL to bypass SQLAlchemy ORM relationship cascade.
+        # The ORM would try to SET case_id=NULL on documents (violating NOT NULL)
+        # instead of deleting them, because Case.documents lacks delete-orphan cascade.
+
+        # 1. Bids — no cascade path to cases
         await db.execute(text(
             "DELETE FROM bids WHERE auction_id IN "
             "(SELECT id FROM auctions WHERE deal_id IN "
             "(SELECT id FROM deals WHERE case_id = CAST(:cid AS uuid)))"
         ), {"cid": cid})
 
-        # Auctions reference deals without CASCADE — delete explicitly
+        # 2. Auctions — reference deals without ON DELETE CASCADE
         await db.execute(text(
             "DELETE FROM auctions WHERE deal_id IN "
             "(SELECT id FROM deals WHERE case_id = CAST(:cid AS uuid))"
         ), {"cid": cid})
 
-        # Delete the case; PostgreSQL ON DELETE CASCADE handles everything else:
-        # deals, documents, case_messages, case_activity, case_securities,
-        # case_parties, case_loan_metrics, case_auction_metrics,
-        # case_internal_notes, case_status_history
-        await self.repository.delete(case)
+        # 3. All direct case_id dependents
+        for table in [
+            "documents", "case_messages", "case_activity", "deals",
+            "case_securities", "case_parties", "case_loan_metrics",
+            "case_auction_metrics", "case_internal_notes", "case_status_history",
+        ]:
+            await db.execute(
+                text(f"DELETE FROM {table} WHERE case_id = CAST(:cid AS uuid)"),
+                {"cid": cid},
+            )
+
+        # 4. Delete the case row itself via raw SQL (avoids ORM flush side-effects)
+        await db.execute(
+            text("DELETE FROM cases WHERE id = CAST(:cid AS uuid)"),
+            {"cid": cid},
+        )
         await db.flush()
 
         # Best-effort: remove uploaded files from storage after DB changes are flushed
