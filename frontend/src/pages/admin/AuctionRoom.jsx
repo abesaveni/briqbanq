@@ -124,6 +124,11 @@ function Documents({ documents }) {
     }
 
     const handleView = async (doc) => {
+        // Images/docs with a direct URL — open straight away
+        if (doc.file_url && !doc.file_url.startsWith('local://')) {
+            window.open(doc.file_url, '_blank', 'noopener,noreferrer')
+            return
+        }
         if (!doc.id) return
         try {
             const result = await fetchDoc(doc)
@@ -133,6 +138,17 @@ function Documents({ documents }) {
     }
 
     const handleDownload = async (doc) => {
+        // Images/docs with a direct URL — download straight away
+        if (doc.file_url && !doc.file_url.startsWith('local://')) {
+            const a = document.createElement('a')
+            a.href = doc.file_url
+            a.download = getName(doc)
+            a.target = '_blank'
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            return
+        }
         if (!doc.id) return
         const filename = getName(doc)
         try {
@@ -159,7 +175,7 @@ function Documents({ documents }) {
             ) : (
                 <div className="space-y-2">
                     {docs.map((doc, i) => {
-                        const canAccess = !!doc.id
+                        const canAccess = !!doc.id || (!!doc.file_url && !doc.file_url.startsWith('local://'))
                         return (
                             <div key={doc.id || i} className="flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-gray-50 transition-colors">
                                 <div className="flex items-center gap-3 min-w-0">

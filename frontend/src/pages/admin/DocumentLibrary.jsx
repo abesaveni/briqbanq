@@ -6,30 +6,56 @@ import { generateBrandedPDF } from '../../utils/pdfGenerator'
 
 export default function DocumentLibrary() {
     const [documents, setDocuments] = useState([])
+    const [docSkip, setDocSkip] = useState(0)
+    const [hasMore, setHasMore] = useState(false)
+    const [loadingMore, setLoadingMore] = useState(false)
+    const DOC_LIMIT = 100
+
+    const mapDocs = (raw) => raw.map(d => ({
+        id: d.id,
+        name: d.document_name || d.file_name || d.name || 'Untitled',
+        type: (d.file_name || d.document_name || d.name || '').split('.').pop()?.toLowerCase() || 'pdf',
+        size: d.file_size ? `${(d.file_size / 1024).toFixed(1)} KB` : '—',
+        fileSizeBytes: d.file_size || 0,
+        category: d.document_type || d.category || 'Contract',
+        uploader: d.uploaded_by_name || d.uploader || 'Admin',
+        date: d.created_at ? new Date(d.created_at).toLocaleDateString('en-AU') : '—',
+        createdAt: d.created_at || null,
+        caseNumber: d.case_number || null,
+        starred: false,
+        url: d.file_url || null,
+        status: d.status || 'Available',
+    }))
 
     useEffect(() => {
-        documentService.getAllDocuments()
+        documentService.getAllDocuments({ skip: 0, limit: DOC_LIMIT })
             .then((res) => {
                 const raw = Array.isArray(res.data) ? res.data : (res.data?.items || [])
-                const mapped = raw.map(d => ({
-                    id: d.id,
-                    name: d.document_name || d.file_name || d.name || 'Untitled',
-                    type: (d.file_name || d.document_name || d.name || '').split('.').pop()?.toLowerCase() || 'pdf',
-                    size: d.file_size ? `${(d.file_size / 1024).toFixed(1)} KB` : '—',
-                    fileSizeBytes: d.file_size || 0,
-                    category: d.document_type || d.category || 'Contract',
-                    uploader: d.uploaded_by_name || d.uploader || 'Admin',
-                    date: d.created_at ? new Date(d.created_at).toLocaleDateString('en-AU') : '—',
-                    createdAt: d.created_at || null,
-                    caseNumber: d.case_number || null,
-                    starred: false,
-                    url: d.file_url || null,
-                    status: d.status || 'Available',
-                }))
+                const mapped = mapDocs(raw)
                 if (mapped.length) setDocuments(mapped)
+                setHasMore(raw.length >= DOC_LIMIT)
+                setDocSkip(raw.length)
             })
             .catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    const handleLoadMore = async () => {
+        setLoadingMore(true)
+        try {
+            const res = await documentService.getAllDocuments({ skip: docSkip, limit: DOC_LIMIT })
+            const raw = Array.isArray(res.data) ? res.data : (res.data?.items || [])
+            if (raw.length > 0) {
+                const mapped = mapDocs(raw)
+                setDocuments(prev => [...prev, ...mapped])
+                setDocSkip(prev => prev + raw.length)
+                setHasMore(raw.length >= DOC_LIMIT)
+            } else {
+                setHasMore(false)
+            }
+        } catch { setHasMore(false) }
+        setLoadingMore(false)
+    }
     const [searchTerm, setSearchTerm] = useState('')
     const [categoryFilter, setCategoryFilter] = useState('All Categories')
     const [typeFilter, setTypeFilter] = useState('All Types')
@@ -308,6 +334,19 @@ export default function DocumentLibrary() {
                     )}
                 </div>
             </div>
+
+            {/* Load More */}
+            {hasMore && (
+                <div className="flex justify-center">
+                    <button
+                        onClick={handleLoadMore}
+                        disabled={loadingMore}
+                        className="px-5 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 flex items-center gap-2 disabled:opacity-60"
+                    >
+                        {loadingMore ? <><span className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin inline-block" /> Loading...</> : 'Load More Documents'}
+                    </button>
+                </div>
+            )}
 
             {/* Info Box */}
             <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-4">

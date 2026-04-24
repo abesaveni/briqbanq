@@ -310,7 +310,7 @@ export const kycService = {
 // ─── Document Service ─────────────────────────────────────────────────────────
 
 export const documentService = {
-  getAllDocuments: () => wrap(api.get("/api/v1/documents")),
+  getAllDocuments: (params = {}) => wrap(api.get("/api/v1/documents", { params })),
   getDocuments: (caseId) => wrap(api.get(`/api/v1/documents/case/${caseId}`)),
   uploadDocument: (_caseId, formData) =>
     wrap(api.post(`/api/v1/documents/upload`, formData)),
@@ -327,12 +327,19 @@ export const adminUsersService = {
   getUsers: (params) => wrap(api.get("/api/v1/identity/users", { params })),
   getUserById: (id) => wrap(api.get(`/api/v1/identity/users/${id}`)),
   getUsersByRole: (role) => wrap(api.get("/api/v1/identity/users", { params: { role } })),
-  createUser: (data) => wrap(api.post("/api/v1/identity/register", {
-    email: data.email,
-    password: data.password,
-    full_name: data.full_name,
-    requested_roles: [(data.role || 'BORROWER').toUpperCase()],
-  })),
+  createUser: (data) => {
+    const parts = (data.full_name || '').trim().split(/\s+/)
+    const first_name = parts[0] || ''
+    const last_name = parts.slice(1).join(' ') || ''
+    return wrap(api.post("/api/v1/identity/register", {
+      email: data.email,
+      password: data.password,
+      full_name: data.full_name,
+      first_name,
+      last_name,
+      requested_roles: [(data.role || 'BORROWER').toUpperCase()],
+    }))
+  },
   suspendUser: (id) => wrap(api.post(`/api/v1/identity/users/${id}/suspend`)),
   reactivateUser: (id) => wrap(api.post(`/api/v1/identity/users/${id}/reactivate`)),
   getPendingRoles: () => wrap(api.get("/api/v1/roles/pending")),

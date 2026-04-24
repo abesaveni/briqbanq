@@ -5,6 +5,23 @@ import AdminBadge from '../../components/admin/AdminBadge'
 import { useState, useEffect } from 'react'
 import { kycService } from '../../api/dataService'
 
+function RiskSelect({ value, onChange }) {
+    const color = value === 'High' ? 'text-red-700 border-red-300 bg-red-50'
+        : value === 'Low' ? 'text-emerald-700 border-emerald-300 bg-emerald-50'
+        : 'text-amber-700 border-amber-300 bg-amber-50'
+    return (
+        <select
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className={`text-xs border rounded px-1.5 py-0.5 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer ${color}`}
+        >
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+        </select>
+    )
+}
+
 export default function KYCReviewQueue() {
     const navigate = useNavigate();
     const [kycData, setKycData] = useState([]);
@@ -146,23 +163,10 @@ export default function KYCReviewQueue() {
                                     </td>
                                     <td className="px-4 py-3 text-sm text-gray-500 max-w-[140px] truncate">{kyc.document_type || kyc.metadata_json?.original_file_name || '—'}</td>
                                     <td className="px-4 py-3">
-                                        {(() => {
-                                            const riskVal = normalizeRisk(kyc.risk_level || kyc.risk)
-                                            return (
-                                                <select
-                                                    value={riskVal}
-                                                    onChange={(e) => handleRiskChange(kyc.id, e.target.value)}
-                                                    className={`text-xs border rounded px-1.5 py-0.5 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer
-                                                        ${riskVal === 'High' ? 'text-red-700 border-red-300 bg-red-50' :
-                                                          riskVal === 'Low' ? 'text-emerald-700 border-emerald-300 bg-emerald-50' :
-                                                          'text-amber-700 border-amber-300 bg-amber-50'}`}
-                                                >
-                                                    <option value="Low">Low</option>
-                                                    <option value="Medium">Medium</option>
-                                                    <option value="High">High</option>
-                                                </select>
-                                            )
-                                        })()}
+                                        <RiskSelect
+                                            value={normalizeRisk(kyc.risk_level || kyc.risk)}
+                                            onChange={(v) => handleRiskChange(kyc.id, v)}
+                                        />
                                     </td>
                                     <td className="px-4 py-3">
                                         {(kyc.status === 'SUBMITTED' || kyc.status === 'UNDER_REVIEW') ? (

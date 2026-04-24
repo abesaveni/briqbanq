@@ -75,6 +75,7 @@ function normalizeDeal(d) {
         image: finalImage,
         totalBids: d.total_bids || 0,
         currentBid: Number(d.current_highest_bid) || 0,
+        auctionEnd: d.scheduled_end || d.auction_end || null,
     }
 }
 

@@ -119,8 +119,7 @@ export default function CaseDetailsLayout() {
 
     const handleDownload = async () => {
         setDownloading(true)
-        try {
-            await generateBrandedPDF({
+        try { await generateBrandedPDF({
                 title: `Case Report — ${caseData.id}`,
                 subtitle: caseData.property?.address || '',
                 infoItems: [
@@ -129,9 +128,9 @@ export default function CaseDetailsLayout() {
                     { label: 'Borrower', value: caseData.borrower?.name || '—' },
                     { label: 'Property Address', value: caseData.property?.address || '—' },
                     { label: 'Property Type', value: caseData.property?.type || '—' },
-                    { label: 'Outstanding Debt', value: fmt(caseData.financial?.outstandingDebt) },
-                    { label: 'Estimated Value', value: fmt(caseData.financial?.estimatedValue) },
-                    { label: 'LTV Ratio', value: `${caseData.financial?.ltv || 0}%` },
+                    { label: 'Outstanding Debt', value: fmt(caseData.loan?.outstandingDebt) },
+                    { label: 'Estimated Value', value: fmt(caseData.valuation?.amount) },
+                    { label: 'LTV Ratio', value: `${caseData.loan?.ltv || 0}%` },
                     { label: 'Risk Level', value: caseData.risk || '—' },
                 ],
                 sections: caseData.bids?.length > 0 ? [{
@@ -141,7 +140,7 @@ export default function CaseDetailsLayout() {
                 }] : [],
                 fileName: `case-${caseData.id}-report.pdf`,
             })
-        } finally {
+        } catch { /* ignore */ } finally {
             setDownloading(false)
         }
     }

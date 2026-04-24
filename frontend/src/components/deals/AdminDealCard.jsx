@@ -29,8 +29,11 @@ export default function AdminDealCard({ deal, onRefresh }) {
   if (!deal) return null;
 
   const isDraft = deal.dealStatus === 'DRAFT';
-  const isLive = deal.status === "Live Auction" || deal.status === "Under Contract";
-  const cfg = STATUS_CONFIG[deal.status] || { cls: "bg-slate-400 text-white", dot: false };
+  // Treat a "Live Auction" whose countdown has hit zero as "Ended"
+  const isAuctionEnded = deal.status === "Live Auction" && countdown && countdown.total <= 0
+  const effectiveStatus = isAuctionEnded ? "Ended" : deal.status
+  const isLive = (effectiveStatus === "Live Auction" || effectiveStatus === "Under Contract")
+  const cfg = STATUS_CONFIG[effectiveStatus] || STATUS_CONFIG[deal.status] || { cls: "bg-slate-400 text-white", dot: false };
   const location = [deal.suburb, deal.state, deal.postcode].filter(Boolean).join(", ");
 
   const handleListDeal = async (e) => {
@@ -59,7 +62,7 @@ export default function AdminDealCard({ deal, onRefresh }) {
         />
         <span className={`absolute top-2 left-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${cfg.cls}`}>
           {cfg.dot && <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />}
-          {deal.status === "Live Auction" ? "Live" : deal.status}
+          {effectiveStatus === "Live Auction" ? "Live" : effectiveStatus}
         </span>
         {isLive && countdown?.formatted && (
           <span className="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
@@ -131,6 +134,13 @@ export default function AdminDealCard({ deal, onRefresh }) {
                 <Eye size={14} />
               </button>
             </>
+          ) : effectiveStatus === "Ended" ? (
+            <button
+              onClick={(e) => { e.stopPropagation(); navigate(`/admin/case-details/${deal.case_id || deal.id}`); }}
+              className="flex-1 border border-slate-200 hover:bg-slate-50 text-slate-700 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5"
+            >
+              <Eye size={12} />View Details
+            </button>
           ) : (
             <div className="flex gap-2 w-full">
               <button

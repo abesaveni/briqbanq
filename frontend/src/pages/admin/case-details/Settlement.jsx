@@ -28,11 +28,11 @@ export default function Settlement() {
     }
 
     const handleFinalise = async () => {
-        if (!caseData?._id || finalising || finalised) return
+        if (!caseData?.id || finalising || finalised) return
         setFinalising(true)
         setFinaliseError('')
         try {
-            const res = await settlementService.markReadyForSettlement(caseData._id)
+            const res = await settlementService.markReadyForSettlement(caseData.id)
             if (res.success) {
                 setFinalised(true)
                 setMessages(prev => [...prev, {
