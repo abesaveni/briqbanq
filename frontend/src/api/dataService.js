@@ -149,7 +149,7 @@ export const integrationService = {
 // ─── Cases Service ────────────────────────────────────────────────────────────
 
 export const casesService = {
-  getCases: () => wrap(api.get("/api/v1/cases/")),
+  getCases: () => wrap(api.get("/api/v1/cases/", { params: { page: 1, page_size: 500 } })),
   getMyCases: () => wrap(api.get("/api/v1/cases/my-cases")),
   getCaseById: (caseId) => wrap(api.get(`/api/v1/cases/${caseId}`)),
   createCase: (payload) => wrap(api.post("/api/v1/cases/", payload)),
