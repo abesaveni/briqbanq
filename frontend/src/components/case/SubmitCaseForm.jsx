@@ -804,12 +804,36 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
   // ─── Validation ─────────────────────────────────────────────────────────────
 
   const stepValidation = {
-    // Light: just check at least something is filled
-    1: () => true, // always allow step 1 to proceed
-    2: () => true, // parties optional in draft
-    3: () => formData.paymentAuthorized,
-    4: () => true,
-    5: () => true,
+    1: () => {
+      const sec = formData.securities[0] || {}
+      if (!sec.property_address?.trim()) return 'Property address is required'
+      if (!sec.property_type) return 'Property type is required'
+      return true
+    },
+    2: () => {
+      const total = formData.individuals.length + formData.companies.length + formData.trusts.length
+      if (total === 0) return 'At least one party (borrower, company or trust) is required'
+      for (const p of formData.individuals) {
+        if (!p.first_name?.trim()) return 'First name is required for all individuals'
+        if (!p.last_name?.trim()) return 'Last name is required for all individuals'
+      }
+      for (const c of formData.companies) {
+        if (!c.company_name?.trim()) return 'Company name is required for all company parties'
+      }
+      return true
+    },
+    3: () => formData.paymentAuthorized ? true : 'Please authorise payment to continue',
+    4: () => {
+      if (!formData.lenderName?.trim()) return 'Lender / Institution name is required'
+      return true
+    },
+    5: () => {
+      if (!formData.principal_outstanding || parseFloat(formData.principal_outstanding) <= 0)
+        return 'Principal outstanding amount is required'
+      if (!formData.interestRate || parseFloat(formData.interestRate) <= 0)
+        return 'Interest rate is required'
+      return true
+    },
     6: () => true,
     7: () => true,
     8: () => true,
@@ -912,8 +936,13 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
   }
 
   const handleNext = () => {
-    if (currentStep === 11) handleSubmit()
-    else setCurrentStep(s => Math.min(11, s + 1))
+    if (currentStep === 11) { handleSubmit(); return }
+    const valid = stepValidation[currentStep]?.()
+    if (valid !== true) {
+      toast.error(typeof valid === 'string' ? valid : 'Please fill in all required fields before continuing')
+      return
+    }
+    setCurrentStep(s => Math.min(11, s + 1))
   }
 
   const handleBack = () => setCurrentStep(s => Math.max(1, s - 1))
@@ -949,7 +978,7 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
                 </div>
                 {!sec.collapsed && (
                   <div className={cardBodyCls}>
-                    <Field label="Property Address" hint="Search or enter manually">
+                    <Field label="Property Address" hint="Search or enter manually" required>
                       <AddressAutocomplete
                         value={sec.property_address}
                         onChange={v => updateSecurity(idx, 'property_address', v)}
@@ -973,7 +1002,7 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
                       <Field label="Postcode">
                         <input className={inputCls} value={sec.postcode} maxLength={4} onChange={e => updateSecurity(idx, 'postcode', e.target.value.replace(/\D/g, '').slice(0, 4))} />
                       </Field>
-                      <Field label="Property Type">
+                      <Field label="Property Type" required>
                         <select className={selectCls} value={sec.property_type} onChange={e => updateSecurity(idx, 'property_type', e.target.value)}>
                           <option value="">Select...</option>
                           {PROPERTY_TYPES.map(t => <option key={t}>{t}</option>)}
@@ -1076,8 +1105,8 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
                   {!ind.collapsed && (
                     <div className="p-4 space-y-4">
                       <div className={grid2}>
-                        <Field label="First Name"><input className={inputCls} value={ind.first_name} onChange={e => updateParty('individuals', idx, 'first_name', e.target.value)} /></Field>
-                        <Field label="Last Name"><input className={inputCls} value={ind.last_name} onChange={e => updateParty('individuals', idx, 'last_name', e.target.value)} /></Field>
+                        <Field label="First Name" required><input className={inputCls} value={ind.first_name} onChange={e => updateParty('individuals', idx, 'first_name', e.target.value)} /></Field>
+                        <Field label="Last Name" required><input className={inputCls} value={ind.last_name} onChange={e => updateParty('individuals', idx, 'last_name', e.target.value)} /></Field>
                         <Field label="Date of Birth"><input type="date" className={inputCls} value={ind.dob} onChange={e => updateParty('individuals', idx, 'dob', e.target.value)} /></Field>
                         <Field label="Phone"><input className={inputCls} value={ind.phone} onChange={e => updateParty('individuals', idx, 'phone', e.target.value)} onKeyDown={onlyPhone} placeholder="04XX XXX XXX" /></Field>
                         <Field label="Email"><input type="email" className={inputCls} value={ind.email} onChange={e => updateParty('individuals', idx, 'email', e.target.value)} /></Field>
@@ -1135,7 +1164,7 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
                   {!co.collapsed && (
                     <div className="p-4 space-y-4">
                       <div className={grid2}>
-                        <Field label="Company Name"><input className={inputCls} value={co.company_name} onChange={e => updateParty('companies', idx, 'company_name', e.target.value)} /></Field>
+                        <Field label="Company Name" required><input className={inputCls} value={co.company_name} onChange={e => updateParty('companies', idx, 'company_name', e.target.value)} /></Field>
                         <Field label="ACN"><input className={inputCls} value={co.acn} onChange={e => updateParty('companies', idx, 'acn', e.target.value)} /></Field>
                         <Field label="ABN"><input className={inputCls} value={co.abn} onChange={e => updateParty('companies', idx, 'abn', e.target.value)} /></Field>
                         <Field label="Company Type">
@@ -1317,7 +1346,7 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
           <div className="space-y-6">
             <SectionCard title="Lender Information" icon={Briefcase}>
               <div className={grid2}>
-                <Field label="Lender / Institution Name"><input className={inputCls} name="lenderName" value={formData.lenderName} onChange={updateFormData} /></Field>
+                <Field label="Lender / Institution Name" required><input className={inputCls} name="lenderName" value={formData.lenderName} onChange={updateFormData} /></Field>
                 <Field label="Primary Contact"><input className={inputCls} name="primaryContact" value={formData.primaryContact} onChange={updateFormData} /></Field>
                 <Field label="Email"><input type="email" className={inputCls} name="lenderEmail" value={formData.lenderEmail} onChange={updateFormData} /></Field>
                 <Field label="Phone"><input className={inputCls} name="lenderPhone" value={formData.lenderPhone} onChange={updateFormData} onKeyDown={onlyPhone} /></Field>
@@ -1417,7 +1446,7 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
           <div className="space-y-6">
             <SectionCard title="Debt Breakdown" icon={DollarSign}>
               <div className={grid2}>
-                <Field label="Principal Outstanding (A$)">
+                <Field label="Principal Outstanding (A$)" required>
                   <input className={inputCls} name="principal_outstanding" value={formData.principal_outstanding} onChange={updateFormData} onKeyDown={onlyDecimal} placeholder="0" />
                 </Field>
                 <Field label="Accrued Interest (A$)">
@@ -1491,7 +1520,7 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
                 <Field label="Loan Start Date">
                   <input type="date" className={inputCls} name="loanStartDate" value={formData.loanStartDate} onChange={updateFormData} />
                 </Field>
-                <Field label="Interest Rate (% p.a.)">
+                <Field label="Interest Rate (% p.a.)" required>
                   <input className={inputCls} name="interestRate" value={formData.interestRate} onChange={updateFormData} onKeyDown={onlyDecimal} />
                 </Field>
                 <Field label="Repayment Type">
