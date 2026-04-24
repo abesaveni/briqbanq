@@ -165,3 +165,9 @@ class NotificationService:
 
     async def mark_all_read(self, user_id: uuid.UUID) -> None:
         await self.repository.mark_all_read(user_id)
+
+    async def delete_notification(self, notification_id: uuid.UUID, user_id: uuid.UUID) -> None:
+        await self.repository.delete_notification(notification_id, user_id)
+
+    async def delete_all_notifications(self, user_id: uuid.UUID) -> None:
+        await self.repository.delete_all_notifications(user_id)

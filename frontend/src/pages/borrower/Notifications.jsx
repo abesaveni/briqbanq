@@ -132,7 +132,7 @@ function ModalNotificationIcon({ type }) {
 
 export default function Notifications() {
   const navigate = useNavigate()
-  const { markAsRead: ctxMarkAsRead, markAllRead: ctxMarkAllRead } = useNotifications()
+  const { markAsRead: ctxMarkAsRead, markAllRead: ctxMarkAllRead, deleteNotification: ctxDeleteNotification, deleteAllNotifications: ctxDeleteAllNotifications } = useNotifications()
   const [filter, setFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -209,20 +209,13 @@ export default function Notifications() {
   }
 
   const handleDelete = async (notificationId) => {
-    try {
-      await notificationService.deleteNotification(notificationId)
-    } catch {
-      // Offline or API not ready: still remove from UI
-    }
     setNotifications((prev) => prev.filter((n) => n.id !== notificationId))
+    ctxDeleteNotification(notificationId)
   }
 
   const handleDeleteAll = () => {
-    const ids = notifications.map((n) => n.id)
-    ids.forEach((id) => {
-      notificationService.deleteNotification(id).catch(() => {})
-    })
     setNotifications([])
+    ctxDeleteAllNotifications()
   }
 
   const handleClearFilters = () => {

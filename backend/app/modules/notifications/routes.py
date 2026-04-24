@@ -57,6 +57,8 @@ async def delete_notification(
     db=Depends(get_db),
 ):
     """Delete a specific notification."""
+    service = NotificationService(db)
+    await service.delete_notification(notification_id, uuid.UUID(current_user["user_id"]))
     return MessageResponse(message="Notification deleted")
 
 
@@ -66,4 +68,6 @@ async def delete_all_notifications(
     db=Depends(get_db),
 ):
     """Delete all notifications for the current user."""
+    service = NotificationService(db)
+    await service.delete_all_notifications(uuid.UUID(current_user["user_id"]))
     return MessageResponse(message="All notifications deleted")

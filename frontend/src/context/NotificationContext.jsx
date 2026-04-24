@@ -37,9 +37,22 @@ export const useNotifications = () => {
   return context;
 };
 
+const DELETED_IDS_KEY = 'briqbanq_deleted_notif_ids';
+
+function loadDeletedIds() {
+  try {
+    const raw = localStorage.getItem(DELETED_IDS_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch { return new Set(); }
+}
+
+function saveDeletedIds(set) {
+  try { localStorage.setItem(DELETED_IDS_KEY, JSON.stringify([...set])); } catch { /* ignore */ }
+}
+
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
-  const deletedIds = React.useRef(new Set());
+  const deletedIds = React.useRef(loadDeletedIds());
   const markedReadIds = React.useRef(new Set());
 
   const fetchNotifications = useCallback(async () => {
@@ -85,12 +98,17 @@ export const NotificationProvider = ({ children }) => {
 
   const deleteNotification = useCallback(async (id) => {
     deletedIds.current.add(String(id));
+    saveDeletedIds(deletedIds.current);
     setNotifications(prev => prev.filter(n => String(n.id) !== String(id)));
     try { await notificationService.deleteNotification(id); } catch { /* ignore */ }
   }, []);
 
   const deleteAllNotifications = useCallback(async () => {
-    setNotifications(prev => { prev.forEach(n => deletedIds.current.add(String(n.id))); return []; });
+    setNotifications(prev => {
+      prev.forEach(n => deletedIds.current.add(String(n.id)));
+      saveDeletedIds(deletedIds.current);
+      return [];
+    });
     try { await notificationService.deleteAllNotifications(); } catch { /* ignore */ }
   }, []);
 

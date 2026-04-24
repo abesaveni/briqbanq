@@ -1,7 +1,7 @@
 """Notifications module — Repository."""
 import uuid
 from typing import List
-from sqlalchemy import select, update, func
+from sqlalchemy import select, update, delete, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.modules.notifications.models import Notification
 
@@ -47,5 +47,20 @@ class NotificationRepository:
             update(Notification).where(
                 Notification.user_id == user_id, Notification.is_read == False
             ).values(is_read=True)
+        )
+        await self.db.flush()
+
+    async def delete_notification(self, notification_id: uuid.UUID, user_id: uuid.UUID) -> None:
+        await self.db.execute(
+            delete(Notification).where(
+                Notification.id == notification_id,
+                Notification.user_id == user_id,
+            )
+        )
+        await self.db.flush()
+
+    async def delete_all_notifications(self, user_id: uuid.UUID) -> None:
+        await self.db.execute(
+            delete(Notification).where(Notification.user_id == user_id)
         )
         await self.db.flush()

@@ -71,6 +71,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("currentRole");
+    localStorage.removeItem("briqbanq_deleted_notif_ids");
     setToken(null);
     setUser(null);
   }, []);
