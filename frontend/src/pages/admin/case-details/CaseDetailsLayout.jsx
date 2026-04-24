@@ -235,21 +235,21 @@ export default function CaseDetailsLayout() {
             </div>
 
             {/* Tab Navigation */}
-            <div className="bg-white rounded-lg border border-gray-200">
-                <div className="flex overflow-x-auto no-scrollbar">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+                <div className="flex">
                     {tabs.map((tab) => (
                         <NavLink
                             key={tab.path}
                             to={tab.path}
                             className={({ isActive }) =>
-                                `flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                                `flex-1 flex flex-col items-center gap-1 px-1 pt-2.5 pb-2 text-[11px] font-semibold whitespace-nowrap border-b-2 transition-all ${
                                     isActive
-                                        ? 'border-indigo-600 text-indigo-600 bg-indigo-50/40'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                        ? 'border-indigo-600 text-indigo-600'
+                                        : 'border-transparent text-slate-400 hover:text-slate-600 hover:border-slate-300'
                                 }`
                             }
                         >
-                            <tab.icon className="w-4 h-4 flex-shrink-0" />
+                            <tab.icon className="w-3.5 h-3.5 flex-shrink-0" />
                             {tab.label}
                         </NavLink>
                     ))}

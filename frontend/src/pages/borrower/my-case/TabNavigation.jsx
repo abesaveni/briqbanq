@@ -1,33 +1,38 @@
+import { Home, Building2, FileText, FileCheck, Handshake, DollarSign, MessageSquare, Activity } from 'lucide-react'
+
 const tabs = [
-  { id: 'overview', label: 'Overview', icon: '🏠' },
-  { id: 'property', label: 'Property', icon: '🏡' },
-  { id: 'documents', label: 'Documents', icon: '📄' },
-  { id: 'investment-memo', label: 'Investment Memorandum', icon: '📊' },
-  { id: 'settlement', label: 'Settlement', icon: '🤝' },
-  { id: 'bids', label: 'Bids', icon: '💰' },
-  { id: 'messages', label: 'Messages', icon: '💬' },
-  { id: 'activity', label: 'Activity', icon: '⚡' },
+  { id: 'overview',       label: 'Overview',   icon: Home },
+  { id: 'property',       label: 'Property',   icon: Building2 },
+  { id: 'documents',      label: 'Documents',  icon: FileText },
+  { id: 'investment-memo',label: 'Inv. Memo',  icon: FileCheck },
+  { id: 'settlement',     label: 'Settlement', icon: Handshake },
+  { id: 'bids',           label: 'Bids',       icon: DollarSign },
+  { id: 'messages',       label: 'Messages',   icon: MessageSquare },
+  { id: 'activity',       label: 'Activity',   icon: Activity },
 ]
 
 export default function TabNavigation({ activeTab, onTabChange }) {
   return (
-    <div className="border-b border-slate-200">
-      <nav className="flex space-x-6 px-6 overflow-x-auto">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => onTabChange(tab.id)}
-            className={`flex items-center space-x-2 py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === tab.id
-                ? 'border-indigo-600 text-indigo-600'
-                : 'border-transparent text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <span>{tab.icon}</span>
-            <span>{tab.label}</span>
-          </button>
-        ))}
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+      <nav className="flex">
+        {tabs.map((tab) => {
+          const Icon = tab.icon
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => onTabChange(tab.id)}
+              className={`flex-1 flex flex-col items-center gap-1 px-1 pt-2.5 pb-2 text-[11px] font-semibold whitespace-nowrap border-b-2 transition-all ${
+                activeTab === tab.id
+                  ? 'border-indigo-600 text-indigo-600'
+                  : 'border-transparent text-slate-400 hover:text-slate-600 hover:border-slate-300'
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+              {tab.label}
+            </button>
+          )
+        })}
       </nav>
     </div>
   )

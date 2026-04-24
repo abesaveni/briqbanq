@@ -337,7 +337,7 @@ export default function InvestorCaseDetails() {
         { label: "Lawyer Review", icon: Scale },
         { label: "Property", icon: Home },
         { label: "Documents", icon: FileText },
-        { label: "Investment Memorandum", icon: Briefcase },
+        { label: "Inv. Memo", icon: Briefcase },
         { label: "Settlement", icon: Handshake },
         { label: "Bids", icon: DollarSign },
         { label: "Messages", icon: MessageSquare },
@@ -1120,21 +1120,24 @@ export default function InvestorCaseDetails() {
             </div>
 
             {/* Tabs List */}
-            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl overflow-x-auto scrollbar-hide border border-gray-200/50">
-                {tabs.map((tab) => (
-                    <button
-                        key={tab.label}
-                        id={`tab-${tab.label.toLowerCase().replace(/\s+/g, '-')}`}
-                        onClick={() => setActiveTab(tab.label)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${activeTab === tab.label
-                            ? "bg-white text-black shadow-sm border border-gray-100"
-                            : "text-black hover:bg-white/40"
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+                <div className="flex">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab.label}
+                            id={`tab-${tab.label.toLowerCase().replace(/\s+/g, '-')}`}
+                            onClick={() => setActiveTab(tab.label)}
+                            className={`flex-1 flex flex-col items-center gap-1 px-1 pt-2.5 pb-2 text-[11px] font-semibold whitespace-nowrap border-b-2 transition-all ${
+                                activeTab === tab.label
+                                    ? 'border-indigo-600 text-indigo-600'
+                                    : 'border-transparent text-slate-400 hover:text-slate-600 hover:border-slate-300'
                             }`}
-                    >
-                        <tab.icon size={15} className="text-black" />
-                        {tab.label}
-                    </button>
-                ))}
+                        >
+                            <tab.icon size={14} />
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {/* Tab Content */}
@@ -1709,7 +1712,7 @@ export default function InvestorCaseDetails() {
                 </div>
             )}
 
-            {activeTab === "Investment Memorandum" && (
+            {activeTab === "Inv. Memo" && (
                 <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 shadow-sm animate-in fade-in duration-500">
                     {/* Header Controls */}
                     <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm mb-6">
