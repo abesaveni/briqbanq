@@ -834,9 +834,12 @@ class CaseService:
         offset: int = 0,
         limit: int = 20,
     ) -> tuple[List[Case], int]:
-        """Get all cases with count."""
-        cases = await self.repository.get_all(status, offset, limit)
-        total = await self.repository.count(status)
+        """Get all cases with count (queries run in parallel)."""
+        import asyncio
+        cases, total = await asyncio.gather(
+            self.repository.get_all(status, offset, limit),
+            self.repository.count(status),
+        )
         return cases, total
 
     async def get_cases_for_review(

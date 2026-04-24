@@ -7,6 +7,7 @@ import uuid
 from typing import List, Optional
 
 from sqlalchemy import select, func, or_
+from sqlalchemy.orm import noload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.cases.models import Case
@@ -54,8 +55,8 @@ class CaseRepository:
         offset: int = 0,
         limit: int = 20,
     ) -> List[Case]:
-        """Get all cases with optional status filter."""
-        query = select(Case)
+        """Get all cases with optional status filter. Documents are not loaded for list performance."""
+        query = select(Case).options(noload(Case.documents))
         if status:
             query = query.where(Case.status == status)
         query = query.offset(offset).limit(limit).order_by(Case.created_at.desc())
