@@ -17,6 +17,7 @@ export default function IdentityVerification() {
   const [fileName, setFileName] = useState('')
   const [submitError, setSubmitError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
 
   // Derive status from backend record
   const status = kycRecord?.status?.toUpperCase()
@@ -246,7 +247,17 @@ export default function IdentityVerification() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Upload Government ID *</label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
+              <div
+                className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${isDragging ? 'border-indigo-400 bg-indigo-50' : 'border-gray-300 bg-gray-50'}`}
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
+                onDragLeave={(e) => { e.preventDefault(); setIsDragging(false) }}
+                onDrop={(e) => {
+                  e.preventDefault()
+                  setIsDragging(false)
+                  const f = e.dataTransfer.files?.[0]
+                  if (f) { setFile(f); setFileName(f.name) }
+                }}
+              >
                 <span className="text-3xl text-gray-400 block mb-2">☁️</span>
                 <p className="text-sm text-gray-600">Drag and drop your ID here</p>
                 <p className="text-sm text-gray-500">or click to browse</p>
