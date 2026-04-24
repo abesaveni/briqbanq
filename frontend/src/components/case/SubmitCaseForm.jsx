@@ -1831,7 +1831,6 @@ export default function SubmitCaseForm({ role = 'lender', onClose, onSuccess }) 
                 <span className={`text-[10px] mt-1 whitespace-nowrap font-medium ${isCurrent ? 'text-indigo-600' : isCompleted ? 'text-indigo-500' : 'text-slate-400'}`}>
                   {s.label}
                 </span>
-                <StepBadge status={stepSt} />
               </div>
               {idx < STEPS.length - 1 && (
                 <div className={`w-6 h-0.5 mx-1 mt-[-22px] ${currentStep > s.id ? 'bg-indigo-400' : 'bg-slate-200'}`} />
