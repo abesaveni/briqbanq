@@ -87,28 +87,28 @@ export default function TaskCenter() {
     const payload = {
       title: newTaskForm.title.trim(),
       description: newTaskForm.description.trim() || '',
-      priority: newTaskForm.priority,
+      priority: newTaskForm.priority.toUpperCase(),
+      status: 'PENDING',
       due_date: newTaskForm.dueDate || null,
       module: newTaskForm.module,
     }
     try {
       const res = await taskService.createTask(payload)
-      const created = res.data || res
-      setTasks((prev) => [...prev, {
-        ...created,
-        id: created.id ?? created.task_id,
-        desc: created.description || '',
-        status: normalizeStatus(created.status) || 'Pending',
-        priority: normalizePriority(created.priority) || newTaskForm.priority,
-        dueLabel: formatDueLabel(created.due_date) || '—',
-        dueDateRaw: created.due_date || '',
-        module: created.module || newTaskForm.module,
-        tags: created.tags || [],
-      }])
-    } catch (_) {
-      const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `t-${Date.now()}-${Math.random()}`
-      setTasks((prev) => [...prev, { id, title: newTaskForm.title.trim(), desc: newTaskForm.description.trim() || '', status: 'Pending', priority: newTaskForm.priority, dueLabel: formatDueLabel(newTaskForm.dueDate) || '—', tags: [], caseId: null, module: newTaskForm.module }])
-    }
+      if (res.success && res.data) {
+        const created = res.data
+        setTasks((prev) => [...prev, {
+          ...created,
+          id: created.id,
+          desc: created.description || '',
+          status: normalizeStatus(created.status),
+          priority: normalizePriority(created.priority),
+          dueLabel: formatDueLabel(created.due_date ? created.due_date.split('T')[0] : '') || '—',
+          dueDateRaw: created.due_date || '',
+          module: created.module || newTaskForm.module,
+          tags: created.tags || [],
+        }])
+      }
+    } catch (_) {}
     resetNewTaskForm()
     setShowNewTaskModal(false)
   }
@@ -125,17 +125,17 @@ export default function TaskCenter() {
 
   const handleStartTask = (taskId) => () => {
     setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: 'InProgress' } : t)))
-    taskService.updateTask(taskId, { status: 'InProgress' }).catch(() => {})
+    taskService.updateTask(taskId, { status: 'IN_PROGRESS' }).catch(() => {})
   }
 
   const handleMarkComplete = (taskId) => () => {
     setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: 'Completed' } : t)))
-    taskService.updateTask(taskId, { status: 'Completed' }).catch(() => {})
+    taskService.updateTask(taskId, { status: 'COMPLETED' }).catch(() => {})
   }
 
   const handleMoveToPending = (taskId) => () => {
     setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: 'Pending' } : t)))
-    taskService.updateTask(taskId, { status: 'Pending' }).catch(() => {})
+    taskService.updateTask(taskId, { status: 'PENDING' }).catch(() => {})
   }
 
   const handleToggleCheck = (taskId) => () => {
@@ -143,7 +143,7 @@ export default function TaskCenter() {
       prev.map((t) => {
         if (t.id !== taskId) return t
         const newStatus = t.status === 'Completed' ? 'Pending' : 'Completed'
-        taskService.updateTask(taskId, { status: newStatus }).catch(() => {})
+        taskService.updateTask(taskId, { status: newStatus === 'Completed' ? 'COMPLETED' : 'PENDING' }).catch(() => {})
         return { ...t, status: newStatus }
       })
     )
@@ -177,7 +177,7 @@ export default function TaskCenter() {
       module: newTaskForm.module,
     }
     setTasks((prev) => prev.map((t) => t.id === editingTask.id ? { ...t, ...updates } : t))
-    try { await taskService.updateTask(editingTask.id, { title: updates.title, description: newTaskForm.description.trim(), priority: newTaskForm.priority, due_date: newTaskForm.dueDate || null, module: newTaskForm.module }) } catch (_) {}
+    try { await taskService.updateTask(editingTask.id, { title: updates.title, description: newTaskForm.description.trim(), priority: newTaskForm.priority.toUpperCase(), due_date: newTaskForm.dueDate || null, module: newTaskForm.module }) } catch (_) {}
     handleCloseNewTaskModal()
   }
 
@@ -476,9 +476,16 @@ export default function TaskCenter() {
                   </span>
                 </button>
                 <div className="min-w-0">
-                  <p className={`text-sm font-medium text-slate-800 ${task.status === 'Completed' ? 'line-through' : ''}`}>
-                    {task.title}
-                  </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className={`text-sm font-medium text-slate-800 ${task.status === 'Completed' ? 'line-through' : ''}`}>
+                      {task.title}
+                    </p>
+                    {task.id && (
+                      <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded shrink-0">
+                        #{task.id.slice(0, 8)}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-gray-600 mt-0.5">{task.desc}</p>
                   <div className="flex flex-wrap gap-1 mt-2">
                     <Badge label={task.priority} variant={priorityVariant[task.priority] || 'medium'} />

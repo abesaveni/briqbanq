@@ -450,9 +450,16 @@ export default function LenderTaskCenter() {
                                 </button>
 
                                 <div className="flex-1">
-                                    <h3 className={`text-[15px] sm:text-[16px] font-bold mb-1 tracking-tight ${task.checked ? 'text-gray-400 line-through font-semibold' : 'text-slate-800'}`}>
-                                        {task.title}
-                                    </h3>
+                                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                                        <h3 className={`text-[15px] sm:text-[16px] font-bold tracking-tight ${task.checked ? 'text-gray-400 line-through font-semibold' : 'text-slate-800'}`}>
+                                            {task.title}
+                                        </h3>
+                                        {task.id && (
+                                            <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded shrink-0">
+                                                #{task.id.slice(0, 8)}
+                                            </span>
+                                        )}
+                                    </div>
                                     <p className={`text-[12px] sm:text-[13px] mb-3 ${task.checked ? 'text-gray-400' : 'text-gray-500'}`}>
                                         {task.description}
                                     </p>

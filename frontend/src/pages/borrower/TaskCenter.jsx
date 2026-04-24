@@ -105,10 +105,10 @@ export default function TaskCenter() {
     taskService.createTask({
       title: newTask.title,
       description: newTask.desc,
-      priority: newTask.priority,
+      priority: newTask.priority.toUpperCase(),
       due_date: newTaskForm.dueDate || null,
       module: newTask.module,
-      status: 'Pending',
+      status: 'PENDING',
     }).then((res) => {
       const realId = res?.data?.id || res?.id
       if (realId) {

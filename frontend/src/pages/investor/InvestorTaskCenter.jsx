@@ -482,9 +482,16 @@ export default function InvestorTaskCenter() {
                                     </button>
 
                                     <div className="flex-1">
-                                        <h3 className={`text-base sm:text-base font-bold mb-1 tracking-tight ${task.checked ? 'text-gray-400 line-through' : 'text-slate-800'}`}>
-                                            {task.title}
-                                        </h3>
+                                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                                            <h3 className={`text-base sm:text-base font-bold tracking-tight ${task.checked ? 'text-gray-400 line-through' : 'text-slate-800'}`}>
+                                                {task.title}
+                                            </h3>
+                                            {task.id && (
+                                                <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded shrink-0">
+                                                    #{task.id.slice(0, 8)}
+                                                </span>
+                                            )}
+                                        </div>
                                         <p className={`text-xs sm:text-sm mb-3 ${task.checked ? 'text-gray-400' : 'text-gray-500'}`}>
                                             {task.description}
                                         </p>
