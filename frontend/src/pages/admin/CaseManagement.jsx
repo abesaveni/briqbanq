@@ -285,8 +285,8 @@ export default function CaseManagement() {
 
     // Calculate stats based on all cases
     const stats = {
-        total: allCases.filter(c => (c.status || '').toUpperCase() !== 'DRAFT').length,
-        drafts: allCases.filter(c => (c.status || '').toUpperCase() === 'DRAFT').length,
+        total: allCases.length,
+        underReview: allCases.filter(c => ['SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'LISTED'].includes((c.status || '').toUpperCase())).length,
         inAuction: allCases.filter(c => (c.status || '').toUpperCase() === 'AUCTION').length,
         completed: allCases.filter(c => ['CLOSED', 'FUNDED'].includes((c.status || '').toUpperCase())).length,
     }
@@ -310,7 +310,7 @@ export default function CaseManagement() {
             {/* Stat Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <AdminStatCard label="Total Cases" value={stats.total.toString()} icon={FileText} iconBg="bg-blue-50" iconColor="text-blue-600" />
-                <AdminStatCard label="Drafts" value={stats.drafts.toString()} icon={Clock} iconBg="bg-amber-50" iconColor="text-amber-600" />
+                <AdminStatCard label="Under Review" value={stats.underReview.toString()} icon={Clock} iconBg="bg-amber-50" iconColor="text-amber-600" />
                 <AdminStatCard label="In Auction" value={stats.inAuction.toString()} icon={RefreshCw} iconBg="bg-violet-50" iconColor="text-violet-600" />
                 <AdminStatCard label="Completed" value={stats.completed.toString()} icon={CheckSquare} iconBg="bg-emerald-50" iconColor="text-emerald-600" />
             </div>
