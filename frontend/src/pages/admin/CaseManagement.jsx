@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Eye, Trash2, RefreshCw, Download, FileText, CheckSquare, CheckCircle, Gavel, UserPlus, X, Plus, Archive, RotateCcw, Clock } from 'lucide-react'
+import { Eye, Trash2, RefreshCw, Download, FileText, CheckSquare, CheckCircle, Gavel, UserPlus, X, Plus, Archive, RotateCcw, Clock, XCircle, List } from 'lucide-react'
 import AdminBreadcrumb from '../../components/admin/AdminBreadcrumb'
 import AdminStatCard from '../../components/admin/AdminStatCard'
 import AdminRiskBadge from '../../components/admin/AdminRiskBadge'
@@ -285,10 +285,14 @@ export default function CaseManagement() {
 
     // Calculate stats based on all cases
     const stats = {
-        total: allCases.length,
-        underReview: allCases.filter(c => ['SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'LISTED'].includes((c.status || '').toUpperCase())).length,
-        inAuction: allCases.filter(c => (c.status || '').toUpperCase() === 'AUCTION').length,
-        completed: allCases.filter(c => ['CLOSED', 'FUNDED'].includes((c.status || '').toUpperCase())).length,
+        total:      allCases.length,
+        drafts:     allCases.filter(c => (c.status || '').toUpperCase() === 'DRAFT').length,
+        submitted:  allCases.filter(c => ['SUBMITTED', 'UNDER_REVIEW'].includes((c.status || '').toUpperCase())).length,
+        approved:   allCases.filter(c => (c.status || '').toUpperCase() === 'APPROVED').length,
+        listed:     allCases.filter(c => (c.status || '').toUpperCase() === 'LISTED').length,
+        inAuction:  allCases.filter(c => (c.status || '').toUpperCase() === 'AUCTION').length,
+        completed:  allCases.filter(c => ['CLOSED', 'FUNDED'].includes((c.status || '').toUpperCase())).length,
+        rejected:   allCases.filter(c => (c.status || '').toUpperCase() === 'REJECTED').length,
     }
 
     return (
@@ -308,11 +312,15 @@ export default function CaseManagement() {
             </div>
 
             {/* Stat Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <AdminStatCard label="Total Cases" value={stats.total.toString()} icon={FileText} iconBg="bg-blue-50" iconColor="text-blue-600" />
-                <AdminStatCard label="Under Review" value={stats.underReview.toString()} icon={Clock} iconBg="bg-amber-50" iconColor="text-amber-600" />
-                <AdminStatCard label="In Auction" value={stats.inAuction.toString()} icon={RefreshCw} iconBg="bg-violet-50" iconColor="text-violet-600" />
-                <AdminStatCard label="Completed" value={stats.completed.toString()} icon={CheckSquare} iconBg="bg-emerald-50" iconColor="text-emerald-600" />
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <AdminStatCard label="Total Cases"  value={stats.total.toString()}     icon={FileText}     iconBg="bg-blue-50"    iconColor="text-blue-600" />
+                <AdminStatCard label="Drafts"        value={stats.drafts.toString()}    icon={Clock}        iconBg="bg-slate-50"   iconColor="text-slate-500" />
+                <AdminStatCard label="Under Review"  value={stats.submitted.toString()} icon={RefreshCw}    iconBg="bg-amber-50"   iconColor="text-amber-600" />
+                <AdminStatCard label="Approved"      value={stats.approved.toString()}  icon={CheckCircle}  iconBg="bg-green-50"   iconColor="text-green-600" />
+                <AdminStatCard label="Listed"        value={stats.listed.toString()}    icon={List}         iconBg="bg-indigo-50"  iconColor="text-indigo-600" />
+                <AdminStatCard label="In Auction"    value={stats.inAuction.toString()} icon={Gavel}        iconBg="bg-violet-50"  iconColor="text-violet-600" />
+                <AdminStatCard label="Completed"     value={stats.completed.toString()} icon={CheckSquare}  iconBg="bg-emerald-50" iconColor="text-emerald-600" />
+                <AdminStatCard label="Rejected"      value={stats.rejected.toString()}  icon={XCircle}      iconBg="bg-red-50"     iconColor="text-red-500" />
             </div>
 
             {/* Table */}
