@@ -1,18 +1,24 @@
 // src/pages/admin/case-details/Settlement.jsx
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useCaseContext } from '../../../context/CaseContext'
 import { settlementService } from '../../../api/dataService'
 import { CheckCircle2, Clock, AlertTriangle, Send, ShieldCheck, Building2, Loader2 } from 'lucide-react'
 
 export default function Settlement() {
-    const { caseData } = useCaseContext()
+    const { caseData, updateCase } = useCaseContext()
     const [finalising, setFinalising] = useState(false)
-    const [finalised, setFinalised] = useState(false)
+    // Derive from persisted context so it survives tab switches
+    const [finalised, setFinalised] = useState(!!caseData?.settlement?.settlement_ready)
     const [finaliseError, setFinaliseError] = useState('')
     const [messages, setMessages] = useState([
         { id: 1, sender: 'System', role: 'Automated', time: 'Today', text: 'Settlement workflow initiated for this case.', isSystem: true },
     ])
     const [newMessage, setNewMessage] = useState('')
+
+    // Sync finalised state when settlement data loads from backend
+    useEffect(() => {
+        if (caseData?.settlement?.settlement_ready) setFinalised(true)
+    }, [caseData?.settlement?.settlement_ready])
 
     const handleSend = () => {
         if (!newMessage.trim()) return
@@ -35,6 +41,8 @@ export default function Settlement() {
             const res = await settlementService.markReadyForSettlement(caseData._id)
             if (res.success) {
                 setFinalised(true)
+                // Persist to context so tab switching doesn't reset state
+                updateCase({ settlement: { ...caseData.settlement, settlement_ready: true } })
                 setMessages(prev => [...prev, {
                     id: Date.now(),
                     sender: 'System',

@@ -1,13 +1,24 @@
 // src/pages/admin/case-details/Documents.jsx
 import { useState, useRef } from 'react'
 import { useCaseContext } from '../../../context/CaseContext'
-import { Upload, FileText, Eye, Download, Search, Loader2, Trash2 } from 'lucide-react'
+import { Upload, FileText, Eye, Download, Search, Loader2, Trash2, AlertCircle } from 'lucide-react'
 import { documentService } from '../../../api/dataService'
+
+const mapDoc = d => ({
+    id: d.id,
+    name: d.document_name || d.file_name || d.filename || d.name || 'Document',
+    type: d.document_type || d.type || 'Document',
+    uploadedBy: d.uploaded_by_name || d.uploader_name || 'Admin',
+    date: d.created_at ? new Date(d.created_at).toLocaleDateString('en-AU') : new Date().toLocaleDateString('en-AU'),
+    file: d.file_url || null,
+    status: d.status || 'UPLOADED',
+})
 
 export default function Documents() {
     const { caseData, updateCase } = useCaseContext()
     const [search, setSearch] = useState('')
     const [uploading, setUploading] = useState(false)
+    const [uploadError, setUploadError] = useState('')
     const [deletingId, setDeletingId] = useState(null)
     const fileInputRef = useRef(null)
 
@@ -24,7 +35,17 @@ export default function Documents() {
         const snapshot = allDocs
         updateCase({ documents: allDocs.filter(d => String(d.id || d.name) !== key) })
         setDeletingId(key)
-        try { await documentService.deleteDocument(doc.id) } catch { updateCase({ documents: snapshot }) }
+        try {
+            await documentService.deleteDocument(doc.id)
+            // Re-fetch after delete so state matches backend
+            const docsRes = await documentService.getDocuments(caseData._id)
+            if (docsRes.success) {
+                const raw = Array.isArray(docsRes.data) ? docsRes.data : (docsRes.data?.items || [])
+                updateCase({ documents: raw.map(mapDoc) })
+            }
+        } catch {
+            updateCase({ documents: snapshot })
+        }
         setDeletingId(null)
     }
 
@@ -32,7 +53,8 @@ export default function Documents() {
         const files = Array.from(e.target.files || [])
         if (!files.length || !caseData?._id) return
         setUploading(true)
-        const added = []
+        setUploadError('')
+        let anyFailed = false
         for (const file of files) {
             const formData = new FormData()
             formData.append('case_id', caseData._id)
@@ -40,16 +62,15 @@ export default function Documents() {
             formData.append('document_type', 'Upload')
             formData.append('file', file)
             const res = await documentService.uploadDocument(caseData._id, formData)
-            added.push({
-                id: res.success ? res.data?.id : `up-${Date.now()}`,
-                name: file.name,
-                type: 'Upload',
-                uploadedBy: 'Admin',
-                file: res.data?.file_url || null,
-                date: new Date().toLocaleDateString('en-AU'),
-            })
+            if (!res.success) anyFailed = true
         }
-        updateCase({ documents: [...(caseData.documents || []), ...added] })
+        // Re-fetch from backend so persisted docs are always shown (cache was cleared by upload)
+        const docsRes = await documentService.getDocuments(caseData._id)
+        if (docsRes.success) {
+            const raw = Array.isArray(docsRes.data) ? docsRes.data : (docsRes.data?.items || [])
+            updateCase({ documents: raw.map(mapDoc) })
+        }
+        if (anyFailed) setUploadError('One or more files failed to upload. Check the file type or size.')
         setUploading(false)
         e.target.value = ''
     }
@@ -59,8 +80,8 @@ export default function Documents() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-lg font-semibold text-gray-900">Documents</h2>
-                    <p className="text-sm text-gray-500 mt-0.5">All case-related documents and files</p>
+                    <h2 className="text-base font-semibold text-gray-900">Documents</h2>
+                    <p className="text-xs text-gray-500 mt-0.5">All case-related documents and files</p>
                 </div>
                 <label className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors cursor-pointer">
                     {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
@@ -68,6 +89,13 @@ export default function Documents() {
                     <input ref={fileInputRef} type="file" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" className="sr-only" onChange={handleUpload} />
                 </label>
             </div>
+
+            {uploadError && (
+                <div className="flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    {uploadError}
+                </div>
+            )}
 
             {/* Upload Zone */}
             <label className="border-2 border-dashed border-gray-200 rounded-lg p-5 text-center bg-gray-50 hover:bg-white hover:border-indigo-300 transition-all cursor-pointer block">

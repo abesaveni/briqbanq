@@ -33,25 +33,50 @@ function mapDocument(d) {
 }
 
 function mapSettlement(s) {
-    if (!s) return { estimatedProgress: 0, checklist: [], timeline: [] }
-    const checklist = Array.isArray(s.checklist_items || s.items || s.checklist)
-        ? (s.checklist_items || s.items || s.checklist).map((item, i) => ({
-            id: item.id || i,
-            item: item.name || item.description || item.item || 'Settlement Item',
-            responsible: item.responsible_party || item.assigned_to || item.responsible || 'Admin',
-            status: item.status === 'COMPLETED' || item.is_complete ? 'Approved' : 'Pending',
-        }))
-        : []
-    const estimatedProgress = s.progress_percentage ?? s.completion_percentage ??
+    if (!s) return { estimatedProgress: 0, checklist: [], timeline: [], settlement_ready: false }
+    // Backend returns { breakdown: { categories: [...], settlement_ready: bool, ... } }
+    const bd = s.breakdown || s
+    const settlement_ready = !!(bd.settlement_ready || s.settlement_ready)
+
+    // Extract tasks from categories structure (settlement task system)
+    const categories = bd.categories || []
+    let checklist = []
+    categories.forEach(cat => {
+        ;(cat.tasks || []).forEach(task => {
+            if (!task.archived) checklist.push({
+                id: task.id || task.title,
+                item: task.title || 'Task',
+                responsible: task.assignee || cat.name || 'Admin',
+                status: task.completed || task.status === 'COMPLETED' ? 'Approved' : 'Pending',
+            })
+        })
+    })
+    // Fallback to flat array structures
+    if (checklist.length === 0) {
+        const flat = bd.checklist_items || bd.items || bd.checklist || s.checklist_items || s.items || s.checklist
+        if (Array.isArray(flat)) {
+            checklist = flat.map((item, i) => ({
+                id: item.id || i,
+                item: item.name || item.description || item.item || 'Settlement Item',
+                responsible: item.responsible_party || item.assigned_to || item.responsible || 'Admin',
+                status: item.status === 'COMPLETED' || item.is_complete ? 'Approved' : 'Pending',
+            }))
+        }
+    }
+
+    const estimatedProgress = bd.progress_percentage ?? bd.completion_percentage ??
         (checklist.length > 0 ? Math.round((checklist.filter(i => i.status === 'Approved').length / checklist.length) * 100) : 0)
-    const timeline = Array.isArray(s.timeline || s.milestones)
-        ? (s.timeline || s.milestones).map(t => ({
+
+    const timelineArr = bd.timeline || bd.milestones || s.timeline || s.milestones
+    const timeline = Array.isArray(timelineArr)
+        ? timelineArr.map(t => ({
             step: t.step || t.name || t.milestone || 'Step',
             date: t.date || t.scheduled_date || '',
             status: t.status === 'COMPLETED' ? 'completed' : t.status === 'IN_PROGRESS' ? 'in-progress' : 'upcoming',
         }))
         : []
-    return { estimatedProgress, checklist, timeline }
+
+    return { estimatedProgress, checklist, timeline, settlement_ready }
 }
 
 // Map flat backend CaseResponse to the nested shape expected by CaseDetailsLayout
