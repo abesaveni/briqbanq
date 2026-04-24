@@ -728,35 +728,47 @@ class CaseService:
         return case
 
     async def delete_case(self, case_id: uuid.UUID, admin_id: uuid.UUID, trace_id: str) -> None:
-        """Delete a case and ALL related records in FK-safe order."""
+        """Delete a case and ALL related records, including uploaded files."""
         case = await self._get_case_or_404(case_id)
-        from sqlalchemy import text
+        from sqlalchemy import text, select as sa_select
+        from app.modules.documents.models import Document as DocumentModel
         db = self.repository.db
         cid = str(case_id)
 
-        # Delete in FK-safe order (deepest dependents first)
-        # bids → auctions (via deals)
+        # Collect s3_keys before deletion so we can clean up storage afterwards
+        doc_result = await db.execute(
+            sa_select(DocumentModel.s3_key).where(DocumentModel.case_id == case_id)
+        )
+        s3_keys = [row[0] for row in doc_result.fetchall() if row[0]]
+
+        # Bids have no CASCADE path back to cases — delete explicitly
         await db.execute(text(
             "DELETE FROM bids WHERE auction_id IN "
             "(SELECT id FROM auctions WHERE deal_id IN "
             "(SELECT id FROM deals WHERE case_id = CAST(:cid AS uuid)))"
         ), {"cid": cid})
 
-        # auctions → deals
+        # Auctions reference deals without CASCADE — delete explicitly
         await db.execute(text(
             "DELETE FROM auctions WHERE deal_id IN "
             "(SELECT id FROM deals WHERE case_id = CAST(:cid AS uuid))"
         ), {"cid": cid})
 
-        # direct case_id tables (all confirmed to have case_id column)
-        for table in ["case_messages", "case_activity", "documents", "case_images", "deals"]:
-            await db.execute(
-                text(f"DELETE FROM {table} WHERE case_id = CAST(:cid AS uuid)"),
-                {"cid": cid}
-            )
-
-        await db.flush()
+        # Delete the case; PostgreSQL ON DELETE CASCADE handles everything else:
+        # deals, documents, case_messages, case_activity, case_securities,
+        # case_parties, case_loan_metrics, case_auction_metrics,
+        # case_internal_notes, case_status_history
         await self.repository.delete(case)
+        await db.flush()
+
+        # Best-effort: remove uploaded files from storage after DB changes are flushed
+        if s3_keys:
+            from app.infrastructure.storage import storage_client
+            for key in s3_keys:
+                try:
+                    await storage_client.delete_file(key)
+                except Exception:
+                    pass
 
 
     async def get_live_cases(self) -> list:
