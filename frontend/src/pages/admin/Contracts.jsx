@@ -28,9 +28,17 @@ export default function Contracts() {
         return `$${Number(amount).toLocaleString()}`
     }
 
+    const STATUS_LABEL = {
+        DRAFT: 'Draft', PENDING_SIGNATURES: 'Pending Signatures',
+        PARTIALLY_SIGNED: 'Partially Signed', FULLY_SIGNED: 'Fully Signed',
+        EXECUTED: 'Completed', CANCELLED: 'Cancelled',
+    }
+    const getStatusLabel = (s) => STATUS_LABEL[s] || s
     const getStatusStyles = (status) => {
-        if (status === 'Under Contract') return 'bg-indigo-50 text-indigo-700'
-        return 'bg-green-50 text-green-700'
+        if (status === 'EXECUTED' || status === 'Completed' || status === 'FULLY_SIGNED' || status === 'Fully Signed') return 'bg-emerald-50 text-emerald-700'
+        if (status === 'PENDING_SIGNATURES' || status === 'Pending Signatures' || status === 'PARTIALLY_SIGNED' || status === 'Partially Signed' || status === 'Under Contract') return 'bg-indigo-50 text-indigo-700'
+        if (status === 'CANCELLED' || status === 'Cancelled') return 'bg-red-50 text-red-600'
+        return 'bg-gray-50 text-gray-600'
     }
 
     const handleCreate = async (e) => {
@@ -40,10 +48,10 @@ export default function Contracts() {
             const res = await contractService.createContract({
                 title: form.title,
                 case_id: form.case_id || null,
-                borrower_name: form.borrower_name,
+                contract_type: 'Mortgage',
+                party_name: form.borrower_name,
                 lender_name: form.lender_name,
-                contract_value: parseFloat(form.contract_value) || 0,
-                status: 'Under Contract',
+                value: parseFloat(form.contract_value) || 0,
             })
             if (res.success && res.data) {
                 setContracts(prev => [res.data, ...prev])
@@ -127,9 +135,9 @@ export default function Contracts() {
                                         <p className="text-sm text-gray-900 font-medium">{contract.property_address || contract.property || contract.title || '—'}</p>
                                         <p className="text-xs text-gray-500">{contract.property_suburb || contract.suburb || ''}</p>
                                     </td>
-                                    <td className="px-4 py-3 text-sm text-gray-900 font-medium">{contract.contract_number || contract.id}</td>
+                                    <td className="px-4 py-3 text-sm text-gray-900 font-mono">{contract.id ? contract.id.slice(0, 8).toUpperCase() : '—'}</td>
                                     <td className="px-4 py-3 text-sm text-gray-900">
-                                        {contract.borrower_name || contract.party || '—'} / {contract.lender_name || contract.lender || '—'}
+                                        {contract.party_name || contract.borrower_name || contract.party || '—'} / {contract.lender_name || contract.lender || '—'}
                                     </td>
                                     <td className="px-4 py-3 text-sm text-gray-900 font-medium">
                                         {formatCurrency(contract.contract_value || contract.value)}
@@ -139,7 +147,7 @@ export default function Contracts() {
                                     </td>
                                     <td className="px-4 py-3">
                                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusStyles(contract.status)}`}>
-                                            {contract.status}
+                                            {getStatusLabel(contract.status)}
                                         </span>
                                     </td>
                                     <td className="px-4 py-3">

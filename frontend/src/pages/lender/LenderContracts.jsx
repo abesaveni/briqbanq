@@ -57,17 +57,27 @@ const DetailRow = ({ label, value, highlight }) => (
 
 const FALLBACK_CONTRACTS = []; // As fallback
 
+const CONTRACT_STATUS_LABEL = {
+    DRAFT: 'Draft', PENDING_SIGNATURES: 'Pending Signatures',
+    PARTIALLY_SIGNED: 'Partially Signed', FULLY_SIGNED: 'Fully Signed',
+    EXECUTED: 'Completed', CANCELLED: 'Cancelled',
+}
+
 function normalizeContract(c, i) {
+    const rawStatus = c.status ?? 'DRAFT'
+    const createdRaw = c.createdDate ?? c.created_date ?? c.created_at
     return {
         id: c.id ?? c.contract_id ?? `CNT-${String(i + 1).padStart(3, '0')}`,
         propertyImage: c.propertyImage ?? c.image ?? c.property_image ?? c.property_image_url ?? '',
         propertyName: c.propertyName ?? c.property ?? c.property_name ?? '—',
         location: c.location ?? c.property_location ?? '',
-        party: c.party ?? c.borrower ?? c.borrower_name ?? '—',
+        party: c.party ?? c.party_name ?? c.borrower ?? c.borrower_name ?? '—',
         lender: c.lender ?? c.lender_name ?? 'Brickbanq',
         contractValue: Number(c.contractValue || c.contract_value || c.loanAmount || c.value) || 0,
-        createdDate: c.createdDate ?? c.created_date ?? c.created_at ?? new Date().toLocaleDateString(),
-        status: c.status ?? 'Draft'
+        createdDate: createdRaw
+            ? new Date(createdRaw).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+            : new Date().toLocaleDateString(),
+        status: CONTRACT_STATUS_LABEL[rawStatus] || rawStatus,
     }
 }
 

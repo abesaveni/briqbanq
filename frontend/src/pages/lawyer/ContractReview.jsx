@@ -8,6 +8,34 @@ const formatNum = (n) => {
   return n ?? '—'
 }
 
+const STATUS_LABEL = {
+  DRAFT: 'Draft',
+  PENDING_SIGNATURES: 'Pending Signatures',
+  PARTIALLY_SIGNED: 'Partially Signed',
+  FULLY_SIGNED: 'Fully Signed',
+  EXECUTED: 'Completed',
+  CANCELLED: 'Cancelled',
+}
+
+function normalizeContract(c) {
+  const rawStatus = c.status || 'DRAFT'
+  const status = STATUS_LABEL[rawStatus] || rawStatus
+  const rawValue = Number(c.value)
+  return {
+    ...c,
+    contractId: c.id ? c.id.slice(0, 8).toUpperCase() : '—',
+    propertyAddress: c.property_name || c.propertyAddress || c.title || '—',
+    propertySuburb: c.propertySuburb || '',
+    parties: c.party_name || c.parties || '—',
+    partiesSub: c.lender_name || c.partiesSub || '',
+    value: !isNaN(rawValue) && rawValue > 0 ? formatNum(rawValue) : (c.value || '—'),
+    createdDate: c.created_at
+      ? new Date(c.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+      : (c.createdDate || '—'),
+    status,
+  }
+}
+
 const INITIAL_FORM = {
   propertyAddress: '',
   propertySuburb: '',
@@ -38,7 +66,10 @@ export default function ContractReview() {
     getContracts()
       .then((res) => {
         if (!cancelled && res.error) setError(res.error)
-        if (!cancelled && res.data) setContracts(res.data ?? [])
+        if (!cancelled && res.data) {
+          const list = Array.isArray(res.data) ? res.data : []
+          setContracts(list.map(normalizeContract))
+        }
       })
       .catch((err) => { if (!cancelled) setError(err?.message || 'Failed to load contracts') })
       .finally(() => { if (!cancelled) setLoading(false) })
@@ -115,7 +146,7 @@ export default function ContractReview() {
         setCreateError(res.error || 'Failed to create contract. Please try again.')
         return
       }
-      if (res.data) setContracts((prev) => [res.data, ...prev])
+      if (res.data) setContracts((prev) => [normalizeContract(res.data), ...prev])
       closeCreateModal()
     } catch (err) {
       setCreateError('Failed to create contract. Please try again.')
@@ -182,9 +213,13 @@ export default function ContractReview() {
 
   const statusBadge = (status) => {
     const map = {
-      'Completed':      'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200',
-      'Under Contract': 'bg-[#EEF4FF] text-blue-600 ring-1 ring-blue-600/30',
-      'Draft':          'bg-gray-100 text-gray-500 ring-1 ring-gray-200',
+      'Completed':           'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200',
+      'Fully Signed':        'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200',
+      'Under Contract':      'bg-[#EEF4FF] text-blue-600 ring-1 ring-blue-600/30',
+      'Pending Signatures':  'bg-[#EEF4FF] text-blue-600 ring-1 ring-blue-600/30',
+      'Partially Signed':    'bg-amber-50 text-amber-700 ring-1 ring-amber-200',
+      'Draft':               'bg-gray-100 text-gray-500 ring-1 ring-gray-200',
+      'Cancelled':           'bg-red-50 text-red-600 ring-1 ring-red-200',
     }
     return map[status] || 'bg-amber-50 text-amber-700 ring-1 ring-amber-200'
   }
