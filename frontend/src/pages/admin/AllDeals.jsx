@@ -205,9 +205,11 @@ export default function AdminAllDeals() {
 
     if (sortBy === "Price: Low to High") {
       data.sort((a, b) => (a.loanAmount || 0) - (b.loanAmount || 0));
-    }
-    if (sortBy === "Price: High to Low") {
+    } else if (sortBy === "Price: High to Low") {
       data.sort((a, b) => (b.loanAmount || 0) - (a.loanAmount || 0));
+    } else {
+      // Newest (default) — sort by updated_at then created_at descending
+      data.sort((a, b) => new Date(b.updated_at || b.created_at || 0) - new Date(a.updated_at || a.created_at || 0));
     }
 
     return data;

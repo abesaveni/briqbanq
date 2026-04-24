@@ -71,7 +71,7 @@ export default function LenderAuctions() {
     const [error, setError] = useState(null);
     const [search, setSearch] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
-    const [sortOption, setSortOption] = useState("ending");
+    const [sortOption, setSortOption] = useState("newest");
     const [advancedFilters, setAdvancedFilters] = useState({ minLvr: '', maxLvr: '', minValue: '', maxValue: '', minBidders: '' });
 
     useEffect(() => {
@@ -122,12 +122,13 @@ export default function LenderAuctions() {
 
         if (sortOption === "low-high") {
             result.sort((a, b) => (a.propertyValue || 0) - (b.propertyValue || 0));
-        }
-        if (sortOption === "high-low") {
+        } else if (sortOption === "high-low") {
             result.sort((a, b) => (b.propertyValue || 0) - (a.propertyValue || 0));
-        }
-        if (sortOption === "ending") {
+        } else if (sortOption === "ending") {
             result.sort((a, b) => new Date(a.endTime || 0) - new Date(b.endTime || 0));
+        } else {
+            // Newest (default)
+            result.sort((a, b) => new Date(b.createdAt || b.created_at || 0) - new Date(a.createdAt || a.created_at || 0));
         }
 
         return result;

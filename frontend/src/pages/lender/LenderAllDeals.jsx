@@ -184,8 +184,8 @@ export default function LenderAllDeals() {
         } else if (sortBy === "Price: High to Low") {
             data.sort((a, b) => (b.loanAmount || 0) - (a.loanAmount || 0));
         } else {
-            // Newest First — default
-            data.sort((a, b) => new Date(b.auctionEnd || 0) - new Date(a.auctionEnd || 0));
+            // Newest First — default: sort by updated_at then created_at descending
+            data.sort((a, b) => new Date(b.updated_at || b.created_at || 0) - new Date(a.updated_at || a.created_at || 0));
         }
 
         return data;

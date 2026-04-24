@@ -217,7 +217,7 @@ export default function AuctionControl() {
     const navigate = useNavigate();
     const [search, setSearch] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
-    const [sortOption, setSortOption] = useState("ending");
+    const [sortOption, setSortOption] = useState("newest");
     const [auctionsData, setAuctionsData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -294,8 +294,9 @@ export default function AuctionControl() {
         });
 
         if (sortOption === "low-high") result.sort((a, b) => (a.propertyValue || 0) - (b.propertyValue || 0));
-        if (sortOption === "high-low") result.sort((a, b) => (b.propertyValue || 0) - (a.propertyValue || 0));
-        if (sortOption === "ending") result.sort((a, b) => new Date(a.endTime || a.scheduled_end || 0) - new Date(b.endTime || b.scheduled_end || 0));
+        else if (sortOption === "high-low") result.sort((a, b) => (b.propertyValue || 0) - (a.propertyValue || 0));
+        else if (sortOption === "ending") result.sort((a, b) => new Date(a.endTime || a.scheduled_end || 0) - new Date(b.endTime || b.scheduled_end || 0));
+        else result.sort((a, b) => new Date(b.created_at || b.updated_at || 0) - new Date(a.created_at || a.updated_at || 0));
 
         return result;
     }, [search, filterStatus, sortOption, auctionsData, advanced]);
@@ -390,6 +391,7 @@ export default function AuctionControl() {
                     onChange={(e) => setSortOption(e.target.value)}
                     className="border border-gray-200 rounded px-2.5 py-1.5 text-sm focus:outline-none focus:border-indigo-400"
                 >
+                    <option value="newest">Newest First</option>
                     <option value="ending">Ending Soon</option>
                     <option value="low-high">Price: Low → High</option>
                     <option value="high-low">Price: High → Low</option>
