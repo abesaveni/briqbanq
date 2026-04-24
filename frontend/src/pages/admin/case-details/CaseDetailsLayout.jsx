@@ -146,7 +146,7 @@ export default function CaseDetailsLayout() {
     }
 
     return (
-        <div className="space-y-4 pb-10">
+        <div className="space-y-3 pb-6">
             {/* Back + Actions */}
             <div className="flex items-center justify-between">
                 <button
@@ -193,8 +193,8 @@ export default function CaseDetailsLayout() {
             </div>
 
             {/* Case Header Card */}
-            <div className="bg-white rounded-lg border border-gray-200 p-5">
-                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+            <div className="bg-white rounded-lg border border-gray-200 p-4">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-3">
                     <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
                             <h1 className="text-xl font-bold text-gray-900">{caseData.id}</h1>
@@ -218,7 +218,7 @@ export default function CaseDetailsLayout() {
                 </div>
 
                 {/* Key metrics row */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5 pt-5 border-t border-gray-100">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3 pt-3 border-t border-gray-100">
                     {[
                         { label: 'Borrower', value: caseData.borrower.name, sub: 'Borrower on record' },
                         { label: 'Lender', value: caseData.lender.name, sub: caseData.lender.name !== 'Unassigned' ? 'Assigned' : 'Pending' },

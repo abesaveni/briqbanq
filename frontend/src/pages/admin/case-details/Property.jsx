@@ -30,10 +30,10 @@ export default function Property() {
     ]
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             {/* Property Images */}
-            <div className="bg-white rounded-lg border border-gray-200 p-5">
-                <h3 className="text-base font-semibold text-gray-900 mb-4">Property Images</h3>
+            <div className="bg-white rounded-lg border border-gray-200 p-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Property Images</h3>
                 {images.length === 0 ? (
                     <div className="h-48 bg-gray-50 rounded-lg border border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 gap-2">
                         <ImageIcon className="w-10 h-10" />
@@ -58,8 +58,8 @@ export default function Property() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Property Specs */}
-                <div className="bg-white rounded-lg border border-gray-200 p-5">
-                    <h3 className="text-base font-semibold text-gray-900 mb-4">Property Specifications</h3>
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Property Specifications</h3>
                     <div className="grid grid-cols-2 gap-3">
                         {specs.map((spec, i) => (
                             <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
@@ -76,8 +76,8 @@ export default function Property() {
                 </div>
 
                 {/* Valuation Summary */}
-                <div className="bg-white rounded-lg border border-gray-200 p-5">
-                    <h3 className="text-base font-semibold text-gray-900 mb-4">Valuation Summary</h3>
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Valuation Summary</h3>
                     <div className="space-y-3">
                         <div className="flex items-center justify-between px-4 py-3 bg-indigo-50 rounded-lg border border-indigo-100">
                             <span className="text-sm text-gray-600">Property Valuation</span>
@@ -114,8 +114,8 @@ export default function Property() {
             </div>
 
             {/* Location Details */}
-            <div className="bg-white rounded-lg border border-gray-200 p-5">
-                <h3 className="text-base font-semibold text-gray-900 mb-4">Location Details</h3>
+            <div className="bg-white rounded-lg border border-gray-200 p-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Location Details</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {detailRows.map((row, i) => (
                         <div key={i}>

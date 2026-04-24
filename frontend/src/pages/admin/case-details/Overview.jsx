@@ -31,27 +31,27 @@ export default function Overview() {
     ]
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             {/* Stat Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 {statCards.map((card, i) => (
-                    <div key={i} className="bg-white rounded-lg border border-gray-200 p-5">
-                        <div className="flex items-start justify-between mb-3">
-                            <div className={`w-9 h-9 rounded-lg ${card.bg} flex items-center justify-center`}>
+                    <div key={i} className="bg-white rounded-lg border border-gray-200 p-4">
+                        <div className="flex items-start justify-between mb-2">
+                            <div className={`w-8 h-8 rounded-lg ${card.bg} flex items-center justify-center`}>
                                 <card.icon className={`w-4 h-4 ${card.color}`} />
                             </div>
                         </div>
-                        <p className="text-sm text-gray-500">{card.label}</p>
-                        <p className="text-xl font-bold text-gray-900 mt-0.5">{card.value}</p>
-                        <p className="text-xs text-gray-400 mt-1">{card.sub}</p>
+                        <p className="text-xs text-gray-500">{card.label}</p>
+                        <p className="text-lg font-bold text-gray-900 mt-0.5">{card.value}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{card.sub}</p>
                     </div>
                 ))}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 {/* Capital Stack */}
-                <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-5">
-                    <h3 className="text-base font-semibold text-gray-900 mb-4">Capital Stack</h3>
+                <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-4">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Capital Stack</h3>
                     <div className="space-y-3">
                         {[
                             { label: 'Property Valuation', value: fmt(valuation.amount), highlight: false },
@@ -77,9 +77,9 @@ export default function Overview() {
                 </div>
 
                 {/* Timeline */}
-                <div className="bg-white rounded-lg border border-gray-200 p-5">
-                    <h3 className="text-base font-semibold text-gray-900 mb-4">Case Timeline</h3>
-                    <div className="space-y-4">
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Case Timeline</h3>
+                    <div className="space-y-3">
                         {[
                             { icon: Calendar, label: 'Case Created', value: fmtDate(caseData.timeline.caseCreated) },
                             { icon: Clock, label: 'Last Updated', value: fmtDate(caseData.timeline.lastUpdated, true) },
@@ -97,7 +97,7 @@ export default function Overview() {
                         ))}
                     </div>
 
-                    <div className="mt-6 pt-4 border-t border-gray-100">
+                    <div className="mt-4 pt-3 border-t border-gray-100">
                         <div className="flex items-center gap-2 mb-2">
                             <p className="text-xs text-gray-400">Case Status</p>
                         </div>
@@ -115,8 +115,8 @@ export default function Overview() {
 
             {/* Recent Activity */}
             {caseData.activity.length > 0 && (
-                <div className="bg-white rounded-lg border border-gray-200 p-5">
-                    <h3 className="text-base font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Recent Activity</h3>
                     <div className="space-y-3">
                         {caseData.activity.slice(0, 3).map((item, i) => (
                             <div key={i} className="flex items-start gap-3 py-2 border-b border-gray-50 last:border-0">
@@ -134,9 +134,9 @@ export default function Overview() {
 
             {/* Empty activity state */}
             {caseData.activity.length === 0 && (
-                <div className="bg-white rounded-lg border border-gray-200 p-5">
-                    <h3 className="text-base font-semibold text-gray-900 mb-4">Recent Activity</h3>
-                    <p className="text-sm text-gray-400 text-center py-6">No activity recorded yet</p>
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-2">Recent Activity</h3>
+                    <p className="text-sm text-gray-400 text-center py-4">No activity recorded yet</p>
                 </div>
             )}
         </div>

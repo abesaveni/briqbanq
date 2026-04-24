@@ -55,7 +55,7 @@ export default function Documents() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
@@ -70,8 +70,8 @@ export default function Documents() {
             </div>
 
             {/* Upload Zone */}
-            <label className="border-2 border-dashed border-gray-200 rounded-lg p-8 text-center bg-gray-50 hover:bg-white hover:border-indigo-300 transition-all cursor-pointer block">
-                <div className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center mx-auto mb-3">
+            <label className="border-2 border-dashed border-gray-200 rounded-lg p-5 text-center bg-gray-50 hover:bg-white hover:border-indigo-300 transition-all cursor-pointer block">
+                <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center mx-auto mb-2">
                     {uploading ? <Loader2 className="w-5 h-5 text-indigo-500 animate-spin" /> : <Upload className="w-5 h-5 text-gray-400" />}
                 </div>
                 <p className="text-sm font-medium text-gray-900">{uploading ? 'Uploading...' : 'Drag and drop files here'}</p>
@@ -98,7 +98,7 @@ export default function Documents() {
                 </div>
 
                 {filtered.length === 0 ? (
-                    <div className="py-16 text-center">
+                    <div className="py-10 text-center">
                         <FileText className="w-10 h-10 text-gray-200 mx-auto mb-3" />
                         <p className="text-sm font-medium text-gray-400">
                             {caseData.documents.length === 0 ? 'No documents uploaded yet' : 'No documents match your search'}

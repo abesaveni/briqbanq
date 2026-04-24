@@ -28,11 +28,11 @@ export default function Settlement() {
     }
 
     const handleFinalise = async () => {
-        if (!caseData?.id || finalising || finalised) return
+        if (!caseData?._id || finalising || finalised) return
         setFinalising(true)
         setFinaliseError('')
         try {
-            const res = await settlementService.markReadyForSettlement(caseData.id)
+            const res = await settlementService.markReadyForSettlement(caseData._id)
             if (res.success) {
                 setFinalised(true)
                 setMessages(prev => [...prev, {
@@ -55,12 +55,12 @@ export default function Settlement() {
     const { settlement, property } = caseData
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-lg font-semibold text-gray-900">Settlement</h2>
-                    <p className="text-sm text-gray-500 mt-0.5">{property.address || 'Property address'}</p>
+                    <h2 className="text-base font-semibold text-gray-900">Settlement</h2>
+                    <p className="text-xs text-gray-500 mt-0.5">{property.address || 'Property address'}</p>
                 </div>
                 <button
                     onClick={handleFinalise}
@@ -81,8 +81,8 @@ export default function Settlement() {
             )}
 
             {/* Progress */}
-            <div className="bg-white rounded-lg border border-gray-200 p-5">
-                <div className="flex items-center justify-between mb-3">
+            <div className="bg-white rounded-lg border border-gray-200 p-4">
+                <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                         <Building2 className="w-4 h-4 text-gray-400" />
                         <h3 className="text-sm font-semibold text-gray-900">Overall Progress</h3>
@@ -127,8 +127,8 @@ export default function Settlement() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Checklist */}
                 <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                    <div className="px-5 py-4 border-b border-gray-100">
-                        <h3 className="text-base font-semibold text-gray-900">Settlement Checklist</h3>
+                    <div className="px-4 py-3 border-b border-gray-100">
+                        <h3 className="text-sm font-semibold text-gray-900">Settlement Checklist</h3>
                         <p className="text-xs text-gray-400 mt-0.5">Required items for settlement completion</p>
                     </div>
                     {settlement.checklist.length === 0 ? (
@@ -174,8 +174,8 @@ export default function Settlement() {
                 </div>
 
                 {/* Settlement Timeline */}
-                <div className="bg-white rounded-lg border border-gray-200 p-5">
-                    <h3 className="text-base font-semibold text-gray-900 mb-4">Milestones</h3>
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Milestones</h3>
                     {settlement.timeline.length === 0 ? (
                         <p className="text-sm text-gray-400 text-center py-8">No milestones defined</p>
                     ) : (
@@ -210,8 +210,8 @@ export default function Settlement() {
                     )}
 
                     {/* Settlement comms */}
-                    <div className="mt-6 pt-4 border-t border-gray-100">
-                        <h4 className="text-sm font-semibold text-gray-900 mb-3">Settlement Notes</h4>
+                    <div className="mt-4 pt-3 border-t border-gray-100">
+                        <h4 className="text-sm font-semibold text-gray-900 mb-2">Settlement Notes</h4>
                         <div className="space-y-2 max-h-48 overflow-y-auto">
                             {messages.map(msg => (
                                 <div key={msg.id} className={`text-sm px-3 py-2 rounded-lg ${

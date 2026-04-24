@@ -31,9 +31,9 @@ export default function Bids() {
     ]
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             {/* Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 {statCards.map((card, i) => (
                     <div key={i} className="bg-white rounded-lg border border-gray-200 p-4">
                         <div className="flex items-center gap-3">
